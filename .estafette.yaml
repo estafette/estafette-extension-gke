@@ -1,0 +1,84 @@
+builder:
+  track: dev
+
+labels:
+  app: estafette-extension-gke
+  app-group: estafette-ci-extensions
+  team: estafette-team
+  language: golang
+
+version:
+  semver:
+    major: 0
+    minor: 1
+    patch: '{{auto}}'
+    labelTemplate: '{{branch}}'
+    releaseBranch: master
+
+stages:
+  bake:
+    image: extensions/docker:dev
+    action: build
+    container: gke
+    repositories:
+    - extensions
+
+  push-to-docker-hub:
+    image: extensions/docker:dev
+    action: push
+    container: gke
+    repositories:
+    - extensions
+    tags:
+    - dev
+
+  slack-notify:
+    image: extensions/slack-build-status:dev
+    webhook: estafette.secret(eoN9GnRnfeMLL7L0.ThpJZ1iBKSjR93u1IkQu8nm8dgdOrDeZsGkFMB-GPaAfPXUw4zH3kYjHu3rpW2hbZmuVMAviOrqQ-dNmujWOBHWQDMDPvwO2KO884caanb-LGx1CPAFF7qaPZpeU)
+    channels:
+    - '#build-status'
+    when:
+      status == 'failed' ||
+      status == 'succeeded'
+
+releases:
+  beta:
+    stages:
+      tag-container-image:
+        image: extensions/docker:stable
+        action: tag
+        container: gke
+        repositories:
+        - extensions
+        tags:
+        - beta
+
+      slack-notify:
+        image: extensions/slack-build-status:dev
+        webhook: estafette.secret(eoN9GnRnfeMLL7L0.ThpJZ1iBKSjR93u1IkQu8nm8dgdOrDeZsGkFMB-GPaAfPXUw4zH3kYjHu3rpW2hbZmuVMAviOrqQ-dNmujWOBHWQDMDPvwO2KO884caanb-LGx1CPAFF7qaPZpeU)
+        channels:
+        - '#build-status'
+        when:
+          status == 'failed' ||
+          status == 'succeeded'
+
+  stable:
+    stages:
+      tag-container-image:
+        image: extensions/docker:stable
+        action: tag
+        container: gke
+        repositories:
+        - extensions
+        tags:
+        - stable
+        - latest
+
+      slack-notify:
+        image: extensions/slack-build-status:dev
+        webhook: estafette.secret(eoN9GnRnfeMLL7L0.ThpJZ1iBKSjR93u1IkQu8nm8dgdOrDeZsGkFMB-GPaAfPXUw4zH3kYjHu3rpW2hbZmuVMAviOrqQ-dNmujWOBHWQDMDPvwO2KO884caanb-LGx1CPAFF7qaPZpeU)
+        channels:
+        - '#build-status'
+        when:
+          status == 'failed' ||
+          status == 'succeeded'
