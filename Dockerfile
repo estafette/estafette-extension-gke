@@ -6,3 +6,7 @@ LABEL maintainer="estafette.io" \
 RUN apk add --update --no-cache gettext \
     && gcloud components install kubectl \
     && rm -rf /var/cache/apk/*
+
+COPY estafette-extension-gke /
+
+ENTRYPOINT ["/estafette-extension-gke"]
