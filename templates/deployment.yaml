@@ -4,20 +4,20 @@ metadata:
   name: {{.Name}}
   namespace: {{.Namespace}}
   labels:
-    {{range .Labels}}
-    {{.Key}}: {{.Value}}
-    {{end}}
+    {{- range $key, $value := .Labels}}
+    {{$key}}: {{$value}}
+    {{- end}}
 spec:
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: estafette-ci-web
+      app: {{.AppLabelSelector}}
   template:
     metadata:
       labels:
-        app: estafette-ci-web
-        team: tooling
-        version: ${VERSION}
+        {{- range $key, $value := .Labels}}
+        {{$key}}: {{$value}}
+        {{- end}}
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "9001"
@@ -34,8 +34,9 @@ spec:
                 - key: app
                   operator: In
                   values:
-                  - estafette-ci-web
+                  - {{.Name}}
               topologyKey: kubernetes.io/hostname
+        {{- if .PreferPreemptibles}}
         nodeAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
           - weight: 10
@@ -45,27 +46,28 @@ spec:
                 operator: In
                 values:
                 - "true"
+        {{- end}}
       containers:
-      - name: estafette-ci-web
-        image: estafette/estafette-ci-web:${ESTAFETTE_BUILD_VERSION}
-        imagePullPolicy: Always
+      - name: {{.Name}}
+        image: {{.Container.Repository}}/{{.Container.Name}}:{{.Container.Tag}}
+        imagePullPolicy: IfNotPresent
         resources:
           requests:
-            cpu: ${CPU_REQUEST}
-            memory: ${MEMORY_REQUEST}
+            cpu: {{.Container.CPURequest}}
+            memory: {{.Container.MemoryRequest}}
           limits:
-            cpu: ${CPU_LIMIT}
-            memory: ${MEMORY_LIMIT}
+            cpu: {{.Container.CPULimit}}
+            memory: {{.Container.MemoryLimit}}
         ports:
         - name: web
-          containerPort: 8080
+          containerPort: {{.Container.Port}}
         livenessProbe:
           httpGet:
-            path: /robots.txt
+            path: {{.Container.Liveness.Path}}
             port: web
-          initialDelaySeconds: 30
-          timeoutSeconds: 1
-      - name: estafette-ci-web-openresty
+          initialDelaySeconds: {{.Container.InitialDelaySeconds}}
+          timeoutSeconds: {{.Container.Liveness.TimeoutSeconds}}
+      - name: {{.Name}}-openresty
         image: estafette/openresty-sidecar:1.13.6.1-alpine
         imagePullPolicy: Always
         resources:
@@ -90,13 +92,13 @@ spec:
         - name: "OFFLOAD_TO_HOST"
           value: "localhost"
         - name: "OFFLOAD_TO_PORT"
-          value: "8080"
+          value: "{{.Container.Port}}"
         - name: "SERVICE_NAME"
-          value: "estafette-ci-web"
+          value: "{{.Name}}"
         - name: "NAMESPACE"
-          value: "estafette"
+          value: "{{.Namespace}}"
         - name: "HEALT_CHECK_PATH"
-          value: "/robots.txt"
+          value: "{{.Container.Readiness.Path}}"
         volumeMounts:
         - name: ssl-certificate
           mountPath: /etc/ssl/private
@@ -107,129 +109,10 @@ spec:
           initialDelaySeconds: 15
         readinessProbe:
           httpGet:
-            path: /robots.txt
+            path: {{.Container.Readiness.Path}}
             port: https
             scheme: HTTPS
       volumes:
       - name: ssl-certificate
         secret:
-          secretName: estafette-ci-web-letsencrypt-certificate
-
-
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: estafette-ci-web
-  namespace: estafette
-  labels:
-    app: estafette-ci-web
-    team: tooling
-spec:
-  revisionHistoryLimit: 10
-  selector:
-    matchLabels:
-      app: estafette-ci-web
-  template:
-    metadata:
-      labels:
-        app: estafette-ci-web
-        team: tooling
-        version: ${VERSION}
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "9001"
-        prometheus.io/scrape-nginx-sidecar: "true"
-    spec:
-      serviceAccount: estafette-ci-web
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: app
-                  operator: In
-                  values:
-                  - estafette-ci-web
-              topologyKey: kubernetes.io/hostname
-        nodeAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 10
-            preference:
-              matchExpressions:
-              - key: cloud.google.com/gke-preemptible
-                operator: In
-                values:
-                - "true"
-      containers:
-      - name: estafette-ci-web
-        image: estafette/estafette-ci-web:${ESTAFETTE_BUILD_VERSION}
-        imagePullPolicy: Always
-        resources:
-          requests:
-            cpu: ${CPU_REQUEST}
-            memory: ${MEMORY_REQUEST}
-          limits:
-            cpu: ${CPU_LIMIT}
-            memory: ${MEMORY_LIMIT}
-        ports:
-        - name: web
-          containerPort: 8080
-        livenessProbe:
-          httpGet:
-            path: /robots.txt
-            port: web
-          initialDelaySeconds: 30
-          timeoutSeconds: 1
-      - name: estafette-ci-web-openresty
-        image: estafette/openresty-sidecar:1.13.6.1-alpine
-        imagePullPolicy: Always
-        resources:
-          limits:
-            cpu: 50m
-            memory: 50Mi
-          requests:
-            cpu: 10m
-            memory: 10Mi
-        ports:
-        - name: http
-          containerPort: 80
-        - name: https
-          containerPort: 443
-        - name: nginx-liveness
-          containerPort: 82
-        - name: nginx-readiness
-          containerPort: 81
-        - name: nginx-prom
-          containerPort: 9101
-        env:
-        - name: "OFFLOAD_TO_HOST"
-          value: "localhost"
-        - name: "OFFLOAD_TO_PORT"
-          value: "8080"
-        - name: "SERVICE_NAME"
-          value: "estafette-ci-web"
-        - name: "NAMESPACE"
-          value: "estafette"
-        - name: "HEALT_CHECK_PATH"
-          value: "/robots.txt"
-        volumeMounts:
-        - name: ssl-certificate
-          mountPath: /etc/ssl/private
-        livenessProbe:
-          httpGet:
-            path: /liveness
-            port: nginx-liveness
-          initialDelaySeconds: 15
-        readinessProbe:
-          httpGet:
-            path: /robots.txt
-            port: https
-            scheme: HTTPS
-      volumes:
-      - name: ssl-certificate
-        secret:
-          secretName: estafette-ci-web-letsencrypt-certificate
+          secretName: {{.Name}}-letsencrypt-certificate

@@ -21,7 +21,24 @@ var (
 
 var (
 	// flags
-	action = kingpin.Flag("action", "Any of the following actions: build, push, tag.").Envar("ESTAFETTE_EXTENSION_ACTION").String()
+	name      = kingpin.Flag("name", "Application name.").Envar("ESTAFETTE_EXTENSION_NAME").String()
+	namespace = kingpin.Flag("namespace", "Application namespace.").Envar("ESTAFETTE_EXTENSION_NAMESPACE").String()
+
+	// Name                string
+	// Namespace           string
+	// Labels              map[string]string
+	// AppLabelSelector    string
+	// Hosts               []string
+	// HostsJoined         string
+	// IngressPath         string
+	// UseNginxIngress     bool
+	// UseGCEIngress       bool
+	// ServiceType         string
+	// MinReplicas         int
+	// MaxReplicas         int
+	// TargetCPUPercentage int
+	// PreferPreemptibles  bool
+	// Container           ContainerData
 )
 
 func main() {
@@ -36,235 +53,54 @@ func main() {
 	// log startup message
 	log.Printf("Starting %v version %v...", app, version)
 
-	// todo set data and render templates
-	// .Name
-	// .Namespace
-	// .Labels
-	// .AppLabelSelector
-	// .Hosts
-	// .ServiceType
-	// .MinPods
-	// .MaxPods
-	// .TargetCPU
+	// get some estafette envvars
+	appLabel := os.Getenv("ESTAFETTE_LABEL_APP")
+	estafetteBuildVersion := os.Getenv("ESTAFETTE_BUILD_VERSION")
 
-	// // set defaults
-	// appLabel := os.Getenv("ESTAFETTE_LABEL_APP")
-	// if *container == "" && appLabel != "" {
-	// 	*container = appLabel
+	// validate required values are set
+	if *name == "" && appLabel == "" {
+		log.Fatal("Application name is required; either define an app label or use appName property.")
+	}
+	if *namespace == "" {
+		log.Fatal("Namespace is required; use namespace property.")
+	}
+
+	// set data with defaults or overrides
+	if *name == "" && appLabel != "" {
+		*name = appLabel
+	}
+
+	// render templates
+
+	// templates/namespace.yaml
+	// templates/service.yaml
+	// templates/ingress.yaml
+	// templates/serviceaccount.yaml
+	// templates/certificate-secret.yaml
+	// templates/configmap.yaml
+	// templates/poddisruptionbudget.yaml
+	// templates/horizontalpodautoscaler.yaml
+	// templates/deployment.yaml
+
+	// tmpl, err := template.ParseFiles("layout.html")
+	// tmpl.Execute(w, data)
+
+	// - echo "${GCLOUD_KEY_FILE}" | base64 -d > key-file.json
+	// - gcloud auth activate-service-account ${GCLOUD_SA_NAME} --key-file ./key-file.json
+	// - gcloud config set account ${GCLOUD_SA_NAME}
+	// - gcloud config set project ${GCLOUD_PROJECT_NAME}
+	// - gcloud container clusters get-credentials ${GCLOUD_GKE_CLUSTER_NAME} --zone ${GCLOUD_GKE_ZONE}
+	// - cat kubernetes.yaml | envsubst | kubectl apply -f -
+	// - kubectl rollout status deploy/estafette-ci-web -n estafette
+
+	// log.Printf("Tagging container image %v\n", targetContainerPath)
+	// tagArgs := []string{
+	// 	"tag",
+	// 	sourceContainerPath,
+	// 	targetContainerPath,
 	// }
+	// runCommand("kubectl", tagArgs)
 
-	// // get private container registries credentials
-	// credentialsJSON := os.Getenv("ESTAFETTE_CI_REPOSITORY_CREDENTIALS_JSON")
-	// var credentials []*contracts.ContainerRepositoryCredentialConfig
-	// if credentialsJSON != "" {
-	// 	json.Unmarshal([]byte(credentialsJSON), &credentials)
-	// }
-
-	// // validate inputs
-	// validateRepositories(*repositories)
-
-	// // split into arrays and set other variables
-	// var repositoriesSlice []string
-	// if *repositories != "" {
-	// 	repositoriesSlice = strings.Split(*repositories, ",")
-	// }
-	// var tagsSlice []string
-	// if *tags != "" {
-	// 	tagsSlice = strings.Split(*tags, ",")
-	// }
-	// var copySlice []string
-	// if *copy != "" {
-	// 	copySlice = strings.Split(*copy, ",")
-	// }
-	// // var argsSlice []string
-	// // if *args != "" {
-	// // 	argsSlice = strings.Split(*args, ",")
-	// // }
-	// estafetteBuildVersion := os.Getenv("ESTAFETTE_BUILD_VERSION")
-
-	// switch *action {
-	// case "build":
-
-	// 	// image: extensions/docker:stable
-	// 	// action: build
-	// 	// container: docker
-	// 	// repositories:
-	// 	// - extensions
-	// 	// path: .
-	// 	// copy:
-	// 	// - Dockerfile
-	// 	// - /etc/ssl/certs/ca-certificates.crt
-
-	// 	// make build dir if it doesn't exist
-	// 	log.Printf("Ensuring build directory %v exists\n", *path)
-	// 	runCommand("mkdir", []string{"-p", *path})
-
-	// 	// copy files/dirs from copySlice to build path
-	// 	for _, c := range copySlice {
-	// 		log.Printf("Copying %v to %v\n", c, *path)
-	// 		runCommand("cp", []string{"-r", c, *path})
-	// 	}
-
-	// 	// build docker image
-	// 	log.Printf("Building docker image %v/%v:%v...\n", repositoriesSlice[0], *container, estafetteBuildVersion)
-	// 	args := []string{
-	// 		"build",
-	// 	}
-	// 	for _, r := range repositoriesSlice {
-	// 		args = append(args, "--tag")
-	// 		args = append(args, fmt.Sprintf("%v/%v:%v", r, *container, estafetteBuildVersion))
-	// 		for _, t := range tagsSlice {
-	// 			args = append(args, "--tag")
-	// 			args = append(args, fmt.Sprintf("%v/%v:%v", r, *container, t))
-	// 		}
-	// 	}
-
-	// 	args = append(args, "--file")
-	// 	args = append(args, fmt.Sprintf("%v/%v", *path, *dockerfile))
-	// 	args = append(args, *path)
-	// 	runCommand("docker", args)
-
-	// case "push":
-
-	// 	// image: extensions/docker:stable
-	// 	// action: push
-	// 	// container: docker
-	// 	// repositories:
-	// 	// - extensions
-	// 	// tags:
-	// 	// - dev
-
-	// 	sourceContainerPath := fmt.Sprintf("%v/%v:%v", repositoriesSlice[0], *container, estafetteBuildVersion)
-
-	// 	// push each repository + tag combination
-	// 	for i, r := range repositoriesSlice {
-
-	// 		targetContainerPath := fmt.Sprintf("%v/%v:%v", r, *container, estafetteBuildVersion)
-
-	// 		if i > 0 {
-	// 			// tag container with default tag (it already exists for the first repository)
-	// 			log.Printf("Tagging container image %v\n", targetContainerPath)
-	// 			tagArgs := []string{
-	// 				"tag",
-	// 				sourceContainerPath,
-	// 				targetContainerPath,
-	// 			}
-	// 			err := exec.Command("docker", tagArgs...).Run()
-	// 			handleError(err)
-	// 		}
-
-	// 		loginIfRequired(credentials, targetContainerPath)
-
-	// 		// push container with default tag
-	// 		log.Printf("Pushing container image %v\n", targetContainerPath)
-	// 		pushArgs := []string{
-	// 			"push",
-	// 			targetContainerPath,
-	// 		}
-	// 		runCommand("docker", pushArgs)
-
-	// 		// push additional tags
-	// 		for _, t := range tagsSlice {
-
-	// 			targetContainerPath := fmt.Sprintf("%v/%v:%v", r, *container, t)
-
-	// 			// tag container with additional tag
-	// 			log.Printf("Tagging container image %v\n", targetContainerPath)
-	// 			tagArgs := []string{
-	// 				"tag",
-	// 				sourceContainerPath,
-	// 				targetContainerPath,
-	// 			}
-	// 			runCommand("docker", tagArgs)
-
-	// 			loginIfRequired(credentials, targetContainerPath)
-
-	// 			log.Printf("Pushing container image %v\n", targetContainerPath)
-	// 			pushArgs := []string{
-	// 				"push",
-	// 				targetContainerPath,
-	// 			}
-	// 			runCommand("docker", pushArgs)
-	// 		}
-	// 	}
-
-	// case "tag":
-
-	// 	// image: extensions/docker:stable
-	// 	// action: tag
-	// 	// container: docker
-	// 	// repositories:
-	// 	// - extensions
-	// 	// tags:
-	// 	// - stable
-	// 	// - latest
-
-	// 	sourceContainerPath := fmt.Sprintf("%v/%v:%v", repositoriesSlice[0], *container, estafetteBuildVersion)
-
-	// 	loginIfRequired(credentials, sourceContainerPath)
-
-	// 	// pull source container first
-	// 	log.Printf("Pulling container image %v\n", sourceContainerPath)
-	// 	pullArgs := []string{
-	// 		"pull",
-	// 		sourceContainerPath,
-	// 	}
-	// 	runCommand("docker", pullArgs)
-
-	// 	// push each repository + tag combination
-	// 	for i, r := range repositoriesSlice {
-
-	// 		targetContainerPath := fmt.Sprintf("%v/%v:%v", r, *container, estafetteBuildVersion)
-
-	// 		if i > 0 {
-	// 			// tag container with default tag
-	// 			log.Printf("Tagging container image %v\n", targetContainerPath)
-	// 			tagArgs := []string{
-	// 				"tag",
-	// 				sourceContainerPath,
-	// 				targetContainerPath,
-	// 			}
-	// 			runCommand("docker", tagArgs)
-
-	// 			loginIfRequired(credentials, targetContainerPath)
-
-	// 			// push container with default tag
-	// 			log.Printf("Pushing container image %v\n", targetContainerPath)
-	// 			pushArgs := []string{
-	// 				"push",
-	// 				targetContainerPath,
-	// 			}
-	// 			runCommand("docker", pushArgs)
-	// 		}
-
-	// 		// push additional tags
-	// 		for _, t := range tagsSlice {
-
-	// 			targetContainerPath := fmt.Sprintf("%v/%v:%v", r, *container, t)
-
-	// 			// tag container with additional tag
-	// 			log.Printf("Tagging container image %v\n", targetContainerPath)
-	// 			tagArgs := []string{
-	// 				"tag",
-	// 				sourceContainerPath,
-	// 				targetContainerPath,
-	// 			}
-	// 			runCommand("docker", tagArgs)
-
-	// 			loginIfRequired(credentials, targetContainerPath)
-
-	// 			log.Printf("Pushing container image %v\n", targetContainerPath)
-	// 			pushArgs := []string{
-	// 				"push",
-	// 				targetContainerPath,
-	// 			}
-	// 			runCommand("docker", pushArgs)
-	// 		}
-	// 	}
-
-	// default:
-	// 	log.Fatal("Set `command: <command>` on this step to build, push or tag")
-	// }
 }
 
 func handleError(err error) {

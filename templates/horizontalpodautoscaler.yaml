@@ -4,14 +4,14 @@ metadata:
   name: {{.Name}}
   namespace: {{.Namespace}}
   labels:
-    {{range .Labels}}
-    {{.Key}}: {{.Value}}
-    {{end}}
+    {{- range $key, $value := .Labels}}
+    {{$key}}: {{$value}}
+    {{- end}}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
     name: {{.Name}}
-  minReplicas: {{.MinPods}}
-  maxReplicas: {{.MaxPods}}
-  targetCPUUtilizationPercentage: {{.TargetCPU}}
+  minReplicas: {{.MinReplicas}}
+  maxReplicas: {{.MaxReplicas}}
+  targetCPUUtilizationPercentage: {{.TargetCPUPercentage}}
