@@ -116,6 +116,8 @@ func main() {
 	log.Println("Template after rendering:")
 	log.Println(renderedTemplate.String())
 
+	log.Fatal("Extension is not finished yet")
+
 	// templates/namespace.yaml
 	// templates/service.yaml
 	// templates/ingress.yaml
