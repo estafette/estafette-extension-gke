@@ -1,6 +1,10 @@
 package main
 
 import (
+	"bytes"
+	"fmt"
+	"html/template"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -55,7 +59,7 @@ func main() {
 
 	// get some estafette envvars
 	appLabel := os.Getenv("ESTAFETTE_LABEL_APP")
-	estafetteBuildVersion := os.Getenv("ESTAFETTE_BUILD_VERSION")
+	//estafetteBuildVersion := os.Getenv("ESTAFETTE_BUILD_VERSION")
 
 	// validate required values are set
 	if *name == "" && appLabel == "" {
@@ -70,7 +74,47 @@ func main() {
 		*name = appLabel
 	}
 
+	// merge templates
+	templatesToMerge := []string{
+		"namespace.yaml",
+		"service.yaml",
+		"serviceaccount.yaml",
+		"certificate-secret.yaml",
+		"poddisruptionbudget.yaml",
+		"horizontalpodautoscaler.yaml",
+		"deployment.yaml",
+	}
+
+	templateStrings := []string{}
+	for _, t := range templatesToMerge {
+		filePath := fmt.Sprintf("templates/%v", t)
+		data, err := ioutil.ReadFile(filePath)
+		if err != nil {
+			log.Fatal(fmt.Sprintf("Failed reading file %v", filePath), err)
+		}
+		templateStrings = append(templateStrings, string(data))
+	}
+	templateString := strings.Join(templateStrings, "\n---\n")
+	log.Println("Template before rendering:")
+	log.Println(templateString)
+
+	// parse templates
+	tmpl, err := template.New("kubernetes.yaml").Parse(templateString)
+	if err != nil {
+		log.Fatal("Failed parsing templates", err)
+	}
+
+	data := TemplateData{
+		Name:      *name,
+		Namespace: *namespace,
+	}
+
 	// render templates
+	var renderedTemplate bytes.Buffer
+	err = tmpl.Execute(&renderedTemplate, data)
+
+	log.Println("Template after rendering:")
+	log.Println(renderedTemplate.String())
 
 	// templates/namespace.yaml
 	// templates/service.yaml
