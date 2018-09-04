@@ -92,11 +92,17 @@ func main() {
 		if err != nil {
 			log.Fatal(fmt.Sprintf("Failed reading file %v", filePath), err)
 		}
+
+		log.Printf("Template %v:\n\n", filePath)
+		log.Println(string(data))
+		log.Println("")
+
 		templateStrings = append(templateStrings, string(data))
 	}
 	templateString := strings.Join(templateStrings, "\n---\n")
-	log.Println("Template before rendering:")
+	log.Printf("Template before rendering:\n\n")
 	log.Println(templateString)
+	log.Println("")
 
 	// parse templates
 	tmpl, err := template.New("kubernetes.yaml").Parse(templateString)
@@ -113,8 +119,9 @@ func main() {
 	var renderedTemplate bytes.Buffer
 	err = tmpl.Execute(&renderedTemplate, data)
 
-	log.Println("Template after rendering:")
+	log.Printf("Template after rendering:\n\n")
 	log.Println(renderedTemplate.String())
+	log.Println("")
 
 	log.Fatal("Extension is not finished yet")
 
