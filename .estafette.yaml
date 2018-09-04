@@ -35,6 +35,7 @@ stages:
     path: ./publish
     copy:
     - Dockerfile
+    - templates
 
   push-to-docker-hub:
     image: extensions/docker:dev

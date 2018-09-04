@@ -8,5 +8,6 @@ RUN apk add --update --no-cache gettext \
     && rm -rf /var/cache/apk/*
 
 COPY estafette-extension-gke /
+COPY templates /templates
 
 ENTRYPOINT ["/estafette-extension-gke"]
