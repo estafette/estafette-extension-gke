@@ -87,7 +87,7 @@ func main() {
 
 	templateStrings := []string{}
 	for _, t := range templatesToMerge {
-		filePath := fmt.Sprintf("templates/%v", t)
+		filePath := fmt.Sprintf("/templates/%v", t)
 		data, err := ioutil.ReadFile(filePath)
 		if err != nil {
 			log.Fatal(fmt.Sprintf("Failed reading file %v", filePath), err)
