@@ -3,13 +3,13 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"html/template"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"runtime"
 	"strings"
+	"text/template"
 
 	"github.com/alecthomas/kingpin"
 )

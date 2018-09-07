@@ -1,4 +1,4 @@
-FROM google/cloud-sdk:214.0.0-alpine
+FROM google/cloud-sdk:215.0.0-alpine
 
 LABEL maintainer="estafette.io" \
       description="The estafette-extension-gke component is an Estafette extension to run commands against Kubernetes Engine"
