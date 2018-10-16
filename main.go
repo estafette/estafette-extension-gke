@@ -130,7 +130,7 @@ func main() {
 	log.Println(renderedTemplate.String())
 	log.Println("")
 
-	log.Fatal("Extension is not finished yet")
+	//log.Fatal("Extension is not finished yet")
 
 	// templates/namespace.yaml
 	// templates/service.yaml

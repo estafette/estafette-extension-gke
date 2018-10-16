@@ -36,6 +36,12 @@ stages:
     copy:
     - templates
 
+  test-alpha-version:
+    image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+    name: gke
+    namespace: estafette
+    dryrun: true
+
   push-to-docker-hub:
     image: extensions/docker:dev
     action: push
