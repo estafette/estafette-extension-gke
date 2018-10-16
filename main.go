@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -25,8 +26,7 @@ var (
 
 var (
 	// flags
-	name      = kingpin.Flag("name", "Application name.").Envar("ESTAFETTE_EXTENSION_NAME").String()
-	namespace = kingpin.Flag("namespace", "Application namespace.").Envar("ESTAFETTE_EXTENSION_NAMESPACE").String()
+	customProperties = kingpin.Flag("custom-properties", "All custom properties for the stage as a json object.").Envar("ESTAFETTE_EXTENSION_CUSTOM_PROPERTIES").String()
 
 	// Name                string
 	// Namespace           string
@@ -57,21 +57,28 @@ func main() {
 	// log startup message
 	log.Printf("Starting %v version %v...", app, version)
 
+	// unmarshal custom properties to parameters
+	var params Parameters
+	err := json.Unmarshal([]byte(*customProperties), &params)
+	if err != nil {
+		log.Fatal("Custom properties can't unmarshal to parameters.", err)
+	}
+
 	// get some estafette envvars
 	appLabel := os.Getenv("ESTAFETTE_LABEL_APP")
 	//estafetteBuildVersion := os.Getenv("ESTAFETTE_BUILD_VERSION")
 
 	// validate required values are set
-	if *name == "" && appLabel == "" {
+	if params.Name == "" && appLabel == "" {
 		log.Fatal("Application name is required; either define an app label or use appName property.")
 	}
-	if *namespace == "" {
+	if params.Namespace == "" {
 		log.Fatal("Namespace is required; use namespace property.")
 	}
 
 	// set data with defaults or overrides
-	if *name == "" && appLabel != "" {
-		*name = appLabel
+	if params.Name == "" && appLabel != "" {
+		params.Name = appLabel
 	}
 
 	// merge templates
@@ -111,8 +118,8 @@ func main() {
 	}
 
 	data := TemplateData{
-		Name:      *name,
-		Namespace: *namespace,
+		Name:      params.Name,
+		Namespace: params.Namespace,
 	}
 
 	// render templates

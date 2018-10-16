@@ -34,7 +34,6 @@ stages:
     - extensions
     path: ./publish
     copy:
-    - Dockerfile
     - templates
 
   push-to-docker-hub:
@@ -67,15 +66,6 @@ releases:
         tags:
         - beta
 
-      slack-notify:
-        image: extensions/slack-build-status:dev
-        webhook: estafette.secret(eoN9GnRnfeMLL7L0.ThpJZ1iBKSjR93u1IkQu8nm8dgdOrDeZsGkFMB-GPaAfPXUw4zH3kYjHu3rpW2hbZmuVMAviOrqQ-dNmujWOBHWQDMDPvwO2KO884caanb-LGx1CPAFF7qaPZpeU)
-        channels:
-        - '#build-status'
-        when:
-          status == 'failed' ||
-          status == 'succeeded'
-
   stable:
     stages:
       tag-container-image:
@@ -87,12 +77,3 @@ releases:
         tags:
         - stable
         - latest
-
-      slack-notify:
-        image: extensions/slack-build-status:dev
-        webhook: estafette.secret(eoN9GnRnfeMLL7L0.ThpJZ1iBKSjR93u1IkQu8nm8dgdOrDeZsGkFMB-GPaAfPXUw4zH3kYjHu3rpW2hbZmuVMAviOrqQ-dNmujWOBHWQDMDPvwO2KO884caanb-LGx1CPAFF7qaPZpeU)
-        channels:
-        - '#build-status'
-        when:
-          status == 'failed' ||
-          status == 'succeeded'
