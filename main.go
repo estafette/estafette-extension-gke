@@ -107,9 +107,9 @@ func main() {
 		templateStrings = append(templateStrings, string(data))
 	}
 	templateString := strings.Join(templateStrings, "\n---\n")
-	// log.Printf("Template before rendering:\n\n")
-	// log.Println(templateString)
-	// log.Println("")
+	log.Printf("Template before rendering:\n\n")
+	log.Println(templateString)
+	log.Println("")
 
 	// parse templates
 	log.Printf("Parsing merged templates...")
