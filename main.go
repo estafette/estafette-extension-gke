@@ -100,9 +100,9 @@ func main() {
 			log.Fatal(fmt.Sprintf("Failed reading file %v", filePath), err)
 		}
 
-		// log.Printf("Template %v:\n\n", filePath)
-		// log.Println(string(data))
-		// log.Println("")
+		log.Printf("Template %v:\n\n", filePath)
+		log.Println(string(data))
+		log.Println("")
 
 		templateStrings = append(templateStrings, string(data))
 	}
