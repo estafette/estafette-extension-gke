@@ -82,12 +82,12 @@ func main() {
 	// merge templates
 	templatesToMerge := []string{
 		"namespace.yaml",
-		"service.yaml",
-		"serviceaccount.yaml",
-		"certificate-secret.yaml",
-		"poddisruptionbudget.yaml",
-		"horizontalpodautoscaler.yaml",
-		"deployment.yaml",
+		// "service.yaml",
+		// "serviceaccount.yaml",
+		// "certificate-secret.yaml",
+		// "poddisruptionbudget.yaml",
+		// "horizontalpodautoscaler.yaml",
+		// "deployment.yaml",
 	}
 
 	log.Printf("Merging templates %v...", strings.Join(templatesToMerge, ", "))
