@@ -82,7 +82,7 @@ func main() {
 	// merge templates
 	templatesToMerge := []string{
 		"namespace.yaml",
-		// "service.yaml",
+		"service.yaml",
 		// "serviceaccount.yaml",
 		// "certificate-secret.yaml",
 		// "poddisruptionbudget.yaml",
