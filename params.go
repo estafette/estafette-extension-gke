@@ -10,6 +10,7 @@ type Params struct {
 	App             string `json:"app,omitempty"`
 	AppContainerTag string `json:"tag,omitempty"`
 	Namespace       string `json:"namespace,omitempty"`
+	DryRun          bool   `json:"dryrun,omitempty"`
 
 	// Name                string
 	// Namespace           string

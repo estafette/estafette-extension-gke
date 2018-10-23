@@ -17,7 +17,7 @@ version:
 
 stages:
   build:
-    image: golang:1.11.0-alpine3.8
+    image: golang:1.11.1-alpine3.8
     workDir: /go/src/github.com/estafette/${ESTAFETTE_LABEL_APP}
     env:
       CGO_ENABLED: 0
@@ -34,8 +34,14 @@ stages:
     - extensions
     path: ./publish
     copy:
-    - Dockerfile
     - templates
+
+  test-alpha-version:
+    image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+    credentials: gke-tooling
+    app: gke
+    namespace: estafette
+    dryrun: true
 
   push-to-docker-hub:
     image: extensions/docker:dev
@@ -67,15 +73,6 @@ releases:
         tags:
         - beta
 
-      slack-notify:
-        image: extensions/slack-build-status:dev
-        webhook: estafette.secret(eoN9GnRnfeMLL7L0.ThpJZ1iBKSjR93u1IkQu8nm8dgdOrDeZsGkFMB-GPaAfPXUw4zH3kYjHu3rpW2hbZmuVMAviOrqQ-dNmujWOBHWQDMDPvwO2KO884caanb-LGx1CPAFF7qaPZpeU)
-        channels:
-        - '#build-status'
-        when:
-          status == 'failed' ||
-          status == 'succeeded'
-
   stable:
     stages:
       tag-container-image:
@@ -87,12 +84,3 @@ releases:
         tags:
         - stable
         - latest
-
-      slack-notify:
-        image: extensions/slack-build-status:dev
-        webhook: estafette.secret(eoN9GnRnfeMLL7L0.ThpJZ1iBKSjR93u1IkQu8nm8dgdOrDeZsGkFMB-GPaAfPXUw4zH3kYjHu3rpW2hbZmuVMAviOrqQ-dNmujWOBHWQDMDPvwO2KO884caanb-LGx1CPAFF7qaPZpeU)
-        channels:
-        - '#build-status'
-        when:
-          status == 'failed' ||
-          status == 'succeeded'

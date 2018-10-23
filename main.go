@@ -112,7 +112,7 @@ func main() {
 	// log.Println("")
 
 	// parse templates
-	log.Printf("Parsing templates...")
+	log.Printf("Parsing merged templates...")
 	tmpl, err := template.New("kubernetes.yaml").Parse(templateString)
 	if err != nil {
 		log.Fatal("Failed parsing templates", err)
@@ -124,6 +124,7 @@ func main() {
 	}
 
 	// render templates
+	log.Printf("Rendering merged templates...")
 	var renderedTemplate bytes.Buffer
 	err = tmpl.Execute(&renderedTemplate, data)
 
