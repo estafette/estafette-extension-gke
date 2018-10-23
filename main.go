@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -9,9 +10,9 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
-	"text/template"
 
 	"github.com/alecthomas/kingpin"
+	"github.com/alecthomas/template"
 )
 
 var (
@@ -25,24 +26,13 @@ var (
 
 var (
 	// flags
-	name      = kingpin.Flag("name", "Application name.").Envar("ESTAFETTE_EXTENSION_NAME").String()
-	namespace = kingpin.Flag("namespace", "Application namespace.").Envar("ESTAFETTE_EXTENSION_NAMESPACE").String()
+	paramsJSON      = kingpin.Flag("params", "Extension parameters, created from custom properties.").Envar("ESTAFETTE_EXTENSION_CUSTOM_PROPERTIES").Required().String()
+	credentialsJSON = kingpin.Flag("credentials", "GKE credentials configured at service level, passed in to this trusted extension.").Envar("ESTAFETTE_CREDENTIALS_KUBERNETES_ENGINE").Required().String()
 
-	// Name                string
-	// Namespace           string
-	// Labels              map[string]string
-	// AppLabelSelector    string
-	// Hosts               []string
-	// HostsJoined         string
-	// IngressPath         string
-	// UseNginxIngress     bool
-	// UseGCEIngress       bool
-	// ServiceType         string
-	// MinReplicas         int
-	// MaxReplicas         int
-	// TargetCPUPercentage int
-	// PreferPreemptibles  bool
-	// Container           ContainerData
+	// optional flags
+	appLabel     = kingpin.Flag("app-name", "App label, used as application name if not passed explicitly.").Envar("ESTAFETTE_LABEL_APP").String()
+	buildVersion = kingpin.Flag("build-version", "Version number, used if not passed explicitly.").Envar("ESTAFETTE_BUILD_VERSION").String()
+	releaseName  = kingpin.Flag("release-name", "Name of the release section, which is used by convention to resolve the credentials.").Envar("ESTAFETTE_RELEASE_NAME").String()
 )
 
 func main() {
@@ -57,21 +47,36 @@ func main() {
 	// log startup message
 	log.Printf("Starting %v version %v...", app, version)
 
-	// get some estafette envvars
-	appLabel := os.Getenv("ESTAFETTE_LABEL_APP")
-	//estafetteBuildVersion := os.Getenv("ESTAFETTE_BUILD_VERSION")
-
-	// validate required values are set
-	if *name == "" && appLabel == "" {
-		log.Fatal("Application name is required; either define an app label or use appName property.")
-	}
-	if *namespace == "" {
-		log.Fatal("Namespace is required; use namespace property.")
+	log.Printf("Unmarshalling parameters / custom properties...")
+	var params Params
+	err := json.Unmarshal([]byte(*paramsJSON), &params)
+	if err != nil {
+		log.Fatal("Failed unmarshalling parameters.", err)
 	}
 
-	// set data with defaults or overrides
-	if *name == "" && appLabel != "" {
-		*name = appLabel
+	log.Printf("Setting defaults for parameters that are not set in the manifest...")
+	params.SetDefaults(*appLabel, *buildVersion, *releaseName)
+
+	log.Printf("Unmarshalling credentials...")
+	var credentials []GKECredentials
+	err = json.Unmarshal([]byte(*credentialsJSON), &credentials)
+	if err != nil {
+		log.Fatal("Failed unmarshalling credentials.", err)
+	}
+
+	log.Printf("Checking if credential %v exists...", params.Credentials)
+	credential := GetCredentialsByName(credentials, params.Credentials)
+	if credential == nil {
+		log.Fatalf("Credential with name %v does not exist.", params.Credentials)
+	}
+
+	log.Printf("Setting default namespace from credentials in case the parameter is not set in the manifest...")
+	params.SetDefaultNamespace(credential.DefaultNamespace)
+
+	log.Printf("Validating required parameters...")
+	valid, errors := params.ValidateRequiredProperties()
+	if !valid {
+		log.Fatal("Not all valid fields are set.", errors)
 	}
 
 	// merge templates
@@ -85,6 +90,8 @@ func main() {
 		"deployment.yaml",
 	}
 
+	log.Printf("Merging templates %v...", strings.Join(templatesToMerge, ", "))
+
 	templateStrings := []string{}
 	for _, t := range templatesToMerge {
 		filePath := fmt.Sprintf("/templates/%v", t)
@@ -93,26 +100,27 @@ func main() {
 			log.Fatal(fmt.Sprintf("Failed reading file %v", filePath), err)
 		}
 
-		log.Printf("Template %v:\n\n", filePath)
-		log.Println(string(data))
-		log.Println("")
+		// log.Printf("Template %v:\n\n", filePath)
+		// log.Println(string(data))
+		// log.Println("")
 
 		templateStrings = append(templateStrings, string(data))
 	}
 	templateString := strings.Join(templateStrings, "\n---\n")
-	log.Printf("Template before rendering:\n\n")
-	log.Println(templateString)
-	log.Println("")
+	// log.Printf("Template before rendering:\n\n")
+	// log.Println(templateString)
+	// log.Println("")
 
 	// parse templates
+	log.Printf("Parsing templates...")
 	tmpl, err := template.New("kubernetes.yaml").Parse(templateString)
 	if err != nil {
 		log.Fatal("Failed parsing templates", err)
 	}
 
 	data := TemplateData{
-		Name:      *name,
-		Namespace: *namespace,
+		Name:      params.App,
+		Namespace: params.Namespace,
 	}
 
 	// render templates
@@ -123,7 +131,7 @@ func main() {
 	log.Println(renderedTemplate.String())
 	log.Println("")
 
-	log.Fatal("Extension is not finished yet")
+	//log.Fatal("Extension is not finished yet")
 
 	// templates/namespace.yaml
 	// templates/service.yaml
