@@ -38,6 +38,7 @@ stages:
 
   test-alpha-version:
     image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+    retries: 1
     credentials: gke-tooling
     app: gke
     namespace: estafette

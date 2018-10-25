@@ -125,9 +125,9 @@ func main() {
 		templateStrings = append(templateStrings, string(data))
 	}
 	templateString := strings.Join(templateStrings, "\n---\n")
-	log.Printf("Template before rendering:\n\n")
-	log.Println(templateString)
-	log.Println("")
+	// log.Printf("Template before rendering:\n\n")
+	// log.Println(templateString)
+	// log.Println("")
 
 	// parse templates
 	log.Printf("Parsing merged templates...")
@@ -196,13 +196,20 @@ func main() {
 	}
 	runCommand("gcloud", clustersGetCredentialsArsgs)
 
-	if params.DryRun {
-		runCommand("kubectl", []string{"apply", "-f", "/kubernetes.yaml", "--dry-run", "-n", params.Namespace})
-	} else {
-		log.Fatal("Not implemented applying manifest yet")
-	}
+	// always perform a dryrun to ensure we're not ending up in a semi broken state where half of the templates is successfully applied and others not
+	log.Printf("Performing a dryrun to test the validity of the manifests...\n")
+	kubectlApplyArgs := []string{"apply", "-f", "/kubernetes.yaml", "-n", templateData.Namespace}
+	runCommand("kubectl", append(kubectlApplyArgs, "--dry-run"))
 
-	// - kubectl rollout status deploy/estafette-ci-web -n estafette
+	if !params.DryRun {
+		log.Fatal("Not implemented applying manifest yet")
+
+		log.Printf("Applying the manifests for real...\n")
+		runCommand("kubectl", kubectlApplyArgs)
+
+		log.Printf("Waiting for the deployment to finish...\n")
+		runCommand("kubectl", []string{"rollout", "status", "deployment", templateData.Name, "-n", templateData.Namespace})
+	}
 }
 
 func handleError(err error) {
