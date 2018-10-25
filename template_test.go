@@ -2,9 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
-	"io/ioutil"
-	"log"
 	"strings"
 	"testing"
 	"text/template"
@@ -13,21 +10,6 @@ import (
 )
 
 func TestInjectSteps(t *testing.T) {
-
-	t.Run("RenderNamespace", func(t *testing.T) {
-
-		filePath := "./templates/service.yaml"
-		data, err := ioutil.ReadFile(filePath)
-		if err != nil {
-			log.Fatal(fmt.Sprintf("Failed reading file %v", filePath), err)
-		}
-
-		log.Printf("Template %v:\n\n", filePath)
-		log.Println(string(data))
-		log.Println("")
-
-		assert.True(t, false)
-	})
 
 	t.Run("RenderNamespace", func(t *testing.T) {
 
