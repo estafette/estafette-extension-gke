@@ -10,6 +10,4 @@ RUN apk add --update --no-cache gettext \
 COPY estafette-extension-gke /
 COPY templates /templates
 
-RUN cat /templates/service.yaml
-
 ENTRYPOINT ["/estafette-extension-gke"]
