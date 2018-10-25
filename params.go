@@ -15,12 +15,14 @@ type Params struct {
 	Labels    map[string]string `json:"labels,omitempty"`
 
 	// container specific properties
-	ImageRepository string `json:"repository,omitempty"`
-	ImageName       string `json:"container,omitempty"`
-	ImageTag        string `json:"tag,omitempty"`
+	Image ImageParams `json:"image,omitempty"`
 
 	// security
 	Visibility string `json:"visibility,omitempty"`
+
+	// resources
+	CPU    CPUParams    `json:"cpu,omitempty"`
+	Memory MemoryParams `json:"memory,omitempty"`
 
 	// used for seeing the rendered template without executing it but testing it with a dryrun
 	DryRun bool `json:"dryrun,omitempty"`
@@ -39,6 +41,25 @@ type Params struct {
 	// Container           ContainerData
 }
 
+// ImageParams defines the container image to deploy
+type ImageParams struct {
+	ImageRepository string `json:"repository,omitempty"`
+	ImageName       string `json:"container,omitempty"`
+	ImageTag        string `json:"tag,omitempty"`
+}
+
+// CPUParams sets cpu request and limit values
+type CPUParams struct {
+	Request string `json:"request,omitempty"`
+	Limit   string `json:"limit,omitempty"`
+}
+
+// MemoryParams sets memory request and limit values
+type MemoryParams struct {
+	Request string `json:"request,omitempty"`
+	Limit   string `json:"limit,omitempty"`
+}
+
 // SetDefaults fills in empty fields with convention-based defaults
 func (p *Params) SetDefaults(appLabel, buildVersion, releaseName string, estafetteLabels map[string]string) {
 
@@ -48,13 +69,13 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName string, estafet
 	}
 
 	// default image name to estafette app label if no override in stage params
-	if p.ImageName == "" && p.App != "" {
-		p.ImageName = p.App
+	if p.Image.ImageName == "" && p.App != "" {
+		p.Image.ImageName = p.App
 	}
 
 	// default image tag to estafette build version if no override in stage params
-	if p.ImageTag == "" && buildVersion != "" {
-		p.ImageTag = buildVersion
+	if p.Image.ImageTag == "" && buildVersion != "" {
+		p.Image.ImageTag = buildVersion
 	}
 
 	// default credentials to release name if no override in stage params
@@ -78,6 +99,40 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName string, estafet
 	if p.Visibility == "" {
 		p.Visibility = "private"
 	}
+
+	// set cpu defaults
+	cpuRequestIsEmpty := p.CPU.Request == ""
+	if cpuRequestIsEmpty {
+		if p.CPU.Limit != "" {
+			p.CPU.Request = p.CPU.Limit
+		} else {
+			p.CPU.Request = "100m"
+		}
+	}
+	if p.CPU.Limit == "" {
+		if !cpuRequestIsEmpty {
+			p.CPU.Limit = p.CPU.Request
+		} else {
+			p.CPU.Limit = "125m"
+		}
+	}
+
+	// set memory defaults
+	memoryRequestIsEmpty := p.Memory.Request == ""
+	if memoryRequestIsEmpty {
+		if p.Memory.Limit != "" {
+			p.Memory.Request = p.Memory.Limit
+		} else {
+			p.Memory.Request = "128Mi"
+		}
+	}
+	if p.Memory.Limit == "" {
+		if !memoryRequestIsEmpty {
+			p.Memory.Limit = p.Memory.Request
+		} else {
+			p.Memory.Limit = "128Mi"
+		}
+	}
 }
 
 // SetDefaultsFromCredentials sets defaults based on the credentials fetched with first-run defaults
@@ -89,8 +144,8 @@ func (p *Params) SetDefaultsFromCredentials(credentials GKECredentials) {
 	}
 
 	// default image repository to credential project if no override in stage params
-	if p.ImageRepository == "" && credentials.AdditionalProperties.Project != "" {
-		p.ImageRepository = credentials.AdditionalProperties.Project
+	if p.Image.ImageRepository == "" && credentials.AdditionalProperties.Project != "" {
+		p.Image.ImageRepository = credentials.AdditionalProperties.Project
 	}
 }
 
@@ -105,20 +160,32 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 	if p.Namespace == "" {
 		errors = append(errors, fmt.Errorf("Namespace is required; either use credentials with a defaultNamespace or set it via namespace property on this stage"))
 	}
-	if p.ImageRepository == "" {
-		errors = append(errors, fmt.Errorf("Image repository is required; set it via repository property on this stage"))
+	if p.Image.ImageRepository == "" {
+		errors = append(errors, fmt.Errorf("Image repository is required; set it via image.repository property on this stage"))
 	}
-	if p.ImageName == "" {
-		errors = append(errors, fmt.Errorf("Image name is required; set it via container property on this stage"))
+	if p.Image.ImageName == "" {
+		errors = append(errors, fmt.Errorf("Image name is required; set it via image.container property on this stage"))
 	}
-	if p.ImageTag == "" {
-		errors = append(errors, fmt.Errorf("Image tag is required; set it via tag property on this stage"))
+	if p.Image.ImageTag == "" {
+		errors = append(errors, fmt.Errorf("Image tag is required; set it via image.tag property on this stage"))
 	}
 	if p.Credentials == "" {
 		errors = append(errors, fmt.Errorf("Credentials property is required; set it via credentials property on this stage"))
 	}
 	if p.Visibility == "" || (p.Visibility != "private" && p.Visibility != "public") {
 		errors = append(errors, fmt.Errorf("Visibility property is required; set it via visibility property on this stage; allowed values are private or public"))
+	}
+	if p.CPU.Request == "" {
+		errors = append(errors, fmt.Errorf("Cpu request is required; set it via cpu.request property on this stage"))
+	}
+	if p.CPU.Limit == "" {
+		errors = append(errors, fmt.Errorf("Cpu limit is required; set it via cpu.limit property on this stage"))
+	}
+	if p.Memory.Request == "" {
+		errors = append(errors, fmt.Errorf("Memory request is required; set it via memory.request property on this stage"))
+	}
+	if p.Memory.Limit == "" {
+		errors = append(errors, fmt.Errorf("Memory limit is required; set it via memory.limit property on this stage"))
 	}
 
 	return len(errors) == 0, errors

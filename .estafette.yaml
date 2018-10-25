@@ -41,12 +41,18 @@ stages:
     retries: 1
     credentials: gke-tooling
     app: gke
-    visibility: private
     namespace: estafette
-    repository: extensions
-    container: gke
-    tag: alpha
-
+    visibility: private
+    image:
+      repository: extensions
+      container: gke
+      tag: alpha
+    cpu:
+      request: 100m
+      limit: 100m
+    memory:
+      request: 256Mi
+      limit: 256Mi
     dryrun: true
 
   push-to-docker-hub:

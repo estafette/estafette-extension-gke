@@ -20,14 +20,14 @@ func generateTemplateData(params Params) TemplateData {
 		// PreferPreemptibles  bool
 
 		Container: ContainerData{
-			Repository: params.ImageRepository,
-			Name:       params.ImageName,
-			Tag:        params.ImageTag,
+			Repository: params.Image.ImageRepository,
+			Name:       params.Image.ImageName,
+			Tag:        params.Image.ImageTag,
 
-			// CPURequest    string
-			// MemoryRequest string
-			// CPULimit      string
-			// MemoryLimit   string
+			CPURequest:    params.CPU.Request,
+			CPULimit:      params.CPU.Limit,
+			MemoryRequest: params.Memory.Request,
+			MemoryLimit:   params.Memory.Limit,
 
 			Liveness: ProbeData{
 				// Path                string
