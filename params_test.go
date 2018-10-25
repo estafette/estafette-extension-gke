@@ -338,6 +338,54 @@ func TestValidateRequiredProperties(t *testing.T) {
 		assert.True(t, len(errors) == 0)
 	})
 
+	t.Run("ReturnsFalseIfImageRepositoryIsNotSet", func(t *testing.T) {
+
+		params := validParams
+		params.ImageRepository = ""
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfImageRepositoryIsSet", func(t *testing.T) {
+
+		params := validParams
+		params.ImageRepository = "myrepository"
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfImageNameIsNotSet", func(t *testing.T) {
+
+		params := validParams
+		params.ImageName = ""
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfImageNameIsSet", func(t *testing.T) {
+
+		params := validParams
+		params.ImageName = "myimage"
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
 	t.Run("ReturnsFalseIfImageTagIsNotSet", func(t *testing.T) {
 
 		params := validParams

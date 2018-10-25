@@ -97,6 +97,12 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 	if p.Namespace == "" {
 		errors = append(errors, fmt.Errorf("Namespace is required; either use credentials with a defaultNamespace or set it via namespace property on this stage"))
 	}
+	if p.ImageRepository == "" {
+		errors = append(errors, fmt.Errorf("Image repository is required; set it via repository property on this stage"))
+	}
+	if p.ImageName == "" {
+		errors = append(errors, fmt.Errorf("Image name is required; set it via container property on this stage"))
+	}
 	if p.ImageTag == "" {
 		errors = append(errors, fmt.Errorf("Image tag is required; set it via tag property on this stage"))
 	}
