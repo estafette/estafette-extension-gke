@@ -97,4 +97,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "1.0.0", templateData.Container.Tag)
 	})
 
+	t.Run("SetsServiceTypeToClusterIPIfVisibilityParamIsPrivate", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "private",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "ClusterIP", templateData.ServiceType)
+	})
+
 }

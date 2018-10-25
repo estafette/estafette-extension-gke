@@ -41,6 +41,7 @@ stages:
     retries: 1
     credentials: gke-tooling
     app: gke
+    visibility: private
     namespace: estafette
     repository: extensions
     container: gke

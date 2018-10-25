@@ -14,6 +14,7 @@ var (
 		ImageRepository: "estafette",
 		ImageName:       "my-app",
 		ImageTag:        "1.0.0",
+		Visibility:      "private",
 	}
 )
 
@@ -206,6 +207,29 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "golang", params.Labels["language"])
 	})
 
+	t.Run("DefaultsVisibilityToPrivateIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "",
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "private", params.Visibility)
+	})
+
+	t.Run("KeepsVisibilityIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "public",
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "public", params.Visibility)
+	})
 }
 
 func TestSetDefaultsFromCredentials(t *testing.T) {
@@ -285,7 +309,6 @@ func TestSetDefaultsFromCredentials(t *testing.T) {
 
 		assert.Equal(t, "extensions", params.ImageRepository)
 	})
-
 }
 
 func TestValidateRequiredProperties(t *testing.T) {
@@ -426,6 +449,54 @@ func TestValidateRequiredProperties(t *testing.T) {
 
 		params := validParams
 		params.Credentials = "gke-production"
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfVisibilityIsNotSet", func(t *testing.T) {
+
+		params := validParams
+		params.Visibility = ""
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsFalseIfVisibilityIsSetToUnsupportedValue", func(t *testing.T) {
+
+		params := validParams
+		params.Visibility = "everywhere"
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfVisibilityIsSetToPublic", func(t *testing.T) {
+
+		params := validParams
+		params.Visibility = "public"
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsTrueIfVisibilityIsSetToPrivate", func(t *testing.T) {
+
+		params := validParams
+		params.Visibility = "private"
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()

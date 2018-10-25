@@ -19,6 +19,9 @@ type Params struct {
 	ImageName       string `json:"container,omitempty"`
 	ImageTag        string `json:"tag,omitempty"`
 
+	// security
+	Visibility string `json:"visibility,omitempty"`
+
 	// used for seeing the rendered template without executing it but testing it with a dryrun
 	DryRun bool `json:"dryrun,omitempty"`
 
@@ -70,6 +73,11 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName string, estafet
 	if p.App != "" {
 		p.Labels["app"] = p.App
 	}
+
+	// default visibility to private if no override in stage params
+	if p.Visibility == "" {
+		p.Visibility = "private"
+	}
 }
 
 // SetDefaultsFromCredentials sets defaults based on the credentials fetched with first-run defaults
@@ -108,6 +116,9 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 	}
 	if p.Credentials == "" {
 		errors = append(errors, fmt.Errorf("Credentials property is required; set it via credentials property on this stage"))
+	}
+	if p.Visibility == "" || (p.Visibility != "private" && p.Visibility != "public") {
+		errors = append(errors, fmt.Errorf("Visibility property is required; set it via visibility property on this stage; allowed values are private or public"))
 	}
 
 	return len(errors) == 0, errors

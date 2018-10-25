@@ -42,5 +42,9 @@ func generateTemplateData(params Params) TemplateData {
 		},
 	}
 
+	if params.Visibility == "private" {
+		data.ServiceType = "ClusterIP"
+	}
+
 	return data
 }
