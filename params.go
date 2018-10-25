@@ -6,15 +6,15 @@ import (
 
 // Params is used to parameterize the deployment, set from custom properties in the manifest
 type Params struct {
-	Credentials     string `json:"credentials,omitempty"`
-	App             string `json:"app,omitempty"`
-	AppContainerTag string `json:"tag,omitempty"`
-	Namespace       string `json:"namespace,omitempty"`
-	DryRun          bool   `json:"dryrun,omitempty"`
+	Credentials     string            `json:"credentials,omitempty"`
+	App             string            `json:"app,omitempty"`
+	AppContainerTag string            `json:"tag,omitempty"`
+	Namespace       string            `json:"namespace,omitempty"`
+	Labels          map[string]string `json:"labels,omitempty"`
 
-	// Name                string
-	// Namespace           string
-	// Labels              map[string]string
+	// used for seeing the rendered template without executing it but testing it with a dryrun
+	DryRun bool `json:"dryrun,omitempty"`
+
 	// AppLabelSelector    string
 	// Hosts               []string
 	// HostsJoined         string
@@ -30,18 +30,33 @@ type Params struct {
 }
 
 // SetDefaults fills in empty fields with convention-based defaults
-func (p *Params) SetDefaults(appLabel, buildVersion, releaseName string) {
+func (p *Params) SetDefaults(appLabel, buildVersion, releaseName string, estafetteLabels map[string]string) {
 
+	// default app to estafette app label if no override in stage params
 	if p.App == "" && appLabel != "" {
 		p.App = appLabel
 	}
 
+	// default container tag to estafette build version if no override in stage params
 	if p.AppContainerTag == "" && buildVersion != "" {
 		p.AppContainerTag = buildVersion
 	}
 
+	// default credentials to release name if no override in stage params
 	if p.Credentials == "" && releaseName != "" {
 		p.Credentials = fmt.Sprintf("gke-%v", releaseName)
+	}
+
+	// default labels to estafette labels if no override in stage params
+	if p.Labels == nil {
+		p.Labels = map[string]string{}
+	}
+	if len(p.Labels) == 0 && estafetteLabels != nil && len(estafetteLabels) != 0 {
+		p.Labels = estafetteLabels
+	}
+	// ensure the app label is set and equals the app label or app override in stage params if present
+	if p.App != "" {
+		p.Labels["app"] = p.App
 	}
 }
 

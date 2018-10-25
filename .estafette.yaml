@@ -52,15 +52,6 @@ stages:
     tags:
     - dev
 
-  slack-notify:
-    image: extensions/slack-build-status:dev
-    webhook: estafette.secret(eoN9GnRnfeMLL7L0.ThpJZ1iBKSjR93u1IkQu8nm8dgdOrDeZsGkFMB-GPaAfPXUw4zH3kYjHu3rpW2hbZmuVMAviOrqQ-dNmujWOBHWQDMDPvwO2KO884caanb-LGx1CPAFF7qaPZpeU)
-    channels:
-    - '#build-status'
-    when:
-      status == 'failed' ||
-      status == 'succeeded'
-
 releases:
   beta:
     stages:

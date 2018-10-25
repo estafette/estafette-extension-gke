@@ -25,7 +25,7 @@ func TestSetDefaults(t *testing.T) {
 		appLabel := "myapp"
 
 		// act
-		params.SetDefaults(appLabel, "", "")
+		params.SetDefaults(appLabel, "", "", map[string]string{})
 
 		assert.Equal(t, "myapp", params.App)
 	})
@@ -38,7 +38,7 @@ func TestSetDefaults(t *testing.T) {
 		appLabel := "myapp"
 
 		// act
-		params.SetDefaults(appLabel, "", "")
+		params.SetDefaults(appLabel, "", "", map[string]string{})
 
 		assert.Equal(t, "yourapp", params.App)
 	})
@@ -51,7 +51,7 @@ func TestSetDefaults(t *testing.T) {
 		buildVersion := "1.0.0"
 
 		// act
-		params.SetDefaults("", buildVersion, "")
+		params.SetDefaults("", buildVersion, "", map[string]string{})
 
 		assert.Equal(t, "1.0.0", params.AppContainerTag)
 	})
@@ -64,7 +64,7 @@ func TestSetDefaults(t *testing.T) {
 		buildVersion := "1.0.0"
 
 		// act
-		params.SetDefaults("", buildVersion, "")
+		params.SetDefaults("", buildVersion, "", map[string]string{})
 
 		assert.Equal(t, "2.1.3", params.AppContainerTag)
 	})
@@ -77,7 +77,7 @@ func TestSetDefaults(t *testing.T) {
 		releaseName := "production"
 
 		// act
-		params.SetDefaults("", "", releaseName)
+		params.SetDefaults("", "", releaseName, map[string]string{})
 
 		assert.Equal(t, "gke-production", params.Credentials)
 	})
@@ -90,9 +90,92 @@ func TestSetDefaults(t *testing.T) {
 		releaseName := "production"
 
 		// act
-		params.SetDefaults("", "", releaseName)
+		params.SetDefaults("", "", releaseName, map[string]string{})
 
 		assert.Equal(t, "staging", params.Credentials)
+	})
+
+	t.Run("DefaultsLabelsToEstafetteLabelsIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			Labels: map[string]string{},
+		}
+		estafetteLabels := map[string]string{
+			"app":      "myapp",
+			"team":     "myteam",
+			"language": "golang",
+		}
+
+		// act
+		params.SetDefaults("", "", "", estafetteLabels)
+
+		assert.Equal(t, 3, len(params.Labels))
+		assert.Equal(t, "myapp", params.Labels["app"])
+		assert.Equal(t, "myteam", params.Labels["team"])
+		assert.Equal(t, "golang", params.Labels["language"])
+	})
+
+	t.Run("KeepsLabelsIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			Labels: map[string]string{
+				"app":  "yourapp",
+				"team": "yourteam",
+			},
+		}
+		estafetteLabels := map[string]string{
+			"app":      "myapp",
+			"team":     "myteam",
+			"language": "golang",
+		}
+
+		// act
+		params.SetDefaults("", "", "", estafetteLabels)
+
+		assert.Equal(t, 2, len(params.Labels))
+		assert.Equal(t, "yourapp", params.Labels["app"])
+		assert.Equal(t, "yourteam", params.Labels["team"])
+	})
+
+	t.Run("AddsAppLabelToLabelsIfNotSet", func(t *testing.T) {
+
+		params := Params{
+			Labels: map[string]string{
+				"team": "yourteam",
+			},
+		}
+		appLabel := "myapp"
+		estafetteLabels := map[string]string{
+			"app":      "myapp",
+			"team":     "myteam",
+			"language": "golang",
+		}
+
+		// act
+		params.SetDefaults(appLabel, "", "", estafetteLabels)
+
+		assert.Equal(t, 2, len(params.Labels))
+		assert.Equal(t, "myapp", params.Labels["app"])
+		assert.Equal(t, "yourteam", params.Labels["team"])
+	})
+
+	t.Run("OverwritesAppLabelToAppIfSetFromEstafetteLabels", func(t *testing.T) {
+
+		params := Params{}
+		appLabel := "yourapp"
+		estafetteLabels := map[string]string{
+			"app":      "myapp",
+			"team":     "myteam",
+			"language": "golang",
+		}
+
+		// act
+		params.SetDefaults(appLabel, "", "", estafetteLabels)
+
+		assert.Equal(t, 3, len(params.Labels))
+		assert.Equal(t, "yourapp", params.Labels["app"])
+		assert.Equal(t, "myteam", params.Labels["team"])
+		assert.Equal(t, "golang", params.Labels["language"])
 	})
 }
 
