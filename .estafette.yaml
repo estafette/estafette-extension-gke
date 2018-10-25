@@ -43,9 +43,9 @@ stages:
     app: gke
     namespace: estafette
     visibility: private
-    image:
+    container:
       repository: extensions
-      container: gke
+      name: gke
       tag: alpha
     cpu:
       request: 100m

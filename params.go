@@ -15,7 +15,7 @@ type Params struct {
 	Labels    map[string]string `json:"labels,omitempty"`
 
 	// container specific properties
-	Image ImageParams `json:"image,omitempty"`
+	Container ContainerParams `json:"container,omitempty"`
 
 	// security
 	Visibility string `json:"visibility,omitempty"`
@@ -41,10 +41,10 @@ type Params struct {
 	// Container           ContainerData
 }
 
-// ImageParams defines the container image to deploy
-type ImageParams struct {
+// ContainerParams defines the container image to deploy
+type ContainerParams struct {
 	ImageRepository string `json:"repository,omitempty"`
-	ImageName       string `json:"container,omitempty"`
+	ImageName       string `json:"name,omitempty"`
 	ImageTag        string `json:"tag,omitempty"`
 }
 
@@ -69,13 +69,13 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName string, estafet
 	}
 
 	// default image name to estafette app label if no override in stage params
-	if p.Image.ImageName == "" && p.App != "" {
-		p.Image.ImageName = p.App
+	if p.Container.ImageName == "" && p.App != "" {
+		p.Container.ImageName = p.App
 	}
 
 	// default image tag to estafette build version if no override in stage params
-	if p.Image.ImageTag == "" && buildVersion != "" {
-		p.Image.ImageTag = buildVersion
+	if p.Container.ImageTag == "" && buildVersion != "" {
+		p.Container.ImageTag = buildVersion
 	}
 
 	// default credentials to release name if no override in stage params
@@ -144,8 +144,8 @@ func (p *Params) SetDefaultsFromCredentials(credentials GKECredentials) {
 	}
 
 	// default image repository to credential project if no override in stage params
-	if p.Image.ImageRepository == "" && credentials.AdditionalProperties.Project != "" {
-		p.Image.ImageRepository = credentials.AdditionalProperties.Project
+	if p.Container.ImageRepository == "" && credentials.AdditionalProperties.Project != "" {
+		p.Container.ImageRepository = credentials.AdditionalProperties.Project
 	}
 }
 
@@ -160,14 +160,14 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 	if p.Namespace == "" {
 		errors = append(errors, fmt.Errorf("Namespace is required; either use credentials with a defaultNamespace or set it via namespace property on this stage"))
 	}
-	if p.Image.ImageRepository == "" {
-		errors = append(errors, fmt.Errorf("Image repository is required; set it via image.repository property on this stage"))
+	if p.Container.ImageRepository == "" {
+		errors = append(errors, fmt.Errorf("Image repository is required; set it via container.repository property on this stage"))
 	}
-	if p.Image.ImageName == "" {
-		errors = append(errors, fmt.Errorf("Image name is required; set it via image.container property on this stage"))
+	if p.Container.ImageName == "" {
+		errors = append(errors, fmt.Errorf("Image name is required; set it via container.name property on this stage"))
 	}
-	if p.Image.ImageTag == "" {
-		errors = append(errors, fmt.Errorf("Image tag is required; set it via image.tag property on this stage"))
+	if p.Container.ImageTag == "" {
+		errors = append(errors, fmt.Errorf("Image tag is required; set it via container.tag property on this stage"))
 	}
 	if p.Credentials == "" {
 		errors = append(errors, fmt.Errorf("Credentials property is required; set it via credentials property on this stage"))

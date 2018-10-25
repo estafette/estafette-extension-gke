@@ -64,7 +64,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsContainerRepositoryToImageRepositoryParam", func(t *testing.T) {
 
 		params := Params{
-			Image: ImageParams{
+			Container: ContainerParams{
 				ImageRepository: "myproject",
 			},
 		}
@@ -78,7 +78,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsContainerNameToImageNameParam", func(t *testing.T) {
 
 		params := Params{
-			Image: ImageParams{
+			Container: ContainerParams{
 				ImageName: "my-app",
 			},
 		}
@@ -92,7 +92,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsContainerTagToImageTagParam", func(t *testing.T) {
 
 		params := Params{
-			Image: ImageParams{
+			Container: ContainerParams{
 				ImageTag: "1.0.0",
 			},
 		}

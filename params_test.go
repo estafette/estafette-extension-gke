@@ -11,7 +11,7 @@ var (
 		Credentials: "gke-production",
 		App:         "myapp",
 		Namespace:   "mynamespace",
-		Image: ImageParams{
+		Container: ContainerParams{
 			ImageRepository: "estafette",
 			ImageName:       "my-app",
 			ImageTag:        "1.0.0",
@@ -59,7 +59,7 @@ func TestSetDefaults(t *testing.T) {
 	t.Run("DefaultsImageNameToAppLabelIfEmpty", func(t *testing.T) {
 
 		params := Params{
-			Image: ImageParams{
+			Container: ContainerParams{
 				ImageName: "",
 			},
 		}
@@ -68,13 +68,13 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults(appLabel, "", "", map[string]string{})
 
-		assert.Equal(t, "myapp", params.Image.ImageName)
+		assert.Equal(t, "myapp", params.Container.ImageName)
 	})
 
 	t.Run("KeepsImageTagIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
-			Image: ImageParams{
+			Container: ContainerParams{
 				ImageName: "my-app",
 			},
 		}
@@ -83,13 +83,13 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults(appLabel, "", "", map[string]string{})
 
-		assert.Equal(t, "my-app", params.Image.ImageName)
+		assert.Equal(t, "my-app", params.Container.ImageName)
 	})
 
 	t.Run("DefaultsImageTagToBuildVersionIfEmpty", func(t *testing.T) {
 
 		params := Params{
-			Image: ImageParams{
+			Container: ContainerParams{
 				ImageTag: "",
 			},
 		}
@@ -98,13 +98,13 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", buildVersion, "", map[string]string{})
 
-		assert.Equal(t, "1.0.0", params.Image.ImageTag)
+		assert.Equal(t, "1.0.0", params.Container.ImageTag)
 	})
 
 	t.Run("KeepsImageTagIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
-			Image: ImageParams{
+			Container: ContainerParams{
 				ImageTag: "2.1.3",
 			},
 		}
@@ -113,7 +113,7 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", buildVersion, "", map[string]string{})
 
-		assert.Equal(t, "2.1.3", params.Image.ImageTag)
+		assert.Equal(t, "2.1.3", params.Container.ImageTag)
 	})
 
 	t.Run("DefaultsCredentialsToReleaseNamePrefixedByGKEIfEmpty", func(t *testing.T) {
@@ -473,7 +473,7 @@ func TestSetDefaultsFromCredentials(t *testing.T) {
 	t.Run("DefaultsImageRepositoryToCredentialProjectIfEmpty", func(t *testing.T) {
 
 		params := Params{
-			Image: ImageParams{
+			Container: ContainerParams{
 				ImageRepository: "",
 			},
 		}
@@ -488,13 +488,13 @@ func TestSetDefaultsFromCredentials(t *testing.T) {
 		// act
 		params.SetDefaultsFromCredentials(credentials)
 
-		assert.Equal(t, "myproject", params.Image.ImageRepository)
+		assert.Equal(t, "myproject", params.Container.ImageRepository)
 	})
 
 	t.Run("KeepsImageRepositoryIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
-			Image: ImageParams{
+			Container: ContainerParams{
 				ImageRepository: "extensions",
 			},
 		}
@@ -509,7 +509,7 @@ func TestSetDefaultsFromCredentials(t *testing.T) {
 		// act
 		params.SetDefaultsFromCredentials(credentials)
 
-		assert.Equal(t, "extensions", params.Image.ImageRepository)
+		assert.Equal(t, "extensions", params.Container.ImageRepository)
 	})
 }
 
@@ -566,7 +566,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfImageRepositoryIsNotSet", func(t *testing.T) {
 
 		params := validParams
-		params.Image.ImageRepository = ""
+		params.Container.ImageRepository = ""
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
@@ -578,7 +578,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfImageRepositoryIsSet", func(t *testing.T) {
 
 		params := validParams
-		params.Image.ImageRepository = "myrepository"
+		params.Container.ImageRepository = "myrepository"
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
@@ -590,7 +590,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfImageNameIsNotSet", func(t *testing.T) {
 
 		params := validParams
-		params.Image.ImageName = ""
+		params.Container.ImageName = ""
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
@@ -602,7 +602,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfImageNameIsSet", func(t *testing.T) {
 
 		params := validParams
-		params.Image.ImageName = "myimage"
+		params.Container.ImageName = "myimage"
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
@@ -614,7 +614,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfImageTagIsNotSet", func(t *testing.T) {
 
 		params := validParams
-		params.Image.ImageTag = ""
+		params.Container.ImageTag = ""
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
@@ -626,7 +626,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfImageTagIsSet", func(t *testing.T) {
 
 		params := validParams
-		params.Image.ImageTag = "1.0.0"
+		params.Container.ImageTag = "1.0.0"
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()

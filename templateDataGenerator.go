@@ -20,9 +20,9 @@ func generateTemplateData(params Params) TemplateData {
 		// PreferPreemptibles  bool
 
 		Container: ContainerData{
-			Repository: params.Image.ImageRepository,
-			Name:       params.Image.ImageName,
-			Tag:        params.Image.ImageTag,
+			Repository: params.Container.ImageRepository,
+			Name:       params.Container.ImageName,
+			Tag:        params.Container.ImageTag,
 
 			CPURequest:    params.CPU.Request,
 			CPULimit:      params.CPU.Limit,
