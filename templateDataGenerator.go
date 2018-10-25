@@ -18,8 +18,28 @@ func generateTemplateData(params Params) TemplateData {
 		// MaxReplicas         int
 		// TargetCPUPercentage int
 		// PreferPreemptibles  bool
-		// Container           ContainerData
 
+		Container: ContainerData{
+			Repository: params.ImageRepository,
+			Name:       params.ImageName,
+			Tag:        params.ImageTag,
+
+			// CPURequest    string
+			// MemoryRequest string
+			// CPULimit      string
+			// MemoryLimit   string
+
+			Liveness: ProbeData{
+				// Path                string
+				// InitialDelaySeconds int
+				// TimeoutSeconds      int
+			},
+			Readiness: ProbeData{
+				// Path                string
+				// InitialDelaySeconds int
+				// TimeoutSeconds      int
+			},
+		},
 	}
 
 	return data

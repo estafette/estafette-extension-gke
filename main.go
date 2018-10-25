@@ -89,7 +89,7 @@ func main() {
 	}
 
 	log.Printf("Setting default namespace from credentials in case the parameter is not set in the manifest...")
-	params.SetDefaultNamespace(credential.AdditionalProperties.DefaultNamespace)
+	params.SetDefaultsFromCredentials(*credential)
 
 	log.Printf("Validating required parameters...")
 	valid, errors := params.ValidateRequiredProperties()

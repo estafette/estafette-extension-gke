@@ -11,7 +11,9 @@ var (
 		Credentials:     "gke-production",
 		App:             "myapp",
 		Namespace:       "mynamespace",
-		AppContainerTag: "1.0.0",
+		ImageRepository: "estafette",
+		ImageName:       "my-app",
+		ImageTag:        "1.0.0",
 	}
 )
 
@@ -43,30 +45,56 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "yourapp", params.App)
 	})
 
-	t.Run("DefaultsAppContainerTagToBuildVersionIfEmpty", func(t *testing.T) {
+	t.Run("DefaultsImageNameToAppLabelIfEmpty", func(t *testing.T) {
 
 		params := Params{
-			AppContainerTag: "",
+			ImageName: "",
 		}
-		buildVersion := "1.0.0"
+		appLabel := "myapp"
 
 		// act
-		params.SetDefaults("", buildVersion, "", map[string]string{})
+		params.SetDefaults(appLabel, "", "", map[string]string{})
 
-		assert.Equal(t, "1.0.0", params.AppContainerTag)
+		assert.Equal(t, "myapp", params.ImageName)
 	})
 
-	t.Run("KeepsAppContainerTagIfNotEmpty", func(t *testing.T) {
+	t.Run("KeepsImageTagIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
-			AppContainerTag: "2.1.3",
+			ImageName: "my-app",
+		}
+		appLabel := "myapp"
+
+		// act
+		params.SetDefaults(appLabel, "", "", map[string]string{})
+
+		assert.Equal(t, "my-app", params.ImageName)
+	})
+
+	t.Run("DefaultsImageTagToBuildVersionIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			ImageTag: "",
 		}
 		buildVersion := "1.0.0"
 
 		// act
 		params.SetDefaults("", buildVersion, "", map[string]string{})
 
-		assert.Equal(t, "2.1.3", params.AppContainerTag)
+		assert.Equal(t, "1.0.0", params.ImageTag)
+	})
+
+	t.Run("KeepsImageTagIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			ImageTag: "2.1.3",
+		}
+		buildVersion := "1.0.0"
+
+		// act
+		params.SetDefaults("", buildVersion, "", map[string]string{})
+
+		assert.Equal(t, "2.1.3", params.ImageTag)
 	})
 
 	t.Run("DefaultsCredentialsToReleaseNamePrefixedByGKEIfEmpty", func(t *testing.T) {
@@ -177,35 +205,87 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "myteam", params.Labels["team"])
 		assert.Equal(t, "golang", params.Labels["language"])
 	})
+
 }
 
-func TestSetDefaultNamespace(t *testing.T) {
+func TestSetDefaultsFromCredentials(t *testing.T) {
 
-	t.Run("DefaultsAppToAppLabelIfEmpty", func(t *testing.T) {
+	t.Run("DefaultsNamespaceToCredentialDefaultNamespaceIfEmpty", func(t *testing.T) {
 
 		params := Params{
 			Namespace: "",
 		}
-		defaultNamespace := "mynamespace"
+		credentials := GKECredentials{
+			Name: "gke-1",
+			Type: "kubernetes-engine",
+			AdditionalProperties: GKECredentialAdditionalProperties{
+				DefaultNamespace: "mynamespace",
+			},
+		}
 
 		// act
-		params.SetDefaultNamespace(defaultNamespace)
+		params.SetDefaultsFromCredentials(credentials)
 
 		assert.Equal(t, "mynamespace", params.Namespace)
 	})
 
-	t.Run("KeepsAppIfNotEmpty", func(t *testing.T) {
+	t.Run("KeepsNamespaceIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
 			Namespace: "yournamespace",
 		}
-		defaultNamespace := "mynamespace"
+		credentials := GKECredentials{
+			Name: "gke-1",
+			Type: "kubernetes-engine",
+			AdditionalProperties: GKECredentialAdditionalProperties{
+				DefaultNamespace: "mynamespace",
+			},
+		}
 
 		// act
-		params.SetDefaultNamespace(defaultNamespace)
+		params.SetDefaultsFromCredentials(credentials)
 
 		assert.Equal(t, "yournamespace", params.Namespace)
 	})
+
+	t.Run("DefaultsImageRepositoryToCredentialProjectIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			ImageRepository: "",
+		}
+		credentials := GKECredentials{
+			Name: "gke-1",
+			Type: "kubernetes-engine",
+			AdditionalProperties: GKECredentialAdditionalProperties{
+				Project: "myproject",
+			},
+		}
+
+		// act
+		params.SetDefaultsFromCredentials(credentials)
+
+		assert.Equal(t, "myproject", params.ImageRepository)
+	})
+
+	t.Run("KeepsImageRepositoryIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			ImageRepository: "extensions",
+		}
+		credentials := GKECredentials{
+			Name: "gke-1",
+			Type: "kubernetes-engine",
+			AdditionalProperties: GKECredentialAdditionalProperties{
+				Project: "myproject",
+			},
+		}
+
+		// act
+		params.SetDefaultsFromCredentials(credentials)
+
+		assert.Equal(t, "extensions", params.ImageRepository)
+	})
+
 }
 
 func TestValidateRequiredProperties(t *testing.T) {
@@ -258,10 +338,10 @@ func TestValidateRequiredProperties(t *testing.T) {
 		assert.True(t, len(errors) == 0)
 	})
 
-	t.Run("ReturnsFalseIfAppContainerTagIsNotSet", func(t *testing.T) {
+	t.Run("ReturnsFalseIfImageTagIsNotSet", func(t *testing.T) {
 
 		params := validParams
-		params.AppContainerTag = ""
+		params.ImageTag = ""
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
@@ -270,10 +350,10 @@ func TestValidateRequiredProperties(t *testing.T) {
 		assert.True(t, len(errors) > 0)
 	})
 
-	t.Run("ReturnsTrueIfAppContainerTagIsSet", func(t *testing.T) {
+	t.Run("ReturnsTrueIfImageTagIsSet", func(t *testing.T) {
 
 		params := validParams
-		params.AppContainerTag = "1.0.0"
+		params.ImageTag = "1.0.0"
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()

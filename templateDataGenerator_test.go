@@ -49,7 +49,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "myteam", templateData.Labels["team"])
 	})
 
-	t.Run("AppLabelSelectorToAppParam", func(t *testing.T) {
+	t.Run("SetsAppLabelSelectorToAppParam", func(t *testing.T) {
 
 		params := Params{
 			App: "myapp",
@@ -59,6 +59,42 @@ func TestGenerateTemplateData(t *testing.T) {
 		templateData := generateTemplateData(params)
 
 		assert.Equal(t, "myapp", templateData.AppLabelSelector)
+	})
+
+	t.Run("SetsContainerRepositoryToImageRepositoryParam", func(t *testing.T) {
+
+		params := Params{
+			ImageRepository: "myproject",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "myproject", templateData.Container.Repository)
+	})
+
+	t.Run("SetsContainerNameToImageNameParam", func(t *testing.T) {
+
+		params := Params{
+			ImageName: "my-app",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "my-app", templateData.Container.Name)
+	})
+
+	t.Run("SetsContainerTagToImageTagParam", func(t *testing.T) {
+
+		params := Params{
+			ImageTag: "1.0.0",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "1.0.0", templateData.Container.Tag)
 	})
 
 }

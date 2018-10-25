@@ -42,6 +42,10 @@ stages:
     credentials: gke-tooling
     app: gke
     namespace: estafette
+    repository: extensions
+    container: gke
+    tag: alpha
+
     dryrun: true
 
   push-to-docker-hub:

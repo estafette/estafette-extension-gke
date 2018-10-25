@@ -6,11 +6,18 @@ import (
 
 // Params is used to parameterize the deployment, set from custom properties in the manifest
 type Params struct {
-	Credentials     string            `json:"credentials,omitempty"`
-	App             string            `json:"app,omitempty"`
-	AppContainerTag string            `json:"tag,omitempty"`
-	Namespace       string            `json:"namespace,omitempty"`
-	Labels          map[string]string `json:"labels,omitempty"`
+	// which credentials to use
+	Credentials string `json:"credentials,omitempty"`
+
+	// application common properties
+	App       string            `json:"app,omitempty"`
+	Namespace string            `json:"namespace,omitempty"`
+	Labels    map[string]string `json:"labels,omitempty"`
+
+	// container specific properties
+	ImageRepository string `json:"repository,omitempty"`
+	ImageName       string `json:"container,omitempty"`
+	ImageTag        string `json:"tag,omitempty"`
 
 	// used for seeing the rendered template without executing it but testing it with a dryrun
 	DryRun bool `json:"dryrun,omitempty"`
@@ -37,9 +44,14 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName string, estafet
 		p.App = appLabel
 	}
 
-	// default container tag to estafette build version if no override in stage params
-	if p.AppContainerTag == "" && buildVersion != "" {
-		p.AppContainerTag = buildVersion
+	// default image name to estafette app label if no override in stage params
+	if p.ImageName == "" && p.App != "" {
+		p.ImageName = p.App
+	}
+
+	// default image tag to estafette build version if no override in stage params
+	if p.ImageTag == "" && buildVersion != "" {
+		p.ImageTag = buildVersion
 	}
 
 	// default credentials to release name if no override in stage params
@@ -60,13 +72,18 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName string, estafet
 	}
 }
 
-// SetDefaultNamespace sets default namespace separately from other defaults, because the credential fetched with params has the default value
-func (p *Params) SetDefaultNamespace(defaultNamespace string) {
+// SetDefaultsFromCredentials sets defaults based on the credentials fetched with first-run defaults
+func (p *Params) SetDefaultsFromCredentials(credentials GKECredentials) {
 
-	if p.Namespace == "" && defaultNamespace != "" {
-		p.Namespace = defaultNamespace
+	// default namespace to credential default namespace if no override in stage params
+	if p.Namespace == "" && credentials.AdditionalProperties.DefaultNamespace != "" {
+		p.Namespace = credentials.AdditionalProperties.DefaultNamespace
 	}
 
+	// default image repository to credential project if no override in stage params
+	if p.ImageRepository == "" && credentials.AdditionalProperties.Project != "" {
+		p.ImageRepository = credentials.AdditionalProperties.Project
+	}
 }
 
 // ValidateRequiredProperties checks whether all needed properties are set
@@ -80,8 +97,8 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 	if p.Namespace == "" {
 		errors = append(errors, fmt.Errorf("Namespace is required; either use credentials with a defaultNamespace or set it via namespace property on this stage"))
 	}
-	if p.AppContainerTag == "" {
-		errors = append(errors, fmt.Errorf("App container tag is required; set it via tag property on this stage"))
+	if p.ImageTag == "" {
+		errors = append(errors, fmt.Errorf("Image tag is required; set it via tag property on this stage"))
 	}
 	if p.Credentials == "" {
 		errors = append(errors, fmt.Errorf("Credentials property is required; set it via credentials property on this stage"))
