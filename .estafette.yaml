@@ -67,6 +67,7 @@ stages:
         timeout: 1
       metrics:
         path: /metrics
+        port: 5001
     autoscale:
       min: 3
       max: 50
