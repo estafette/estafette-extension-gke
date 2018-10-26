@@ -127,6 +127,54 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "LoadBalancer", templateData.ServiceType)
 	})
 
+	t.Run("SetsUseDNSAnnotationsOnIngressToTrueIfVisibilityParamIsPrivate", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "private",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.True(t, templateData.UseDNSAnnotationsOnIngress)
+	})
+
+	t.Run("SetsUseDNSAnnotationsOnIngressToFalseIfVisibilityParamIsPublic", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "public",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.False(t, templateData.UseDNSAnnotationsOnIngress)
+	})
+
+	t.Run("SetsUseDNSAnnotationsOnServiceToTrueIfVisibilityParamIsPublic", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "public",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.True(t, templateData.UseDNSAnnotationsOnService)
+	})
+
+	t.Run("SetsUseDNSAnnotationsOnServiceToFalseIfVisibilityParamIsPrivate", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "private",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.False(t, templateData.UseDNSAnnotationsOnService)
+	})
+
 	t.Run("SetsContainerCPURequestToCPURequestParam", func(t *testing.T) {
 
 		params := Params{

@@ -16,9 +16,11 @@ metadata:
     kubernetes.io/ingress.class: "gce"
     kubernetes.io/ingress.allow-http: "false"
     {{- end}}
+    {{- if .UseDNSAnnotationsOnIngress}}  
     estafette.io/cloudflare-dns: "true"
     estafette.io/cloudflare-proxy: "true"
     estafette.io/cloudflare-hostnames: "{{.HostsJoined}}"
+    {{- end}}
 spec:
   tls:
   - hosts:
