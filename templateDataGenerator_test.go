@@ -115,6 +115,18 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "ClusterIP", templateData.ServiceType)
 	})
 
+	t.Run("SetsServiceTypeToLoadBalancerIfVisibilityParamIsPublic", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "public",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "LoadBalancer", templateData.ServiceType)
+	})
+
 	t.Run("SetsContainerCPURequestToCPURequestParam", func(t *testing.T) {
 
 		params := Params{
@@ -258,4 +270,29 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		assert.Equal(t, 75, templateData.TargetCPUPercentage)
 	})
+
+	t.Run("SetsUseNginxIngressToTrueIfVisibilityIsPrivate", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "private",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.True(t, templateData.UseNginxIngress)
+	})
+
+	t.Run("SetsUseNginxIngressToFalseIfVisibilityIsPublic", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "public",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.False(t, templateData.UseNginxIngress)
+	})
+
 }

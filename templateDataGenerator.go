@@ -50,6 +50,10 @@ func generateTemplateData(params Params) TemplateData {
 
 	if params.Visibility == "private" {
 		data.ServiceType = "ClusterIP"
+		data.UseNginxIngress = true
+	} else if params.Visibility == "public" {
+		data.ServiceType = "LoadBalancer"
+		data.UseNginxIngress = false
 	}
 
 	return data

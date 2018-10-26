@@ -1,16 +1,13 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"runtime"
 	"strings"
-	"text/template"
 
 	"github.com/alecthomas/kingpin"
 )
@@ -97,55 +94,20 @@ func main() {
 		log.Fatal("Not all valid fields are set: ", errors)
 	}
 
-	// merge templates
-	templatesToMerge := []string{
-		"namespace.yaml",
-		"service.yaml",
-		"serviceaccount.yaml",
-		"certificate-secret.yaml",
-		"poddisruptionbudget.yaml",
-		"horizontalpodautoscaler.yaml",
-		"deployment.yaml",
-	}
-
-	log.Printf("Merging templates %v...", strings.Join(templatesToMerge, ", "))
-
-	templateStrings := []string{}
-	for _, t := range templatesToMerge {
-		filePath := fmt.Sprintf("/templates/%v", t)
-		data, err := ioutil.ReadFile(filePath)
-		if err != nil {
-			log.Fatal(fmt.Sprintf("Failed reading file %v: ", filePath), err)
-		}
-
-		// log.Printf("Template %v:\n\n", filePath)
-		// log.Println(string(data))
-		// log.Println("")
-
-		templateStrings = append(templateStrings, string(data))
-	}
-	templateString := strings.Join(templateStrings, "\n---\n")
-	// log.Printf("Template before rendering:\n\n")
-	// log.Println(templateString)
-	// log.Println("")
-
-	// parse templates
-	log.Printf("Parsing merged templates...")
-	tmpl, err := template.New("kubernetes.yaml").Parse(templateString)
+	// combine templates
+	tmpl, err := buildTemplates(params)
 	if err != nil {
-		log.Fatal("Failed parsing templates: ", err)
+		log.Fatal("Failed building templates: ", err)
 	}
 
+	// generate the data required for rendering the templates
 	templateData := generateTemplateData(params)
 
-	// render templates
-	log.Printf("Rendering merged templates...")
-	var renderedTemplate bytes.Buffer
-	err = tmpl.Execute(&renderedTemplate, templateData)
-
-	log.Printf("Template after rendering:\n\n")
-	log.Println(renderedTemplate.String())
-	log.Println("")
+	// render the template
+	renderedTemplate, err := renderTemplate(tmpl, templateData)
+	if err != nil {
+		log.Fatal("Failed rendering templates: ", err)
+	}
 
 	log.Printf("Storing rendered manifest on disk...\n")
 	err = ioutil.WriteFile("/kubernetes.yaml", renderedTemplate.Bytes(), 0600)
