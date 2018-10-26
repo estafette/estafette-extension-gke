@@ -9,6 +9,7 @@ RUN gcloud components install kubectl \
 COPY estafette-extension-gke /
 COPY templates /templates
 
+RUN gcloud components list
 RUN du -h / -d 1
 RUN du -sh /
 RUN du -sh /google-cloud-sdk
