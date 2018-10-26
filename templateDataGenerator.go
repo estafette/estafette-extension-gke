@@ -1,5 +1,9 @@
 package main
 
+import (
+	"strings"
+)
+
 func generateTemplateData(params Params) TemplateData {
 
 	data := TemplateData{
@@ -8,8 +12,9 @@ func generateTemplateData(params Params) TemplateData {
 		Labels:           params.Labels,
 		AppLabelSelector: params.App,
 
-		// Hosts               []string
-		// HostsJoined         string
+		Hosts:       params.Hosts,
+		HostsJoined: strings.Join(params.Hosts, ","),
+
 		// IngressPath         string
 		// UseNginxIngress     bool
 		// UseGCEIngress       bool

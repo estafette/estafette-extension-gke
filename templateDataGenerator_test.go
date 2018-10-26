@@ -185,4 +185,35 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, 3080, templateData.Container.Port)
 	})
 
+	t.Run("SetsHostsToHostsParam", func(t *testing.T) {
+
+		params := Params{
+			Hosts: []string{
+				"gke.estafette.io",
+				"gke-deploy.estafette.io",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, 2, len(templateData.Hosts))
+		assert.Equal(t, "gke.estafette.io", templateData.Hosts[0])
+		assert.Equal(t, "gke-deploy.estafette.io", templateData.Hosts[1])
+	})
+
+	t.Run("SetsHostsJoinedToCommaSeparatedJoinOfHostsParam", func(t *testing.T) {
+
+		params := Params{
+			Hosts: []string{
+				"gke.estafette.io",
+				"gke-deploy.estafette.io",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "gke.estafette.io,gke-deploy.estafette.io", templateData.HostsJoined)
+	})
 }

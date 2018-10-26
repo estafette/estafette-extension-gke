@@ -54,6 +54,9 @@ stages:
     memory:
       request: 256Mi
       limit: 256Mi
+    hosts:
+    - gke.estafette.io
+    - gke-deploy.estafette.io
     dryrun: true
 
   push-to-docker-hub:

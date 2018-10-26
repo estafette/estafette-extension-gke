@@ -17,8 +17,9 @@ type Params struct {
 	// container specific properties
 	Container ContainerParams `json:"container,omitempty"`
 
-	// security
-	Visibility string `json:"visibility,omitempty"`
+	// misc
+	Visibility string   `json:"visibility,omitempty"`
+	Hosts      []string `json:"hosts,omitempty"`
 
 	// resources
 	CPU    CPUParams    `json:"cpu,omitempty"`
@@ -195,6 +196,9 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 	}
 	if p.Memory.Limit == "" {
 		errors = append(errors, fmt.Errorf("Memory limit is required; set it via memory.limit property on this stage"))
+	}
+	if len(p.Hosts) == 0 {
+		errors = append(errors, fmt.Errorf("At least one host is required; set it via hosts array property on this stage"))
 	}
 
 	return len(errors) == 0, errors

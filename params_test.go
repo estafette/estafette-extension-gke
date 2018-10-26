@@ -26,6 +26,7 @@ var (
 			Limit:   "1024Mi",
 		},
 		Visibility: "private",
+		Hosts:      []string{"gke.estafette.io"},
 	}
 )
 
@@ -855,4 +856,29 @@ func TestValidateRequiredProperties(t *testing.T) {
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
 	})
+
+	t.Run("ReturnsFalseIfHostsAreNotSet", func(t *testing.T) {
+
+		params := validParams
+		params.Hosts = []string{}
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfOneOrMoreHostsAreSet", func(t *testing.T) {
+
+		params := validParams
+		params.Hosts = []string{"gke.estafette.io"}
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
 }
