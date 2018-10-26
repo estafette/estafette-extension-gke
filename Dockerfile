@@ -5,6 +5,7 @@ LABEL maintainer="estafette.io" \
 
 RUN du -hd1 /google-cloud-sdk/.[^.]* /google-cloud-sdk/*
 RUN du -hd1 /google-cloud-sdk/bin/.[^.]* /google-cloud-sdk/bin/*
+RUN gcloud components list
 
 RUN gcloud components install kubectl \
     && rm -rf /google-cloud-sdk/.install/.backup
@@ -12,6 +13,7 @@ RUN gcloud components install kubectl \
 COPY estafette-extension-gke /
 COPY templates /templates
 
+RUN gcloud components list
 RUN du -hd1 /google-cloud-sdk/.[^.]* /google-cloud-sdk/*
 RUN du -hd1 /google-cloud-sdk/bin/.[^.]* /google-cloud-sdk/bin/*
 RUN kubectl version
