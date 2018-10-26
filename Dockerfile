@@ -14,5 +14,6 @@ COPY templates /templates
 
 RUN du -hd1 /google-cloud-sdk/.[^.]* /google-cloud-sdk/*
 RUN du -hd1 /google-cloud-sdk/bin/.[^.]* /google-cloud-sdk/bin/*
+RUN kubectl version
 
 ENTRYPOINT ["/estafette-extension-gke"]
