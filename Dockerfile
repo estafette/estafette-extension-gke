@@ -6,8 +6,8 @@ LABEL maintainer="estafette.io" \
 RUN du -h / -d 1
 
 RUN gcloud components install kubectl \
-    gcloud components remove bq \
-    gcloud components remove gsutil \
+    && gcloud components remove bq \
+    && gcloud components remove gsutil \
     && rm -rf /var/cache/apk/*
 
 COPY estafette-extension-gke /
