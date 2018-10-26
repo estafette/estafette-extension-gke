@@ -171,4 +171,18 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "2048Mi", templateData.Container.MemoryLimit)
 	})
 
+	t.Run("SetsContainerPortToContainerPortParam", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				Port: 3080,
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, 3080, templateData.Container.Port)
+	})
+
 }

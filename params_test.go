@@ -15,6 +15,7 @@ var (
 			ImageRepository: "estafette",
 			ImageName:       "my-app",
 			ImageTag:        "1.0.0",
+			Port:            5000,
 		},
 		CPU: CPUParams{
 			Request: "100m",
@@ -428,6 +429,34 @@ func TestSetDefaults(t *testing.T) {
 
 		assert.Equal(t, "1024Mi", params.Memory.Limit)
 	})
+
+	t.Run("DefaultsContainerPortTo5000IfZero", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				Port: 0,
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, 5000, params.Container.Port)
+	})
+
+	t.Run("KeepsContainerPortIfLargerThanZero", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				Port: 3000,
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, 3000, params.Container.Port)
+	})
 }
 
 func TestSetDefaultsFromCredentials(t *testing.T) {
@@ -795,6 +824,30 @@ func TestValidateRequiredProperties(t *testing.T) {
 
 		params := validParams
 		params.Memory.Limit = "100m"
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfContainerPortIsZeroOrLess", func(t *testing.T) {
+
+		params := validParams
+		params.Container.Port = 0
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfContainerPortIsLargerThanZero", func(t *testing.T) {
+
+		params := validParams
+		params.Container.Port = 5000
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()

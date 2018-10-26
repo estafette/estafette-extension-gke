@@ -29,6 +29,7 @@ type ContainerData struct {
 	MemoryRequest string
 	CPULimit      string
 	MemoryLimit   string
+	Port          int
 	Liveness      ProbeData
 	Readiness     ProbeData
 }

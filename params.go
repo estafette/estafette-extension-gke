@@ -46,6 +46,7 @@ type ContainerParams struct {
 	ImageRepository string `json:"repository,omitempty"`
 	ImageName       string `json:"name,omitempty"`
 	ImageTag        string `json:"tag,omitempty"`
+	Port            int    `json:"port,string,omitempty"`
 }
 
 // CPUParams sets cpu request and limit values
@@ -133,6 +134,11 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName string, estafet
 			p.Memory.Limit = "128Mi"
 		}
 	}
+
+	// set container port defaults
+	if p.Container.Port <= 0 {
+		p.Container.Port = 5000
+	}
 }
 
 // SetDefaultsFromCredentials sets defaults based on the credentials fetched with first-run defaults
@@ -168,6 +174,9 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 	}
 	if p.Container.ImageTag == "" {
 		errors = append(errors, fmt.Errorf("Image tag is required; set it via container.tag property on this stage"))
+	}
+	if p.Container.Port <= 0 {
+		errors = append(errors, fmt.Errorf("Container port must be larger than zero; set it via container.port property on this stage"))
 	}
 	if p.Credentials == "" {
 		errors = append(errors, fmt.Errorf("Credentials property is required; set it via credentials property on this stage"))

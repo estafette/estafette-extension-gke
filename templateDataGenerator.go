@@ -23,6 +23,7 @@ func generateTemplateData(params Params) TemplateData {
 			Repository: params.Container.ImageRepository,
 			Name:       params.Container.ImageName,
 			Tag:        params.Container.ImageTag,
+			Port:       params.Container.Port,
 
 			CPURequest:    params.CPU.Request,
 			CPULimit:      params.CPU.Limit,

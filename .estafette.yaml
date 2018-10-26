@@ -47,6 +47,7 @@ stages:
       repository: extensions
       name: gke
       tag: alpha
+      port: 5000
     cpu:
       request: 100m
       limit: 100m
