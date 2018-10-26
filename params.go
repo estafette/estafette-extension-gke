@@ -65,8 +65,9 @@ type ProbeParams struct {
 
 // MetricsParams sets params for scraping prometheus metrics
 type MetricsParams struct {
-	Path string `json:"path,omitempty"`
-	Port int    `json:"port,string,omitempty"`
+	Scrape string `json:"scrape,omitempty"`
+	Path   string `json:"path,omitempty"`
+	Port   int    `json:"port,string,omitempty"`
 }
 
 // SetDefaults fills in empty fields with convention-based defaults
@@ -185,6 +186,9 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName string, estafet
 	if p.Container.Metrics.Port <= 0 {
 		p.Container.Metrics.Port = p.Container.Port
 	}
+	if p.Container.Metrics.Scrape == "" {
+		p.Container.Metrics.Scrape = "true"
+	}
 }
 
 // SetDefaultsFromCredentials sets defaults based on the credentials fetched with first-run defaults
@@ -286,11 +290,16 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 	}
 
 	// validate metrics params
-	if p.Container.Metrics.Path == "" {
-		errors = append(errors, fmt.Errorf("Metrics path is required; set it via container.metrics.path property on this stage"))
+	if p.Container.Metrics.Scrape != "true" && p.Container.Metrics.Scrape != "false" {
+		errors = append(errors, fmt.Errorf("Metrics scrape is required; set it via container.metrics.scrape property on this stage; allowed values are true or false"))
 	}
-	if p.Container.Metrics.Port <= 0 {
-		errors = append(errors, fmt.Errorf("Metrics port must be larger than zero; set it via container.metrics.port property on this stage"))
+	if p.Container.Metrics.Scrape == "true" {
+		if p.Container.Metrics.Path == "" {
+			errors = append(errors, fmt.Errorf("Metrics path is required; set it via container.metrics.path property on this stage"))
+		}
+		if p.Container.Metrics.Port <= 0 {
+			errors = append(errors, fmt.Errorf("Metrics port must be larger than zero; set it via container.metrics.port property on this stage"))
+		}
 	}
 
 	return len(errors) == 0, errors

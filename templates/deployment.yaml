@@ -19,7 +19,7 @@ spec:
         {{$key}}: {{$value}}
         {{- end}}
       annotations:
-        prometheus.io/scrape: "true"
+        prometheus.io/scrape: "{{.Container.Metrics.Scrape}}"
         prometheus.io/path: "{{.Container.Metrics.Path}}"
         prometheus.io/port: "{{.Container.Metrics.Port}}"
         prometheus.io/scrape-nginx-sidecar: "true"

@@ -482,7 +482,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "/readiness", templateData.Container.Metrics.Path)
 	})
 
-	t.Run("SetsContainerPortToContainerPortParam", func(t *testing.T) {
+	t.Run("SetsMetricsPortToMetricsPortParam", func(t *testing.T) {
 
 		params := Params{
 			Container: ContainerParams{
@@ -497,4 +497,21 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		assert.Equal(t, 3080, templateData.Container.Metrics.Port)
 	})
+
+	t.Run("SetsMetricsScrapeToMetricsScrapeParam", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				Metrics: MetricsParams{
+					Scrape: "true",
+				},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "true", templateData.Container.Metrics.Scrape)
+	})
+
 }

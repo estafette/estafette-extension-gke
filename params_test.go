@@ -41,8 +41,9 @@ var (
 				TimeoutSeconds:      1,
 			},
 			Metrics: MetricsParams{
-				Path: "/metrics",
-				Port: 5000,
+				Scrape: "true",
+				Path:   "/metrics",
+				Port:   5000,
 			},
 		},
 		Visibility: "private",
@@ -845,6 +846,37 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, 5001, params.Container.Metrics.Port)
 	})
 
+	t.Run("DefaultsMetricsScrapeToTrueIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				Metrics: MetricsParams{
+					Scrape: "",
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "true", params.Container.Metrics.Scrape)
+	})
+
+	t.Run("KeepsMetricsScrapeIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				Metrics: MetricsParams{
+					Scrape: "false",
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "false", params.Container.Metrics.Scrape)
+	})
 }
 
 func TestSetDefaultsFromCredentials(t *testing.T) {
@@ -1484,6 +1516,19 @@ func TestValidateRequiredProperties(t *testing.T) {
 		assert.True(t, len(errors) == 0)
 	})
 
+	t.Run("ReturnsTrueIfMetricsPathIsEmptyButScrapeIsFalse", func(t *testing.T) {
+
+		params := validParams
+		params.Container.Metrics.Scrape = "false"
+		params.Container.Metrics.Path = ""
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
 	t.Run("ReturnsFalseIfMetricsPortIsZeroOrLess", func(t *testing.T) {
 
 		params := validParams
@@ -1506,5 +1551,66 @@ func TestValidateRequiredProperties(t *testing.T) {
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsTrueIfMetricsPortIsZeroOrLessButScrapeIsFalse", func(t *testing.T) {
+
+		params := validParams
+		params.Container.Metrics.Scrape = "false"
+		params.Container.Metrics.Port = 0
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfMetricsScrapeIsEmpty", func(t *testing.T) {
+
+		params := validParams
+		params.Container.Metrics.Scrape = ""
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfMetricsScrapeIsTrue", func(t *testing.T) {
+
+		params := validParams
+		params.Container.Metrics.Scrape = "true"
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsTrueIfMetricsScrapeIsFalse", func(t *testing.T) {
+
+		params := validParams
+		params.Container.Metrics.Scrape = "false"
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfMetricsScrapeIsNonBoolean", func(t *testing.T) {
+
+		params := validParams
+		params.Container.Metrics.Scrape = "yessir"
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
 	})
 }
