@@ -36,14 +36,14 @@ func generateTemplateData(params Params) TemplateData {
 			MemoryLimit:   params.Memory.Limit,
 
 			Liveness: ProbeData{
-				// Path                string
-				// InitialDelaySeconds int
-				// TimeoutSeconds      int
+				Path:                params.LivenessProbe.Path,
+				InitialDelaySeconds: params.LivenessProbe.InitialDelaySeconds,
+				TimeoutSeconds:      params.LivenessProbe.TimeoutSeconds,
 			},
 			Readiness: ProbeData{
-				// Path                string
-				// InitialDelaySeconds int
-				// TimeoutSeconds      int
+				Path:                params.ReadinessProbe.Path,
+				InitialDelaySeconds: params.ReadinessProbe.InitialDelaySeconds,
+				TimeoutSeconds:      params.ReadinessProbe.TimeoutSeconds,
 			},
 		},
 	}

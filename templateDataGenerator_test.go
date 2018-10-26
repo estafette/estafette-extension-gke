@@ -295,4 +295,87 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.False(t, templateData.UseNginxIngress)
 	})
 
+	t.Run("SetsLivenessPathToLivenessProbePathParam", func(t *testing.T) {
+
+		params := Params{
+			LivenessProbe: ProbeParams{
+				Path: "/liveness",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "/liveness", templateData.Container.Liveness.Path)
+	})
+
+	t.Run("SetsLivenessInitialDelaySecondsToLivenessProbeInitialDelaySecondsParam", func(t *testing.T) {
+
+		params := Params{
+			LivenessProbe: ProbeParams{
+				InitialDelaySeconds: 30,
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, 30, templateData.Container.Liveness.InitialDelaySeconds)
+	})
+
+	t.Run("SetsLivenessTimeoutSecondsToLivenessProbeTimeoutSecondsParam", func(t *testing.T) {
+
+		params := Params{
+			LivenessProbe: ProbeParams{
+				TimeoutSeconds: 1,
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, 1, templateData.Container.Liveness.TimeoutSeconds)
+	})
+
+	t.Run("SetsReadinessPathToReadinessProbePathParam", func(t *testing.T) {
+
+		params := Params{
+			ReadinessProbe: ProbeParams{
+				Path: "/readiness",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "/readiness", templateData.Container.Readiness.Path)
+	})
+
+	t.Run("SetsReadinessInitialDelaySecondsToReadinessProbeInitialDelaySecondsParam", func(t *testing.T) {
+
+		params := Params{
+			ReadinessProbe: ProbeParams{
+				InitialDelaySeconds: 30,
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, 30, templateData.Container.Readiness.InitialDelaySeconds)
+	})
+
+	t.Run("SetsReadinessTimeoutSecondsToReadinessProbeTimeoutSecondsParam", func(t *testing.T) {
+
+		params := Params{
+			ReadinessProbe: ProbeParams{
+				TimeoutSeconds: 1,
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, 1, templateData.Container.Readiness.TimeoutSeconds)
+	})
 }

@@ -30,6 +30,16 @@ var (
 			MaxReplicas:   100,
 			CPUPercentage: 80,
 		},
+		LivenessProbe: ProbeParams{
+			Path:                "/liveness",
+			InitialDelaySeconds: 30,
+			TimeoutSeconds:      1,
+		},
+		ReadinessProbe: ProbeParams{
+			Path:                "/readiness",
+			InitialDelaySeconds: 0,
+			TimeoutSeconds:      1,
+		},
 		Visibility: "private",
 		Hosts:      []string{"gke.estafette.io"},
 	}
@@ -547,6 +557,175 @@ func TestSetDefaults(t *testing.T) {
 
 		assert.Equal(t, 30, params.Autoscale.CPUPercentage)
 	})
+
+	t.Run("DefaultsLivenessInitialDelaySecondsTo30IfZero", func(t *testing.T) {
+
+		params := Params{
+			LivenessProbe: ProbeParams{
+				InitialDelaySeconds: 0,
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, 30, params.LivenessProbe.InitialDelaySeconds)
+	})
+
+	t.Run("KeepsLivenessInitialDelaySecondsIfLargerThanZero", func(t *testing.T) {
+
+		params := Params{
+			LivenessProbe: ProbeParams{
+				InitialDelaySeconds: 120,
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, 120, params.LivenessProbe.InitialDelaySeconds)
+	})
+
+	t.Run("DefaultsLivenessTimeoutSecondsTo1IfZero", func(t *testing.T) {
+
+		params := Params{
+			LivenessProbe: ProbeParams{
+				TimeoutSeconds: 0,
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, 1, params.LivenessProbe.TimeoutSeconds)
+	})
+
+	t.Run("KeepsLivenessTimeoutSecondsIfLargerThanZero", func(t *testing.T) {
+
+		params := Params{
+			LivenessProbe: ProbeParams{
+				TimeoutSeconds: 5,
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, 5, params.LivenessProbe.TimeoutSeconds)
+	})
+
+	t.Run("DefaultsLivenessPathToLivenessIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			LivenessProbe: ProbeParams{
+				Path: "",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "/liveness", params.LivenessProbe.Path)
+	})
+
+	t.Run("KeepsLivenessPathIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			LivenessProbe: ProbeParams{
+				Path: "/healthz",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "/healthz", params.LivenessProbe.Path)
+	})
+
+	t.Run("DefaultsReadinessInitialDelaySecondsTo0IfZero", func(t *testing.T) {
+
+		params := Params{
+			ReadinessProbe: ProbeParams{
+				InitialDelaySeconds: 0,
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, 0, params.ReadinessProbe.InitialDelaySeconds)
+	})
+
+	t.Run("KeepsReadinessInitialDelaySecondsIfLargerThanZero", func(t *testing.T) {
+
+		params := Params{
+			ReadinessProbe: ProbeParams{
+				InitialDelaySeconds: 120,
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, 120, params.ReadinessProbe.InitialDelaySeconds)
+	})
+
+	t.Run("DefaultsReadinessTimeoutSecondsTo1IfZero", func(t *testing.T) {
+
+		params := Params{
+			ReadinessProbe: ProbeParams{
+				TimeoutSeconds: 0,
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, 1, params.ReadinessProbe.TimeoutSeconds)
+	})
+
+	t.Run("KeepsReadinessTimeoutSecondsIfLargerThanZero", func(t *testing.T) {
+
+		params := Params{
+			ReadinessProbe: ProbeParams{
+				TimeoutSeconds: 5,
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, 5, params.ReadinessProbe.TimeoutSeconds)
+	})
+
+	t.Run("DefaultsReadinessPathToReadinessIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			ReadinessProbe: ProbeParams{
+				Path: "",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "/readiness", params.ReadinessProbe.Path)
+	})
+
+	t.Run("KeepsReadinessPathIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			ReadinessProbe: ProbeParams{
+				Path: "/healthz",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "/healthz", params.ReadinessProbe.Path)
+	})
+
 }
 
 func TestSetDefaultsFromCredentials(t *testing.T) {
@@ -1034,6 +1213,126 @@ func TestValidateRequiredProperties(t *testing.T) {
 
 		params := validParams
 		params.Autoscale.CPUPercentage = 35
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfLivenessPathIsEmpty", func(t *testing.T) {
+
+		params := validParams
+		params.LivenessProbe.Path = ""
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfLivenessPathIsNotEmpty", func(t *testing.T) {
+
+		params := validParams
+		params.LivenessProbe.Path = "/liveness"
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfLivenessInitialDelaySecondsIsZeroOrLess", func(t *testing.T) {
+
+		params := validParams
+		params.LivenessProbe.InitialDelaySeconds = 0
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfLivenessInitialDelaySecondsIsLargerThanZero", func(t *testing.T) {
+
+		params := validParams
+		params.LivenessProbe.InitialDelaySeconds = 30
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfLivenessTimeoutSecondsIsZeroOrLess", func(t *testing.T) {
+
+		params := validParams
+		params.LivenessProbe.TimeoutSeconds = 0
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfLivenessTimeoutSecondsIsLargerThanZero", func(t *testing.T) {
+
+		params := validParams
+		params.LivenessProbe.TimeoutSeconds = 2
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfReadinessProbePathIsEmpty", func(t *testing.T) {
+
+		params := validParams
+		params.ReadinessProbe.Path = ""
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfReadinessProbePathIsNotEmpty", func(t *testing.T) {
+
+		params := validParams
+		params.ReadinessProbe.Path = "/readiness"
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfReadinessProbeTimeoutSecondsIsZeroOrLess", func(t *testing.T) {
+
+		params := validParams
+		params.ReadinessProbe.TimeoutSeconds = 0
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfReadinessProbeTimeoutSecondsIsLargerThanZero", func(t *testing.T) {
+
+		params := validParams
+		params.ReadinessProbe.TimeoutSeconds = 2
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()

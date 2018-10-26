@@ -65,7 +65,7 @@ spec:
           httpGet:
             path: {{.Container.Liveness.Path}}
             port: web
-          initialDelaySeconds: {{.Container.InitialDelaySeconds}}
+          initialDelaySeconds: {{.Container.Liveness.InitialDelaySeconds}}
           timeoutSeconds: {{.Container.Liveness.TimeoutSeconds}}
       - name: {{.Name}}-openresty
         image: estafette/openresty-sidecar:1.13.6.1-alpine
@@ -112,6 +112,8 @@ spec:
             path: {{.Container.Readiness.Path}}
             port: https
             scheme: HTTPS
+          initialDelaySeconds: {{.Container.Readiness.InitialDelaySeconds}}
+          timeoutSeconds: {{.Container.Readiness.TimeoutSeconds}}
       volumes:
       - name: ssl-certificate
         secret:

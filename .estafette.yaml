@@ -58,6 +58,14 @@ stages:
       min: 3
       max: 50
       cpu: 80
+    liveness:
+      path: /liveness
+      delay: 30
+      timeout: 1
+    readiness:
+      path: /readiness
+      delay: 30
+      timeout: 1
     hosts:
     - gke.estafette.io
     - gke-deploy.estafette.io

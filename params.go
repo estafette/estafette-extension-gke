@@ -23,8 +23,10 @@ type Params struct {
 	Autoscale  AutoscaleParams `json:"autoscale,omitempty"`
 
 	// resources
-	CPU    CPUParams    `json:"cpu,omitempty"`
-	Memory MemoryParams `json:"memory,omitempty"`
+	CPU            CPUParams    `json:"cpu,omitempty"`
+	Memory         MemoryParams `json:"memory,omitempty"`
+	LivenessProbe  ProbeParams  `json:"liveness,omitempty"`
+	ReadinessProbe ProbeParams  `json:"readiness,omitempty"`
 
 	// used for seeing the rendered template without executing it but testing it with a dryrun
 	DryRun bool `json:"dryrun,string,omitempty"`
@@ -61,6 +63,13 @@ type AutoscaleParams struct {
 	MinReplicas   int `json:"min,string,omitempty"`
 	MaxReplicas   int `json:"max,string,omitempty"`
 	CPUPercentage int `json:"cpu,string,omitempty"`
+}
+
+// ProbeParams sets params for liveness or readiness probe
+type ProbeParams struct {
+	Path                string `json:"path,omitempty"`
+	InitialDelaySeconds int    `json:"delay,string,omitempty"`
+	TimeoutSeconds      int    `json:"timeout,string,omitempty"`
 }
 
 // SetDefaults fills in empty fields with convention-based defaults
@@ -152,6 +161,24 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName string, estafet
 	if p.Autoscale.CPUPercentage <= 0 {
 		p.Autoscale.CPUPercentage = 80
 	}
+
+	// set probe defaults
+	if p.LivenessProbe.Path == "" {
+		p.LivenessProbe.Path = "/liveness"
+	}
+	if p.LivenessProbe.InitialDelaySeconds <= 0 {
+		p.LivenessProbe.InitialDelaySeconds = 30
+	}
+	if p.LivenessProbe.TimeoutSeconds <= 0 {
+		p.LivenessProbe.TimeoutSeconds = 1
+	}
+
+	if p.ReadinessProbe.Path == "" {
+		p.ReadinessProbe.Path = "/readiness"
+	}
+	if p.ReadinessProbe.TimeoutSeconds <= 0 {
+		p.ReadinessProbe.TimeoutSeconds = 1
+	}
 }
 
 // SetDefaultsFromCredentials sets defaults based on the credentials fetched with first-run defaults
@@ -220,6 +247,23 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 	}
 	if p.Autoscale.CPUPercentage <= 0 {
 		errors = append(errors, fmt.Errorf("Autoscaling cpu percentage must be larger than zero; set it via autoscale.cpu property on this stage"))
+	}
+
+	if p.LivenessProbe.Path == "" {
+		errors = append(errors, fmt.Errorf("Liveness path is required; set it via liveness.path property on this stage"))
+	}
+	if p.LivenessProbe.InitialDelaySeconds <= 0 {
+		errors = append(errors, fmt.Errorf("Liveness initial delay must be larger than zero; set it via liveness.delay property on this stage"))
+	}
+	if p.LivenessProbe.TimeoutSeconds <= 0 {
+		errors = append(errors, fmt.Errorf("Liveness timeout must be larger than zero; set it via liveness.timeout property on this stage"))
+	}
+
+	if p.ReadinessProbe.Path == "" {
+		errors = append(errors, fmt.Errorf("Readiness path is required; set it via readiness.path property on this stage"))
+	}
+	if p.ReadinessProbe.TimeoutSeconds <= 0 {
+		errors = append(errors, fmt.Errorf("Readiness timeout must be larger than zero; set it via readiness.timeout property on this stage"))
 	}
 
 	return len(errors) == 0, errors
