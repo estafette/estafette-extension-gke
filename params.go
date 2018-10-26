@@ -30,10 +30,11 @@ type ContainerParams struct {
 	Port                 int               `json:"port,string,omitempty"`
 	EnvironmentVariables map[string]string `json:"env,omitempty"`
 
-	CPU            CPUParams    `json:"cpu,omitempty"`
-	Memory         MemoryParams `json:"memory,omitempty"`
-	LivenessProbe  ProbeParams  `json:"liveness,omitempty"`
-	ReadinessProbe ProbeParams  `json:"readiness,omitempty"`
+	CPU            CPUParams     `json:"cpu,omitempty"`
+	Memory         MemoryParams  `json:"memory,omitempty"`
+	LivenessProbe  ProbeParams   `json:"liveness,omitempty"`
+	ReadinessProbe ProbeParams   `json:"readiness,omitempty"`
+	Metrics        MetricsParams `json:"metrics,omitempty"`
 }
 
 // CPUParams sets cpu request and limit values
@@ -60,6 +61,12 @@ type ProbeParams struct {
 	Path                string `json:"path,omitempty"`
 	InitialDelaySeconds int    `json:"delay,string,omitempty"`
 	TimeoutSeconds      int    `json:"timeout,string,omitempty"`
+}
+
+// MetricsParams sets params for scraping prometheus metrics
+type MetricsParams struct {
+	Path string `json:"path,omitempty"`
+	Port int    `json:"port,string,omitempty"`
 }
 
 // SetDefaults fills in empty fields with convention-based defaults
@@ -152,7 +159,7 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName string, estafet
 		p.Autoscale.CPUPercentage = 80
 	}
 
-	// set probe defaults
+	// set liveness probe defaults
 	if p.Container.LivenessProbe.Path == "" {
 		p.Container.LivenessProbe.Path = "/liveness"
 	}
@@ -163,11 +170,20 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName string, estafet
 		p.Container.LivenessProbe.TimeoutSeconds = 1
 	}
 
+	// set readiness probe defaults
 	if p.Container.ReadinessProbe.Path == "" {
 		p.Container.ReadinessProbe.Path = "/readiness"
 	}
 	if p.Container.ReadinessProbe.TimeoutSeconds <= 0 {
 		p.Container.ReadinessProbe.TimeoutSeconds = 1
+	}
+
+	// set metrics defaults
+	if p.Container.Metrics.Path == "" {
+		p.Container.Metrics.Path = "/metrics"
+	}
+	if p.Container.Metrics.Port <= 0 {
+		p.Container.Metrics.Port = p.Container.Port
 	}
 }
 
@@ -190,12 +206,37 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 
 	errors := []error{}
 
+	// validate control params
+	if p.Credentials == "" {
+		errors = append(errors, fmt.Errorf("Credentials property is required; set it via credentials property on this stage"))
+	}
+
+	// validate app params
 	if p.App == "" {
 		errors = append(errors, fmt.Errorf("Application name is required; either define an app label or use app property on this stage"))
 	}
 	if p.Namespace == "" {
 		errors = append(errors, fmt.Errorf("Namespace is required; either use credentials with a defaultNamespace or set it via namespace property on this stage"))
 	}
+	if p.Visibility == "" || (p.Visibility != "private" && p.Visibility != "public") {
+		errors = append(errors, fmt.Errorf("Visibility property is required; set it via visibility property on this stage; allowed values are private or public"))
+	}
+	if len(p.Hosts) == 0 {
+		errors = append(errors, fmt.Errorf("At least one host is required; set it via hosts array property on this stage"))
+	}
+
+	// validate autoscale params
+	if p.Autoscale.MinReplicas <= 0 {
+		errors = append(errors, fmt.Errorf("Autoscaling min replicas must be larger than zero; set it via autoscale.min property on this stage"))
+	}
+	if p.Autoscale.MaxReplicas <= 0 {
+		errors = append(errors, fmt.Errorf("Autoscaling max replicas must be larger than zero; set it via autoscale.max property on this stage"))
+	}
+	if p.Autoscale.CPUPercentage <= 0 {
+		errors = append(errors, fmt.Errorf("Autoscaling cpu percentage must be larger than zero; set it via autoscale.cpu property on this stage"))
+	}
+
+	// validate container params
 	if p.Container.ImageRepository == "" {
 		errors = append(errors, fmt.Errorf("Image repository is required; set it via container.repository property on this stage"))
 	}
@@ -208,37 +249,24 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 	if p.Container.Port <= 0 {
 		errors = append(errors, fmt.Errorf("Container port must be larger than zero; set it via container.port property on this stage"))
 	}
-	if p.Credentials == "" {
-		errors = append(errors, fmt.Errorf("Credentials property is required; set it via credentials property on this stage"))
-	}
-	if p.Visibility == "" || (p.Visibility != "private" && p.Visibility != "public") {
-		errors = append(errors, fmt.Errorf("Visibility property is required; set it via visibility property on this stage; allowed values are private or public"))
-	}
+
+	// validate cpu params
 	if p.Container.CPU.Request == "" {
 		errors = append(errors, fmt.Errorf("Cpu request is required; set it via container.cpu.request property on this stage"))
 	}
 	if p.Container.CPU.Limit == "" {
 		errors = append(errors, fmt.Errorf("Cpu limit is required; set it via container.cpu.limit property on this stage"))
 	}
+
+	// validate memory params
 	if p.Container.Memory.Request == "" {
 		errors = append(errors, fmt.Errorf("Memory request is required; set it via container.memory.request property on this stage"))
 	}
 	if p.Container.Memory.Limit == "" {
 		errors = append(errors, fmt.Errorf("Memory limit is required; set it via container.memory.limit property on this stage"))
 	}
-	if len(p.Hosts) == 0 {
-		errors = append(errors, fmt.Errorf("At least one host is required; set it via hosts array property on this stage"))
-	}
-	if p.Autoscale.MinReplicas <= 0 {
-		errors = append(errors, fmt.Errorf("Autoscaling min replicas must be larger than zero; set it via autoscale.min property on this stage"))
-	}
-	if p.Autoscale.MaxReplicas <= 0 {
-		errors = append(errors, fmt.Errorf("Autoscaling max replicas must be larger than zero; set it via autoscale.max property on this stage"))
-	}
-	if p.Autoscale.CPUPercentage <= 0 {
-		errors = append(errors, fmt.Errorf("Autoscaling cpu percentage must be larger than zero; set it via autoscale.cpu property on this stage"))
-	}
 
+	// validate liveness params
 	if p.Container.LivenessProbe.Path == "" {
 		errors = append(errors, fmt.Errorf("Liveness path is required; set it via container.liveness.path property on this stage"))
 	}
@@ -249,11 +277,20 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 		errors = append(errors, fmt.Errorf("Liveness timeout must be larger than zero; set it via container.liveness.timeout property on this stage"))
 	}
 
+	// validate readiness params
 	if p.Container.ReadinessProbe.Path == "" {
 		errors = append(errors, fmt.Errorf("Readiness path is required; set it via container.readiness.path property on this stage"))
 	}
 	if p.Container.ReadinessProbe.TimeoutSeconds <= 0 {
 		errors = append(errors, fmt.Errorf("Readiness timeout must be larger than zero; set it via container.readiness.timeout property on this stage"))
+	}
+
+	// validate metrics params
+	if p.Container.Metrics.Path == "" {
+		errors = append(errors, fmt.Errorf("Metrics path is required; set it via container.metrics.path property on this stage"))
+	}
+	if p.Container.Metrics.Port <= 0 {
+		errors = append(errors, fmt.Errorf("Metrics port must be larger than zero; set it via container.metrics.port property on this stage"))
 	}
 
 	return len(errors) == 0, errors

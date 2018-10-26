@@ -35,6 +35,7 @@ type ContainerData struct {
 	EnvironmentVariables map[string]string
 	Liveness             ProbeData
 	Readiness            ProbeData
+	Metrics              MetricsData
 }
 
 // ProbeData has data specific to liveness and readiness probes
@@ -42,4 +43,10 @@ type ProbeData struct {
 	Path                string
 	InitialDelaySeconds int
 	TimeoutSeconds      int
+}
+
+// MetricsData has data to configure prometheus metrics scraping
+type MetricsData struct {
+	Path string
+	Port int
 }

@@ -465,4 +465,36 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "value1", templateData.Container.EnvironmentVariables["MY_CUSTOM_ENV"])
 		assert.Equal(t, "value2", templateData.Container.EnvironmentVariables["MY_OTHER_CUSTOM_ENV"])
 	})
+
+	t.Run("SetsMetricsPathToMetricsProbePathParam", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				Metrics: MetricsParams{
+					Path: "/readiness",
+				},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "/readiness", templateData.Container.Metrics.Path)
+	})
+
+	t.Run("SetsContainerPortToContainerPortParam", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				Metrics: MetricsParams{
+					Port: 3080,
+				},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, 3080, templateData.Container.Metrics.Port)
+	})
 }

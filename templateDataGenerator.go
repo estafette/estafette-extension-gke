@@ -45,6 +45,10 @@ func generateTemplateData(params Params) TemplateData {
 				InitialDelaySeconds: params.Container.ReadinessProbe.InitialDelaySeconds,
 				TimeoutSeconds:      params.Container.ReadinessProbe.TimeoutSeconds,
 			},
+			Metrics: MetricsData{
+				Path: params.Container.Metrics.Path,
+				Port: params.Container.Metrics.Port,
+			},
 		},
 	}
 

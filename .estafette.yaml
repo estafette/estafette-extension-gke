@@ -65,6 +65,8 @@ stages:
         path: /readiness
         delay: 30
         timeout: 1
+      metrics:
+        path: /metrics
     autoscale:
       min: 3
       max: 50

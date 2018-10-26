@@ -40,6 +40,10 @@ var (
 				InitialDelaySeconds: 0,
 				TimeoutSeconds:      1,
 			},
+			Metrics: MetricsParams{
+				Path: "/metrics",
+				Port: 5000,
+			},
 		},
 		Visibility: "private",
 		Hosts:      []string{"gke.estafette.io"},
@@ -775,6 +779,72 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "/healthz", params.Container.ReadinessProbe.Path)
 	})
 
+	t.Run("DefaultsMetricsPathToMetricsIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				Metrics: MetricsParams{
+					Path: "",
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "/metrics", params.Container.Metrics.Path)
+	})
+
+	t.Run("KeepsMetricsPathIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				Metrics: MetricsParams{
+					Path: "/mymetrics",
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "/mymetrics", params.Container.Metrics.Path)
+	})
+
+	t.Run("DefaultsMetricsPortToContainerPortIfZero", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				Port: 5000,
+				Metrics: MetricsParams{
+					Port: 0,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, 5000, params.Container.Metrics.Port)
+	})
+
+	t.Run("KeepsMetricsPortIfLargerThanZero", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				Port: 5000,
+				Metrics: MetricsParams{
+					Port: 5001,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, 5001, params.Container.Metrics.Port)
+	})
+
 }
 
 func TestSetDefaultsFromCredentials(t *testing.T) {
@@ -1382,6 +1452,54 @@ func TestValidateRequiredProperties(t *testing.T) {
 
 		params := validParams
 		params.Container.ReadinessProbe.TimeoutSeconds = 2
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfMetricsPathIsEmpty", func(t *testing.T) {
+
+		params := validParams
+		params.Container.Metrics.Path = ""
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfMetricsPathIsNotEmpty", func(t *testing.T) {
+
+		params := validParams
+		params.Container.Metrics.Path = "/metrics"
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfMetricsPortIsZeroOrLess", func(t *testing.T) {
+
+		params := validParams
+		params.Container.Metrics.Port = 0
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfMetricsPortIsLargerThanZero", func(t *testing.T) {
+
+		params := validParams
+		params.Container.Metrics.Port = 5000
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
