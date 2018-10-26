@@ -178,8 +178,10 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsContainerCPURequestToCPURequestParam", func(t *testing.T) {
 
 		params := Params{
-			CPU: CPUParams{
-				Request: "1200m",
+			Container: ContainerParams{
+				CPU: CPUParams{
+					Request: "1200m",
+				},
 			},
 		}
 
@@ -192,8 +194,10 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsContainerCPULimitToCPULimitParam", func(t *testing.T) {
 
 		params := Params{
-			CPU: CPUParams{
-				Limit: "1500m",
+			Container: ContainerParams{
+				CPU: CPUParams{
+					Limit: "1500m",
+				},
 			},
 		}
 
@@ -206,8 +210,10 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsContainerMemoryRequestToMemoryRequestParam", func(t *testing.T) {
 
 		params := Params{
-			Memory: MemoryParams{
-				Request: "1024Mi",
+			Container: ContainerParams{
+				Memory: MemoryParams{
+					Request: "1024Mi",
+				},
 			},
 		}
 
@@ -220,8 +226,10 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsContainerMemoryLimitToMemoryLimitParam", func(t *testing.T) {
 
 		params := Params{
-			Memory: MemoryParams{
-				Limit: "2048Mi",
+			Container: ContainerParams{
+				Memory: MemoryParams{
+					Limit: "2048Mi",
+				},
 			},
 		}
 
@@ -346,8 +354,10 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsLivenessPathToLivenessProbePathParam", func(t *testing.T) {
 
 		params := Params{
-			LivenessProbe: ProbeParams{
-				Path: "/liveness",
+			Container: ContainerParams{
+				LivenessProbe: ProbeParams{
+					Path: "/liveness",
+				},
 			},
 		}
 
@@ -360,8 +370,10 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsLivenessInitialDelaySecondsToLivenessProbeInitialDelaySecondsParam", func(t *testing.T) {
 
 		params := Params{
-			LivenessProbe: ProbeParams{
-				InitialDelaySeconds: 30,
+			Container: ContainerParams{
+				LivenessProbe: ProbeParams{
+					InitialDelaySeconds: 30,
+				},
 			},
 		}
 
@@ -374,8 +386,10 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsLivenessTimeoutSecondsToLivenessProbeTimeoutSecondsParam", func(t *testing.T) {
 
 		params := Params{
-			LivenessProbe: ProbeParams{
-				TimeoutSeconds: 1,
+			Container: ContainerParams{
+				LivenessProbe: ProbeParams{
+					TimeoutSeconds: 1,
+				},
 			},
 		}
 
@@ -388,8 +402,10 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsReadinessPathToReadinessProbePathParam", func(t *testing.T) {
 
 		params := Params{
-			ReadinessProbe: ProbeParams{
-				Path: "/readiness",
+			Container: ContainerParams{
+				ReadinessProbe: ProbeParams{
+					Path: "/readiness",
+				},
 			},
 		}
 
@@ -402,8 +418,10 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsReadinessInitialDelaySecondsToReadinessProbeInitialDelaySecondsParam", func(t *testing.T) {
 
 		params := Params{
-			ReadinessProbe: ProbeParams{
-				InitialDelaySeconds: 30,
+			Container: ContainerParams{
+				ReadinessProbe: ProbeParams{
+					InitialDelaySeconds: 30,
+				},
 			},
 		}
 
@@ -416,8 +434,10 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsReadinessTimeoutSecondsToReadinessProbeTimeoutSecondsParam", func(t *testing.T) {
 
 		params := Params{
-			ReadinessProbe: ProbeParams{
-				TimeoutSeconds: 1,
+			Container: ContainerParams{
+				ReadinessProbe: ProbeParams{
+					TimeoutSeconds: 1,
+				},
 			},
 		}
 
@@ -425,5 +445,24 @@ func TestGenerateTemplateData(t *testing.T) {
 		templateData := generateTemplateData(params)
 
 		assert.Equal(t, 1, templateData.Container.Readiness.TimeoutSeconds)
+	})
+
+	t.Run("SetsEnvironmentVariablesToContainerEnvironmentVariablesParam", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				EnvironmentVariables: map[string]string{
+					"MY_CUSTOM_ENV":       "value1",
+					"MY_OTHER_CUSTOM_ENV": "value2",
+				},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, 2, len(templateData.Container.EnvironmentVariables))
+		assert.Equal(t, "value1", templateData.Container.EnvironmentVariables["MY_CUSTOM_ENV"])
+		assert.Equal(t, "value2", templateData.Container.EnvironmentVariables["MY_OTHER_CUSTOM_ENV"])
 	})
 }

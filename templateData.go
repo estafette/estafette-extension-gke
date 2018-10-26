@@ -24,16 +24,17 @@ type TemplateData struct {
 
 // ContainerData has data specific to the application container
 type ContainerData struct {
-	Repository    string
-	Name          string
-	Tag           string
-	CPURequest    string
-	MemoryRequest string
-	CPULimit      string
-	MemoryLimit   string
-	Port          int
-	Liveness      ProbeData
-	Readiness     ProbeData
+	Repository           string
+	Name                 string
+	Tag                  string
+	CPURequest           string
+	MemoryRequest        string
+	CPULimit             string
+	MemoryLimit          string
+	Port                 int
+	EnvironmentVariables map[string]string
+	Liveness             ProbeData
+	Readiness            ProbeData
 }
 
 // ProbeData has data specific to liveness and readiness probes

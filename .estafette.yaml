@@ -48,24 +48,27 @@ stages:
       name: gke
       tag: alpha
       port: 5000
-    cpu:
-      request: 100m
-      limit: 100m
-    memory:
-      request: 256Mi
-      limit: 256Mi
+      env:
+        MY_CUSTOM_ENV: value1
+        MY_OTHER_CUSTOM_ENV: value2
+      cpu:
+        request: 100m
+        limit: 100m
+      memory:
+        request: 256Mi
+        limit: 256Mi
+      liveness:
+        path: /liveness
+        delay: 30
+        timeout: 1
+      readiness:
+        path: /readiness
+        delay: 30
+        timeout: 1
     autoscale:
       min: 3
       max: 50
       cpu: 80
-    liveness:
-      path: /liveness
-      delay: 30
-      timeout: 1
-    readiness:
-      path: /readiness
-      delay: 30
-      timeout: 1
     hosts:
     - gke.estafette.io
     - gke-deploy.estafette.io

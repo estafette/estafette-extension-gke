@@ -51,6 +51,13 @@ spec:
       - name: {{.Name}}
         image: {{.Container.Repository}}/{{.Container.Name}}:{{.Container.Tag}}
         imagePullPolicy: IfNotPresent
+        {{- if .Container.EnvironmentVariables }}
+        env:
+        {{- range $key, $value := .Container.EnvironmentVariables }}
+        - name: "{{ $key }}"
+          value: "{{ $value }}"
+        {{- end }}
+        {{- end }}
         resources:
           requests:
             cpu: {{.Container.CPURequest}}

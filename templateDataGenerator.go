@@ -20,8 +20,6 @@ func generateTemplateData(params Params) TemplateData {
 		TargetCPUPercentage: params.Autoscale.CPUPercentage,
 
 		// IngressPath         string
-		// UseNginxIngress     bool
-		// UseGCEIngress       bool
 		// PreferPreemptibles  bool
 
 		Container: ContainerData{
@@ -30,20 +28,22 @@ func generateTemplateData(params Params) TemplateData {
 			Tag:        params.Container.ImageTag,
 			Port:       params.Container.Port,
 
-			CPURequest:    params.CPU.Request,
-			CPULimit:      params.CPU.Limit,
-			MemoryRequest: params.Memory.Request,
-			MemoryLimit:   params.Memory.Limit,
+			CPURequest:    params.Container.CPU.Request,
+			CPULimit:      params.Container.CPU.Limit,
+			MemoryRequest: params.Container.Memory.Request,
+			MemoryLimit:   params.Container.Memory.Limit,
+
+			EnvironmentVariables: params.Container.EnvironmentVariables,
 
 			Liveness: ProbeData{
-				Path:                params.LivenessProbe.Path,
-				InitialDelaySeconds: params.LivenessProbe.InitialDelaySeconds,
-				TimeoutSeconds:      params.LivenessProbe.TimeoutSeconds,
+				Path:                params.Container.LivenessProbe.Path,
+				InitialDelaySeconds: params.Container.LivenessProbe.InitialDelaySeconds,
+				TimeoutSeconds:      params.Container.LivenessProbe.TimeoutSeconds,
 			},
 			Readiness: ProbeData{
-				Path:                params.ReadinessProbe.Path,
-				InitialDelaySeconds: params.ReadinessProbe.InitialDelaySeconds,
-				TimeoutSeconds:      params.ReadinessProbe.TimeoutSeconds,
+				Path:                params.Container.ReadinessProbe.Path,
+				InitialDelaySeconds: params.Container.ReadinessProbe.InitialDelaySeconds,
+				TimeoutSeconds:      params.Container.ReadinessProbe.TimeoutSeconds,
 			},
 		},
 	}

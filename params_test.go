@@ -11,34 +11,35 @@ var (
 		Credentials: "gke-production",
 		App:         "myapp",
 		Namespace:   "mynamespace",
-		Container: ContainerParams{
-			ImageRepository: "estafette",
-			ImageName:       "my-app",
-			ImageTag:        "1.0.0",
-			Port:            5000,
-		},
-		CPU: CPUParams{
-			Request: "100m",
-			Limit:   "150m",
-		},
-		Memory: MemoryParams{
-			Request: "768Mi",
-			Limit:   "1024Mi",
-		},
 		Autoscale: AutoscaleParams{
 			MinReplicas:   3,
 			MaxReplicas:   100,
 			CPUPercentage: 80,
 		},
-		LivenessProbe: ProbeParams{
-			Path:                "/liveness",
-			InitialDelaySeconds: 30,
-			TimeoutSeconds:      1,
-		},
-		ReadinessProbe: ProbeParams{
-			Path:                "/readiness",
-			InitialDelaySeconds: 0,
-			TimeoutSeconds:      1,
+		Container: ContainerParams{
+			ImageRepository: "estafette",
+			ImageName:       "my-app",
+			ImageTag:        "1.0.0",
+			Port:            5000,
+
+			CPU: CPUParams{
+				Request: "100m",
+				Limit:   "150m",
+			},
+			Memory: MemoryParams{
+				Request: "768Mi",
+				Limit:   "1024Mi",
+			},
+			LivenessProbe: ProbeParams{
+				Path:                "/liveness",
+				InitialDelaySeconds: 30,
+				TimeoutSeconds:      1,
+			},
+			ReadinessProbe: ProbeParams{
+				Path:                "/readiness",
+				InitialDelaySeconds: 0,
+				TimeoutSeconds:      1,
+			},
 		},
 		Visibility: "private",
 		Hosts:      []string{"gke.estafette.io"},
@@ -269,181 +270,205 @@ func TestSetDefaults(t *testing.T) {
 	t.Run("DefaultsCpuRequestTo100MIfBothRequestAndLimitAreEmpty", func(t *testing.T) {
 
 		params := Params{
-			CPU: CPUParams{
-				Request: "",
-				Limit:   "",
+			Container: ContainerParams{
+				CPU: CPUParams{
+					Request: "",
+					Limit:   "",
+				},
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", map[string]string{})
 
-		assert.Equal(t, "100m", params.CPU.Request)
+		assert.Equal(t, "100m", params.Container.CPU.Request)
 	})
 
 	t.Run("DefaultsCpuRequestToLimitIfRequestIsEmptyButLimitIsNot", func(t *testing.T) {
 
 		params := Params{
-			CPU: CPUParams{
-				Request: "",
-				Limit:   "300m",
+			Container: ContainerParams{
+				CPU: CPUParams{
+					Request: "",
+					Limit:   "300m",
+				},
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", map[string]string{})
 
-		assert.Equal(t, "300m", params.CPU.Request)
+		assert.Equal(t, "300m", params.Container.CPU.Request)
 	})
 
 	t.Run("KeepsCpuRequestIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
-			CPU: CPUParams{
-				Request: "250m",
-				Limit:   "",
+			Container: ContainerParams{
+				CPU: CPUParams{
+					Request: "250m",
+					Limit:   "",
+				},
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", map[string]string{})
 
-		assert.Equal(t, "250m", params.CPU.Request)
+		assert.Equal(t, "250m", params.Container.CPU.Request)
 	})
 
 	t.Run("DefaultsCpuLimitTo125MIfBothRequestAndLimitAreEmpty", func(t *testing.T) {
 
 		params := Params{
-			CPU: CPUParams{
-				Request: "",
-				Limit:   "",
+			Container: ContainerParams{
+				CPU: CPUParams{
+					Request: "",
+					Limit:   "",
+				},
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", map[string]string{})
 
-		assert.Equal(t, "125m", params.CPU.Limit)
+		assert.Equal(t, "125m", params.Container.CPU.Limit)
 	})
 
 	t.Run("DefaultsCpuLimitToRequestIfLimitIsEmptyButRequestIsNot", func(t *testing.T) {
 
 		params := Params{
-			CPU: CPUParams{
-				Request: "300m",
-				Limit:   "",
+			Container: ContainerParams{
+				CPU: CPUParams{
+					Request: "300m",
+					Limit:   "",
+				},
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", map[string]string{})
 
-		assert.Equal(t, "300m", params.CPU.Limit)
+		assert.Equal(t, "300m", params.Container.CPU.Limit)
 	})
 
 	t.Run("KeepsCpuLimitIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
-			CPU: CPUParams{
-				Request: "",
-				Limit:   "250m",
+			Container: ContainerParams{
+				CPU: CPUParams{
+					Request: "",
+					Limit:   "250m",
+				},
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", map[string]string{})
 
-		assert.Equal(t, "250m", params.CPU.Limit)
+		assert.Equal(t, "250m", params.Container.CPU.Limit)
 	})
 
 	t.Run("DefaultsMemoryRequestTo128MiIfBothRequestAndLimitAreEmpty", func(t *testing.T) {
 
 		params := Params{
-			Memory: MemoryParams{
-				Request: "",
-				Limit:   "",
+			Container: ContainerParams{
+				Memory: MemoryParams{
+					Request: "",
+					Limit:   "",
+				},
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", map[string]string{})
 
-		assert.Equal(t, "128Mi", params.Memory.Request)
+		assert.Equal(t, "128Mi", params.Container.Memory.Request)
 	})
 
 	t.Run("DefaultsMemoryRequestToLimitIfRequestIsEmptyButLimitIsNot", func(t *testing.T) {
 
 		params := Params{
-			Memory: MemoryParams{
-				Request: "",
-				Limit:   "256Mi",
+			Container: ContainerParams{
+				Memory: MemoryParams{
+					Request: "",
+					Limit:   "256Mi",
+				},
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", map[string]string{})
 
-		assert.Equal(t, "256Mi", params.Memory.Request)
+		assert.Equal(t, "256Mi", params.Container.Memory.Request)
 	})
 
 	t.Run("KeepsMemoryRequestIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
-			Memory: MemoryParams{
-				Request: "512Mi",
-				Limit:   "",
+			Container: ContainerParams{
+				Memory: MemoryParams{
+					Request: "512Mi",
+					Limit:   "",
+				},
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", map[string]string{})
 
-		assert.Equal(t, "512Mi", params.Memory.Request)
+		assert.Equal(t, "512Mi", params.Container.Memory.Request)
 	})
 
 	t.Run("DefaultsMemoryLimitTo128MiIfBothRequestAndLimitAreEmpty", func(t *testing.T) {
 
 		params := Params{
-			Memory: MemoryParams{
-				Request: "",
-				Limit:   "",
+			Container: ContainerParams{
+				Memory: MemoryParams{
+					Request: "",
+					Limit:   "",
+				},
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", map[string]string{})
 
-		assert.Equal(t, "128Mi", params.Memory.Limit)
+		assert.Equal(t, "128Mi", params.Container.Memory.Limit)
 	})
 
 	t.Run("DefaultsMemoryLimitToRequestIfLimitIsEmptyButRequestIsNot", func(t *testing.T) {
 
 		params := Params{
-			Memory: MemoryParams{
-				Request: "768Mi",
-				Limit:   "",
+			Container: ContainerParams{
+				Memory: MemoryParams{
+					Request: "768Mi",
+					Limit:   "",
+				},
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", map[string]string{})
 
-		assert.Equal(t, "768Mi", params.Memory.Limit)
+		assert.Equal(t, "768Mi", params.Container.Memory.Limit)
 	})
 
 	t.Run("KeepsMemoryLimitIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
-			Memory: MemoryParams{
-				Request: "",
-				Limit:   "1024Mi",
+			Container: ContainerParams{
+				Memory: MemoryParams{
+					Request: "",
+					Limit:   "1024Mi",
+				},
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", map[string]string{})
 
-		assert.Equal(t, "1024Mi", params.Memory.Limit)
+		assert.Equal(t, "1024Mi", params.Container.Memory.Limit)
 	})
 
 	t.Run("DefaultsContainerPortTo5000IfZero", func(t *testing.T) {
@@ -561,169 +586,193 @@ func TestSetDefaults(t *testing.T) {
 	t.Run("DefaultsLivenessInitialDelaySecondsTo30IfZero", func(t *testing.T) {
 
 		params := Params{
-			LivenessProbe: ProbeParams{
-				InitialDelaySeconds: 0,
+			Container: ContainerParams{
+				LivenessProbe: ProbeParams{
+					InitialDelaySeconds: 0,
+				},
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", map[string]string{})
 
-		assert.Equal(t, 30, params.LivenessProbe.InitialDelaySeconds)
+		assert.Equal(t, 30, params.Container.LivenessProbe.InitialDelaySeconds)
 	})
 
 	t.Run("KeepsLivenessInitialDelaySecondsIfLargerThanZero", func(t *testing.T) {
 
 		params := Params{
-			LivenessProbe: ProbeParams{
-				InitialDelaySeconds: 120,
+			Container: ContainerParams{
+				LivenessProbe: ProbeParams{
+					InitialDelaySeconds: 120,
+				},
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", map[string]string{})
 
-		assert.Equal(t, 120, params.LivenessProbe.InitialDelaySeconds)
+		assert.Equal(t, 120, params.Container.LivenessProbe.InitialDelaySeconds)
 	})
 
 	t.Run("DefaultsLivenessTimeoutSecondsTo1IfZero", func(t *testing.T) {
 
 		params := Params{
-			LivenessProbe: ProbeParams{
-				TimeoutSeconds: 0,
+			Container: ContainerParams{
+				LivenessProbe: ProbeParams{
+					TimeoutSeconds: 0,
+				},
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", map[string]string{})
 
-		assert.Equal(t, 1, params.LivenessProbe.TimeoutSeconds)
+		assert.Equal(t, 1, params.Container.LivenessProbe.TimeoutSeconds)
 	})
 
 	t.Run("KeepsLivenessTimeoutSecondsIfLargerThanZero", func(t *testing.T) {
 
 		params := Params{
-			LivenessProbe: ProbeParams{
-				TimeoutSeconds: 5,
+			Container: ContainerParams{
+				LivenessProbe: ProbeParams{
+					TimeoutSeconds: 5,
+				},
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", map[string]string{})
 
-		assert.Equal(t, 5, params.LivenessProbe.TimeoutSeconds)
+		assert.Equal(t, 5, params.Container.LivenessProbe.TimeoutSeconds)
 	})
 
 	t.Run("DefaultsLivenessPathToLivenessIfEmpty", func(t *testing.T) {
 
 		params := Params{
-			LivenessProbe: ProbeParams{
-				Path: "",
+			Container: ContainerParams{
+				LivenessProbe: ProbeParams{
+					Path: "",
+				},
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", map[string]string{})
 
-		assert.Equal(t, "/liveness", params.LivenessProbe.Path)
+		assert.Equal(t, "/liveness", params.Container.LivenessProbe.Path)
 	})
 
 	t.Run("KeepsLivenessPathIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
-			LivenessProbe: ProbeParams{
-				Path: "/healthz",
+			Container: ContainerParams{
+				LivenessProbe: ProbeParams{
+					Path: "/healthz",
+				},
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", map[string]string{})
 
-		assert.Equal(t, "/healthz", params.LivenessProbe.Path)
+		assert.Equal(t, "/healthz", params.Container.LivenessProbe.Path)
 	})
 
 	t.Run("DefaultsReadinessInitialDelaySecondsTo0IfZero", func(t *testing.T) {
 
 		params := Params{
-			ReadinessProbe: ProbeParams{
-				InitialDelaySeconds: 0,
+			Container: ContainerParams{
+				ReadinessProbe: ProbeParams{
+					InitialDelaySeconds: 0,
+				},
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", map[string]string{})
 
-		assert.Equal(t, 0, params.ReadinessProbe.InitialDelaySeconds)
+		assert.Equal(t, 0, params.Container.ReadinessProbe.InitialDelaySeconds)
 	})
 
 	t.Run("KeepsReadinessInitialDelaySecondsIfLargerThanZero", func(t *testing.T) {
 
 		params := Params{
-			ReadinessProbe: ProbeParams{
-				InitialDelaySeconds: 120,
+			Container: ContainerParams{
+				ReadinessProbe: ProbeParams{
+					InitialDelaySeconds: 120,
+				},
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", map[string]string{})
 
-		assert.Equal(t, 120, params.ReadinessProbe.InitialDelaySeconds)
+		assert.Equal(t, 120, params.Container.ReadinessProbe.InitialDelaySeconds)
 	})
 
 	t.Run("DefaultsReadinessTimeoutSecondsTo1IfZero", func(t *testing.T) {
 
 		params := Params{
-			ReadinessProbe: ProbeParams{
-				TimeoutSeconds: 0,
+			Container: ContainerParams{
+				ReadinessProbe: ProbeParams{
+					TimeoutSeconds: 0,
+				},
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", map[string]string{})
 
-		assert.Equal(t, 1, params.ReadinessProbe.TimeoutSeconds)
+		assert.Equal(t, 1, params.Container.ReadinessProbe.TimeoutSeconds)
 	})
 
 	t.Run("KeepsReadinessTimeoutSecondsIfLargerThanZero", func(t *testing.T) {
 
 		params := Params{
-			ReadinessProbe: ProbeParams{
-				TimeoutSeconds: 5,
+			Container: ContainerParams{
+				ReadinessProbe: ProbeParams{
+					TimeoutSeconds: 5,
+				},
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", map[string]string{})
 
-		assert.Equal(t, 5, params.ReadinessProbe.TimeoutSeconds)
+		assert.Equal(t, 5, params.Container.ReadinessProbe.TimeoutSeconds)
 	})
 
 	t.Run("DefaultsReadinessPathToReadinessIfEmpty", func(t *testing.T) {
 
 		params := Params{
-			ReadinessProbe: ProbeParams{
-				Path: "",
+			Container: ContainerParams{
+				ReadinessProbe: ProbeParams{
+					Path: "",
+				},
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", map[string]string{})
 
-		assert.Equal(t, "/readiness", params.ReadinessProbe.Path)
+		assert.Equal(t, "/readiness", params.Container.ReadinessProbe.Path)
 	})
 
 	t.Run("KeepsReadinessPathIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
-			ReadinessProbe: ProbeParams{
-				Path: "/healthz",
+			Container: ContainerParams{
+				ReadinessProbe: ProbeParams{
+					Path: "/healthz",
+				},
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", map[string]string{})
 
-		assert.Equal(t, "/healthz", params.ReadinessProbe.Path)
+		assert.Equal(t, "/healthz", params.Container.ReadinessProbe.Path)
 	})
 
 }
@@ -1008,7 +1057,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfCpuRequestIsNotSet", func(t *testing.T) {
 
 		params := validParams
-		params.CPU.Request = ""
+		params.Container.CPU.Request = ""
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
@@ -1020,7 +1069,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfCpuRequestIsSet", func(t *testing.T) {
 
 		params := validParams
-		params.CPU.Request = "100m"
+		params.Container.CPU.Request = "100m"
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
@@ -1032,7 +1081,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfCpuLimitIsNotSet", func(t *testing.T) {
 
 		params := validParams
-		params.CPU.Limit = ""
+		params.Container.CPU.Limit = ""
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
@@ -1044,7 +1093,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfCpuLimitIsSet", func(t *testing.T) {
 
 		params := validParams
-		params.CPU.Limit = "100m"
+		params.Container.CPU.Limit = "100m"
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
@@ -1056,7 +1105,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfMemoryRequestIsNotSet", func(t *testing.T) {
 
 		params := validParams
-		params.Memory.Request = ""
+		params.Container.Memory.Request = ""
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
@@ -1068,7 +1117,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfMemoryRequestIsSet", func(t *testing.T) {
 
 		params := validParams
-		params.Memory.Request = "100m"
+		params.Container.Memory.Request = "100m"
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
@@ -1080,7 +1129,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfMemoryLimitIsNotSet", func(t *testing.T) {
 
 		params := validParams
-		params.Memory.Limit = ""
+		params.Container.Memory.Limit = ""
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
@@ -1092,7 +1141,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfMemoryLimitIsSet", func(t *testing.T) {
 
 		params := validParams
-		params.Memory.Limit = "100m"
+		params.Container.Memory.Limit = "100m"
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
@@ -1224,7 +1273,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfLivenessPathIsEmpty", func(t *testing.T) {
 
 		params := validParams
-		params.LivenessProbe.Path = ""
+		params.Container.LivenessProbe.Path = ""
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
@@ -1236,7 +1285,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfLivenessPathIsNotEmpty", func(t *testing.T) {
 
 		params := validParams
-		params.LivenessProbe.Path = "/liveness"
+		params.Container.LivenessProbe.Path = "/liveness"
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
@@ -1248,7 +1297,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfLivenessInitialDelaySecondsIsZeroOrLess", func(t *testing.T) {
 
 		params := validParams
-		params.LivenessProbe.InitialDelaySeconds = 0
+		params.Container.LivenessProbe.InitialDelaySeconds = 0
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
@@ -1260,7 +1309,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfLivenessInitialDelaySecondsIsLargerThanZero", func(t *testing.T) {
 
 		params := validParams
-		params.LivenessProbe.InitialDelaySeconds = 30
+		params.Container.LivenessProbe.InitialDelaySeconds = 30
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
@@ -1272,7 +1321,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfLivenessTimeoutSecondsIsZeroOrLess", func(t *testing.T) {
 
 		params := validParams
-		params.LivenessProbe.TimeoutSeconds = 0
+		params.Container.LivenessProbe.TimeoutSeconds = 0
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
@@ -1284,7 +1333,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfLivenessTimeoutSecondsIsLargerThanZero", func(t *testing.T) {
 
 		params := validParams
-		params.LivenessProbe.TimeoutSeconds = 2
+		params.Container.LivenessProbe.TimeoutSeconds = 2
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
@@ -1296,7 +1345,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfReadinessProbePathIsEmpty", func(t *testing.T) {
 
 		params := validParams
-		params.ReadinessProbe.Path = ""
+		params.Container.ReadinessProbe.Path = ""
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
@@ -1308,7 +1357,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfReadinessProbePathIsNotEmpty", func(t *testing.T) {
 
 		params := validParams
-		params.ReadinessProbe.Path = "/readiness"
+		params.Container.ReadinessProbe.Path = "/readiness"
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
@@ -1320,7 +1369,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfReadinessProbeTimeoutSecondsIsZeroOrLess", func(t *testing.T) {
 
 		params := validParams
-		params.ReadinessProbe.TimeoutSeconds = 0
+		params.Container.ReadinessProbe.TimeoutSeconds = 0
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
@@ -1332,7 +1381,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfReadinessProbeTimeoutSecondsIsLargerThanZero", func(t *testing.T) {
 
 		params := validParams
-		params.ReadinessProbe.TimeoutSeconds = 2
+		params.Container.ReadinessProbe.TimeoutSeconds = 2
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()

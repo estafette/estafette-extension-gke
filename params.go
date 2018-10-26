@@ -6,44 +6,34 @@ import (
 
 // Params is used to parameterize the deployment, set from custom properties in the manifest
 type Params struct {
-	// which credentials to use
+	// control params
 	Credentials string `json:"credentials,omitempty"`
+	DryRun      bool   `json:"dryrun,string,omitempty"`
 
-	// application common properties
-	App       string            `json:"app,omitempty"`
-	Namespace string            `json:"namespace,omitempty"`
-	Labels    map[string]string `json:"labels,omitempty"`
+	// app params
+	App        string            `json:"app,omitempty"`
+	Namespace  string            `json:"namespace,omitempty"`
+	Labels     map[string]string `json:"labels,omitempty"`
+	Visibility string            `json:"visibility,omitempty"`
+	Hosts      []string          `json:"hosts,omitempty"`
+	Autoscale  AutoscaleParams   `json:"autoscale,omitempty"`
 
-	// container specific properties
+	// container params
 	Container ContainerParams `json:"container,omitempty"`
-
-	// misc
-	Visibility string          `json:"visibility,omitempty"`
-	Hosts      []string        `json:"hosts,omitempty"`
-	Autoscale  AutoscaleParams `json:"autoscale,omitempty"`
-
-	// resources
-	CPU            CPUParams    `json:"cpu,omitempty"`
-	Memory         MemoryParams `json:"memory,omitempty"`
-	LivenessProbe  ProbeParams  `json:"liveness,omitempty"`
-	ReadinessProbe ProbeParams  `json:"readiness,omitempty"`
-
-	// used for seeing the rendered template without executing it but testing it with a dryrun
-	DryRun bool `json:"dryrun,string,omitempty"`
-
-	// IngressPath         string
-	// UseNginxIngress     bool
-	// UseGCEIngress       bool
-	// ServiceType         string
-	// PreferPreemptibles  bool
 }
 
 // ContainerParams defines the container image to deploy
 type ContainerParams struct {
-	ImageRepository string `json:"repository,omitempty"`
-	ImageName       string `json:"name,omitempty"`
-	ImageTag        string `json:"tag,omitempty"`
-	Port            int    `json:"port,string,omitempty"`
+	ImageRepository      string            `json:"repository,omitempty"`
+	ImageName            string            `json:"name,omitempty"`
+	ImageTag             string            `json:"tag,omitempty"`
+	Port                 int               `json:"port,string,omitempty"`
+	EnvironmentVariables map[string]string `json:"env,omitempty"`
+
+	CPU            CPUParams    `json:"cpu,omitempty"`
+	Memory         MemoryParams `json:"memory,omitempty"`
+	LivenessProbe  ProbeParams  `json:"liveness,omitempty"`
+	ReadinessProbe ProbeParams  `json:"readiness,omitempty"`
 }
 
 // CPUParams sets cpu request and limit values
@@ -113,36 +103,36 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName string, estafet
 	}
 
 	// set cpu defaults
-	cpuRequestIsEmpty := p.CPU.Request == ""
+	cpuRequestIsEmpty := p.Container.CPU.Request == ""
 	if cpuRequestIsEmpty {
-		if p.CPU.Limit != "" {
-			p.CPU.Request = p.CPU.Limit
+		if p.Container.CPU.Limit != "" {
+			p.Container.CPU.Request = p.Container.CPU.Limit
 		} else {
-			p.CPU.Request = "100m"
+			p.Container.CPU.Request = "100m"
 		}
 	}
-	if p.CPU.Limit == "" {
+	if p.Container.CPU.Limit == "" {
 		if !cpuRequestIsEmpty {
-			p.CPU.Limit = p.CPU.Request
+			p.Container.CPU.Limit = p.Container.CPU.Request
 		} else {
-			p.CPU.Limit = "125m"
+			p.Container.CPU.Limit = "125m"
 		}
 	}
 
 	// set memory defaults
-	memoryRequestIsEmpty := p.Memory.Request == ""
+	memoryRequestIsEmpty := p.Container.Memory.Request == ""
 	if memoryRequestIsEmpty {
-		if p.Memory.Limit != "" {
-			p.Memory.Request = p.Memory.Limit
+		if p.Container.Memory.Limit != "" {
+			p.Container.Memory.Request = p.Container.Memory.Limit
 		} else {
-			p.Memory.Request = "128Mi"
+			p.Container.Memory.Request = "128Mi"
 		}
 	}
-	if p.Memory.Limit == "" {
+	if p.Container.Memory.Limit == "" {
 		if !memoryRequestIsEmpty {
-			p.Memory.Limit = p.Memory.Request
+			p.Container.Memory.Limit = p.Container.Memory.Request
 		} else {
-			p.Memory.Limit = "128Mi"
+			p.Container.Memory.Limit = "128Mi"
 		}
 	}
 
@@ -163,21 +153,21 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName string, estafet
 	}
 
 	// set probe defaults
-	if p.LivenessProbe.Path == "" {
-		p.LivenessProbe.Path = "/liveness"
+	if p.Container.LivenessProbe.Path == "" {
+		p.Container.LivenessProbe.Path = "/liveness"
 	}
-	if p.LivenessProbe.InitialDelaySeconds <= 0 {
-		p.LivenessProbe.InitialDelaySeconds = 30
+	if p.Container.LivenessProbe.InitialDelaySeconds <= 0 {
+		p.Container.LivenessProbe.InitialDelaySeconds = 30
 	}
-	if p.LivenessProbe.TimeoutSeconds <= 0 {
-		p.LivenessProbe.TimeoutSeconds = 1
+	if p.Container.LivenessProbe.TimeoutSeconds <= 0 {
+		p.Container.LivenessProbe.TimeoutSeconds = 1
 	}
 
-	if p.ReadinessProbe.Path == "" {
-		p.ReadinessProbe.Path = "/readiness"
+	if p.Container.ReadinessProbe.Path == "" {
+		p.Container.ReadinessProbe.Path = "/readiness"
 	}
-	if p.ReadinessProbe.TimeoutSeconds <= 0 {
-		p.ReadinessProbe.TimeoutSeconds = 1
+	if p.Container.ReadinessProbe.TimeoutSeconds <= 0 {
+		p.Container.ReadinessProbe.TimeoutSeconds = 1
 	}
 }
 
@@ -224,17 +214,17 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 	if p.Visibility == "" || (p.Visibility != "private" && p.Visibility != "public") {
 		errors = append(errors, fmt.Errorf("Visibility property is required; set it via visibility property on this stage; allowed values are private or public"))
 	}
-	if p.CPU.Request == "" {
-		errors = append(errors, fmt.Errorf("Cpu request is required; set it via cpu.request property on this stage"))
+	if p.Container.CPU.Request == "" {
+		errors = append(errors, fmt.Errorf("Cpu request is required; set it via container.cpu.request property on this stage"))
 	}
-	if p.CPU.Limit == "" {
-		errors = append(errors, fmt.Errorf("Cpu limit is required; set it via cpu.limit property on this stage"))
+	if p.Container.CPU.Limit == "" {
+		errors = append(errors, fmt.Errorf("Cpu limit is required; set it via container.cpu.limit property on this stage"))
 	}
-	if p.Memory.Request == "" {
-		errors = append(errors, fmt.Errorf("Memory request is required; set it via memory.request property on this stage"))
+	if p.Container.Memory.Request == "" {
+		errors = append(errors, fmt.Errorf("Memory request is required; set it via container.memory.request property on this stage"))
 	}
-	if p.Memory.Limit == "" {
-		errors = append(errors, fmt.Errorf("Memory limit is required; set it via memory.limit property on this stage"))
+	if p.Container.Memory.Limit == "" {
+		errors = append(errors, fmt.Errorf("Memory limit is required; set it via container.memory.limit property on this stage"))
 	}
 	if len(p.Hosts) == 0 {
 		errors = append(errors, fmt.Errorf("At least one host is required; set it via hosts array property on this stage"))
@@ -249,21 +239,21 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 		errors = append(errors, fmt.Errorf("Autoscaling cpu percentage must be larger than zero; set it via autoscale.cpu property on this stage"))
 	}
 
-	if p.LivenessProbe.Path == "" {
-		errors = append(errors, fmt.Errorf("Liveness path is required; set it via liveness.path property on this stage"))
+	if p.Container.LivenessProbe.Path == "" {
+		errors = append(errors, fmt.Errorf("Liveness path is required; set it via container.liveness.path property on this stage"))
 	}
-	if p.LivenessProbe.InitialDelaySeconds <= 0 {
-		errors = append(errors, fmt.Errorf("Liveness initial delay must be larger than zero; set it via liveness.delay property on this stage"))
+	if p.Container.LivenessProbe.InitialDelaySeconds <= 0 {
+		errors = append(errors, fmt.Errorf("Liveness initial delay must be larger than zero; set it via container.liveness.delay property on this stage"))
 	}
-	if p.LivenessProbe.TimeoutSeconds <= 0 {
-		errors = append(errors, fmt.Errorf("Liveness timeout must be larger than zero; set it via liveness.timeout property on this stage"))
+	if p.Container.LivenessProbe.TimeoutSeconds <= 0 {
+		errors = append(errors, fmt.Errorf("Liveness timeout must be larger than zero; set it via container.liveness.timeout property on this stage"))
 	}
 
-	if p.ReadinessProbe.Path == "" {
-		errors = append(errors, fmt.Errorf("Readiness path is required; set it via readiness.path property on this stage"))
+	if p.Container.ReadinessProbe.Path == "" {
+		errors = append(errors, fmt.Errorf("Readiness path is required; set it via container.readiness.path property on this stage"))
 	}
-	if p.ReadinessProbe.TimeoutSeconds <= 0 {
-		errors = append(errors, fmt.Errorf("Readiness timeout must be larger than zero; set it via readiness.timeout property on this stage"))
+	if p.Container.ReadinessProbe.TimeoutSeconds <= 0 {
+		errors = append(errors, fmt.Errorf("Readiness timeout must be larger than zero; set it via container.readiness.timeout property on this stage"))
 	}
 
 	return len(errors) == 0, errors
