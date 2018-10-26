@@ -15,13 +15,13 @@ func generateTemplateData(params Params) TemplateData {
 		Hosts:       params.Hosts,
 		HostsJoined: strings.Join(params.Hosts, ","),
 
+		MinReplicas:         params.Autoscale.MinReplicas,
+		MaxReplicas:         params.Autoscale.MaxReplicas,
+		TargetCPUPercentage: params.Autoscale.CPUPercentage,
+
 		// IngressPath         string
 		// UseNginxIngress     bool
 		// UseGCEIngress       bool
-		// ServiceType         string
-		// MinReplicas         int
-		// MaxReplicas         int
-		// TargetCPUPercentage int
 		// PreferPreemptibles  bool
 
 		Container: ContainerData{

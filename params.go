@@ -18,8 +18,9 @@ type Params struct {
 	Container ContainerParams `json:"container,omitempty"`
 
 	// misc
-	Visibility string   `json:"visibility,omitempty"`
-	Hosts      []string `json:"hosts,omitempty"`
+	Visibility string          `json:"visibility,omitempty"`
+	Hosts      []string        `json:"hosts,omitempty"`
+	Autoscale  AutoscaleParams `json:"autoscale,omitempty"`
 
 	// resources
 	CPU    CPUParams    `json:"cpu,omitempty"`
@@ -28,18 +29,11 @@ type Params struct {
 	// used for seeing the rendered template without executing it but testing it with a dryrun
 	DryRun bool `json:"dryrun,string,omitempty"`
 
-	// AppLabelSelector    string
-	// Hosts               []string
-	// HostsJoined         string
 	// IngressPath         string
 	// UseNginxIngress     bool
 	// UseGCEIngress       bool
 	// ServiceType         string
-	// MinReplicas         int
-	// MaxReplicas         int
-	// TargetCPUPercentage int
 	// PreferPreemptibles  bool
-	// Container           ContainerData
 }
 
 // ContainerParams defines the container image to deploy
@@ -60,6 +54,13 @@ type CPUParams struct {
 type MemoryParams struct {
 	Request string `json:"request,omitempty"`
 	Limit   string `json:"limit,omitempty"`
+}
+
+// AutoscaleParams controls autoscaling
+type AutoscaleParams struct {
+	MinReplicas   int `json:"min,string,omitempty"`
+	MaxReplicas   int `json:"max,string,omitempty"`
+	CPUPercentage int `json:"cpu,string,omitempty"`
 }
 
 // SetDefaults fills in empty fields with convention-based defaults
@@ -140,6 +141,17 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName string, estafet
 	if p.Container.Port <= 0 {
 		p.Container.Port = 5000
 	}
+
+	// set autoscale defaults
+	if p.Autoscale.MinReplicas <= 0 {
+		p.Autoscale.MinReplicas = 3
+	}
+	if p.Autoscale.MaxReplicas <= 0 {
+		p.Autoscale.MaxReplicas = 100
+	}
+	if p.Autoscale.CPUPercentage <= 0 {
+		p.Autoscale.CPUPercentage = 80
+	}
 }
 
 // SetDefaultsFromCredentials sets defaults based on the credentials fetched with first-run defaults
@@ -199,6 +211,15 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 	}
 	if len(p.Hosts) == 0 {
 		errors = append(errors, fmt.Errorf("At least one host is required; set it via hosts array property on this stage"))
+	}
+	if p.Autoscale.MinReplicas <= 0 {
+		errors = append(errors, fmt.Errorf("Autoscaling min replicas must be larger than zero; set it via autoscale.min property on this stage"))
+	}
+	if p.Autoscale.MaxReplicas <= 0 {
+		errors = append(errors, fmt.Errorf("Autoscaling max replicas must be larger than zero; set it via autoscale.max property on this stage"))
+	}
+	if p.Autoscale.CPUPercentage <= 0 {
+		errors = append(errors, fmt.Errorf("Autoscaling cpu percentage must be larger than zero; set it via autoscale.cpu property on this stage"))
 	}
 
 	return len(errors) == 0, errors

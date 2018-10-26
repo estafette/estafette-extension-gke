@@ -54,6 +54,10 @@ stages:
     memory:
       request: 256Mi
       limit: 256Mi
+    autoscale:
+      min: 3
+      max: 50
+      cpu: 80
     hosts:
     - gke.estafette.io
     - gke-deploy.estafette.io

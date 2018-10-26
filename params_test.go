@@ -25,6 +25,11 @@ var (
 			Request: "768Mi",
 			Limit:   "1024Mi",
 		},
+		Autoscale: AutoscaleParams{
+			MinReplicas:   3,
+			MaxReplicas:   100,
+			CPUPercentage: 80,
+		},
 		Visibility: "private",
 		Hosts:      []string{"gke.estafette.io"},
 	}
@@ -458,6 +463,90 @@ func TestSetDefaults(t *testing.T) {
 
 		assert.Equal(t, 3000, params.Container.Port)
 	})
+
+	t.Run("DefaultsAutoscaleMinReplicasTo3IfZero", func(t *testing.T) {
+
+		params := Params{
+			Autoscale: AutoscaleParams{
+				MinReplicas: 0,
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, 3, params.Autoscale.MinReplicas)
+	})
+
+	t.Run("KeepsAutoscaleMinReplicasIfLargerThanZero", func(t *testing.T) {
+
+		params := Params{
+			Autoscale: AutoscaleParams{
+				MinReplicas: 2,
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, 2, params.Autoscale.MinReplicas)
+	})
+
+	t.Run("DefaultsAutoscaleMaxReplicasTo100IfZero", func(t *testing.T) {
+
+		params := Params{
+			Autoscale: AutoscaleParams{
+				MaxReplicas: 0,
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, 100, params.Autoscale.MaxReplicas)
+	})
+
+	t.Run("KeepsAutoscaleMaxReplicasIfLargerThanZero", func(t *testing.T) {
+
+		params := Params{
+			Autoscale: AutoscaleParams{
+				MaxReplicas: 50,
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, 50, params.Autoscale.MaxReplicas)
+	})
+
+	t.Run("DefaultsAutoscaleCPUPercentageTo80IfZero", func(t *testing.T) {
+
+		params := Params{
+			Autoscale: AutoscaleParams{
+				CPUPercentage: 0,
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, 80, params.Autoscale.CPUPercentage)
+	})
+
+	t.Run("KeepsAutoscaleCPUPercentageIfLargerThanZero", func(t *testing.T) {
+
+		params := Params{
+			Autoscale: AutoscaleParams{
+				CPUPercentage: 30,
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, 30, params.Autoscale.CPUPercentage)
+	})
 }
 
 func TestSetDefaultsFromCredentials(t *testing.T) {
@@ -881,4 +970,75 @@ func TestValidateRequiredProperties(t *testing.T) {
 		assert.True(t, len(errors) == 0)
 	})
 
+	t.Run("ReturnsFalseIfAutoscaleMinReplicasIsZeroOrLess", func(t *testing.T) {
+
+		params := validParams
+		params.Autoscale.MinReplicas = 0
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfAutoscaleMinReplicasIsLargerThanZero", func(t *testing.T) {
+
+		params := validParams
+		params.Autoscale.MinReplicas = 5
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfAutoscaleMaxReplicasIsZeroOrLess", func(t *testing.T) {
+
+		params := validParams
+		params.Autoscale.MaxReplicas = 0
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfAutoscaleMaxReplicasIsLargerThanZero", func(t *testing.T) {
+
+		params := validParams
+		params.Autoscale.MaxReplicas = 15
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfAutoscaleCPUPercentageIsZeroOrLess", func(t *testing.T) {
+
+		params := validParams
+		params.Autoscale.CPUPercentage = 0
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfAutoscaleCPUPercentageIsLargerThanZero", func(t *testing.T) {
+
+		params := validParams
+		params.Autoscale.CPUPercentage = 35
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
 }

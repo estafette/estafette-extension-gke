@@ -216,4 +216,46 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		assert.Equal(t, "gke.estafette.io,gke-deploy.estafette.io", templateData.HostsJoined)
 	})
+
+	t.Run("SetsMinReplicasToAutoscaleMinReplicasParam", func(t *testing.T) {
+
+		params := Params{
+			Autoscale: AutoscaleParams{
+				MinReplicas: 5,
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, 5, templateData.MinReplicas)
+	})
+
+	t.Run("SetsMaxReplicasToAutoscaleMaxReplicasParam", func(t *testing.T) {
+
+		params := Params{
+			Autoscale: AutoscaleParams{
+				MaxReplicas: 16,
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, 16, templateData.MaxReplicas)
+	})
+
+	t.Run("SetsTargetCPUPercentageToAutoscaleCPUPercentageParam", func(t *testing.T) {
+
+		params := Params{
+			Autoscale: AutoscaleParams{
+				CPUPercentage: 75,
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, 75, templateData.TargetCPUPercentage)
+	})
 }
