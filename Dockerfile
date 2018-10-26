@@ -15,5 +15,6 @@ COPY templates /templates
 RUN du -hd1 /google-cloud-sdk/.[^.]* /google-cloud-sdk/*
 RUN gcloud components list
 RUN kubectl version --client
+RUN type -a kubectl
 
 ENTRYPOINT ["/estafette-extension-gke"]
