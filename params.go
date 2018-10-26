@@ -25,7 +25,7 @@ type Params struct {
 	Memory MemoryParams `json:"memory,omitempty"`
 
 	// used for seeing the rendered template without executing it but testing it with a dryrun
-	DryRun bool `json:"dryrun,omitempty"`
+	DryRun bool `json:"dryrun,string,omitempty"`
 
 	// AppLabelSelector    string
 	// Hosts               []string

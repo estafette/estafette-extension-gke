@@ -69,7 +69,7 @@ func main() {
 	var params Params
 	err := json.Unmarshal([]byte(*paramsJSON), &params)
 	if err != nil {
-		log.Fatal("Failed unmarshalling parameters:", err)
+		log.Fatal("Failed unmarshalling parameters: ", err)
 	}
 
 	log.Printf("Setting defaults for parameters that are not set in the manifest...")
@@ -79,7 +79,7 @@ func main() {
 	var credentials []GKECredentials
 	err = json.Unmarshal([]byte(*credentialsJSON), &credentials)
 	if err != nil {
-		log.Fatal("Failed unmarshalling credentials:", err)
+		log.Fatal("Failed unmarshalling credentials: ", err)
 	}
 
 	log.Printf("Checking if credential %v exists...", params.Credentials)
@@ -94,7 +94,7 @@ func main() {
 	log.Printf("Validating required parameters...")
 	valid, errors := params.ValidateRequiredProperties()
 	if !valid {
-		log.Fatal("Not all valid fields are set.", errors)
+		log.Fatal("Not all valid fields are set: ", errors)
 	}
 
 	// merge templates
@@ -115,7 +115,7 @@ func main() {
 		filePath := fmt.Sprintf("/templates/%v", t)
 		data, err := ioutil.ReadFile(filePath)
 		if err != nil {
-			log.Fatal(fmt.Sprintf("Failed reading file %v", filePath), err)
+			log.Fatal(fmt.Sprintf("Failed reading file %v: ", filePath), err)
 		}
 
 		// log.Printf("Template %v:\n\n", filePath)
@@ -133,7 +133,7 @@ func main() {
 	log.Printf("Parsing merged templates...")
 	tmpl, err := template.New("kubernetes.yaml").Parse(templateString)
 	if err != nil {
-		log.Fatal("Failed parsing templates:", err)
+		log.Fatal("Failed parsing templates: ", err)
 	}
 
 	templateData := generateTemplateData(params)
@@ -150,14 +150,14 @@ func main() {
 	log.Printf("Storing rendered manifest on disk...\n")
 	err = ioutil.WriteFile("/kubernetes.yaml", renderedTemplate.Bytes(), 0600)
 	if err != nil {
-		log.Fatal("Failed writing manifest:", err)
+		log.Fatal("Failed writing manifest: ", err)
 	}
 
 	log.Printf("Retrieving service account email from credentials...\n")
 	var keyFileMap map[string]interface{}
 	err = json.Unmarshal([]byte(credential.AdditionalProperties.ServiceAccountKeyfile), &keyFileMap)
 	if err != nil {
-		log.Fatal("Failed unmarshalling service account keyfile:", err)
+		log.Fatal("Failed unmarshalling service account keyfile: ", err)
 	}
 	var saClientEmail string
 	if saClientEmailIntfc, ok := keyFileMap["client_email"]; !ok {
@@ -173,7 +173,7 @@ func main() {
 	log.Printf("Storing gke credential %v on disk...\n", params.Credentials)
 	err = ioutil.WriteFile("/key-file.json", []byte(credential.AdditionalProperties.ServiceAccountKeyfile), 0600)
 	if err != nil {
-		log.Fatal("Failed writing service account keyfile:", err)
+		log.Fatal("Failed writing service account keyfile: ", err)
 	}
 
 	log.Printf("Authenticating to google cloud\n")
