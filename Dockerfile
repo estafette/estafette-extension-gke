@@ -7,6 +7,7 @@ RUN ls -latrh /google-cloud-sdk
 RUN du -hd1 /google-cloud-sdk/.[^.]* /google-cloud-sdk/*
 
 RUN gcloud components install kubectl \
+    && rm -rf /google-cloud-sdk/.install/.backup \
     && rm -rf /var/cache/apk/*
 
 COPY estafette-extension-gke /
