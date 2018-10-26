@@ -4,7 +4,6 @@ LABEL maintainer="estafette.io" \
       description="The estafette-extension-gke component is an Estafette extension to deploy applications to a Kubernetes Engine cluster"
 
 RUN du -hd1 /google-cloud-sdk/.[^.]* /google-cloud-sdk/*
-RUN du -hd1 /google-cloud-sdk/bin/.[^.]* /google-cloud-sdk/bin/*
 RUN gcloud components list
 
 RUN gcloud components install kubectl \
@@ -13,9 +12,8 @@ RUN gcloud components install kubectl \
 COPY estafette-extension-gke /
 COPY templates /templates
 
-RUN gcloud components list
 RUN du -hd1 /google-cloud-sdk/.[^.]* /google-cloud-sdk/*
-RUN du -hd1 /google-cloud-sdk/bin/.[^.]* /google-cloud-sdk/bin/*
-RUN kubectl version
+RUN gcloud components list
+RUN kubectl version --client
 
 ENTRYPOINT ["/estafette-extension-gke"]
