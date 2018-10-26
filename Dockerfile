@@ -9,4 +9,6 @@ RUN gcloud components install kubectl \
 COPY estafette-extension-gke /
 COPY templates /templates
 
+RUN du -h / -d 1
+
 ENTRYPOINT ["/estafette-extension-gke"]
