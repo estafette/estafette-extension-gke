@@ -10,5 +10,7 @@ COPY estafette-extension-gke /
 COPY templates /templates
 
 RUN du -h / -d 1
+RUN du -sh /
+RUN du -sh /google-cloud-sdk
 
 ENTRYPOINT ["/estafette-extension-gke"]
