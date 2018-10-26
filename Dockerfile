@@ -15,5 +15,7 @@ COPY templates /templates
 
 RUN gcloud components list
 RUN du -h / -d 1
+RUN ls -latrh /
+RUN ls -latrh /google-cloud-sdk
 
 ENTRYPOINT ["/estafette-extension-gke"]
