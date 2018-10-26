@@ -20,6 +20,7 @@ type Params struct {
 
 	// container params
 	Container ContainerParams `json:"container,omitempty"`
+	Sidecar   SidecarParams   `json:"sidecar,omitempty"`
 }
 
 // ContainerParams defines the container image to deploy
@@ -68,6 +69,15 @@ type MetricsParams struct {
 	Scrape string `json:"scrape,omitempty"`
 	Path   string `json:"path,omitempty"`
 	Port   int    `json:"port,string,omitempty"`
+}
+
+// SidecarParams sets params for sidecar injection
+type SidecarParams struct {
+	Type                 string            `json:"type,omitempty"`
+	Image                string            `json:"image,omitempty"`
+	EnvironmentVariables map[string]string `json:"env,omitempty"`
+	CPU                  CPUParams         `json:"cpu,omitempty"`
+	Memory               MemoryParams      `json:"memory,omitempty"`
 }
 
 // SetDefaults fills in empty fields with convention-based defaults
@@ -189,6 +199,45 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName string, estafet
 	if p.Container.Metrics.Scrape == "" {
 		p.Container.Metrics.Scrape = "true"
 	}
+
+	if p.Sidecar.Type == "" {
+		p.Sidecar.Type = "openresty"
+	}
+
+	// set sidecar cpu defaults
+	sidecarCPURequestIsEmpty := p.Sidecar.CPU.Request == ""
+	if sidecarCPURequestIsEmpty {
+		if p.Sidecar.CPU.Limit != "" {
+			p.Sidecar.CPU.Request = p.Sidecar.CPU.Limit
+		} else {
+			p.Sidecar.CPU.Request = "10m"
+		}
+	}
+	if p.Sidecar.CPU.Limit == "" {
+		if !sidecarCPURequestIsEmpty {
+			p.Sidecar.CPU.Limit = p.Sidecar.CPU.Request
+		} else {
+			p.Sidecar.CPU.Limit = "50m"
+		}
+	}
+
+	// set sidecar memory defaults
+	sidecarMemoryRequestIsEmpty := p.Sidecar.Memory.Request == ""
+	if sidecarMemoryRequestIsEmpty {
+		if p.Sidecar.Memory.Limit != "" {
+			p.Sidecar.Memory.Request = p.Sidecar.Memory.Limit
+		} else {
+			p.Sidecar.Memory.Request = "10Mi"
+		}
+	}
+	if p.Sidecar.Memory.Limit == "" {
+		if !sidecarMemoryRequestIsEmpty {
+			p.Sidecar.Memory.Limit = p.Sidecar.Memory.Request
+		} else {
+			p.Sidecar.Memory.Limit = "50Mi"
+		}
+	}
+
 }
 
 // SetDefaultsFromCredentials sets defaults based on the credentials fetched with first-run defaults

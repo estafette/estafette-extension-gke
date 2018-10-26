@@ -68,6 +68,18 @@ stages:
         scrape: true
         path: /metrics
         port: 5001
+    sidecar:
+      type: openresty
+      image: estafette/openresty-sidecar:1.13.6.1-alpine
+      env:
+        CORS_ALLOWED_ORIGINS: "*"
+        CORS_MAX_AGE: "86400"
+      cpu:
+        request: 10m
+        limit: 50m
+      memory:
+        request: 10Mi
+        limit: 50Mi
     autoscale:
       min: 3
       max: 50

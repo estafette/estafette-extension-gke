@@ -877,6 +877,239 @@ func TestSetDefaults(t *testing.T) {
 
 		assert.Equal(t, "false", params.Container.Metrics.Scrape)
 	})
+
+	t.Run("DefaultsSidecarTypeToOpenrestyIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				Type: "",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "openresty", params.Sidecar.Type)
+	})
+
+	t.Run("KeepsVisibilityIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				Type: "istio",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "istio", params.Sidecar.Type)
+	})
+
+	t.Run("DefaultsSidecarCpuRequestTo10MIfBothRequestAndLimitAreEmpty", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				CPU: CPUParams{
+					Request: "",
+					Limit:   "",
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "10m", params.Sidecar.CPU.Request)
+	})
+
+	t.Run("DefaultsSidecarCpuRequestToLimitIfRequestIsEmptyButLimitIsNot", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				CPU: CPUParams{
+					Request: "",
+					Limit:   "300m",
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "300m", params.Sidecar.CPU.Request)
+	})
+
+	t.Run("KeepsSidecarCpuRequestIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				CPU: CPUParams{
+					Request: "250m",
+					Limit:   "",
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "250m", params.Sidecar.CPU.Request)
+	})
+
+	t.Run("DefaultsSidecarCpuLimitTo50MIfBothRequestAndLimitAreEmpty", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				CPU: CPUParams{
+					Request: "",
+					Limit:   "",
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "50m", params.Sidecar.CPU.Limit)
+	})
+
+	t.Run("DefaultsSidecarCpuLimitToRequestIfLimitIsEmptyButRequestIsNot", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				CPU: CPUParams{
+					Request: "300m",
+					Limit:   "",
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "300m", params.Sidecar.CPU.Limit)
+	})
+
+	t.Run("KeepsSidecarCpuLimitIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				CPU: CPUParams{
+					Request: "",
+					Limit:   "250m",
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "250m", params.Sidecar.CPU.Limit)
+	})
+
+	t.Run("DefaultsSidecarMemoryRequestTo10MiIfBothRequestAndLimitAreEmpty", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				Memory: MemoryParams{
+					Request: "",
+					Limit:   "",
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "10Mi", params.Sidecar.Memory.Request)
+	})
+
+	t.Run("DefaultsSidecarMemoryRequestToLimitIfRequestIsEmptyButLimitIsNot", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				Memory: MemoryParams{
+					Request: "",
+					Limit:   "256Mi",
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "256Mi", params.Sidecar.Memory.Request)
+	})
+
+	t.Run("KeepsSidecarMemoryRequestIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				Memory: MemoryParams{
+					Request: "512Mi",
+					Limit:   "",
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "512Mi", params.Sidecar.Memory.Request)
+	})
+
+	t.Run("DefaultsSidecarMemoryLimitTo50MiIfBothRequestAndLimitAreEmpty", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				Memory: MemoryParams{
+					Request: "",
+					Limit:   "",
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "50Mi", params.Sidecar.Memory.Limit)
+	})
+
+	t.Run("DefaultsSidecarMemoryLimitToRequestIfLimitIsEmptyButRequestIsNot", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				Memory: MemoryParams{
+					Request: "768Mi",
+					Limit:   "",
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "768Mi", params.Sidecar.Memory.Limit)
+	})
+
+	t.Run("KeepsSidecarMemoryLimitIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				Memory: MemoryParams{
+					Request: "",
+					Limit:   "1024Mi",
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "1024Mi", params.Sidecar.Memory.Limit)
+	})
+
 }
 
 func TestSetDefaultsFromCredentials(t *testing.T) {
