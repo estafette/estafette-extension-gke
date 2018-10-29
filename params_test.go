@@ -48,6 +48,18 @@ var (
 		},
 		Visibility: "private",
 		Hosts:      []string{"gke.estafette.io"},
+		Sidecar: SidecarParams{
+			Type:  "openresty",
+			Image: "estafette/openresty-sidecar:1.13.6.1-alpine",
+			CPU: CPUParams{
+				Request: "10m",
+				Limit:   "50m",
+			},
+			Memory: MemoryParams{
+				Request: "10Mi",
+				Limit:   "50Mi",
+			},
+		},
 	}
 )
 
@@ -892,7 +904,7 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "openresty", params.Sidecar.Type)
 	})
 
-	t.Run("KeepsVisibilityIfNotEmpty", func(t *testing.T) {
+	t.Run("KeepsSidecarTypeIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
 			Sidecar: SidecarParams{
@@ -904,6 +916,34 @@ func TestSetDefaults(t *testing.T) {
 		params.SetDefaults("", "", "", map[string]string{})
 
 		assert.Equal(t, "istio", params.Sidecar.Type)
+	})
+
+	t.Run("DefaultsSidecarImageToEstafetteOpenrestyIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				Image: "",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "estafette/openresty-sidecar:1.13.6.1-alpine", params.Sidecar.Image)
+	})
+
+	t.Run("KeepsSidecarImageIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				Image: "estafette/openresty-sidecar:latest",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "estafette/openresty-sidecar:latest", params.Sidecar.Image)
 	})
 
 	t.Run("DefaultsSidecarCpuRequestTo10MIfBothRequestAndLimitAreEmpty", func(t *testing.T) {
@@ -1846,4 +1886,149 @@ func TestValidateRequiredProperties(t *testing.T) {
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
 	})
+
+	t.Run("ReturnsFalseIfSidecarTypeIsNotSet", func(t *testing.T) {
+
+		params := validParams
+		params.Sidecar.Type = ""
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfSidecarTypeIsSet", func(t *testing.T) {
+
+		params := validParams
+		params.Sidecar.Type = "openresty"
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfSidecarImageIsNotSet", func(t *testing.T) {
+
+		params := validParams
+		params.Sidecar.Image = ""
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfSidecarImageIsSet", func(t *testing.T) {
+
+		params := validParams
+		params.Sidecar.Image = "estafette/openresty-sidecar:1.13.6.1-alpine"
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfSidecarCpuRequestIsNotSet", func(t *testing.T) {
+
+		params := validParams
+		params.Sidecar.CPU.Request = ""
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfSidecarCpuRequestIsSet", func(t *testing.T) {
+
+		params := validParams
+		params.Sidecar.CPU.Request = "100m"
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfSidecarCpuLimitIsNotSet", func(t *testing.T) {
+
+		params := validParams
+		params.Sidecar.CPU.Limit = ""
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfSidecarCpuLimitIsSet", func(t *testing.T) {
+
+		params := validParams
+		params.Sidecar.CPU.Limit = "100m"
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfSidecarMemoryRequestIsNotSet", func(t *testing.T) {
+
+		params := validParams
+		params.Sidecar.Memory.Request = ""
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfSidecarMemoryRequestIsSet", func(t *testing.T) {
+
+		params := validParams
+		params.Sidecar.Memory.Request = "100m"
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfSidecarMemoryLimitIsNotSet", func(t *testing.T) {
+
+		params := validParams
+		params.Sidecar.Memory.Limit = ""
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfSidecarMemoryLimitIsSet", func(t *testing.T) {
+
+		params := validParams
+		params.Sidecar.Memory.Limit = "100m"
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
 }

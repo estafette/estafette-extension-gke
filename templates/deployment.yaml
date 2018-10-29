@@ -75,16 +75,17 @@ spec:
             port: web
           initialDelaySeconds: {{.Container.Liveness.InitialDelaySeconds}}
           timeoutSeconds: {{.Container.Liveness.TimeoutSeconds}}
+      {{- if .Sidecar.UseOpenrestySidecar }}
       - name: {{.Name}}-openresty
-        image: estafette/openresty-sidecar:1.13.6.1-alpine
+        image: {{.Sidecar.Image}}
         imagePullPolicy: Always
         resources:
-          limits:
-            cpu: 50m
-            memory: 50Mi
           requests:
-            cpu: 10m
-            memory: 10Mi
+            cpu: {{.Sidecar.CPURequest}}
+            memory: {{.Sidecar.MemoryRequest}}
+          limits:
+            cpu: {{.Sidecar.CPULimit}}
+            memory: {{.Sidecar.MemoryLimit}}
         ports:
         - name: http
           containerPort: 80
@@ -107,6 +108,10 @@ spec:
           value: "{{.Namespace}}"
         - name: "HEALT_CHECK_PATH"
           value: "{{.Container.Readiness.Path}}"
+        {{- range $key, $value := .Sidecar.EnvironmentVariables }}
+        - name: "{{ $key }}"
+          value: "{{ $value }}"
+        {{- end }}
         volumeMounts:
         - name: ssl-certificate
           mountPath: /etc/ssl/private
@@ -122,6 +127,7 @@ spec:
             scheme: HTTPS
           initialDelaySeconds: {{.Container.Readiness.InitialDelaySeconds}}
           timeoutSeconds: {{.Container.Readiness.TimeoutSeconds}}
+      {{- end }}
       volumes:
       - name: ssl-certificate
         secret:

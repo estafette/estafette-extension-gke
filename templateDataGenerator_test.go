@@ -514,4 +514,115 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "true", templateData.Container.Metrics.Scrape)
 	})
 
+	t.Run("SetsSidecarUseOpenrestySidecarToTrueIfSidecarTypeParamEqualsOpenresty", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				Type: "openresty",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.True(t, templateData.Sidecar.UseOpenrestySidecar)
+	})
+
+	t.Run("SetsSidecarImageToSidecarImageParam", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				Image: "estafette/openresty-sidecar:1.13.6.1-alpine",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "estafette/openresty-sidecar:1.13.6.1-alpine", templateData.Sidecar.Image)
+	})
+
+	t.Run("SetsSidecarCPURequestToSidecarCPURequestParam", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				CPU: CPUParams{
+					Request: "1200m",
+				},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "1200m", templateData.Sidecar.CPURequest)
+	})
+
+	t.Run("SetsSidecarCPULimitToSidecarCPULimitParam", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				CPU: CPUParams{
+					Limit: "1500m",
+				},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "1500m", templateData.Sidecar.CPULimit)
+	})
+
+	t.Run("SetsSidecarMemoryRequestToSidecarMemoryRequestParam", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				Memory: MemoryParams{
+					Request: "1024Mi",
+				},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "1024Mi", templateData.Sidecar.MemoryRequest)
+	})
+
+	t.Run("SetsSidecarMemoryLimitToSidecarMemoryLimitParam", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				Memory: MemoryParams{
+					Limit: "2048Mi",
+				},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "2048Mi", templateData.Sidecar.MemoryLimit)
+	})
+
+	t.Run("SetsSidecarEnvironmentVariablesToSidecarEnvironmentVariablesParam", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				EnvironmentVariables: map[string]string{
+					"MY_CUSTOM_ENV":       "value1",
+					"MY_OTHER_CUSTOM_ENV": "value2",
+				},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, 2, len(templateData.Sidecar.EnvironmentVariables))
+		assert.Equal(t, "value1", templateData.Sidecar.EnvironmentVariables["MY_CUSTOM_ENV"])
+		assert.Equal(t, "value2", templateData.Sidecar.EnvironmentVariables["MY_OTHER_CUSTOM_ENV"])
+	})
+
 }

@@ -20,6 +20,7 @@ type TemplateData struct {
 	TargetCPUPercentage        int
 	PreferPreemptibles         bool
 	Container                  ContainerData
+	Sidecar                    SidecarData
 }
 
 // ContainerData has data specific to the application container
@@ -50,4 +51,15 @@ type MetricsData struct {
 	Scrape string
 	Path   string
 	Port   int
+}
+
+// SidecarData configures the injected sidecar
+type SidecarData struct {
+	UseOpenrestySidecar  bool
+	Image                string
+	EnvironmentVariables map[string]string
+	CPURequest           string
+	MemoryRequest        string
+	CPULimit             string
+	MemoryLimit          string
 }

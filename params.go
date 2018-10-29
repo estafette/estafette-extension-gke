@@ -200,8 +200,12 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName string, estafet
 		p.Container.Metrics.Scrape = "true"
 	}
 
+	// set sidecar defaults
 	if p.Sidecar.Type == "" {
 		p.Sidecar.Type = "openresty"
+	}
+	if p.Sidecar.Image == "" {
+		p.Sidecar.Image = "estafette/openresty-sidecar:1.13.6.1-alpine"
 	}
 
 	// set sidecar cpu defaults
@@ -349,6 +353,30 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 		if p.Container.Metrics.Port <= 0 {
 			errors = append(errors, fmt.Errorf("Metrics port must be larger than zero; set it via container.metrics.port property on this stage"))
 		}
+	}
+
+	// validate sidear params
+	if p.Sidecar.Type == "" {
+		errors = append(errors, fmt.Errorf("Sidecar type is required; set it via sidecar.type property on this stage; allowed values are openresty"))
+	}
+	if p.Sidecar.Image == "" {
+		errors = append(errors, fmt.Errorf("Sidecar image is required; set it via sidecar.image property on this stage"))
+	}
+
+	// validate sidear cpu params
+	if p.Sidecar.CPU.Request == "" {
+		errors = append(errors, fmt.Errorf("Sidecar cpu request is required; set it via sidecar.cpu.request property on this stage"))
+	}
+	if p.Sidecar.CPU.Limit == "" {
+		errors = append(errors, fmt.Errorf("Sidecar cpu limit is required; set it via sidecar.cpu.limit property on this stage"))
+	}
+
+	// validate sidear memory params
+	if p.Sidecar.Memory.Request == "" {
+		errors = append(errors, fmt.Errorf("Sidecar memory request is required; set it via sidecar.memory.request property on this stage"))
+	}
+	if p.Sidecar.Memory.Limit == "" {
+		errors = append(errors, fmt.Errorf("Sidecar memory limit is required; set it via sidecar.memory.limit property on this stage"))
 	}
 
 	return len(errors) == 0, errors

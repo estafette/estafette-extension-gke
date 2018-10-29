@@ -51,6 +51,18 @@ func generateTemplateData(params Params) TemplateData {
 				Port:   params.Container.Metrics.Port,
 			},
 		},
+
+		Sidecar: SidecarData{
+			UseOpenrestySidecar: params.Sidecar.Type == "openresty",
+
+			Image:         params.Sidecar.Image,
+			CPURequest:    params.Sidecar.CPU.Request,
+			CPULimit:      params.Sidecar.CPU.Limit,
+			MemoryRequest: params.Sidecar.Memory.Request,
+			MemoryLimit:   params.Sidecar.Memory.Limit,
+
+			EnvironmentVariables: params.Sidecar.EnvironmentVariables,
+		},
 	}
 
 	if params.Visibility == "private" {
