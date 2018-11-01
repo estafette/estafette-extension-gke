@@ -20,6 +20,18 @@ func TestGetTemplates(t *testing.T) {
 		assert.True(t, stringArrayContains(templates, "ingress.yaml"))
 	})
 
+	t.Run("IncludesIngressIfVisibilityIsIap", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "iap",
+		}
+
+		// act
+		templates := getTemplates(params)
+
+		assert.True(t, stringArrayContains(templates, "ingress.yaml"))
+	})
+
 	t.Run("DoesNotIncludeIngressIfVisibilityIsPublic", func(t *testing.T) {
 
 		params := Params{

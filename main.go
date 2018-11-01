@@ -175,7 +175,7 @@ func main() {
 
 		if params.Visibility == "public" {
 			// public uses service of type loadbalancer and doesn't need ingress
-			log.Printf("Deleting ingress if it exists, which is used for visibility private...\n")
+			log.Printf("Deleting ingress if it exists, which is used for visibility private or iap...\n")
 			runCommand("kubectl", []string{"delete", "ingress", templateData.Name, "-n", templateData.Namespace, "--ignore-not-found=true"})
 		}
 

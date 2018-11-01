@@ -44,7 +44,7 @@ func getTemplates(params Params) []string {
 		"deployment.yaml",
 	}
 
-	if params.Visibility == "private" {
+	if params.Visibility == "private" || params.Visibility == "iap" {
 		templatesToMerge = append(templatesToMerge, "ingress.yaml")
 	}
 	if len(params.Secrets) > 0 {
