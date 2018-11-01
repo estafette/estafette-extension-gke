@@ -48,6 +48,7 @@ var (
 		},
 		Visibility: "private",
 		Hosts:      []string{"gke.estafette.io"},
+		Basepath:   "/",
 		Sidecar: SidecarParams{
 			Type:  "openresty",
 			Image: "estafette/openresty-sidecar:1.13.6.1-alpine",
@@ -1150,6 +1151,29 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "1024Mi", params.Sidecar.Memory.Limit)
 	})
 
+	t.Run("DefaultsBasePathToSlashIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			Basepath: "",
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "/", params.Basepath)
+	})
+
+	t.Run("KeepsBasepathIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			Basepath: "/api",
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "/api", params.Basepath)
+	})
 }
 
 func TestSetDefaultsFromCredentials(t *testing.T) {
@@ -2031,4 +2055,27 @@ func TestValidateRequiredProperties(t *testing.T) {
 		assert.True(t, len(errors) == 0)
 	})
 
+	t.Run("ReturnsFalseIfBasepathIsNotSet", func(t *testing.T) {
+
+		params := validParams
+		params.Basepath = ""
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfBasepathIsSet", func(t *testing.T) {
+
+		params := validParams
+		params.Basepath = "/"
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
 }

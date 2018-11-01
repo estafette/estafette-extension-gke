@@ -90,6 +90,7 @@ stages:
     hosts:
     - gke.estafette.io
     - gke-deploy.estafette.io
+    basepath: /
     dryrun: true
 
   test-minimal-alpha-version:

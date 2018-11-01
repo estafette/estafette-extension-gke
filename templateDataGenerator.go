@@ -14,6 +14,7 @@ func generateTemplateData(params Params) TemplateData {
 
 		Hosts:       params.Hosts,
 		HostsJoined: strings.Join(params.Hosts, ","),
+		IngressPath: params.Basepath,
 
 		MinReplicas:         params.Autoscale.MinReplicas,
 		MaxReplicas:         params.Autoscale.MaxReplicas,
@@ -22,7 +23,6 @@ func generateTemplateData(params Params) TemplateData {
 		Secrets:                 params.Secrets,
 		MountApplicationSecrets: len(params.Secrets) > 0,
 
-		// IngressPath         string
 		// PreferPreemptibles  bool
 
 		Container: ContainerData{
@@ -78,6 +78,10 @@ func generateTemplateData(params Params) TemplateData {
 		data.UseNginxIngress = false
 		data.UseDNSAnnotationsOnIngress = false
 		data.UseDNSAnnotationsOnService = true
+	}
+
+	if !strings.HasSuffix(data.IngressPath, "/") {
+		data.IngressPath += "/"
 	}
 
 	return data

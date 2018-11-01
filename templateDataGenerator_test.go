@@ -668,4 +668,28 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		assert.False(t, templateData.MountApplicationSecrets)
 	})
+
+	t.Run("SetsIngressPathToBasepathParam", func(t *testing.T) {
+
+		params := Params{
+			Basepath: "/",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "/", templateData.IngressPath)
+	})
+
+	t.Run("AppendSlashToIngressPathToIfBasepathParamDoesNotEndInSlash", func(t *testing.T) {
+
+		params := Params{
+			Basepath: "/api",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "/api/", templateData.IngressPath)
+	})
 }

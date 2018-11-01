@@ -16,6 +16,7 @@ type Params struct {
 	Labels     map[string]string `json:"labels,omitempty"`
 	Visibility string            `json:"visibility,omitempty"`
 	Hosts      []string          `json:"hosts,omitempty"`
+	Basepath   string            `json:"basepath,omitempty"`
 	Autoscale  AutoscaleParams   `json:"autoscale,omitempty"`
 	Secrets    map[string]string `json:"secrets,omitempty"`
 
@@ -243,6 +244,10 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName string, estafet
 		}
 	}
 
+	// default basepath to /
+	if p.Basepath == "" {
+		p.Basepath = "/"
+	}
 }
 
 // SetDefaultsFromCredentials sets defaults based on the credentials fetched with first-run defaults
@@ -281,6 +286,9 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 	}
 	if len(p.Hosts) == 0 {
 		errors = append(errors, fmt.Errorf("At least one host is required; set it via hosts array property on this stage"))
+	}
+	if p.Basepath == "" {
+		errors = append(errors, fmt.Errorf("Basepath property is required; set it via basepath property on this stage"))
 	}
 
 	// validate autoscale params
