@@ -301,8 +301,8 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 	if p.Namespace == "" {
 		errors = append(errors, fmt.Errorf("Namespace is required; either use credentials with a defaultNamespace or set it via namespace property on this stage"))
 	}
-	if p.Visibility == "" || (p.Visibility != "private" && p.Visibility != "public") {
-		errors = append(errors, fmt.Errorf("Visibility property is required; set it via visibility property on this stage; allowed values are private or public"))
+	if p.Visibility == "" || (p.Visibility != "private" && p.Visibility != "public" && p.Visibility != "iap") {
+		errors = append(errors, fmt.Errorf("Visibility property is required; set it via visibility property on this stage; allowed values are private, iap or public"))
 	}
 	if len(p.Hosts) == 0 {
 		errors = append(errors, fmt.Errorf("At least one host is required; set it via hosts array property on this stage"))
