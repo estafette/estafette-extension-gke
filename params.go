@@ -7,10 +7,11 @@ import (
 // Params is used to parameterize the deployment, set from custom properties in the manifest
 type Params struct {
 	// control params
-	Credentials  string `json:"credentials,omitempty"`
-	DryRun       bool   `json:"dryrun,string,omitempty"`
-	BuildVersion string `json:"-"`
-	Resilient    bool   `json:"resilient,string,omitempty"`
+	Credentials    string   `json:"credentials,omitempty"`
+	DryRun         bool     `json:"dryrun,string,omitempty"`
+	BuildVersion   string   `json:"-"`
+	Resilient      bool     `json:"resilient,string,omitempty"`
+	LocalManifests []string `json:"localmanifests,omitempty"`
 
 	// app params
 	App                  string            `json:"app,omitempty"`

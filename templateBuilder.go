@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"path/filepath"
 	"strings"
 	"text/template"
 )
@@ -18,10 +19,9 @@ func buildTemplates(params Params) (*template.Template, error) {
 
 	templateStrings := []string{}
 	for _, t := range templatesToMerge {
-		filePath := fmt.Sprintf("/templates/%v", t)
-		data, err := ioutil.ReadFile(filePath)
+		data, err := ioutil.ReadFile(t)
 		if err != nil {
-			log.Fatal(fmt.Sprintf("Failed reading file %v: ", filePath), err)
+			log.Fatal(fmt.Sprintf("Failed reading file %v: ", t), err)
 		}
 		templateStrings = append(templateStrings, string(data))
 	}
@@ -49,6 +49,29 @@ func getTemplates(params Params) []string {
 	}
 	if len(params.Secrets) > 0 {
 		templatesToMerge = append(templatesToMerge, "application-secrets.yaml")
+	}
+
+	// prefix all filenames with templates dir
+	for i, t := range templatesToMerge {
+		templatesToMerge[i] = fmt.Sprintf("/templates/%v", t)
+	}
+
+	// add or override with local manifests
+	for _, lm := range params.LocalManifests {
+		filename := filepath.Base(lm)
+
+		overridesExistingTemplate := false
+		for i, t := range templatesToMerge {
+			if filename == filepath.Base(t) {
+				overridesExistingTemplate = true
+				templatesToMerge[i] = lm
+				break
+			}
+		}
+
+		if !overridesExistingTemplate {
+			templatesToMerge = append(templatesToMerge, lm)
+		}
 	}
 
 	return templatesToMerge

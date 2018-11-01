@@ -17,7 +17,7 @@ func TestGetTemplates(t *testing.T) {
 		// act
 		templates := getTemplates(params)
 
-		assert.True(t, stringArrayContains(templates, "ingress.yaml"))
+		assert.True(t, stringArrayContains(templates, "/templates/ingress.yaml"))
 	})
 
 	t.Run("IncludesIngressIfVisibilityIsIap", func(t *testing.T) {
@@ -29,7 +29,7 @@ func TestGetTemplates(t *testing.T) {
 		// act
 		templates := getTemplates(params)
 
-		assert.True(t, stringArrayContains(templates, "ingress.yaml"))
+		assert.True(t, stringArrayContains(templates, "/templates/ingress.yaml"))
 	})
 
 	t.Run("DoesNotIncludeIngressIfVisibilityIsPublic", func(t *testing.T) {
@@ -41,7 +41,7 @@ func TestGetTemplates(t *testing.T) {
 		// act
 		templates := getTemplates(params)
 
-		assert.False(t, stringArrayContains(templates, "ingress.yaml"))
+		assert.False(t, stringArrayContains(templates, "/templates/ingress.yaml"))
 	})
 
 	t.Run("IncludesApplicationSecretsIfLengthOfSecretsIsMoreThanZero", func(t *testing.T) {
@@ -56,7 +56,7 @@ func TestGetTemplates(t *testing.T) {
 		// act
 		templates := getTemplates(params)
 
-		assert.True(t, stringArrayContains(templates, "application-secrets.yaml"))
+		assert.True(t, stringArrayContains(templates, "/templates/application-secrets.yaml"))
 	})
 
 	t.Run("DoesNotIncludeApplicationSecretsIfLengthOfSecretsZero", func(t *testing.T) {
@@ -66,7 +66,36 @@ func TestGetTemplates(t *testing.T) {
 		// act
 		templates := getTemplates(params)
 
-		assert.False(t, stringArrayContains(templates, "application-secrets.yaml"))
+		assert.False(t, stringArrayContains(templates, "/templates/application-secrets.yaml"))
+	})
+
+	t.Run("AddLocalManifestsIfSetInLocalManifestsParam", func(t *testing.T) {
+
+		params := Params{
+			LocalManifests: []string{
+				"./gke/another-ingress.yaml",
+			},
+		}
+
+		// act
+		templates := getTemplates(params)
+
+		assert.True(t, stringArrayContains(templates, "./gke/another-ingress.yaml"))
+	})
+
+	t.Run("OverrideWithLocalManifestsIfSetInLocalManifestsParamWithSameFilename", func(t *testing.T) {
+
+		params := Params{
+			LocalManifests: []string{
+				"./gke/service.yaml",
+			},
+		}
+
+		// act
+		templates := getTemplates(params)
+
+		assert.True(t, stringArrayContains(templates, "./gke/service.yaml"))
+		assert.False(t, stringArrayContains(templates, "/templates/service.yaml"))
 	})
 }
 
