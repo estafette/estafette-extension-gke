@@ -85,7 +85,7 @@ spec:
             port: web
           initialDelaySeconds: {{.Container.Liveness.InitialDelaySeconds}}
           timeoutSeconds: {{.Container.Liveness.TimeoutSeconds}}
-        {{- if .MountApplicationSecrets || .MountPayloadLogging }}
+        {{- if or .MountApplicationSecrets .MountPayloadLogging }}
         volumeMounts:
         {{- if .MountApplicationSecrets }}
         - name: app-secrets
