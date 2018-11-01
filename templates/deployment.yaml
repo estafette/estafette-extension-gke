@@ -8,6 +8,11 @@ metadata:
     {{$key}}: {{$value}}
     {{- end}}
 spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: {{.RollingUpdateMaxSurge}}
+      maxUnavailable: {{.RollingUpdateMaxUnavailable}}
   revisionHistoryLimit: 10
   selector:
     matchLabels:

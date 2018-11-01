@@ -16,6 +16,10 @@ var (
 			MaxReplicas:   100,
 			CPUPercentage: 80,
 		},
+		RollingUpdate: RollingUpdateParams{
+			MaxSurge:       "25%",
+			MaxUnavailable: "25%",
+		},
 		Container: ContainerParams{
 			ImageRepository: "estafette",
 			ImageName:       "my-app",
@@ -1174,6 +1178,62 @@ func TestSetDefaults(t *testing.T) {
 
 		assert.Equal(t, "/api", params.Basepath)
 	})
+
+	t.Run("DefaultsRollingUpdateMaxSurgeTo25PercentIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			RollingUpdate: RollingUpdateParams{
+				MaxSurge: "",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "25%", params.RollingUpdate.MaxSurge)
+	})
+
+	t.Run("KeepsRollingUpdateMaxSurgeIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			RollingUpdate: RollingUpdateParams{
+				MaxSurge: "10%",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "10%", params.RollingUpdate.MaxSurge)
+	})
+
+	t.Run("DefaultsRollingUpdateMaxUnavailableTo25%IfEmpty", func(t *testing.T) {
+
+		params := Params{
+			RollingUpdate: RollingUpdateParams{
+				MaxUnavailable: "",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "25%", params.RollingUpdate.MaxUnavailable)
+	})
+
+	t.Run("KeepsRollingUpdateMaxUnavailableIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			RollingUpdate: RollingUpdateParams{
+				MaxUnavailable: "20%",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "20%", params.RollingUpdate.MaxUnavailable)
+	})
 }
 
 func TestSetDefaultsFromCredentials(t *testing.T) {
@@ -2071,6 +2131,54 @@ func TestValidateRequiredProperties(t *testing.T) {
 
 		params := validParams
 		params.Basepath = "/"
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfRollingUpdateMaxSurgeIsNotSet", func(t *testing.T) {
+
+		params := validParams
+		params.RollingUpdate.MaxSurge = ""
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfRollingUpdateMaxSurgeIsSet", func(t *testing.T) {
+
+		params := validParams
+		params.RollingUpdate.MaxSurge = "25%"
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfRollingUpdateMaxUnavailableIsNotSet", func(t *testing.T) {
+
+		params := validParams
+		params.RollingUpdate.MaxUnavailable = ""
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfRollingUpdateMaxUnavailableIsSet", func(t *testing.T) {
+
+		params := validParams
+		params.RollingUpdate.MaxUnavailable = "25%"
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()

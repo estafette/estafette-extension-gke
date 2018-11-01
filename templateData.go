@@ -2,28 +2,30 @@ package main
 
 // TemplateData contains the root data for rendering the Kubernetes manifests
 type TemplateData struct {
-	Name                       string
-	Namespace                  string
-	Labels                     map[string]string
-	AppLabelSelector           string
-	Hosts                      []string
-	HostsJoined                string
-	IngressPath                string
-	UseIngress                 bool
-	UseNginxIngress            bool
-	UseGCEIngress              bool
-	UseDNSAnnotationsOnIngress bool
-	UseDNSAnnotationsOnService bool
-	ServiceType                string
-	MinReplicas                int
-	MaxReplicas                int
-	TargetCPUPercentage        int
-	PreferPreemptibles         bool
-	Container                  ContainerData
-	Sidecar                    SidecarData
-	MountApplicationSecrets    bool
-	Secrets                    map[string]string
-	MountPayloadLogging        bool
+	Name                        string
+	Namespace                   string
+	Labels                      map[string]string
+	AppLabelSelector            string
+	Hosts                       []string
+	HostsJoined                 string
+	IngressPath                 string
+	UseIngress                  bool
+	UseNginxIngress             bool
+	UseGCEIngress               bool
+	UseDNSAnnotationsOnIngress  bool
+	UseDNSAnnotationsOnService  bool
+	ServiceType                 string
+	MinReplicas                 int
+	MaxReplicas                 int
+	TargetCPUPercentage         int
+	PreferPreemptibles          bool
+	Container                   ContainerData
+	Sidecar                     SidecarData
+	MountApplicationSecrets     bool
+	Secrets                     map[string]string
+	MountPayloadLogging         bool
+	RollingUpdateMaxSurge       string
+	RollingUpdateMaxUnavailable string
 }
 
 // ContainerData has data specific to the application container

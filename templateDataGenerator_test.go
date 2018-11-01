@@ -717,4 +717,31 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.False(t, templateData.MountPayloadLogging)
 	})
 
+	t.Run("SetsRollingUpdateMaxSurgeToRollingUpdateMaxSurgeParam", func(t *testing.T) {
+
+		params := Params{
+			RollingUpdate: RollingUpdateParams{
+				MaxSurge: "25%",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "25%", templateData.RollingUpdateMaxSurge)
+	})
+
+	t.Run("SetsRollingUpdateMaxSurgeToRollingUpdateMaxSurgeParam", func(t *testing.T) {
+
+		params := Params{
+			RollingUpdate: RollingUpdateParams{
+				MaxUnavailable: "15%",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "15%", templateData.RollingUpdateMaxUnavailable)
+	})
 }

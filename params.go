@@ -22,8 +22,9 @@ type Params struct {
 	EnablePayloadLogging bool              `json:"enablePayloadLogging,string,omitempty"`
 
 	// container params
-	Container ContainerParams `json:"container,omitempty"`
-	Sidecar   SidecarParams   `json:"sidecar,omitempty"`
+	Container     ContainerParams     `json:"container,omitempty"`
+	Sidecar       SidecarParams       `json:"sidecar,omitempty"`
+	RollingUpdate RollingUpdateParams `json:"rollingupdate,omitempty"`
 }
 
 // ContainerParams defines the container image to deploy
@@ -81,6 +82,12 @@ type SidecarParams struct {
 	EnvironmentVariables map[string]string `json:"env,omitempty"`
 	CPU                  CPUParams         `json:"cpu,omitempty"`
 	Memory               MemoryParams      `json:"memory,omitempty"`
+}
+
+// RollingUpdateParams sets params for controlling rolling update speed
+type RollingUpdateParams struct {
+	MaxSurge       string `json:"maxsurge,omitempty"`
+	MaxUnavailable string `json:"maxunavailable,omitempty"`
 }
 
 // SetDefaults fills in empty fields with convention-based defaults
@@ -249,6 +256,14 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName string, estafet
 	if p.Basepath == "" {
 		p.Basepath = "/"
 	}
+
+	// defaults for rollingupdate
+	if p.RollingUpdate.MaxSurge == "" {
+		p.RollingUpdate.MaxSurge = "25%"
+	}
+	if p.RollingUpdate.MaxUnavailable == "" {
+		p.RollingUpdate.MaxUnavailable = "25%"
+	}
 }
 
 // SetDefaultsFromCredentials sets defaults based on the credentials fetched with first-run defaults
@@ -387,6 +402,14 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 	}
 	if p.Sidecar.Memory.Limit == "" {
 		errors = append(errors, fmt.Errorf("Sidecar memory limit is required; set it via sidecar.memory.limit property on this stage"))
+	}
+
+	// defaults for rollingupdate
+	if p.RollingUpdate.MaxSurge == "" {
+		errors = append(errors, fmt.Errorf("Rollingupdate max surge is required; set it via rollingupdate.maxsurge property on this stage"))
+	}
+	if p.RollingUpdate.MaxUnavailable == "" {
+		errors = append(errors, fmt.Errorf("Rollingupdate max unavailable is required; set it via rollingupdate.maxunavailable property on this stage"))
 	}
 
 	return len(errors) == 0, errors

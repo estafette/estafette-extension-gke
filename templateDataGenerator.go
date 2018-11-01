@@ -24,6 +24,9 @@ func generateTemplateData(params Params) TemplateData {
 		MountApplicationSecrets: len(params.Secrets) > 0,
 		MountPayloadLogging:     params.EnablePayloadLogging,
 
+		RollingUpdateMaxSurge:       params.RollingUpdate.MaxSurge,
+		RollingUpdateMaxUnavailable: params.RollingUpdate.MaxUnavailable,
+
 		// PreferPreemptibles  bool
 
 		Container: ContainerData{
