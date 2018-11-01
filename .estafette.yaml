@@ -97,7 +97,7 @@ stages:
       maxsurge: 25%
       maxunavailable: 25%
     localmanifests:
-    - override/svc.yaml
+    - ./override/svc.yaml
     dryrun: true
 
   test-minimal-alpha-version:
