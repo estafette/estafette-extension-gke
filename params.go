@@ -19,7 +19,7 @@ type Params struct {
 	Basepath             string            `json:"basepath,omitempty"`
 	Autoscale            AutoscaleParams   `json:"autoscale,omitempty"`
 	Secrets              map[string]string `json:"secrets,omitempty"`
-	EnablePayloadLogging bool              `json:"enablePayloadLogging,omitempty"`
+	EnablePayloadLogging bool              `json:"enablePayloadLogging,string,omitempty"`
 
 	// container params
 	Container ContainerParams `json:"container,omitempty"`
