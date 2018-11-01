@@ -641,4 +641,31 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "c29tZSBzZWNyZXQgdmFsdWU=", templateData.Secrets["secret-file-1.json"])
 		assert.Equal(t, "YW5vdGhlciBzZWNyZXQgdmFsdWU=", templateData.Secrets["secret-file-2.yaml"])
 	})
+
+	t.Run("SetsMountApplicationSecretsToTrueIfSecretsParamLengthIsLargerThanZero", func(t *testing.T) {
+
+		params := Params{
+			Secrets: map[string]string{
+				"secret-file-1.json": "c29tZSBzZWNyZXQgdmFsdWU=",
+				"secret-file-2.yaml": "YW5vdGhlciBzZWNyZXQgdmFsdWU=",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.True(t, templateData.MountApplicationSecrets)
+	})
+
+	t.Run("SetsMountApplicationSecretsToFalseIfSecretsParamLengthIsZero", func(t *testing.T) {
+
+		params := Params{
+			Secrets: map[string]string{},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.False(t, templateData.MountApplicationSecrets)
+	})
 }

@@ -75,6 +75,11 @@ spec:
             port: web
           initialDelaySeconds: {{.Container.Liveness.InitialDelaySeconds}}
           timeoutSeconds: {{.Container.Liveness.TimeoutSeconds}}
+        {{- if .MountApplicationSecrets }}
+        volumeMounts:
+        - name: app-secrets
+          mountPath: /etc/app-secrets        
+        {{- end }}
       {{- if .Sidecar.UseOpenrestySidecar }}
       - name: {{.Name}}-openresty
         image: {{.Sidecar.Image}}
@@ -132,3 +137,8 @@ spec:
       - name: ssl-certificate
         secret:
           secretName: {{.Name}}-letsencrypt-certificate
+      {{- if .MountApplicationSecrets }}
+      - name: app-secrets
+        secret:
+          secretName: ${APP_NAME}-secrets
+      {{- end }}

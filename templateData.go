@@ -21,6 +21,7 @@ type TemplateData struct {
 	PreferPreemptibles         bool
 	Container                  ContainerData
 	Sidecar                    SidecarData
+	MountApplicationSecrets    bool
 	Secrets                    map[string]string
 }
 
