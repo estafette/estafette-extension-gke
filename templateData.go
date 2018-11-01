@@ -26,6 +26,7 @@ type TemplateData struct {
 	MountPayloadLogging         bool
 	RollingUpdateMaxSurge       string
 	RollingUpdateMaxUnavailable string
+	BuildVersion                string
 }
 
 // ContainerData has data specific to the application container

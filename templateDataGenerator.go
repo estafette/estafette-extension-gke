@@ -7,6 +7,8 @@ import (
 func generateTemplateData(params Params) TemplateData {
 
 	data := TemplateData{
+		BuildVersion: params.BuildVersion,
+
 		Name:             params.App,
 		Namespace:        params.Namespace,
 		Labels:           params.Labels,

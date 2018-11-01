@@ -744,4 +744,16 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		assert.Equal(t, "15%", templateData.RollingUpdateMaxUnavailable)
 	})
+
+	t.Run("SetsBuildVersionToBuildVersionParam", func(t *testing.T) {
+
+		params := Params{
+			BuildVersion: "1.2.3",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "1.2.3", templateData.BuildVersion)
+	})
 }

@@ -1234,6 +1234,17 @@ func TestSetDefaults(t *testing.T) {
 
 		assert.Equal(t, "20%", params.RollingUpdate.MaxUnavailable)
 	})
+
+	t.Run("SetBuildVersionToBuildVersion", func(t *testing.T) {
+
+		params := Params{}
+		buildVersion := "1.0.0"
+
+		// act
+		params.SetDefaults("", buildVersion, "", map[string]string{})
+
+		assert.Equal(t, "1.0.0", params.BuildVersion)
+	})
 }
 
 func TestSetDefaultsFromCredentials(t *testing.T) {

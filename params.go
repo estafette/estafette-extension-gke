@@ -7,8 +7,9 @@ import (
 // Params is used to parameterize the deployment, set from custom properties in the manifest
 type Params struct {
 	// control params
-	Credentials string `json:"credentials,omitempty"`
-	DryRun      bool   `json:"dryrun,string,omitempty"`
+	Credentials  string `json:"credentials,omitempty"`
+	DryRun       bool   `json:"dryrun,string,omitempty"`
+	BuildVersion string `json:"-"`
 
 	// app params
 	App                  string            `json:"app,omitempty"`
@@ -92,6 +93,8 @@ type RollingUpdateParams struct {
 
 // SetDefaults fills in empty fields with convention-based defaults
 func (p *Params) SetDefaults(appLabel, buildVersion, releaseName string, estafetteLabels map[string]string) {
+
+	p.BuildVersion = buildVersion
 
 	// default app to estafette app label if no override in stage params
 	if p.App == "" && appLabel != "" {

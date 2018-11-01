@@ -23,6 +23,7 @@ spec:
         {{- range $key, $value := .Labels}}
         {{$key}}: {{$value}}
         {{- end}}
+        version: "{{.BuildVersion}}"
       annotations:
         prometheus.io/scrape: "{{.Container.Metrics.Scrape}}"
         prometheus.io/path: "{{.Container.Metrics.Path}}"
