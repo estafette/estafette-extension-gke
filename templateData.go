@@ -21,6 +21,7 @@ type TemplateData struct {
 	PreferPreemptibles         bool
 	Container                  ContainerData
 	Sidecar                    SidecarData
+	Secrets                    map[string]string
 }
 
 // ContainerData has data specific to the application container

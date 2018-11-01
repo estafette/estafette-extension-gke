@@ -84,6 +84,9 @@ stages:
       min: 3
       max: 50
       cpu: 80
+    secrets:
+      secret-file-1.json: c29tZSBzZWNyZXQgdmFsdWU=
+      secret-file-2.yaml: YW5vdGhlciBzZWNyZXQgdmFsdWU=
     hosts:
     - gke.estafette.io
     - gke-deploy.estafette.io

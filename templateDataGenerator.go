@@ -19,6 +19,8 @@ func generateTemplateData(params Params) TemplateData {
 		MaxReplicas:         params.Autoscale.MaxReplicas,
 		TargetCPUPercentage: params.Autoscale.CPUPercentage,
 
+		Secrets: params.Secrets,
+
 		// IngressPath         string
 		// PreferPreemptibles  bool
 

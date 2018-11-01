@@ -17,6 +17,7 @@ type Params struct {
 	Visibility string            `json:"visibility,omitempty"`
 	Hosts      []string          `json:"hosts,omitempty"`
 	Autoscale  AutoscaleParams   `json:"autoscale,omitempty"`
+	Secrets    map[string]string `json:"secrets,omitempty"`
 
 	// container params
 	Container ContainerParams `json:"container,omitempty"`

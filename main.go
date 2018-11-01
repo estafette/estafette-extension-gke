@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -176,6 +177,11 @@ func main() {
 			// public uses service of type loadbalancer and doesn't need ingress
 			log.Printf("Deleting ingress if it exists, which is used for visibility private...\n")
 			runCommand("kubectl", []string{"delete", "ingress", templateData.Name, "-n", templateData.Namespace, "--ignore-not-found=true"})
+		}
+
+		if len(params.Secrets) == 0 {
+			log.Printf("Deleting application secrets if it exists, because no secrets are specified...\n")
+			runCommand("kubectl", []string{"delete", "secret", fmt.Sprintf("%v-secrets", templateData.Name), "-n", templateData.Namespace, "--ignore-not-found=true"})
 		}
 	}
 }

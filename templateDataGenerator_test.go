@@ -625,4 +625,20 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "value2", templateData.Sidecar.EnvironmentVariables["MY_OTHER_CUSTOM_ENV"])
 	})
 
+	t.Run("SetsSecretsToSecretsParam", func(t *testing.T) {
+
+		params := Params{
+			Secrets: map[string]string{
+				"secret-file-1.json": "c29tZSBzZWNyZXQgdmFsdWU=",
+				"secret-file-2.yaml": "YW5vdGhlciBzZWNyZXQgdmFsdWU=",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, 2, len(templateData.Secrets))
+		assert.Equal(t, "c29tZSBzZWNyZXQgdmFsdWU=", templateData.Secrets["secret-file-1.json"])
+		assert.Equal(t, "YW5vdGhlciBzZWNyZXQgdmFsdWU=", templateData.Secrets["secret-file-2.yaml"])
+	})
 }

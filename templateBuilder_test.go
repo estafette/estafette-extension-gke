@@ -19,6 +19,43 @@ func TestGetTemplates(t *testing.T) {
 
 		assert.True(t, stringArrayContains(templates, "ingress.yaml"))
 	})
+
+	t.Run("DoesNotIncludeIngressIfVisibilityIsPublic", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "public",
+		}
+
+		// act
+		templates := getTemplates(params)
+
+		assert.False(t, stringArrayContains(templates, "ingress.yaml"))
+	})
+
+	t.Run("IncludesApplicationSecretsIfLengthOfSecretsIsMoreThanZero", func(t *testing.T) {
+
+		params := Params{
+			Secrets: map[string]string{
+				"secret-file-1.json": "c29tZSBzZWNyZXQgdmFsdWU=",
+				"secret-file-2.yaml": "YW5vdGhlciBzZWNyZXQgdmFsdWU=",
+			},
+		}
+
+		// act
+		templates := getTemplates(params)
+
+		assert.True(t, stringArrayContains(templates, "application-secrets.yaml"))
+	})
+
+	t.Run("DoesNotIncludeApplicationSecretsIfLengthOfSecretsZero", func(t *testing.T) {
+
+		params := Params{}
+
+		// act
+		templates := getTemplates(params)
+
+		assert.False(t, stringArrayContains(templates, "application-secrets.yaml"))
+	})
 }
 
 func stringArrayContains(array []string, search string) bool {
