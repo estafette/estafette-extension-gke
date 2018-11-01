@@ -753,6 +753,19 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "/api/", templateData.IngressPath)
 	})
 
+	t.Run("AppendSlashStarToIngressPathToIfUseGCEIngressIsTrue", func(t *testing.T) {
+
+		params := Params{
+			Basepath:   "/api",
+			Visibility: "iap",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "/api/*", templateData.IngressPath)
+	})
+
 	t.Run("SetsMountPayloadLoggingToTrueIfEnablePayloadLoggingParamIsTrue", func(t *testing.T) {
 
 		params := Params{

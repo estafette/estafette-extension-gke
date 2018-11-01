@@ -94,8 +94,11 @@ func generateTemplateData(params Params) TemplateData {
 		data.UseDNSAnnotationsOnService = true
 	}
 
-	if !strings.HasSuffix(data.IngressPath, "/") {
+	if !strings.HasSuffix(data.IngressPath, "/") && !strings.HasSuffix(data.IngressPath, "*") {
 		data.IngressPath += "/"
+	}
+	if data.UseGCEIngress && !strings.HasSuffix(data.IngressPath, "*") {
+		data.IngressPath += "*"
 	}
 
 	return data
