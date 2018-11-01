@@ -165,8 +165,6 @@ func main() {
 	runCommand("kubectl", append(kubectlApplyArgs, "--dry-run"))
 
 	if !params.DryRun {
-		log.Fatal("Not implemented applying manifest yet")
-
 		log.Printf("Applying the manifests for real...\n")
 		runCommand("kubectl", kubectlApplyArgs)
 
