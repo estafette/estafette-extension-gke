@@ -115,6 +115,18 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "ClusterIP", templateData.ServiceType)
 	})
 
+	t.Run("SetsServiceTypeToNodePortIfVisibilityParamIsIap", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "iap",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "NodePort", templateData.ServiceType)
+	})
+
 	t.Run("SetsServiceTypeToLoadBalancerIfVisibilityParamIsPublic", func(t *testing.T) {
 
 		params := Params{
@@ -349,6 +361,54 @@ func TestGenerateTemplateData(t *testing.T) {
 		templateData := generateTemplateData(params)
 
 		assert.False(t, templateData.UseNginxIngress)
+	})
+
+	t.Run("SetsUseNginxIngressToFalseIfVisibilityIsIap", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "iap",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.False(t, templateData.UseNginxIngress)
+	})
+
+	t.Run("SetsUseGCEIngressToTrueIfVisibilityIsIap", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "iap",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.True(t, templateData.UseGCEIngress)
+	})
+
+	t.Run("SetsUseGCEIngressToFalseIfVisibilityIsPublic", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "public",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.False(t, templateData.UseGCEIngress)
+	})
+
+	t.Run("SetsUseGCEIngressToFalseIfVisibilityIsPrivate", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "private",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.False(t, templateData.UseGCEIngress)
 	})
 
 	t.Run("SetsLivenessPathToLivenessProbePathParam", func(t *testing.T) {
@@ -755,5 +815,29 @@ func TestGenerateTemplateData(t *testing.T) {
 		templateData := generateTemplateData(params)
 
 		assert.Equal(t, "1.2.3", templateData.BuildVersion)
+	})
+
+	t.Run("SetsPreferPreemptiblesgToTrueIfResilientParamIsTrue", func(t *testing.T) {
+
+		params := Params{
+			Resilient: true,
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.True(t, templateData.PreferPreemptibles)
+	})
+
+	t.Run("SetsPreferPreemptiblesToFalseIfResilientParamIsFalse", func(t *testing.T) {
+
+		params := Params{
+			Resilient: false,
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.False(t, templateData.PreferPreemptibles)
 	})
 }

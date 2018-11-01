@@ -10,6 +10,7 @@ type Params struct {
 	Credentials  string `json:"credentials,omitempty"`
 	DryRun       bool   `json:"dryrun,string,omitempty"`
 	BuildVersion string `json:"-"`
+	Resilient    bool   `json:"resilient,string,omitempty"`
 
 	// app params
 	App                  string            `json:"app,omitempty"`

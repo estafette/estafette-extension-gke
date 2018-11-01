@@ -29,7 +29,7 @@ func generateTemplateData(params Params) TemplateData {
 		RollingUpdateMaxSurge:       params.RollingUpdate.MaxSurge,
 		RollingUpdateMaxUnavailable: params.RollingUpdate.MaxUnavailable,
 
-		// PreferPreemptibles  bool
+		PreferPreemptibles: params.Resilient,
 
 		Container: ContainerData{
 			Repository: params.Container.ImageRepository,
@@ -77,11 +77,19 @@ func generateTemplateData(params Params) TemplateData {
 	if params.Visibility == "private" {
 		data.ServiceType = "ClusterIP"
 		data.UseNginxIngress = true
+		data.UseGCEIngress = false
+		data.UseDNSAnnotationsOnIngress = true
+		data.UseDNSAnnotationsOnService = false
+	} else if params.Visibility == "iap" {
+		data.ServiceType = "NodePort"
+		data.UseNginxIngress = false
+		data.UseGCEIngress = true
 		data.UseDNSAnnotationsOnIngress = true
 		data.UseDNSAnnotationsOnService = false
 	} else if params.Visibility == "public" {
 		data.ServiceType = "LoadBalancer"
 		data.UseNginxIngress = false
+		data.UseGCEIngress = false
 		data.UseDNSAnnotationsOnIngress = false
 		data.UseDNSAnnotationsOnService = true
 	}

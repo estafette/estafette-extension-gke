@@ -92,6 +92,7 @@ stages:
     - gke-deploy.estafette.io
     basepath: /
     enablePayloadLogging: true
+    resilient: true
     rollingupdate:
       maxsurge: 25%
       maxunavailable: 25%
