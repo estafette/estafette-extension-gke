@@ -22,6 +22,7 @@ func generateTemplateData(params Params) TemplateData {
 
 		Secrets:                 params.Secrets,
 		MountApplicationSecrets: len(params.Secrets) > 0,
+		MountPayloadLogging:     params.EnablePayloadLogging,
 
 		// PreferPreemptibles  bool
 

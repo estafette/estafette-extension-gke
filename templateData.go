@@ -23,6 +23,7 @@ type TemplateData struct {
 	Sidecar                    SidecarData
 	MountApplicationSecrets    bool
 	Secrets                    map[string]string
+	MountPayloadLogging        bool
 }
 
 // ContainerData has data specific to the application container

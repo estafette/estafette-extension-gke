@@ -692,4 +692,29 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		assert.Equal(t, "/api/", templateData.IngressPath)
 	})
+
+	t.Run("SetsMountPayloadLoggingToTrueIfEnablePayloadLoggingParamIsTrue", func(t *testing.T) {
+
+		params := Params{
+			EnablePayloadLogging: true,
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.True(t, templateData.MountPayloadLogging)
+	})
+
+	t.Run("SetsMountPayloadLoggingToFalseIfEnablePayloadLoggingParamIsFalse", func(t *testing.T) {
+
+		params := Params{
+			EnablePayloadLogging: false,
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.False(t, templateData.MountPayloadLogging)
+	})
+
 }

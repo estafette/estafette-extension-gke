@@ -11,14 +11,15 @@ type Params struct {
 	DryRun      bool   `json:"dryrun,string,omitempty"`
 
 	// app params
-	App        string            `json:"app,omitempty"`
-	Namespace  string            `json:"namespace,omitempty"`
-	Labels     map[string]string `json:"labels,omitempty"`
-	Visibility string            `json:"visibility,omitempty"`
-	Hosts      []string          `json:"hosts,omitempty"`
-	Basepath   string            `json:"basepath,omitempty"`
-	Autoscale  AutoscaleParams   `json:"autoscale,omitempty"`
-	Secrets    map[string]string `json:"secrets,omitempty"`
+	App                  string            `json:"app,omitempty"`
+	Namespace            string            `json:"namespace,omitempty"`
+	Labels               map[string]string `json:"labels,omitempty"`
+	Visibility           string            `json:"visibility,omitempty"`
+	Hosts                []string          `json:"hosts,omitempty"`
+	Basepath             string            `json:"basepath,omitempty"`
+	Autoscale            AutoscaleParams   `json:"autoscale,omitempty"`
+	Secrets              map[string]string `json:"secrets,omitempty"`
+	EnablePayloadLogging bool              `json:"enablePayloadLogging,omitempty"`
 
 	// container params
 	Container ContainerParams `json:"container,omitempty"`

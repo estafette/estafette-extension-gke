@@ -48,6 +48,16 @@ spec:
                 values:
                 - "true"
         {{- end}}
+      {{- if .MountPayloadLogging }}
+      initContainers:
+      - name: init-myservice
+        image: busybox:1.27.2
+        imagePullPolicy: IfNotPresent
+        command: ['sh', '-c', 'mkdir -p /var/log/fluentd-payload-logger/{{.Name}}']
+        volumeMounts:
+        - name: var-log
+          mountPath: /var/log
+      {{- end}}
       containers:
       - name: {{.Name}}
         image: {{.Container.Repository}}/{{.Container.Name}}:{{.Container.Tag}}
@@ -75,10 +85,16 @@ spec:
             port: web
           initialDelaySeconds: {{.Container.Liveness.InitialDelaySeconds}}
           timeoutSeconds: {{.Container.Liveness.TimeoutSeconds}}
-        {{- if .MountApplicationSecrets }}
+        {{- if .MountApplicationSecrets || .MountPayloadLogging }}
         volumeMounts:
+        {{- if .MountApplicationSecrets }}
         - name: app-secrets
           mountPath: /etc/app-secrets        
+        {{- end }}
+        {{- if .MountPayloadLogging }}
+        - name: pod-log
+          mountPath: /var/log/travix
+        {{- end }}
         {{- end }}
       {{- if .Sidecar.UseOpenrestySidecar }}
       - name: {{.Name}}-openresty
@@ -141,4 +157,12 @@ spec:
       - name: app-secrets
         secret:
           secretName: {{.Name}}-secrets
+      {{- end }}
+      {{- if .MountPayloadLogging }}
+      - name: pod-log
+        hostPath:
+          path: /var/log/fluentd-payload-logger/{{.Name}}
+      - name: var-log
+        hostPath:
+          path: /var/log
       {{- end }}

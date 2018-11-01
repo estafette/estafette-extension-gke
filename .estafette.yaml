@@ -91,6 +91,7 @@ stages:
     - gke.estafette.io
     - gke-deploy.estafette.io
     basepath: /
+    enablePayloadLogging: true
     dryrun: true
 
   test-minimal-alpha-version:
