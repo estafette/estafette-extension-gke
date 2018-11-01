@@ -140,5 +140,5 @@ spec:
       {{- if .MountApplicationSecrets }}
       - name: app-secrets
         secret:
-          secretName: ${APP_NAME}-secrets
+          secretName: {{.Name}}-secrets
       {{- end }}
