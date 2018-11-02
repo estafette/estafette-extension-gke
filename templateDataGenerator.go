@@ -29,7 +29,7 @@ func generateTemplateData(params Params) TemplateData {
 		RollingUpdateMaxSurge:       params.RollingUpdate.MaxSurge,
 		RollingUpdateMaxUnavailable: params.RollingUpdate.MaxUnavailable,
 
-		PreferPreemptibles: params.Resilient,
+		PreferPreemptibles: params.ChaosProof,
 
 		Container: ContainerData{
 			Repository: params.Container.ImageRepository,

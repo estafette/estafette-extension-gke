@@ -830,10 +830,10 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "1.2.3", templateData.BuildVersion)
 	})
 
-	t.Run("SetsPreferPreemptiblesgToTrueIfResilientParamIsTrue", func(t *testing.T) {
+	t.Run("SetsPreferPreemptiblesgToTrueIfChaosProofParamIsTrue", func(t *testing.T) {
 
 		params := Params{
-			Resilient: true,
+			ChaosProof: true,
 		}
 
 		// act
@@ -842,10 +842,10 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.True(t, templateData.PreferPreemptibles)
 	})
 
-	t.Run("SetsPreferPreemptiblesToFalseIfResilientParamIsFalse", func(t *testing.T) {
+	t.Run("SetsPreferPreemptiblesToFalseIfChaosProofParamIsFalse", func(t *testing.T) {
 
 		params := Params{
-			Resilient: false,
+			ChaosProof: false,
 		}
 
 		// act

@@ -10,7 +10,7 @@ type Params struct {
 	Credentials    string   `json:"credentials,omitempty"`
 	DryRun         bool     `json:"dryrun,string,omitempty"`
 	BuildVersion   string   `json:"-"`
-	Resilient      bool     `json:"resilient,string,omitempty"`
+	ChaosProof     bool     `json:"chaosproof,string,omitempty"`
 	LocalManifests []string `json:"localmanifests,omitempty"`
 
 	// app params
