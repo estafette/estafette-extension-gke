@@ -1,6 +1,7 @@
 package main
 
 import (
+	"html/template"
 	"path/filepath"
 	"strings"
 )
@@ -76,9 +77,9 @@ func generateTemplateData(params Params) TemplateData {
 		},
 	}
 
-	data.ConfigmapFiles = map[string]string{}
+	data.ConfigmapFiles = map[string]template.HTML{}
 	for _, cf := range params.ConfigFiles {
-		data.ConfigmapFiles[filepath.Base(cf.File)] = cf.RenderedFileContent
+		data.ConfigmapFiles[filepath.Base(cf.File)] = template.HTML(cf.RenderedFileContent)
 	}
 
 	if params.Visibility == "private" {

@@ -10,5 +10,5 @@ metadata:
 data:
   {{- range $filename, $filecontent := .ConfigmapFiles}}
   {{$filename}}: |-
-  {{$filecontent | indent 4}}
+{{$filecontent | indent 4}}
   {{- end}}
