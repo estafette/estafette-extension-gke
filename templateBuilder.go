@@ -3,11 +3,11 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"html/template"
 	"io/ioutil"
 	"log"
 	"path/filepath"
 	"strings"
+	"text/template"
 
 	"github.com/Masterminds/sprig"
 )
@@ -31,7 +31,7 @@ func buildTemplates(params Params) (*template.Template, error) {
 
 	// parse templates
 	log.Printf("Parsing merged templates...")
-	return template.New("kubernetes.yaml").Funcs(sprig.FuncMap()).Parse(templateString)
+	return template.New("kubernetes.yaml").Funcs(sprig.TxtFuncMap()).Parse(templateString)
 }
 
 func getTemplates(params Params) []string {
