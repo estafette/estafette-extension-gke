@@ -2,9 +2,9 @@ package main
 
 import (
 	"bytes"
+	"html/template"
 	"strings"
 	"testing"
-	"text/template"
 
 	"github.com/stretchr/testify/assert"
 )
