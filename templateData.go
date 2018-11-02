@@ -1,7 +1,5 @@
 package main
 
-import "html/template"
-
 // TemplateData contains the root data for rendering the Kubernetes manifests
 type TemplateData struct {
 	Name                        string
@@ -26,7 +24,7 @@ type TemplateData struct {
 	MountApplicationSecrets     bool
 	Secrets                     map[string]string
 	MountConfigmap              bool
-	ConfigmapFiles              map[string]template.HTML
+	ConfigmapFiles              map[string]string
 	MountPayloadLogging         bool
 	RollingUpdateMaxSurge       string
 	RollingUpdateMaxUnavailable string
