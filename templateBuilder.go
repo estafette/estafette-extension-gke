@@ -23,7 +23,7 @@ func buildTemplates(params Params) (*template.Template, error) {
 	for _, t := range templatesToMerge {
 		data, err := ioutil.ReadFile(t)
 		if err != nil {
-			log.Fatal(fmt.Sprintf("Failed reading file %v: ", t), err)
+			log.Fatal(fmt.Sprintf("Failed reading file %v. Do you have a git-clone stage before running this extension? For releases git-clone is not automatically handled to save time in case it's not needed. ", t), err)
 		}
 		templateStrings = append(templateStrings, string(data))
 	}
@@ -91,7 +91,7 @@ func renderConfig(params Params) (renderedConfigFiles []ConfigFileParams) {
 
 			data, err := ioutil.ReadFile(cf.File)
 			if err != nil {
-				log.Fatal(fmt.Sprintf("Failed reading file %v: ", cf.File), err)
+				log.Fatal(fmt.Sprintf("Failed reading file %v. Do you have a git-clone stage before running this extension? For releases git-clone is not automatically handled to save time in case it's not needed. ", cf.File), err)
 			}
 			tmpl, err := template.New(cf.File).Parse(string(data))
 			if err != nil {

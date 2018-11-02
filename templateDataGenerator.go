@@ -25,8 +25,11 @@ func generateTemplateData(params Params) TemplateData {
 
 		Secrets:                 params.Secrets,
 		MountApplicationSecrets: len(params.Secrets) > 0,
-		MountPayloadLogging:     params.EnablePayloadLogging,
+		SecretMountPath:         params.SecretMountPath,
 		MountConfigmap:          len(params.ConfigFiles) > 0,
+		ConfigMountPath:         params.ConfigMountPath,
+
+		MountPayloadLogging: params.EnablePayloadLogging,
 
 		RollingUpdateMaxSurge:       params.RollingUpdate.MaxSurge,
 		RollingUpdateMaxUnavailable: params.RollingUpdate.MaxUnavailable,

@@ -95,11 +95,11 @@ spec:
         volumeMounts:
         {{- if .MountApplicationSecrets }}
         - name: app-secrets
-          mountPath: /etc/app-secrets        
+          mountPath: {{.SecretMountPath}}
         {{- end }}
         {{- if .MountConfigmap }}
-        - name: app-config
-          mountPath: /config       
+        - name: app-configs
+          mountPath: {{.ConfigMountPath}}
         {{- end }}
         {{- if .MountPayloadLogging }}
         - name: pod-log
@@ -169,7 +169,7 @@ spec:
           secretName: {{.Name}}-secrets
       {{- end }}
       {{- if .MountConfigmap }}
-      - name: app-config
+      - name: app-configs
         configMap:
           name: {{.Name}}-config
       {{- end }}

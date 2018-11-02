@@ -853,4 +853,56 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		assert.False(t, templateData.PreferPreemptibles)
 	})
+
+	t.Run("SetsMountConfigmapToTrueIfConfigFilesParamsLengthIsLargerThanZero", func(t *testing.T) {
+
+		params := Params{
+			ConfigFiles: []ConfigFileParams{
+				ConfigFileParams{
+					File: "config.json",
+				},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.True(t, templateData.MountConfigmap)
+	})
+
+	t.Run("SetsMountConfigmapToFalseIfConfigFilesParamsLengthIsZero", func(t *testing.T) {
+
+		params := Params{
+			ConfigFiles: []ConfigFileParams{},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.False(t, templateData.MountConfigmap)
+	})
+
+	t.Run("SetsConfigMountPathToConfigMountPathParam", func(t *testing.T) {
+
+		params := Params{
+			ConfigMountPath: "/configs",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "/configs", templateData.ConfigMountPath)
+	})
+
+	t.Run("SetsSecretMountPathToSecretMountPathParam", func(t *testing.T) {
+
+		params := Params{
+			SecretMountPath: "/secrets",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "/secrets", templateData.SecretMountPath)
+	})
 }

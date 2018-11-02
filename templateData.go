@@ -23,8 +23,10 @@ type TemplateData struct {
 	Sidecar                     SidecarData
 	MountApplicationSecrets     bool
 	Secrets                     map[string]string
+	SecretMountPath             string
 	MountConfigmap              bool
 	ConfigmapFiles              map[string]string
+	ConfigMountPath             string
 	MountPayloadLogging         bool
 	RollingUpdateMaxSurge       string
 	RollingUpdateMaxUnavailable string

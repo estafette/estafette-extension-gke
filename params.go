@@ -7,23 +7,25 @@ import (
 // Params is used to parameterize the deployment, set from custom properties in the manifest
 type Params struct {
 	// control params
-	Credentials    string             `json:"credentials,omitempty"`
-	DryRun         bool               `json:"dryrun,string,omitempty"`
-	BuildVersion   string             `json:"-"`
-	ChaosProof     bool               `json:"chaosproof,string,omitempty"`
-	LocalManifests []string           `json:"localmanifests,omitempty"`
-	ConfigFiles    []ConfigFileParams `json:"config,omitempty"`
+	Credentials    string   `json:"credentials,omitempty"`
+	DryRun         bool     `json:"dryrun,string,omitempty"`
+	BuildVersion   string   `json:"-"`
+	ChaosProof     bool     `json:"chaosproof,string,omitempty"`
+	LocalManifests []string `json:"localmanifests,omitempty"`
 
 	// app params
-	App                  string            `json:"app,omitempty"`
-	Namespace            string            `json:"namespace,omitempty"`
-	Labels               map[string]string `json:"labels,omitempty"`
-	Visibility           string            `json:"visibility,omitempty"`
-	Hosts                []string          `json:"hosts,omitempty"`
-	Basepath             string            `json:"basepath,omitempty"`
-	Autoscale            AutoscaleParams   `json:"autoscale,omitempty"`
-	Secrets              map[string]string `json:"secrets,omitempty"`
-	EnablePayloadLogging bool              `json:"enablePayloadLogging,string,omitempty"`
+	App                  string             `json:"app,omitempty"`
+	Namespace            string             `json:"namespace,omitempty"`
+	Labels               map[string]string  `json:"labels,omitempty"`
+	Visibility           string             `json:"visibility,omitempty"`
+	Hosts                []string           `json:"hosts,omitempty"`
+	Basepath             string             `json:"basepath,omitempty"`
+	Autoscale            AutoscaleParams    `json:"autoscale,omitempty"`
+	Secrets              map[string]string  `json:"secrets,omitempty"`
+	SecretMountPath      string             `json:"secretpath,omitempty"`
+	ConfigFiles          []ConfigFileParams `json:"configs,omitempty"`
+	ConfigMountPath      string             `json:"configpath,omitempty"`
+	EnablePayloadLogging bool               `json:"enablePayloadLogging,string,omitempty"`
 
 	// container params
 	Container     ContainerParams     `json:"container,omitempty"`
@@ -276,6 +278,14 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName string, estafet
 	}
 	if p.RollingUpdate.MaxUnavailable == "" {
 		p.RollingUpdate.MaxUnavailable = "25%"
+	}
+
+	// set mountpaths for configs and secrets
+	if p.ConfigMountPath == "" {
+		p.ConfigMountPath = "/configs"
+	}
+	if p.SecretMountPath == "" {
+		p.SecretMountPath = "/secrets"
 	}
 }
 

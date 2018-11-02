@@ -1245,6 +1245,54 @@ func TestSetDefaults(t *testing.T) {
 
 		assert.Equal(t, "1.0.0", params.BuildVersion)
 	})
+
+	t.Run("DefaultsConfigMountPathToSlashConfigsIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			ConfigMountPath: "",
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "/configs", params.ConfigMountPath)
+	})
+
+	t.Run("KeepsConfigMountPathIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			ConfigMountPath: "/etc/app-config",
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "/etc/app-config", params.ConfigMountPath)
+	})
+
+	t.Run("DefaultsSecretMountPathToSlashSecretsIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			SecretMountPath: "",
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "/secrets", params.SecretMountPath)
+	})
+
+	t.Run("KeepsSecretMountPathIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			SecretMountPath: "/etc/app-secret",
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "/etc/app-secret", params.SecretMountPath)
+	})
 }
 
 func TestSetDefaultsFromCredentials(t *testing.T) {
