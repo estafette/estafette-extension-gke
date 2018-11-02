@@ -101,6 +101,9 @@ func main() {
 		log.Fatal("Failed building templates: ", err)
 	}
 
+	// pre-render config files if they exist
+	params.ConfigFiles = renderConfig(params)
+
 	// generate the data required for rendering the templates
 	templateData := generateTemplateData(params)
 

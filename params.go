@@ -7,11 +7,12 @@ import (
 // Params is used to parameterize the deployment, set from custom properties in the manifest
 type Params struct {
 	// control params
-	Credentials    string   `json:"credentials,omitempty"`
-	DryRun         bool     `json:"dryrun,string,omitempty"`
-	BuildVersion   string   `json:"-"`
-	ChaosProof     bool     `json:"chaosproof,string,omitempty"`
-	LocalManifests []string `json:"localmanifests,omitempty"`
+	Credentials    string             `json:"credentials,omitempty"`
+	DryRun         bool               `json:"dryrun,string,omitempty"`
+	BuildVersion   string             `json:"-"`
+	ChaosProof     bool               `json:"chaosproof,string,omitempty"`
+	LocalManifests []string           `json:"localmanifests,omitempty"`
+	ConfigFiles    []ConfigFileParams `json:"config,omitempty"`
 
 	// app params
 	App                  string            `json:"app,omitempty"`
@@ -91,6 +92,13 @@ type SidecarParams struct {
 type RollingUpdateParams struct {
 	MaxSurge       string `json:"maxsurge,omitempty"`
 	MaxUnavailable string `json:"maxunavailable,omitempty"`
+}
+
+// ConfigFileParams sets a local file to embed in a configmap and data to render the file as a template
+type ConfigFileParams struct {
+	File                string            `json:"file,omitempty"`
+	Data                map[string]string `json:"data,omitempty"`
+	RenderedFileContent string            `json:"-"`
 }
 
 // SetDefaults fills in empty fields with convention-based defaults

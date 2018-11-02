@@ -1,6 +1,7 @@
 package main
 
 import (
+	"path/filepath"
 	"strings"
 )
 
@@ -25,6 +26,7 @@ func generateTemplateData(params Params) TemplateData {
 		Secrets:                 params.Secrets,
 		MountApplicationSecrets: len(params.Secrets) > 0,
 		MountPayloadLogging:     params.EnablePayloadLogging,
+		MountConfigmap:          len(params.ConfigFiles) > 0,
 
 		RollingUpdateMaxSurge:       params.RollingUpdate.MaxSurge,
 		RollingUpdateMaxUnavailable: params.RollingUpdate.MaxUnavailable,
@@ -72,6 +74,11 @@ func generateTemplateData(params Params) TemplateData {
 
 			EnvironmentVariables: params.Sidecar.EnvironmentVariables,
 		},
+	}
+
+	data.ConfigmapFiles = map[string]string{}
+	for _, cf := range params.ConfigFiles {
+		data.ConfigmapFiles[filepath.Base(cf.File)] = cf.RenderedFileContent
 	}
 
 	if params.Visibility == "private" {

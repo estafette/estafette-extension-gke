@@ -91,11 +91,15 @@ spec:
             port: web
           initialDelaySeconds: {{.Container.Liveness.InitialDelaySeconds}}
           timeoutSeconds: {{.Container.Liveness.TimeoutSeconds}}
-        {{- if or .MountApplicationSecrets .MountPayloadLogging }}
+        {{- if or .MountApplicationSecrets .MountConfigmap .MountPayloadLogging }}
         volumeMounts:
         {{- if .MountApplicationSecrets }}
         - name: app-secrets
           mountPath: /etc/app-secrets        
+        {{- end }}
+        {{- if .MountConfigmap }}
+        - name: app-config
+          mountPath: /config       
         {{- end }}
         {{- if .MountPayloadLogging }}
         - name: pod-log
@@ -163,6 +167,11 @@ spec:
       - name: app-secrets
         secret:
           secretName: {{.Name}}-secrets
+      {{- end }}
+      {{- if .MountConfigmap }}
+      - name: app-config
+        configMap:
+          name: {{.Name}}-config
       {{- end }}
       {{- if .MountPayloadLogging }}
       - name: pod-log

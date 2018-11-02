@@ -3,6 +3,20 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "TgO9gc7JIrSnT/T/VVzihTVPtvU=",
+			"path": "github.com/Masterminds/semver",
+			"revision": "c84ddcca87bf5a941b138dde832a7e20b0159ad8",
+			"revisionTime": "2018-08-07T14:24:31Z"
+		},
+		{
+			"checksumSHA1": "cULNu89EKumcxuNj+bhpowzZwcA=",
+			"path": "github.com/Masterminds/sprig",
+			"revision": "15f9564e7e9cf0da02a48e0d25f12a7b83559aa6",
+			"revisionTime": "2018-09-14T00:13:42Z",
+			"version": "v2.16.0",
+			"versionExact": "v2.16.0"
+		},
+		{
 			"checksumSHA1": "mO3BFcsToZhAkvKS3hQOzmFSzMo=",
 			"path": "github.com/alecthomas/kingpin",
 			"revision": "947dcec5ba9c011838740e680966fd7087a71d0d",
@@ -29,10 +43,34 @@
 			"revisionTime": "2015-10-22T06:55:26Z"
 		},
 		{
+			"checksumSHA1": "X0xGt0e0IkZeviF+pFRlpHP+xkE=",
+			"path": "github.com/aokoli/goutils",
+			"revision": "3391d3790d23d03408670993e957e8f408993c34",
+			"revisionTime": "2017-05-31T11:00:25Z"
+		},
+		{
 			"checksumSHA1": "CSPbwbyzqA6sfORicn4HFtIhF/c=",
 			"path": "github.com/davecgh/go-spew/spew",
 			"revision": "d8f796af33cc11cb798c1aaeb27a4ebc5099927d",
 			"revisionTime": "2018-08-30T19:11:22Z"
+		},
+		{
+			"checksumSHA1": "yNyE9MrpDJQAxOxSipSIBgBhuNQ=",
+			"path": "github.com/google/uuid",
+			"revision": "9b3b1e0f5f99ae461456d768e7d301a7acdaa2d8",
+			"revisionTime": "2018-09-17T14:00:05Z"
+		},
+		{
+			"checksumSHA1": "GgSlQYD/MBe2lqMqF6BP51d+67o=",
+			"path": "github.com/huandu/xstrings",
+			"revision": "8bbcf2f9ccb55755e748b7644164cd4bdce94c1d",
+			"revisionTime": "2018-09-06T15:17:51Z"
+		},
+		{
+			"checksumSHA1": "3LWNcQT7yTaLpEmjhI/3fi8puv0=",
+			"path": "github.com/imdario/mergo",
+			"revision": "9f23e2d6bd2a77f959b2bf6acdbefd708a83a4a4",
+			"revisionTime": "2018-07-30T21:26:40Z"
 		},
 		{
 			"checksumSHA1": "LuFv4/jlrmFNnDb/5SCSEPAM9vU=",
@@ -47,6 +85,18 @@
 			"revisionTime": "2016-09-25T01:54:16Z",
 			"version": "v1.1.4",
 			"versionExact": "v1.1.4"
+		},
+		{
+			"checksumSHA1": "1MGpGDQqnUoRpv7VEcQrXOBydXE=",
+			"path": "golang.org/x/crypto/pbkdf2",
+			"revision": "4d3f4d9ffa16a13f451c3b2999e9c49e9750bf06",
+			"revisionTime": "2018-10-23T16:52:47Z"
+		},
+		{
+			"checksumSHA1": "q+Rqy6Spw6qDSj75TGEZF7nzoFM=",
+			"path": "golang.org/x/crypto/scrypt",
+			"revision": "4d3f4d9ffa16a13f451c3b2999e9c49e9750bf06",
+			"revisionTime": "2018-10-23T16:52:47Z"
 		}
 	],
 	"rootPath": "github.com/estafette/estafette-extension-gke"

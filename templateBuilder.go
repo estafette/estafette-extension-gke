@@ -3,11 +3,13 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"log"
 	"path/filepath"
 	"strings"
-	"text/template"
+
+	"github.com/Masterminds/sprig"
 )
 
 func buildTemplates(params Params) (*template.Template, error) {
@@ -29,7 +31,7 @@ func buildTemplates(params Params) (*template.Template, error) {
 
 	// parse templates
 	log.Printf("Parsing merged templates...")
-	return template.New("kubernetes.yaml").Parse(templateString)
+	return template.New("kubernetes.yaml").Funcs(sprig.FuncMap()).Parse(templateString)
 }
 
 func getTemplates(params Params) []string {
@@ -49,6 +51,9 @@ func getTemplates(params Params) []string {
 	}
 	if len(params.Secrets) > 0 {
 		templatesToMerge = append(templatesToMerge, "application-secrets.yaml")
+	}
+	if len(params.ConfigFiles) > 0 {
+		templatesToMerge = append(templatesToMerge, "configmap.yaml")
 	}
 
 	// prefix all filenames with templates dir
@@ -75,6 +80,37 @@ func getTemplates(params Params) []string {
 	}
 
 	return templatesToMerge
+}
+
+func renderConfig(params Params) (renderedConfigFiles []ConfigFileParams) {
+
+	if len(params.ConfigFiles) > 0 {
+		log.Printf("Prerendering config files...")
+
+		for _, cf := range params.ConfigFiles {
+
+			data, err := ioutil.ReadFile(cf.File)
+			if err != nil {
+				log.Fatal(fmt.Sprintf("Failed reading file %v: ", cf.File), err)
+			}
+			tmpl, err := template.New(cf.File).Parse(string(data))
+			if err != nil {
+				log.Fatal(fmt.Sprintf("Failed building template from file %v: ", cf.File), err)
+			}
+
+			var renderedTemplate bytes.Buffer
+			err = tmpl.Execute(&renderedTemplate, cf.Data)
+			if err != nil {
+				log.Fatal(fmt.Sprintf("Failed rendering template from file %v: ", cf.File), err)
+			}
+
+			cf.RenderedFileContent = renderedTemplate.String()
+
+			renderedConfigFiles = append(renderedConfigFiles, cf)
+		}
+	}
+
+	return
 }
 
 func renderTemplate(tmpl *template.Template, templateData TemplateData) (bytes.Buffer, error) {

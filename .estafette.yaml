@@ -98,6 +98,13 @@ stages:
       maxunavailable: 25%
     localmanifests:
     - override/service.yaml
+    config:
+    - file: config/config.json
+      data:
+        property1: "value 1"
+    - file: config/anotherconfig.yaml
+      data:
+        property2: "value 2"
     dryrun: true
 
   test-minimal-alpha-version:
