@@ -171,7 +171,7 @@ spec:
       {{- if .MountConfigmap }}
       - name: app-configs
         configMap:
-          name: {{.Name}}-config
+          name: {{.Name}}-configs
       {{- end }}
       {{- if .MountPayloadLogging }}
       - name: pod-log
