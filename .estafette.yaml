@@ -41,7 +41,7 @@ stages:
     credentials: gke-tooling
     app: gke
     namespace: estafette
-    visibility: private
+    visibility: public
     container:
       repository: extensions
       name: gke
