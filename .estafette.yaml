@@ -111,6 +111,7 @@ stages:
     rollingupdate:
       maxsurge: 25%
       maxunavailable: 25%
+      timeout: 2m
     trustedips:
     - 103.21.244.0/22
     - 103.22.200.0/22

@@ -94,6 +94,7 @@ type SidecarParams struct {
 type RollingUpdateParams struct {
 	MaxSurge       string `json:"maxsurge,omitempty"`
 	MaxUnavailable string `json:"maxunavailable,omitempty"`
+	Timeout        string `json:"timeout,omitempty"`
 }
 
 // ManifestsParams can be used to override or add additional manifests located in the application repository
@@ -291,6 +292,9 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName string, estafet
 	}
 	if p.RollingUpdate.MaxUnavailable == "" {
 		p.RollingUpdate.MaxUnavailable = "25%"
+	}
+	if p.RollingUpdate.Timeout == "" {
+		p.RollingUpdate.Timeout = "5m"
 	}
 
 	// set mountpaths for configs and secrets

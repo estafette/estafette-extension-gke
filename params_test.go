@@ -1235,6 +1235,34 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "20%", params.RollingUpdate.MaxUnavailable)
 	})
 
+	t.Run("DefaultsRollingUpdateTimeoutTo5MinutesIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			RollingUpdate: RollingUpdateParams{
+				Timeout: "",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "5m", params.RollingUpdate.Timeout)
+	})
+
+	t.Run("KeepsRollingUpdateTimeoutIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			RollingUpdate: RollingUpdateParams{
+				Timeout: "10m",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "10m", params.RollingUpdate.Timeout)
+	})
+
 	t.Run("SetBuildVersionToBuildVersion", func(t *testing.T) {
 
 		params := Params{}
