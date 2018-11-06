@@ -172,7 +172,7 @@ func main() {
 		runCommand("kubectl", kubectlApplyArgs)
 
 		log.Printf("Waiting for the deployment to finish...\n")
-		runCommand("kubectl", []string{"rollout", "status", "deployment", templateData.Name, "-n", templateData.Namespace, fmt.Sprintf("--timeout=%v", params.RollingUpdate.Timeout)})
+		runCommand("kubectl", []string{"rollout", "status", "deployment", templateData.Name, "-n", templateData.Namespace})
 
 		if params.Visibility == "public" {
 			// public uses service of type loadbalancer and doesn't need ingress

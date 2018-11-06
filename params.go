@@ -111,7 +111,7 @@ type SecretsParams struct {
 
 // ConfigsParams allows configs to be set dynamically for the application
 type ConfigsParams struct {
-	Files               []string          `json:"configs,omitempty"`
+	Files               []string          `json:"files,omitempty"`
 	Data                map[string]string `json:"data,omitempty"`
 	MountPath           string            `json:"mountpath,omitempty"`
 	RenderedFileContent map[string]string `json:"-"`
