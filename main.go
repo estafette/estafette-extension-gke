@@ -102,7 +102,7 @@ func main() {
 	}
 
 	// pre-render config files if they exist
-	params.ConfigFiles = renderConfig(params)
+	params.Configs.RenderedFileContent = renderConfig(params)
 
 	// generate the data required for rendering the templates
 	templateData := generateTemplateData(params)
@@ -180,7 +180,7 @@ func main() {
 			runCommand("kubectl", []string{"delete", "ingress", templateData.Name, "-n", templateData.Namespace, "--ignore-not-found=true"})
 		}
 
-		if len(params.Secrets) == 0 {
+		if len(params.Secrets.Files) == 0 {
 			log.Printf("Deleting application secrets if it exists, because no secrets are specified...\n")
 			runCommand("kubectl", []string{"delete", "secret", fmt.Sprintf("%v-secrets", templateData.Name), "-n", templateData.Namespace, "--ignore-not-found=true"})
 		}

@@ -47,9 +47,11 @@ func TestGetTemplates(t *testing.T) {
 	t.Run("IncludesApplicationSecretsIfLengthOfSecretsIsMoreThanZero", func(t *testing.T) {
 
 		params := Params{
-			Secrets: map[string]string{
-				"secret-file-1.json": "c29tZSBzZWNyZXQgdmFsdWU=",
-				"secret-file-2.yaml": "YW5vdGhlciBzZWNyZXQgdmFsdWU=",
+			Secrets: SecretsParams{
+				Files: map[string]string{
+					"secret-file-1.json": "c29tZSBzZWNyZXQgdmFsdWU=",
+					"secret-file-2.yaml": "YW5vdGhlciBzZWNyZXQgdmFsdWU=",
+				},
 			},
 		}
 
@@ -72,9 +74,9 @@ func TestGetTemplates(t *testing.T) {
 	t.Run("AddLocalManifestsIfSetInLocalManifestsParam", func(t *testing.T) {
 
 		params := Params{
-			LocalManifests: []LocalManifestParams{
-				LocalManifestParams{
-					File: "./gke/another-ingress.yaml",
+			Manifests: ManifestsParams{
+				Files: []string{
+					"./gke/another-ingress.yaml",
 				},
 			},
 		}
@@ -88,9 +90,9 @@ func TestGetTemplates(t *testing.T) {
 	t.Run("OverrideWithLocalManifestsIfSetInLocalManifestsParamWithSameFilename", func(t *testing.T) {
 
 		params := Params{
-			LocalManifests: []LocalManifestParams{
-				LocalManifestParams{
-					File: "./gke/service.yaml",
+			Manifests: ManifestsParams{
+				Files: []string{
+					"./gke/service.yaml",
 				},
 			},
 		}

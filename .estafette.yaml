@@ -85,17 +85,23 @@ stages:
       max: 50
       cpu: 80
     secrets:
-      secret-file-1.json: c29tZSBzZWNyZXQgdmFsdWU=
-      secret-file-2.yaml: YW5vdGhlciBzZWNyZXQgdmFsdWU=
-    secretpath: /secrets
+      files:
+        secret-file-1.json: c29tZSBzZWNyZXQgdmFsdWU=
+        secret-file-2.yaml: YW5vdGhlciBzZWNyZXQgdmFsdWU=
+      mountpath: /secrets
     configs:
-    - file: config/config.json
+      files:
+      - config/config.json
+      - config/anotherconfig.yaml
       data:
         property1: value 1
-    - file: config/anotherconfig.yaml
-      data:
         property2: value 2
-    configpath: /configs
+      mountpath: /configs
+    manifests:
+      files:
+      - override/service.yaml
+      data:
+        property3: value 3
     hosts:
     - gke.estafette.io
     - gke-deploy.estafette.io
@@ -105,10 +111,6 @@ stages:
     rollingupdate:
       maxsurge: 25%
       maxunavailable: 25%
-    localmanifests:
-    - file: override/service.yaml
-      data:
-        property3: value 3
     trustedips:
     - 103.21.244.0/22
     - 103.22.200.0/22

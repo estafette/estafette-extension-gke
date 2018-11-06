@@ -1,7 +1,6 @@
 package main
 
 import (
-	"path/filepath"
 	"strings"
 )
 
@@ -23,11 +22,11 @@ func generateTemplateData(params Params) TemplateData {
 		MaxReplicas:         params.Autoscale.MaxReplicas,
 		TargetCPUPercentage: params.Autoscale.CPUPercentage,
 
-		Secrets:                 params.Secrets,
-		MountApplicationSecrets: len(params.Secrets) > 0,
-		SecretMountPath:         params.SecretMountPath,
-		MountConfigmap:          len(params.ConfigFiles) > 0,
-		ConfigMountPath:         params.ConfigMountPath,
+		Secrets:                 params.Secrets.Files,
+		MountApplicationSecrets: len(params.Secrets.Files) > 0,
+		SecretMountPath:         params.Secrets.MountPath,
+		MountConfigmap:          len(params.Configs.Files) > 0,
+		ConfigMountPath:         params.Configs.MountPath,
 
 		MountPayloadLogging: params.EnablePayloadLogging,
 
@@ -79,16 +78,11 @@ func generateTemplateData(params Params) TemplateData {
 		},
 	}
 
-	data.ConfigmapFiles = map[string]string{}
-	for _, cf := range params.ConfigFiles {
-		data.ConfigmapFiles[filepath.Base(cf.File)] = cf.RenderedFileContent
-	}
+	data.ConfigmapFiles = params.Configs.RenderedFileContent
 
-	data.LocalManifestData = map[string]string{}
-	for _, lm := range params.LocalManifests {
-		for k, v := range lm.Data {
-			data.LocalManifestData[k] = v
-		}
+	data.ManifestData = map[string]string{}
+	for k, v := range params.Manifests.Data {
+		data.ManifestData[k] = v
 	}
 
 	if params.Visibility == "private" {

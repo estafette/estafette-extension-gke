@@ -49,10 +49,10 @@ func getTemplates(params Params) []string {
 	if params.Visibility == "private" || params.Visibility == "iap" {
 		templatesToMerge = append(templatesToMerge, "ingress.yaml")
 	}
-	if len(params.Secrets) > 0 {
+	if len(params.Secrets.Files) > 0 {
 		templatesToMerge = append(templatesToMerge, "application-secrets.yaml")
 	}
-	if len(params.ConfigFiles) > 0 {
+	if len(params.Configs.Files) > 0 {
 		templatesToMerge = append(templatesToMerge, "configmap.yaml")
 	}
 
@@ -62,51 +62,50 @@ func getTemplates(params Params) []string {
 	}
 
 	// add or override with local manifests
-	for _, lm := range params.LocalManifests {
-		filename := filepath.Base(lm.File)
+	for _, lm := range params.Manifests.Files {
+		filename := filepath.Base(lm)
 
 		overridesExistingTemplate := false
 		for i, t := range templatesToMerge {
 			if filename == filepath.Base(t) {
 				overridesExistingTemplate = true
-				templatesToMerge[i] = lm.File
+				templatesToMerge[i] = lm
 				break
 			}
 		}
 
 		if !overridesExistingTemplate {
-			templatesToMerge = append(templatesToMerge, lm.File)
+			templatesToMerge = append(templatesToMerge, lm)
 		}
 	}
 
 	return templatesToMerge
 }
 
-func renderConfig(params Params) (renderedConfigFiles []ConfigFileParams) {
+func renderConfig(params Params) (renderedConfigFiles map[string]string) {
 
-	if len(params.ConfigFiles) > 0 {
+	renderedConfigFiles = map[string]string{}
+	if len(params.Configs.Files) > 0 {
 		log.Printf("Prerendering config files...")
 
-		for _, cf := range params.ConfigFiles {
+		for _, cf := range params.Configs.Files {
 
-			data, err := ioutil.ReadFile(cf.File)
+			data, err := ioutil.ReadFile(cf)
 			if err != nil {
-				log.Fatal(fmt.Sprintf("Failed reading file %v. Do you have a git-clone stage before running this extension? For releases git-clone is not automatically handled to save time in case it's not needed. ", cf.File), err)
+				log.Fatal(fmt.Sprintf("Failed reading file %v. Do you have a git-clone stage before running this extension? For releases git-clone is not automatically handled to save time in case it's not needed. ", cf), err)
 			}
-			tmpl, err := template.New(cf.File).Parse(string(data))
+			tmpl, err := template.New(cf).Parse(string(data))
 			if err != nil {
-				log.Fatal(fmt.Sprintf("Failed building template from file %v: ", cf.File), err)
+				log.Fatal(fmt.Sprintf("Failed building template from file %v: ", cf), err)
 			}
 
 			var renderedTemplate bytes.Buffer
-			err = tmpl.Execute(&renderedTemplate, cf.Data)
+			err = tmpl.Execute(&renderedTemplate, params.Configs.Data)
 			if err != nil {
-				log.Fatal(fmt.Sprintf("Failed rendering template from file %v: ", cf.File), err)
+				log.Fatal(fmt.Sprintf("Failed rendering template from file %v: ", cf), err)
 			}
 
-			cf.RenderedFileContent = renderedTemplate.String()
-
-			renderedConfigFiles = append(renderedConfigFiles, cf)
+			renderedConfigFiles[filepath.Base(cf)] = renderedTemplate.String()
 		}
 	}
 

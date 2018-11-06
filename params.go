@@ -7,26 +7,25 @@ import (
 // Params is used to parameterize the deployment, set from custom properties in the manifest
 type Params struct {
 	// control params
-	Credentials     string                `json:"credentials,omitempty"`
-	DryRun          bool                  `json:"dryrun,string,omitempty"`
-	BuildVersion    string                `json:"-"`
-	ChaosProof      bool                  `json:"chaosproof,string,omitempty"`
-	LocalManifests  []LocalManifestParams `json:"localmanifests,omitempty"`
-	TrustedIPRanges []string              `json:"trustedips,omitempty"`
+	Credentials     string          `json:"credentials,omitempty"`
+	DryRun          bool            `json:"dryrun,string,omitempty"`
+	BuildVersion    string          `json:"-"`
+	ChaosProof      bool            `json:"chaosproof,string,omitempty"`
+	Manifests       ManifestsParams `json:"manifests,omitempty"`
+	TrustedIPRanges []string        `json:"trustedips,omitempty"`
 
 	// app params
-	App                  string             `json:"app,omitempty"`
-	Namespace            string             `json:"namespace,omitempty"`
-	Labels               map[string]string  `json:"labels,omitempty"`
-	Visibility           string             `json:"visibility,omitempty"`
-	Hosts                []string           `json:"hosts,omitempty"`
-	Basepath             string             `json:"basepath,omitempty"`
-	Autoscale            AutoscaleParams    `json:"autoscale,omitempty"`
-	Secrets              map[string]string  `json:"secrets,omitempty"`
-	SecretMountPath      string             `json:"secretpath,omitempty"`
-	ConfigFiles          []ConfigFileParams `json:"configs,omitempty"`
-	ConfigMountPath      string             `json:"configpath,omitempty"`
-	EnablePayloadLogging bool               `json:"enablePayloadLogging,string,omitempty"`
+	App        string            `json:"app,omitempty"`
+	Namespace  string            `json:"namespace,omitempty"`
+	Labels     map[string]string `json:"labels,omitempty"`
+	Visibility string            `json:"visibility,omitempty"`
+	Hosts      []string          `json:"hosts,omitempty"`
+	Basepath   string            `json:"basepath,omitempty"`
+	Autoscale  AutoscaleParams   `json:"autoscale,omitempty"`
+	Secrets    SecretsParams     `json:"secrets,omitempty"`
+	Configs    ConfigsParams     `json:"configs,omitempty"`
+
+	EnablePayloadLogging bool `json:"enablePayloadLogging,string,omitempty"`
 
 	// container params
 	Container     ContainerParams     `json:"container,omitempty"`
@@ -97,17 +96,24 @@ type RollingUpdateParams struct {
 	MaxUnavailable string `json:"maxunavailable,omitempty"`
 }
 
-// ConfigFileParams sets a local file to embed in a configmap and data to render the file as a template
-type ConfigFileParams struct {
-	File                string            `json:"file,omitempty"`
-	Data                map[string]string `json:"data,omitempty"`
-	RenderedFileContent string            `json:"-"`
+// ManifestsParams can be used to override or add additional manifests located in the application repository
+type ManifestsParams struct {
+	Files []string          `json:"files,omitempty"`
+	Data  map[string]string `json:"data,omitempty"`
 }
 
-// LocalManifestParams sets a local manifest file to either replace a default one or get added
-type LocalManifestParams struct {
-	File string            `json:"file,omitempty"`
-	Data map[string]string `json:"data,omitempty"`
+// SecretsParams allows secrets to be set dynamically for the application
+type SecretsParams struct {
+	Files     map[string]string `json:"files,omitempty"`
+	MountPath string            `json:"mountpath,omitempty"`
+}
+
+// ConfigsParams allows configs to be set dynamically for the application
+type ConfigsParams struct {
+	Files               []string          `json:"configs,omitempty"`
+	Data                map[string]string `json:"data,omitempty"`
+	MountPath           string            `json:"mountpath,omitempty"`
+	RenderedFileContent map[string]string `json:"-"`
 }
 
 // SetDefaults fills in empty fields with convention-based defaults
@@ -288,11 +294,11 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName string, estafet
 	}
 
 	// set mountpaths for configs and secrets
-	if p.ConfigMountPath == "" {
-		p.ConfigMountPath = "/configs"
+	if p.Configs.MountPath == "" {
+		p.Configs.MountPath = "/configs"
 	}
-	if p.SecretMountPath == "" {
-		p.SecretMountPath = "/secrets"
+	if p.Secrets.MountPath == "" {
+		p.Secrets.MountPath = "/secrets"
 	}
 
 	// default trusted ip ranges to cloudflare's ips from https://www.cloudflare.com/ips-v4

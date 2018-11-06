@@ -688,9 +688,11 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsSecretsToSecretsParam", func(t *testing.T) {
 
 		params := Params{
-			Secrets: map[string]string{
-				"secret-file-1.json": "c29tZSBzZWNyZXQgdmFsdWU=",
-				"secret-file-2.yaml": "YW5vdGhlciBzZWNyZXQgdmFsdWU=",
+			Secrets: SecretsParams{
+				Files: map[string]string{
+					"secret-file-1.json": "c29tZSBzZWNyZXQgdmFsdWU=",
+					"secret-file-2.yaml": "YW5vdGhlciBzZWNyZXQgdmFsdWU=",
+				},
 			},
 		}
 
@@ -705,9 +707,11 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsMountApplicationSecretsToTrueIfSecretsParamLengthIsLargerThanZero", func(t *testing.T) {
 
 		params := Params{
-			Secrets: map[string]string{
-				"secret-file-1.json": "c29tZSBzZWNyZXQgdmFsdWU=",
-				"secret-file-2.yaml": "YW5vdGhlciBzZWNyZXQgdmFsdWU=",
+			Secrets: SecretsParams{
+				Files: map[string]string{
+					"secret-file-1.json": "c29tZSBzZWNyZXQgdmFsdWU=",
+					"secret-file-2.yaml": "YW5vdGhlciBzZWNyZXQgdmFsdWU=",
+				},
 			},
 		}
 
@@ -720,7 +724,9 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsMountApplicationSecretsToFalseIfSecretsParamLengthIsZero", func(t *testing.T) {
 
 		params := Params{
-			Secrets: map[string]string{},
+			Secrets: SecretsParams{
+				Files: map[string]string{},
+			},
 		}
 
 		// act
@@ -857,9 +863,9 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsMountConfigmapToTrueIfConfigFilesParamsLengthIsLargerThanZero", func(t *testing.T) {
 
 		params := Params{
-			ConfigFiles: []ConfigFileParams{
-				ConfigFileParams{
-					File: "config.json",
+			Configs: ConfigsParams{
+				Files: []string{
+					"config.json",
 				},
 			},
 		}
@@ -873,7 +879,9 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsMountConfigmapToFalseIfConfigFilesParamsLengthIsZero", func(t *testing.T) {
 
 		params := Params{
-			ConfigFiles: []ConfigFileParams{},
+			Configs: ConfigsParams{
+				Files: []string{},
+			},
 		}
 
 		// act
@@ -885,7 +893,9 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsConfigMountPathToConfigMountPathParam", func(t *testing.T) {
 
 		params := Params{
-			ConfigMountPath: "/configs",
+			Configs: ConfigsParams{
+				MountPath: "/configs",
+			},
 		}
 
 		// act
@@ -897,7 +907,9 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsSecretMountPathToSecretMountPathParam", func(t *testing.T) {
 
 		params := Params{
-			SecretMountPath: "/secrets",
+			Secrets: SecretsParams{
+				MountPath: "/secrets",
+			},
 		}
 
 		// act
@@ -984,19 +996,15 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsLocalManifestDataToAllLocalManifestDataCombined", func(t *testing.T) {
 
 		params := Params{
-			LocalManifests: []LocalManifestParams{
-				LocalManifestParams{
-					File: "./gke/service.yaml",
-					Data: map[string]string{
-						"property1": "value 1",
-						"property2": "value 2",
-					},
+			Manifests: ManifestsParams{
+				Files: []string{
+					"./gke/service.yaml",
+					"./gke/ingress.yaml",
 				},
-				LocalManifestParams{
-					File: "./gke/ingress.yaml",
-					Data: map[string]string{
-						"property3": "value 3",
-					},
+				Data: map[string]string{
+					"property1": "value 1",
+					"property2": "value 2",
+					"property3": "value 3",
 				},
 			},
 		}
@@ -1004,9 +1012,9 @@ func TestGenerateTemplateData(t *testing.T) {
 		// act
 		templateData := generateTemplateData(params)
 
-		assert.Equal(t, 3, len(templateData.LocalManifestData))
-		assert.Equal(t, "value 1", templateData.LocalManifestData["property1"])
-		assert.Equal(t, "value 2", templateData.LocalManifestData["property2"])
-		assert.Equal(t, "value 3", templateData.LocalManifestData["property3"])
+		assert.Equal(t, 3, len(templateData.ManifestData))
+		assert.Equal(t, "value 1", templateData.ManifestData["property1"])
+		assert.Equal(t, "value 2", templateData.ManifestData["property2"])
+		assert.Equal(t, "value 3", templateData.ManifestData["property3"])
 	})
 }

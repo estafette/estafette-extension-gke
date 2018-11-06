@@ -33,7 +33,7 @@ type TemplateData struct {
 	BuildVersion                string
 	LimitTrustedIPRanges        bool
 	TrustedIPRanges             []string
-	LocalManifestData           map[string]string
+	ManifestData                map[string]string
 }
 
 // ContainerData has data specific to the application container

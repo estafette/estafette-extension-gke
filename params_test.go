@@ -1249,49 +1249,57 @@ func TestSetDefaults(t *testing.T) {
 	t.Run("DefaultsConfigMountPathToSlashConfigsIfEmpty", func(t *testing.T) {
 
 		params := Params{
-			ConfigMountPath: "",
+			Configs: ConfigsParams{
+				MountPath: "",
+			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", map[string]string{})
 
-		assert.Equal(t, "/configs", params.ConfigMountPath)
+		assert.Equal(t, "/configs", params.Configs.MountPath)
 	})
 
 	t.Run("KeepsConfigMountPathIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
-			ConfigMountPath: "/etc/app-config",
+			Configs: ConfigsParams{
+				MountPath: "/etc/app-config",
+			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", map[string]string{})
 
-		assert.Equal(t, "/etc/app-config", params.ConfigMountPath)
+		assert.Equal(t, "/etc/app-config", params.Configs.MountPath)
 	})
 
 	t.Run("DefaultsSecretMountPathToSlashSecretsIfEmpty", func(t *testing.T) {
 
 		params := Params{
-			SecretMountPath: "",
+			Secrets: SecretsParams{
+				MountPath: "",
+			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", map[string]string{})
 
-		assert.Equal(t, "/secrets", params.SecretMountPath)
+		assert.Equal(t, "/secrets", params.Secrets.MountPath)
 	})
 
 	t.Run("KeepsSecretMountPathIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
-			SecretMountPath: "/etc/app-secret",
+			Secrets: SecretsParams{
+				MountPath: "/etc/app-secret",
+			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", map[string]string{})
 
-		assert.Equal(t, "/etc/app-secret", params.SecretMountPath)
+		assert.Equal(t, "/etc/app-secret", params.Secrets.MountPath)
 	})
 
 	t.Run("DefaultsTrustedIPRangesToCloudflareIPsIfEmpty", func(t *testing.T) {
