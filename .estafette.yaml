@@ -17,7 +17,7 @@ version:
 
 stages:
   build:
-    image: golang:1.11.1-alpine3.8
+    image: golang:1.11.2-alpine3.8
     workDir: /go/src/github.com/estafette/${ESTAFETTE_LABEL_APP}
     env:
       CGO_ENABLED: 0
@@ -85,7 +85,7 @@ stages:
       max: 50
       cpu: 80
     secrets:
-      files:
+      keys:
         secret-file-1.json: c29tZSBzZWNyZXQgdmFsdWU=
         secret-file-2.yaml: YW5vdGhlciBzZWNyZXQgdmFsdWU=
       mountpath: /secrets

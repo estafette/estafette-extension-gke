@@ -48,7 +48,7 @@ func TestGetTemplates(t *testing.T) {
 
 		params := Params{
 			Secrets: SecretsParams{
-				Files: map[string]string{
+				Keys: map[string]string{
 					"secret-file-1.json": "c29tZSBzZWNyZXQgdmFsdWU=",
 					"secret-file-2.yaml": "YW5vdGhlciBzZWNyZXQgdmFsdWU=",
 				},

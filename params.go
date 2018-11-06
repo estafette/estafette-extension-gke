@@ -104,7 +104,7 @@ type ManifestsParams struct {
 
 // SecretsParams allows secrets to be set dynamically for the application
 type SecretsParams struct {
-	Files     map[string]string `json:"files,omitempty"`
+	Keys      map[string]string `json:"keys,omitempty"`
 	MountPath string            `json:"mountpath,omitempty"`
 }
 

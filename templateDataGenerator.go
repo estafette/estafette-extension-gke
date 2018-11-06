@@ -22,8 +22,8 @@ func generateTemplateData(params Params) TemplateData {
 		MaxReplicas:         params.Autoscale.MaxReplicas,
 		TargetCPUPercentage: params.Autoscale.CPUPercentage,
 
-		Secrets:                 params.Secrets.Files,
-		MountApplicationSecrets: len(params.Secrets.Files) > 0,
+		Secrets:                 params.Secrets.Keys,
+		MountApplicationSecrets: len(params.Secrets.Keys) > 0,
 		SecretMountPath:         params.Secrets.MountPath,
 		MountConfigmap:          len(params.Configs.Files) > 0,
 		ConfigMountPath:         params.Configs.MountPath,
