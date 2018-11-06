@@ -980,4 +980,33 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		assert.Equal(t, 14, len(templateData.TrustedIPRanges))
 	})
+
+	t.Run("SetsLocalManifestDataToAllLocalManifestDataCombined", func(t *testing.T) {
+
+		params := Params{
+			LocalManifests: []LocalManifestParams{
+				LocalManifestParams{
+					File: "./gke/service.yaml",
+					Data: map[string]string{
+						"property1": "value 1",
+						"property2": "value 2",
+					},
+				},
+				LocalManifestParams{
+					File: "./gke/ingress.yaml",
+					Data: map[string]string{
+						"property3": "value 3",
+					},
+				},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, 3, len(templateData.LocalManifestData))
+		assert.Equal(t, "value 1", templateData.LocalManifestData["property1"])
+		assert.Equal(t, "value 2", templateData.LocalManifestData["property2"])
+		assert.Equal(t, "value 3", templateData.LocalManifestData["property3"])
+	})
 }

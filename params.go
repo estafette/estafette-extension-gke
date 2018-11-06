@@ -7,12 +7,12 @@ import (
 // Params is used to parameterize the deployment, set from custom properties in the manifest
 type Params struct {
 	// control params
-	Credentials     string   `json:"credentials,omitempty"`
-	DryRun          bool     `json:"dryrun,string,omitempty"`
-	BuildVersion    string   `json:"-"`
-	ChaosProof      bool     `json:"chaosproof,string,omitempty"`
-	LocalManifests  []string `json:"localmanifests,omitempty"`
-	TrustedIPRanges []string `json:"trustedips,omitempty"`
+	Credentials     string                `json:"credentials,omitempty"`
+	DryRun          bool                  `json:"dryrun,string,omitempty"`
+	BuildVersion    string                `json:"-"`
+	ChaosProof      bool                  `json:"chaosproof,string,omitempty"`
+	LocalManifests  []LocalManifestParams `json:"localmanifests,omitempty"`
+	TrustedIPRanges []string              `json:"trustedips,omitempty"`
 
 	// app params
 	App                  string             `json:"app,omitempty"`
@@ -102,6 +102,12 @@ type ConfigFileParams struct {
 	File                string            `json:"file,omitempty"`
 	Data                map[string]string `json:"data,omitempty"`
 	RenderedFileContent string            `json:"-"`
+}
+
+// LocalManifestParams sets a local manifest file to either replace a default one or get added
+type LocalManifestParams struct {
+	File string            `json:"file,omitempty"`
+	Data map[string]string `json:"data,omitempty"`
 }
 
 // SetDefaults fills in empty fields with convention-based defaults

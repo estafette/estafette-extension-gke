@@ -63,19 +63,19 @@ func getTemplates(params Params) []string {
 
 	// add or override with local manifests
 	for _, lm := range params.LocalManifests {
-		filename := filepath.Base(lm)
+		filename := filepath.Base(lm.File)
 
 		overridesExistingTemplate := false
 		for i, t := range templatesToMerge {
 			if filename == filepath.Base(t) {
 				overridesExistingTemplate = true
-				templatesToMerge[i] = lm
+				templatesToMerge[i] = lm.File
 				break
 			}
 		}
 
 		if !overridesExistingTemplate {
-			templatesToMerge = append(templatesToMerge, lm)
+			templatesToMerge = append(templatesToMerge, lm.File)
 		}
 	}
 

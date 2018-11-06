@@ -72,8 +72,10 @@ func TestGetTemplates(t *testing.T) {
 	t.Run("AddLocalManifestsIfSetInLocalManifestsParam", func(t *testing.T) {
 
 		params := Params{
-			LocalManifests: []string{
-				"./gke/another-ingress.yaml",
+			LocalManifests: []LocalManifestParams{
+				LocalManifestParams{
+					File: "./gke/another-ingress.yaml",
+				},
 			},
 		}
 
@@ -86,8 +88,10 @@ func TestGetTemplates(t *testing.T) {
 	t.Run("OverrideWithLocalManifestsIfSetInLocalManifestsParamWithSameFilename", func(t *testing.T) {
 
 		params := Params{
-			LocalManifests: []string{
-				"./gke/service.yaml",
+			LocalManifests: []LocalManifestParams{
+				LocalManifestParams{
+					File: "./gke/service.yaml",
+				},
 			},
 		}
 

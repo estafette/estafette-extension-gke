@@ -106,7 +106,9 @@ stages:
       maxsurge: 25%
       maxunavailable: 25%
     localmanifests:
-    - override/service.yaml
+    - file: override/service.yaml
+      data:
+        property3: value 3
     trustedips:
     - 103.21.244.0/22
     - 103.22.200.0/22

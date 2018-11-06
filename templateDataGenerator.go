@@ -84,6 +84,13 @@ func generateTemplateData(params Params) TemplateData {
 		data.ConfigmapFiles[filepath.Base(cf.File)] = cf.RenderedFileContent
 	}
 
+	data.LocalManifestData = map[string]string{}
+	for _, lm := range params.LocalManifests {
+		for k, v := range lm.Data {
+			data.LocalManifestData[k] = v
+		}
+	}
+
 	if params.Visibility == "private" {
 		data.ServiceType = "ClusterIP"
 		data.UseNginxIngress = true
