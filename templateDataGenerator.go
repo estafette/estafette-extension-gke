@@ -90,18 +90,21 @@ func generateTemplateData(params Params) TemplateData {
 		data.UseGCEIngress = false
 		data.UseDNSAnnotationsOnIngress = true
 		data.UseDNSAnnotationsOnService = false
+		data.LimitTrustedIPRanges = false
 	} else if params.Visibility == "iap" {
 		data.ServiceType = "NodePort"
 		data.UseNginxIngress = false
 		data.UseGCEIngress = true
 		data.UseDNSAnnotationsOnIngress = true
 		data.UseDNSAnnotationsOnService = false
+		data.LimitTrustedIPRanges = false
 	} else if params.Visibility == "public" {
 		data.ServiceType = "LoadBalancer"
 		data.UseNginxIngress = false
 		data.UseGCEIngress = false
 		data.UseDNSAnnotationsOnIngress = false
 		data.UseDNSAnnotationsOnService = true
+		data.LimitTrustedIPRanges = true
 	}
 
 	if !strings.HasSuffix(data.IngressPath, "/") && !strings.HasSuffix(data.IngressPath, "*") {
@@ -110,6 +113,8 @@ func generateTemplateData(params Params) TemplateData {
 	if data.UseGCEIngress && !strings.HasSuffix(data.IngressPath, "*") {
 		data.IngressPath += "*"
 	}
+
+	data.TrustedIPRanges = params.TrustedIPRanges
 
 	return data
 }

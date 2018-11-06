@@ -31,6 +31,8 @@ type TemplateData struct {
 	RollingUpdateMaxSurge       string
 	RollingUpdateMaxUnavailable string
 	BuildVersion                string
+	LimitTrustedIPRanges        bool
+	TrustedIPRanges             []string
 }
 
 // ContainerData has data specific to the application container

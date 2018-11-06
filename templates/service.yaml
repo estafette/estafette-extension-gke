@@ -18,6 +18,12 @@ metadata:
     {{- end}}
 spec:
   type: {{.ServiceType}}
+  {{- if .LimitTrustedIPRanges}}
+  loadBalancerSourceRanges:
+  {{- range .TrustedIPRanges}}
+  - {{.}}
+  {{- end}}
+  {{- end}}
   ports:
   - name: http
     port: 80

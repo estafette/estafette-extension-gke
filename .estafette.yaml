@@ -107,6 +107,10 @@ stages:
       maxunavailable: 25%
     localmanifests:
     - override/service.yaml
+    trustedips:
+    - 103.21.244.0/22
+    - 103.22.200.0/22
+    - 103.31.4.0/22
     dryrun: true
 
   test-minimal-alpha-version:

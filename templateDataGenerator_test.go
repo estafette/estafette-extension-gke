@@ -905,4 +905,79 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		assert.Equal(t, "/secrets", templateData.SecretMountPath)
 	})
+
+	t.Run("SetsLimitTrustedIPRangesIfVisibilityParamIsPublic", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "public",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.True(t, templateData.LimitTrustedIPRanges)
+	})
+
+	t.Run("SetsLimitTrustedIPRangesToTrueIfVisibilityParamIsPublic", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "public",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.True(t, templateData.LimitTrustedIPRanges)
+	})
+
+	t.Run("SetsLimitTrustedIPRangesToFalseIfVisibilityParamIsIap", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "iap",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.False(t, templateData.LimitTrustedIPRanges)
+	})
+
+	t.Run("SetsLimitTrustedIPRangesToFalseIfVisibilityParamIsPrivate", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "private",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.False(t, templateData.LimitTrustedIPRanges)
+	})
+
+	t.Run("SetsTrustedIPRangesToTrustedIPRangesParams", func(t *testing.T) {
+
+		params := Params{
+			TrustedIPRanges: []string{
+				"103.21.244.0/22",
+				"103.22.200.0/22",
+				"103.31.4.0/22",
+				"104.16.0.0/12",
+				"108.162.192.0/18",
+				"131.0.72.0/22",
+				"141.101.64.0/18",
+				"162.158.0.0/15",
+				"172.64.0.0/13",
+				"173.245.48.0/20",
+				"188.114.96.0/20",
+				"190.93.240.0/20",
+				"197.234.240.0/22",
+				"198.41.128.0/17",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, 14, len(templateData.TrustedIPRanges))
+	})
 }

@@ -1293,6 +1293,35 @@ func TestSetDefaults(t *testing.T) {
 
 		assert.Equal(t, "/etc/app-secret", params.SecretMountPath)
 	})
+
+	t.Run("DefaultsTrustedIPRangesToCloudflareIPsIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			TrustedIPRanges: []string{},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, 14, len(params.TrustedIPRanges))
+		assert.Equal(t, "103.21.244.0/22", params.TrustedIPRanges[0])
+		assert.Equal(t, "198.41.128.0/17", params.TrustedIPRanges[13])
+	})
+
+	t.Run("KeepsTrustedIPRangesIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			TrustedIPRanges: []string{
+				"0.0.0.0/0",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, 1, len(params.TrustedIPRanges))
+		assert.Equal(t, "0.0.0.0/0", params.TrustedIPRanges[0])
+	})
 }
 
 func TestSetDefaultsFromCredentials(t *testing.T) {
