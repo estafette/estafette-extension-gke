@@ -214,7 +214,6 @@ func main() {
 func scaleCanaryDeployment(name, namespace string, replicas int) {
 	log.Printf("Scaling canary deployment to %v replicas...\n", replicas)
 	runCommand("kubectl", []string{"scale", "deploy", fmt.Sprintf("%v-canary", name), "-n", namespace, fmt.Sprintf("--replicas=%v", replicas)})
-	runCommand("kubectl", []string{"rollout", "status", "deployment", fmt.Sprintf("%v-canary", name), "-n", namespace})
 }
 
 func deleteResourcesForTypeSwitch(name, namespace string) {
