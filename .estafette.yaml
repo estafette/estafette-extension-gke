@@ -128,6 +128,32 @@ stages:
     - gke.estafette.io
     dryrun: true
 
+  test-alpha-version-canary:
+    image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+    credentials: gke-tooling
+    type: canary
+    container:
+      repository: extensions
+    hosts:
+    - gke.estafette.io
+    dryrun: true
+
+  test-alpha-version-rollforward:
+    image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+    credentials: gke-tooling
+    type: rollforward
+    container:
+      repository: extensions
+    hosts:
+    - gke.estafette.io
+    dryrun: true
+
+  test-alpha-version-rollback:
+    image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+    credentials: gke-tooling
+    type: rollback
+    dryrun: true
+
   push-to-docker-hub:
     image: extensions/docker:dev
     action: push
