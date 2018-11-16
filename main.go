@@ -183,6 +183,7 @@ func main() {
 		// clean up old stuff
 		switch params.Type {
 		case "canary":
+			scaleCanaryDeployment(templateData.Name, templateData.Namespace, 1)
 			deleteConfigsForParamsChange(params, fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
 			deleteSecretsForParamsChange(params, fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
 			break
