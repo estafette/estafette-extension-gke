@@ -103,6 +103,19 @@ func TestGetTemplates(t *testing.T) {
 		assert.True(t, stringArrayContains(templates, "./gke/service.yaml"))
 		assert.False(t, stringArrayContains(templates, "/templates/service.yaml"))
 	})
+
+	t.Run("ReturnsOnlyHorizontalPodAutoscalerIfTypeIsRollback", func(t *testing.T) {
+
+		params := Params{
+			Type: "rollback",
+		}
+
+		// act
+		templates := getTemplates(params)
+
+		assert.Equal(t, 1, len(templates))
+		assert.True(t, stringArrayContains(templates, "/templates/horizontalpodautoscaler.yaml"))
+	})
 }
 
 func stringArrayContains(array []string, search string) bool {

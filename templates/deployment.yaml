@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{.Name}}
+  name: {{.NameWithTrack}}
   namespace: {{.Namespace}}
   labels:
     {{- range $key, $value := .Labels}}
@@ -17,6 +17,9 @@ spec:
   selector:
     matchLabels:
       app: {{.AppLabelSelector}}
+      {{- if .IncludeTrackLabel}}
+      track: {{.TrackLabel}}
+      {{- end}}
   template:
     metadata:
       labels:
@@ -24,6 +27,9 @@ spec:
         {{$key}}: {{$value}}
         {{- end}}
         version: {{.BuildVersion}}
+        {{- if .IncludeTrackLabel}}
+        track: {{.TrackLabel}}
+        {{- end}}
       annotations:
         prometheus.io/scrape: "{{.Container.Metrics.Scrape}}"
         prometheus.io/path: "{{.Container.Metrics.Path}}"
@@ -166,12 +172,12 @@ spec:
       {{- if .MountApplicationSecrets }}
       - name: app-secrets
         secret:
-          secretName: {{.Name}}-secrets
+          secretName: {{.NameWithTrack}}-secrets
       {{- end }}
       {{- if .MountConfigmap }}
       - name: app-configs
         configMap:
-          name: {{.Name}}-configs
+          name: {{.NameWithTrack}}-configs
       {{- end }}
       {{- if .MountPayloadLogging }}
       - name: pod-log

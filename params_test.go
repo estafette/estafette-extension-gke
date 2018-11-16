@@ -1358,6 +1358,30 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, 1, len(params.TrustedIPRanges))
 		assert.Equal(t, "0.0.0.0/0", params.TrustedIPRanges[0])
 	})
+
+	t.Run("DefaultsTypeToSimpleIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			Type: "",
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "simple", params.Type)
+	})
+
+	t.Run("KeepsTypeIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			Type: "canary",
+		}
+
+		// act
+		params.SetDefaults("", "", "", map[string]string{})
+
+		assert.Equal(t, "canary", params.Type)
+	})
 }
 
 func TestSetDefaultsFromCredentials(t *testing.T) {

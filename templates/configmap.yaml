@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{.Name}}-configs
+  name: {{.NameWithTrack}}-configs
   namespace: {{.Namespace}}
   labels:
     {{- range $key, $value := .Labels}}

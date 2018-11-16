@@ -1,7 +1,7 @@
 apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
 metadata:
-  name: {{.Name}}
+  name: {{.NameWithTrack}}
   namespace: {{.Namespace}}
   labels:
     {{- range $key, $value := .Labels}}
@@ -11,4 +11,7 @@ spec:
   selector:
     matchLabels:
       app: {{.AppLabelSelector}}
+      {{- if .IncludeTrackLabel}}
+      track: {{.TrackLabel}}
+      {{- end}}
   maxUnavailable: 1

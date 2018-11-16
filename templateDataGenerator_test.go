@@ -325,6 +325,66 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, 16, templateData.MaxReplicas)
 	})
 
+	t.Run("SetsMinReplicasToOneIfParamsTypeIsCanary", func(t *testing.T) {
+
+		params := Params{
+			Type: "canary",
+			Autoscale: AutoscaleParams{
+				MinReplicas: 5,
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, 1, templateData.MinReplicas)
+	})
+
+	t.Run("SetsMaxReplicasToOneIfParamsTypeIsCanary", func(t *testing.T) {
+
+		params := Params{
+			Type: "canary",
+			Autoscale: AutoscaleParams{
+				MaxReplicas: 16,
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, 1, templateData.MaxReplicas)
+	})
+
+	t.Run("SetsMinReplicasToZeroIfParamsTypeIsRollback", func(t *testing.T) {
+
+		params := Params{
+			Type: "rollback",
+			Autoscale: AutoscaleParams{
+				MinReplicas: 5,
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, 0, templateData.MinReplicas)
+	})
+
+	t.Run("SetsMaxReplicasToOneIfParamsTypeIsRollback", func(t *testing.T) {
+
+		params := Params{
+			Type: "rollback",
+			Autoscale: AutoscaleParams{
+				MaxReplicas: 16,
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, 0, templateData.MaxReplicas)
+	})
+
 	t.Run("SetsTargetCPUPercentageToAutoscaleCPUPercentageParam", func(t *testing.T) {
 
 		params := Params{
@@ -1016,5 +1076,122 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "value 1", templateData.ManifestData["property1"])
 		assert.Equal(t, "value 2", templateData.ManifestData["property2"])
 		assert.Equal(t, "value 3", templateData.ManifestData["property3"])
+	})
+
+	t.Run("AppendsCanaryToNameWithTrackIfParamsTypeIsCanary", func(t *testing.T) {
+
+		params := Params{
+			App:  "myapp",
+			Type: "canary",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "myapp-canary", templateData.NameWithTrack)
+	})
+
+	t.Run("AppendsStableToNameWithTrackIfParamsTypeIsRollforward", func(t *testing.T) {
+
+		params := Params{
+			App:  "myapp",
+			Type: "rollforward",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "myapp-stable", templateData.NameWithTrack)
+	})
+
+	t.Run("AppendsCanaryToNameWithTrackIfParamsTypeIsRollback", func(t *testing.T) {
+
+		params := Params{
+			App:  "myapp",
+			Type: "rollback",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "myapp-canary", templateData.NameWithTrack)
+	})
+
+	t.Run("DoesNotAppendTrackToNameWithTrackIfParamsTypeIsSimple", func(t *testing.T) {
+
+		params := Params{
+			App:  "myapp",
+			Type: "simple",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "myapp", templateData.NameWithTrack)
+	})
+
+	t.Run("SetsIncludeTrackLabelToFalseIfParamsTypeIsSimple", func(t *testing.T) {
+
+		params := Params{
+			App:  "myapp",
+			Type: "simple",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.False(t, templateData.IncludeTrackLabel)
+	})
+
+	t.Run("SetsIncludeTrackLabelToTrueIfParamsTypeIsCanary", func(t *testing.T) {
+
+		params := Params{
+			App:  "myapp",
+			Type: "canary",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.True(t, templateData.IncludeTrackLabel)
+	})
+
+	t.Run("SetsIncludeTrackLabelToTrueIfParamsTypeIsRollforward", func(t *testing.T) {
+
+		params := Params{
+			App:  "myapp",
+			Type: "rollforward",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.True(t, templateData.IncludeTrackLabel)
+	})
+
+	t.Run("SetsTrackLabelToCanaryIfParamsTypeIsCanary", func(t *testing.T) {
+
+		params := Params{
+			App:  "myapp",
+			Type: "canary",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "canary", templateData.TrackLabel)
+	})
+
+	t.Run("SetsTrackLabelToStableIfParamsTypeIsRollforward", func(t *testing.T) {
+
+		params := Params{
+			App:  "myapp",
+			Type: "rollforward",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "stable", templateData.TrackLabel)
 	})
 }

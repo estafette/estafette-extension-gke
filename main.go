@@ -174,16 +174,60 @@ func main() {
 		log.Printf("Waiting for the deployment to finish...\n")
 		runCommand("kubectl", []string{"rollout", "status", "deployment", templateData.Name, "-n", templateData.Namespace})
 
-		if params.Visibility == "public" {
-			// public uses service of type loadbalancer and doesn't need ingress
-			log.Printf("Deleting ingress if it exists, which is used for visibility private or iap...\n")
-			runCommand("kubectl", []string{"delete", "ingress", templateData.Name, "-n", templateData.Namespace, "--ignore-not-found=true"})
+		// clean up old stuff
+		switch params.Type {
+		case "canary":
+			deleteConfigsForParamsChange(params, fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
+			deleteSecretsForParamsChange(params, fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
+			break
+		case "rollforward":
+			deleteResourcesForTypeSwitch(templateData.Name, templateData.Namespace)
+			deleteConfigsForParamsChange(params, fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
+			deleteSecretsForParamsChange(params, fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
+			deleteIngressForVisibilityChange(params, templateData.Name, templateData.Namespace)
+			break
+		case "rollback":
+			break
+		case "simple":
+			deleteResourcesForTypeSwitch(fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
+			deleteResourcesForTypeSwitch(fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
+			deleteConfigsForParamsChange(params, templateData.Name, templateData.Namespace)
+			deleteSecretsForParamsChange(params, templateData.Name, templateData.Namespace)
+			deleteIngressForVisibilityChange(params, templateData.Name, templateData.Namespace)
+			break
 		}
+	}
+}
 
-		if len(params.Secrets.Keys) == 0 {
-			log.Printf("Deleting application secrets if it exists, because no secrets are specified...\n")
-			runCommand("kubectl", []string{"delete", "secret", fmt.Sprintf("%v-secrets", templateData.Name), "-n", templateData.Namespace, "--ignore-not-found=true"})
-		}
+func deleteResourcesForTypeSwitch(name, namespace string) {
+	// clean up resources in case a switch from simple to canary releases or vice versa has been made
+	log.Printf("Deleting simple type deployment, configmap, secret, hpa and pdb...\n")
+	runCommand("kubectl", []string{"delete", "deploy", name, "-n", namespace, "--ignore-not-found=true"})
+	runCommand("kubectl", []string{"delete", "configmap", fmt.Sprintf("%v-configs", name), "-n", namespace, "--ignore-not-found=true"})
+	runCommand("kubectl", []string{"delete", "secret", fmt.Sprintf("%v-secrets", name), "-n", namespace, "--ignore-not-found=true"})
+	runCommand("kubectl", []string{"delete", "hpa", name, "-n", namespace, "--ignore-not-found=true"})
+	runCommand("kubectl", []string{"delete", "pdb", name, "-n", namespace, "--ignore-not-found=true"})
+}
+
+func deleteConfigsForParamsChange(params Params, name, namespace string) {
+	if len(params.Configs.Files) == 0 {
+		log.Printf("Deleting application configs if it exists, because no configs are specified...\n")
+		runCommand("kubectl", []string{"delete", "configmap", fmt.Sprintf("%v-configs", name), "-n", namespace, "--ignore-not-found=true"})
+	}
+}
+
+func deleteSecretsForParamsChange(params Params, name, namespace string) {
+	if len(params.Secrets.Keys) == 0 {
+		log.Printf("Deleting application secrets if it exists, because no secrets are specified...\n")
+		runCommand("kubectl", []string{"delete", "secret", fmt.Sprintf("%v-secrets", name), "-n", namespace, "--ignore-not-found=true"})
+	}
+}
+
+func deleteIngressForVisibilityChange(params Params, name, namespace string) {
+	if params.Visibility == "public" {
+		// public uses service of type loadbalancer and doesn't need ingress
+		log.Printf("Deleting ingress if it exists, which is used for visibility private or iap...\n")
+		runCommand("kubectl", []string{"delete", "ingress", name, "-n", namespace, "--ignore-not-found=true"})
 	}
 }
 

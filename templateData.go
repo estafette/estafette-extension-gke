@@ -3,6 +3,7 @@ package main
 // TemplateData contains the root data for rendering the Kubernetes manifests
 type TemplateData struct {
 	Name                        string
+	NameWithTrack               string
 	Namespace                   string
 	Labels                      map[string]string
 	AppLabelSelector            string
@@ -34,6 +35,8 @@ type TemplateData struct {
 	LimitTrustedIPRanges        bool
 	TrustedIPRanges             []string
 	ManifestData                map[string]string
+	IncludeTrackLabel           bool
+	TrackLabel                  string
 }
 
 // ContainerData has data specific to the application container

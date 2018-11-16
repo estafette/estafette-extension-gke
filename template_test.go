@@ -51,8 +51,9 @@ func TestInjectSteps(t *testing.T) {
 	t.Run("RenderHorizontalPodAutoscaler", func(t *testing.T) {
 
 		data := TemplateData{
-			Name:      "myapp",
-			Namespace: "mynamespace",
+			Name:          "myapp",
+			NameWithTrack: "myapp-canary",
+			Namespace:     "mynamespace",
 			Labels: map[string]string{
 				"app":  "myapp",
 				"team": "myteam",
@@ -68,7 +69,7 @@ func TestInjectSteps(t *testing.T) {
 		err = tmpl.Execute(&renderedTemplate, data)
 
 		assert.Nil(t, err)
-		assert.Equal(t, "apiVersion: autoscaling/v1\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: myapp\n  namespace: mynamespace\n  labels:\n    app: myapp\n    team: myteam\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: myapp\n  minReplicas: 3\n  maxReplicas: 19\n  targetCPUUtilizationPercentage: 65", renderedTemplate.String())
+		assert.Equal(t, "apiVersion: autoscaling/v1\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: myapp-canary\n  namespace: mynamespace\n  labels:\n    app: myapp\n    team: myteam\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: myapp-canary\n  minReplicas: 3\n  maxReplicas: 19\n  targetCPUUtilizationPercentage: 65", renderedTemplate.String())
 		assert.True(t, strings.Contains(renderedTemplate.String(), "mynamespace"))
 	})
 }

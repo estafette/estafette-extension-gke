@@ -36,6 +36,12 @@ func buildTemplates(params Params) (*template.Template, error) {
 
 func getTemplates(params Params) []string {
 
+	if params.Type == "rollback" {
+		return []string{
+			"/templates/horizontalpodautoscaler.yaml",
+		}
+	}
+
 	templatesToMerge := []string{
 		"namespace.yaml",
 		"service.yaml",

@@ -1,7 +1,7 @@
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{.Name}}
+  name: {{.NameWithTrack}}
   namespace: {{.Namespace}}
   labels:
     {{- range $key, $value := .Labels}}
@@ -11,7 +11,7 @@ spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{.Name}}
+    name: {{.NameWithTrack}}
   minReplicas: {{.MinReplicas}}
   maxReplicas: {{.MaxReplicas}}
   targetCPUUtilizationPercentage: {{.TargetCPUPercentage}}

@@ -8,6 +8,7 @@ import (
 type Params struct {
 	// control params
 	Credentials     string          `json:"credentials,omitempty"`
+	Type            string          `json:"type,omitempty"`
 	DryRun          bool            `json:"dryrun,string,omitempty"`
 	BuildVersion    string          `json:"-"`
 	ChaosProof      bool            `json:"chaosproof,string,omitempty"`
@@ -121,6 +122,10 @@ type ConfigsParams struct {
 func (p *Params) SetDefaults(appLabel, buildVersion, releaseName string, estafetteLabels map[string]string) {
 
 	p.BuildVersion = buildVersion
+
+	if p.Type == "" {
+		p.Type = "simple"
+	}
 
 	// default app to estafette app label if no override in stage params
 	if p.App == "" && appLabel != "" {
