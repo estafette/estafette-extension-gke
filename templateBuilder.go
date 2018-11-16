@@ -17,6 +17,10 @@ func buildTemplates(params Params) (*template.Template, error) {
 	// merge templates
 	templatesToMerge := getTemplates(params)
 
+	if len(templatesToMerge) == 0 {
+		return nil, nil
+	}
+
 	log.Printf("Merging templates %v...", strings.Join(templatesToMerge, ", "))
 
 	templateStrings := []string{}
@@ -122,6 +126,10 @@ func renderConfig(params Params) (renderedConfigFiles map[string]string) {
 }
 
 func renderTemplate(tmpl *template.Template, templateData TemplateData) (bytes.Buffer, error) {
+
+	if tmpl == nil {
+		return bytes.Buffer{}, nil
+	}
 
 	// render templates
 	log.Printf("Rendering merged templates...")

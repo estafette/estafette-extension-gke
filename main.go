@@ -113,7 +113,7 @@ func main() {
 		log.Fatal("Failed rendering templates: ", err)
 	}
 
-	if len(renderedTemplate.Bytes()) > 0 {
+	if tmpl != nil {
 		log.Printf("Storing rendered manifest on disk...\n")
 		err = ioutil.WriteFile("/kubernetes.yaml", renderedTemplate.Bytes(), 0600)
 		if err != nil {
@@ -165,14 +165,14 @@ func main() {
 	runCommand("gcloud", clustersGetCredentialsArsgs)
 
 	kubectlApplyArgs := []string{"apply", "-f", "/kubernetes.yaml", "-n", templateData.Namespace}
-	if len(renderedTemplate.Bytes()) > 0 {
+	if tmpl != nil {
 		// always perform a dryrun to ensure we're not ending up in a semi broken state where half of the templates is successfully applied and others not
 		log.Printf("Performing a dryrun to test the validity of the manifests...\n")
 		runCommand("kubectl", append(kubectlApplyArgs, "--dry-run"))
 	}
 
 	if !params.DryRun {
-		if len(renderedTemplate.Bytes()) > 0 {
+		if tmpl != nil {
 			log.Printf("Applying the manifests for real...\n")
 			runCommand("kubectl", kubectlApplyArgs)
 
