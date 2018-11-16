@@ -98,7 +98,8 @@ func getTemplates(params Params) []string {
 func renderConfig(params Params) (renderedConfigFiles map[string]string) {
 
 	renderedConfigFiles = map[string]string{}
-	if len(params.Configs.Files) > 0 {
+
+	if params.Type != "rollback" && len(params.Configs.Files) > 0 {
 		log.Printf("Prerendering config files...")
 
 		for _, cf := range params.Configs.Files {
