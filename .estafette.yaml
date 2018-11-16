@@ -39,6 +39,7 @@ stages:
   test-alpha-version:
     image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
     credentials: gke-tooling
+    type: simple
     app: gke
     namespace: estafette
     visibility: public

@@ -9,6 +9,7 @@ import (
 var (
 	validParams = Params{
 		Credentials: "gke-production",
+		Type:        "simple",
 		App:         "myapp",
 		Namespace:   "mynamespace",
 		Autoscale: AutoscaleParams{

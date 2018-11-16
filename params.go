@@ -362,6 +362,12 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 	if p.Namespace == "" {
 		errors = append(errors, fmt.Errorf("Namespace is required; either use credentials with a defaultNamespace or set it via namespace property on this stage"))
 	}
+
+	if p.Type == "rollback" {
+		// the above properties are all you need for a rollback
+		return len(errors) == 0, errors
+	}
+
 	if p.Visibility == "" || (p.Visibility != "private" && p.Visibility != "public" && p.Visibility != "iap") {
 		errors = append(errors, fmt.Errorf("Visibility property is required; set it via visibility property on this stage; allowed values are private, iap or public"))
 	}
