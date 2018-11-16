@@ -177,7 +177,7 @@ func main() {
 			runCommand("kubectl", kubectlApplyArgs)
 
 			log.Printf("Waiting for the deployment to finish...\n")
-			runCommand("kubectl", []string{"rollout", "status", "deployment", templateData.Name, "-n", templateData.Namespace})
+			runCommand("kubectl", []string{"rollout", "status", "deployment", templateData.NameWithTrack, "-n", templateData.Namespace})
 		}
 
 		// clean up old stuff
