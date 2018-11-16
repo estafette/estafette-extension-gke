@@ -204,6 +204,9 @@ func main() {
 			deleteIngressForVisibilityChange(params, templateData.Name, templateData.Namespace)
 			break
 		}
+
+		log.Printf("Showing current secrets, configmaps, horizontalpodautoscalers, services, ingresses, deployments and pods for app=%v...\n", params.App)
+		runCommand("kubectl", []string{"get", "secret,cm,hpa,pdb,svc,ing,deploy,po", "-l", fmt.Sprintf("app=%v", params.App), "-n", params.Namespace})
 	}
 }
 
