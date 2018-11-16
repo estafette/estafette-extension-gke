@@ -47,9 +47,14 @@ func getTemplates(params Params) []string {
 		"service.yaml",
 		"serviceaccount.yaml",
 		"certificate-secret.yaml",
-		"poddisruptionbudget.yaml",
-		"horizontalpodautoscaler.yaml",
 		"deployment.yaml",
+	}
+
+	if params.Type == "simple" || params.Type == "rollforward" {
+		templatesToMerge = append(templatesToMerge, []string{
+			"poddisruptionbudget.yaml",
+			"horizontalpodautoscaler.yaml",
+		}...)
 	}
 
 	if params.Visibility == "private" || params.Visibility == "iap" {

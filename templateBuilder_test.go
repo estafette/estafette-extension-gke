@@ -116,6 +116,20 @@ func TestGetTemplates(t *testing.T) {
 		assert.Equal(t, 1, len(templates))
 		assert.True(t, stringArrayContains(templates, "/templates/horizontalpodautoscaler.yaml"))
 	})
+
+	t.Run("ReturnsOnlyHorizontalPodAutoscalerAndPodDisruptionBudgetIfTypeIsCanary", func(t *testing.T) {
+
+		params := Params{
+			Type: "canary",
+		}
+
+		// act
+		templates := getTemplates(params)
+
+		assert.False(t, stringArrayContains(templates, "/templates/horizontalpodautoscaler.yaml"))
+		assert.False(t, stringArrayContains(templates, "/templates/poddisruptionbudget.yaml"))
+	})
+
 }
 
 func stringArrayContains(array []string, search string) bool {
