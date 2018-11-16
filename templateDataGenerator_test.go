@@ -325,80 +325,6 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, 16, templateData.MaxReplicas)
 	})
 
-	t.Run("SetsMinReplicasToOneIfParamsTypeIsCanary", func(t *testing.T) {
-
-		params := Params{
-			Type: "canary",
-			Autoscale: AutoscaleParams{
-				MinReplicas: 5,
-			},
-		}
-
-		// act
-		templateData := generateTemplateData(params)
-
-		assert.Equal(t, 1, templateData.MinReplicas)
-	})
-
-	t.Run("SetsMaxReplicasToOneIfParamsTypeIsCanary", func(t *testing.T) {
-
-		params := Params{
-			Type: "canary",
-			Autoscale: AutoscaleParams{
-				MaxReplicas: 16,
-			},
-		}
-
-		// act
-		templateData := generateTemplateData(params)
-
-		assert.Equal(t, 1, templateData.MaxReplicas)
-	})
-
-	t.Run("SetsMinReplicasToZeroIfParamsTypeIsRollback", func(t *testing.T) {
-
-		params := Params{
-			Type: "rollback",
-			Autoscale: AutoscaleParams{
-				MinReplicas: 5,
-			},
-		}
-
-		// act
-		templateData := generateTemplateData(params)
-
-		assert.Equal(t, 0, templateData.MinReplicas)
-	})
-
-	t.Run("SetsMaxReplicasToOneIfParamsTypeIsRollback", func(t *testing.T) {
-
-		params := Params{
-			Type: "rollback",
-			Autoscale: AutoscaleParams{
-				MaxReplicas: 16,
-			},
-		}
-
-		// act
-		templateData := generateTemplateData(params)
-
-		assert.Equal(t, 0, templateData.MaxReplicas)
-	})
-
-	t.Run("SetsTargetCPUPercentageToAutoscaleCPUPercentageParam", func(t *testing.T) {
-
-		params := Params{
-			Autoscale: AutoscaleParams{
-				CPUPercentage: 75,
-			},
-		}
-
-		// act
-		templateData := generateTemplateData(params)
-
-		assert.Equal(t, 75, templateData.TargetCPUPercentage)
-	})
-
 	t.Run("SetsUseNginxIngressToTrueIfVisibilityIsPrivate", func(t *testing.T) {
 
 		params := Params{
@@ -1102,19 +1028,6 @@ func TestGenerateTemplateData(t *testing.T) {
 		templateData := generateTemplateData(params)
 
 		assert.Equal(t, "myapp-stable", templateData.NameWithTrack)
-	})
-
-	t.Run("AppendsCanaryToNameWithTrackIfParamsTypeIsRollback", func(t *testing.T) {
-
-		params := Params{
-			App:  "myapp",
-			Type: "rollback",
-		}
-
-		// act
-		templateData := generateTemplateData(params)
-
-		assert.Equal(t, "myapp-canary", templateData.NameWithTrack)
 	})
 
 	t.Run("DoesNotAppendTrackToNameWithTrackIfParamsTypeIsSimple", func(t *testing.T) {

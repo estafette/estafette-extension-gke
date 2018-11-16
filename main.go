@@ -187,14 +187,14 @@ func main() {
 			deleteSecretsForParamsChange(params, fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
 			break
 		case "rollforward":
+			scaleCanaryDeployment(templateData.Name, templateData.Namespace, 0)
 			deleteResourcesForTypeSwitch(templateData.Name, templateData.Namespace)
 			deleteConfigsForParamsChange(params, fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
 			deleteSecretsForParamsChange(params, fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
 			deleteIngressForVisibilityChange(params, templateData.Name, templateData.Namespace)
 			break
 		case "rollback":
-			log.Printf("Scaling canary deployment to 0 replicas...\n")
-			runCommand("kubectl", []string{"scale", "deploy", templateData.NameWithTrack, "-n", templateData.Namespace, "--replicas=0"})
+			scaleCanaryDeployment(templateData.Name, templateData.Namespace, 0)
 			break
 		case "simple":
 			deleteResourcesForTypeSwitch(fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
@@ -205,6 +205,11 @@ func main() {
 			break
 		}
 	}
+}
+
+func scaleCanaryDeployment(name, namespace string, replicas int) {
+	log.Printf("Scaling canary deployment to %v replicas...\n", replicas)
+	runCommand("kubectl", []string{"scale", "deploy", fmt.Sprintf("%v-canary", name), "-n", namespace, fmt.Sprintf("--replicas=%v", replicas)})
 }
 
 func deleteResourcesForTypeSwitch(name, namespace string) {

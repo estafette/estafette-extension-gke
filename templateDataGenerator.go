@@ -86,16 +86,10 @@ func generateTemplateData(params Params) TemplateData {
 		data.NameWithTrack += "-canary"
 		data.IncludeTrackLabel = true
 		data.TrackLabel = "canary"
-		data.MinReplicas = 1
-		data.MaxReplicas = 1
 	case "rollforward":
 		data.NameWithTrack += "-stable"
 		data.IncludeTrackLabel = true
 		data.TrackLabel = "stable"
-	case "rollback":
-		data.NameWithTrack += "-canary"
-		data.MinReplicas = 0
-		data.MaxReplicas = 0
 	}
 
 	data.ConfigmapFiles = params.Configs.RenderedFileContent
