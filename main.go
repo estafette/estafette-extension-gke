@@ -113,10 +113,12 @@ func main() {
 		log.Fatal("Failed rendering templates: ", err)
 	}
 
-	log.Printf("Storing rendered manifest on disk...\n")
-	err = ioutil.WriteFile("/kubernetes.yaml", renderedTemplate.Bytes(), 0600)
-	if err != nil {
-		log.Fatal("Failed writing manifest: ", err)
+	if len(renderedTemplate.Bytes()) > 0 {
+		log.Printf("Storing rendered manifest on disk...\n")
+		err = ioutil.WriteFile("/kubernetes.yaml", renderedTemplate.Bytes(), 0600)
+		if err != nil {
+			log.Fatal("Failed writing manifest: ", err)
+		}
 	}
 
 	log.Printf("Retrieving service account email from credentials...\n")
@@ -162,17 +164,21 @@ func main() {
 	}
 	runCommand("gcloud", clustersGetCredentialsArsgs)
 
-	// always perform a dryrun to ensure we're not ending up in a semi broken state where half of the templates is successfully applied and others not
-	log.Printf("Performing a dryrun to test the validity of the manifests...\n")
 	kubectlApplyArgs := []string{"apply", "-f", "/kubernetes.yaml", "-n", templateData.Namespace}
-	runCommand("kubectl", append(kubectlApplyArgs, "--dry-run"))
+	if len(renderedTemplate.Bytes()) > 0 {
+		// always perform a dryrun to ensure we're not ending up in a semi broken state where half of the templates is successfully applied and others not
+		log.Printf("Performing a dryrun to test the validity of the manifests...\n")
+		runCommand("kubectl", append(kubectlApplyArgs, "--dry-run"))
+	}
 
 	if !params.DryRun {
-		log.Printf("Applying the manifests for real...\n")
-		runCommand("kubectl", kubectlApplyArgs)
+		if len(renderedTemplate.Bytes()) > 0 {
+			log.Printf("Applying the manifests for real...\n")
+			runCommand("kubectl", kubectlApplyArgs)
 
-		log.Printf("Waiting for the deployment to finish...\n")
-		runCommand("kubectl", []string{"rollout", "status", "deployment", templateData.Name, "-n", templateData.Namespace})
+			log.Printf("Waiting for the deployment to finish...\n")
+			runCommand("kubectl", []string{"rollout", "status", "deployment", templateData.Name, "-n", templateData.Namespace})
+		}
 
 		// clean up old stuff
 		switch params.Type {
