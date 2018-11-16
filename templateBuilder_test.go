@@ -104,7 +104,7 @@ func TestGetTemplates(t *testing.T) {
 		assert.False(t, stringArrayContains(templates, "/templates/service.yaml"))
 	})
 
-	t.Run("ReturnsOnlyHorizontalPodAutoscalerIfTypeIsRollback", func(t *testing.T) {
+	t.Run("ReturnsEmptyListIfTypeIsRollback", func(t *testing.T) {
 
 		params := Params{
 			Type: "rollback",
@@ -113,8 +113,7 @@ func TestGetTemplates(t *testing.T) {
 		// act
 		templates := getTemplates(params)
 
-		assert.Equal(t, 1, len(templates))
-		assert.True(t, stringArrayContains(templates, "/templates/horizontalpodautoscaler.yaml"))
+		assert.Equal(t, 0, len(templates))
 	})
 
 	t.Run("ReturnsOnlyHorizontalPodAutoscalerAndPodDisruptionBudgetIfTypeIsCanary", func(t *testing.T) {
