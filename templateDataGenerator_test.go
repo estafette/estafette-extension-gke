@@ -1007,8 +1007,8 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("AppendsCanaryToNameWithTrackIfParamsTypeIsCanary", func(t *testing.T) {
 
 		params := Params{
-			App:  "myapp",
-			Type: "canary",
+			App:    "myapp",
+			Action: "deploy-canary",
 		}
 
 		// act
@@ -1020,8 +1020,8 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("AppendsStableToNameWithTrackIfParamsTypeIsRollforward", func(t *testing.T) {
 
 		params := Params{
-			App:  "myapp",
-			Type: "rollforward",
+			App:    "myapp",
+			Action: "deploy-stable",
 		}
 
 		// act
@@ -1033,8 +1033,8 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("DoesNotAppendTrackToNameWithTrackIfParamsTypeIsSimple", func(t *testing.T) {
 
 		params := Params{
-			App:  "myapp",
-			Type: "simple",
+			App:    "myapp",
+			Action: "deploy-simple",
 		}
 
 		// act
@@ -1046,8 +1046,8 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsIncludeTrackLabelToFalseIfParamsTypeIsSimple", func(t *testing.T) {
 
 		params := Params{
-			App:  "myapp",
-			Type: "simple",
+			App:    "myapp",
+			Action: "deploy-simple",
 		}
 
 		// act
@@ -1059,8 +1059,8 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsIncludeTrackLabelToTrueIfParamsTypeIsCanary", func(t *testing.T) {
 
 		params := Params{
-			App:  "myapp",
-			Type: "canary",
+			App:    "myapp",
+			Action: "deploy-canary",
 		}
 
 		// act
@@ -1072,8 +1072,8 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsIncludeTrackLabelToTrueIfParamsTypeIsRollforward", func(t *testing.T) {
 
 		params := Params{
-			App:  "myapp",
-			Type: "rollforward",
+			App:    "myapp",
+			Action: "deploy-stable",
 		}
 
 		// act
@@ -1085,8 +1085,8 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsTrackLabelToCanaryIfParamsTypeIsCanary", func(t *testing.T) {
 
 		params := Params{
-			App:  "myapp",
-			Type: "canary",
+			App:    "myapp",
+			Action: "deploy-canary",
 		}
 
 		// act
@@ -1098,8 +1098,8 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsTrackLabelToStableIfParamsTypeIsRollforward", func(t *testing.T) {
 
 		params := Params{
-			App:  "myapp",
-			Type: "rollforward",
+			App:    "myapp",
+			Action: "deploy-stable",
 		}
 
 		// act

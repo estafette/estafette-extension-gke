@@ -28,9 +28,10 @@ var (
 	credentialsJSON = kingpin.Flag("credentials", "GKE credentials configured at service level, passed in to this trusted extension.").Envar("ESTAFETTE_CREDENTIALS_KUBERNETES_ENGINE").Required().String()
 
 	// optional flags
-	appLabel     = kingpin.Flag("app-name", "App label, used as application name if not passed explicitly.").Envar("ESTAFETTE_LABEL_APP").String()
-	buildVersion = kingpin.Flag("build-version", "Version number, used if not passed explicitly.").Envar("ESTAFETTE_BUILD_VERSION").String()
-	releaseName  = kingpin.Flag("release-name", "Name of the release section, which is used by convention to resolve the credentials.").Envar("ESTAFETTE_RELEASE_NAME").String()
+	appLabel      = kingpin.Flag("app-name", "App label, used as application name if not passed explicitly.").Envar("ESTAFETTE_LABEL_APP").String()
+	buildVersion  = kingpin.Flag("build-version", "Version number, used if not passed explicitly.").Envar("ESTAFETTE_BUILD_VERSION").String()
+	releaseName   = kingpin.Flag("release-name", "Name of the release section, which is used by convention to resolve the credentials.").Envar("ESTAFETTE_RELEASE_ACTION").String()
+	releaseAction = kingpin.Flag("release-action", "Name of the release action, to control the type of release.").Envar("ESTAFETTE_RELEASE_NAME").String()
 )
 
 func main() {
@@ -71,7 +72,7 @@ func main() {
 	}
 
 	log.Printf("Setting defaults for parameters that are not set in the manifest...")
-	params.SetDefaults(*appLabel, *buildVersion, *releaseName, estafetteLabels)
+	params.SetDefaults(*appLabel, *buildVersion, *releaseName, *releaseAction, estafetteLabels)
 
 	log.Printf("Unmarshalling credentials...")
 	var credentials []GKECredentials
@@ -181,23 +182,23 @@ func main() {
 		}
 
 		// clean up old stuff
-		switch params.Type {
-		case "canary":
+		switch params.Action {
+		case "deploy-canary":
 			scaleCanaryDeployment(templateData.Name, templateData.Namespace, 1)
 			deleteConfigsForParamsChange(params, fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
 			deleteSecretsForParamsChange(params, fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
 			break
-		case "rollforward":
+		case "deploy-stable":
 			scaleCanaryDeployment(templateData.Name, templateData.Namespace, 0)
 			deleteResourcesForTypeSwitch(templateData.Name, templateData.Namespace)
 			deleteConfigsForParamsChange(params, fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
 			deleteSecretsForParamsChange(params, fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
 			deleteIngressForVisibilityChange(params, templateData.Name, templateData.Namespace)
 			break
-		case "rollback":
+		case "rollback-canary":
 			scaleCanaryDeployment(templateData.Name, templateData.Namespace, 0)
 			break
-		case "simple":
+		case "deploy-simple":
 			deleteResourcesForTypeSwitch(fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
 			deleteResourcesForTypeSwitch(fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
 			deleteConfigsForParamsChange(params, templateData.Name, templateData.Namespace)

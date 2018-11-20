@@ -8,7 +8,7 @@ import (
 type Params struct {
 	// control params
 	Credentials     string          `json:"credentials,omitempty"`
-	Type            string          `json:"type,omitempty"`
+	Action          string          `json:"action,omitempty"`
 	DryRun          bool            `json:"dryrun,string,omitempty"`
 	BuildVersion    string          `json:"-"`
 	ChaosProof      bool            `json:"chaosproof,string,omitempty"`
@@ -119,12 +119,14 @@ type ConfigsParams struct {
 }
 
 // SetDefaults fills in empty fields with convention-based defaults
-func (p *Params) SetDefaults(appLabel, buildVersion, releaseName string, estafetteLabels map[string]string) {
+func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction string, estafetteLabels map[string]string) {
 
 	p.BuildVersion = buildVersion
 
-	if p.Type == "" {
-		p.Type = "simple"
+	if releaseAction != "" {
+		p.Action = releaseAction
+	} else if p.Action == "" && releaseAction == "" {
+		p.Action = "deploy-simple"
 	}
 
 	// default app to estafette app label if no override in stage params
@@ -363,7 +365,7 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 		errors = append(errors, fmt.Errorf("Namespace is required; either use credentials with a defaultNamespace or set it via namespace property on this stage"))
 	}
 
-	if p.Type == "rollback" {
+	if p.Action == "rollback-canary" {
 		// the above properties are all you need for a rollback
 		return len(errors) == 0, errors
 	}

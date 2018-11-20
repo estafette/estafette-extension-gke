@@ -79,14 +79,14 @@ func generateTemplateData(params Params) TemplateData {
 		},
 	}
 
-	switch params.Type {
-	case "simple":
+	switch params.Action {
+	case "deploy-simple":
 		data.IncludeTrackLabel = false
-	case "canary":
+	case "deploy-canary":
 		data.NameWithTrack += "-canary"
 		data.IncludeTrackLabel = true
 		data.TrackLabel = "canary"
-	case "rollforward":
+	case "deploy-stable":
 		data.NameWithTrack += "-stable"
 		data.IncludeTrackLabel = true
 		data.TrackLabel = "stable"

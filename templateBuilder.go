@@ -40,7 +40,7 @@ func buildTemplates(params Params) (*template.Template, error) {
 
 func getTemplates(params Params) []string {
 
-	if params.Type == "rollback" {
+	if params.Action == "rollback-canary" {
 		return []string{}
 	}
 
@@ -52,7 +52,7 @@ func getTemplates(params Params) []string {
 		"deployment.yaml",
 	}
 
-	if params.Type == "simple" || params.Type == "rollforward" {
+	if params.Action == "deploy-simple" || params.Action == "deploy-stable" {
 		templatesToMerge = append(templatesToMerge, []string{
 			"poddisruptionbudget.yaml",
 			"horizontalpodautoscaler.yaml",
@@ -99,7 +99,7 @@ func renderConfig(params Params) (renderedConfigFiles map[string]string) {
 
 	renderedConfigFiles = map[string]string{}
 
-	if params.Type != "rollback" && len(params.Configs.Files) > 0 {
+	if params.Action != "rollback-canary" && len(params.Configs.Files) > 0 {
 		log.Printf("Prerendering config files...")
 
 		for _, cf := range params.Configs.Files {

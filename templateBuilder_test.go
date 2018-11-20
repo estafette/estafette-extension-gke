@@ -104,10 +104,10 @@ func TestGetTemplates(t *testing.T) {
 		assert.False(t, stringArrayContains(templates, "/templates/service.yaml"))
 	})
 
-	t.Run("ReturnsEmptyListIfTypeIsRollback", func(t *testing.T) {
+	t.Run("ReturnsEmptyListIfActionIsRollbackCanaray", func(t *testing.T) {
 
 		params := Params{
-			Type: "rollback",
+			Action: "rollback-canary",
 		}
 
 		// act
@@ -116,10 +116,10 @@ func TestGetTemplates(t *testing.T) {
 		assert.Equal(t, 0, len(templates))
 	})
 
-	t.Run("ReturnsOnlyHorizontalPodAutoscalerAndPodDisruptionBudgetIfTypeIsCanary", func(t *testing.T) {
+	t.Run("ReturnsOnlyHorizontalPodAutoscalerAndPodDisruptionBudgetIfActionIsDeployCanary", func(t *testing.T) {
 
 		params := Params{
-			Type: "canary",
+			Action: "deploy-canary",
 		}
 
 		// act

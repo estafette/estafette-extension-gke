@@ -39,7 +39,7 @@ stages:
   test-alpha-version:
     image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
     credentials: gke-tooling
-    type: simple
+    action: deploy-simple
     app: gke
     namespace: estafette
     visibility: public
@@ -131,7 +131,7 @@ stages:
   test-alpha-version-canary:
     image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
     credentials: gke-tooling
-    type: canary
+    action: deploy-canary
     container:
       repository: extensions
     hosts:
@@ -141,7 +141,7 @@ stages:
   test-alpha-version-rollforward:
     image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
     credentials: gke-tooling
-    type: rollforward
+    action: deploy-stable
     container:
       repository: extensions
     hosts:
@@ -151,7 +151,7 @@ stages:
   test-alpha-version-rollback:
     image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
     credentials: gke-tooling
-    type: rollback
+    action: rollback-canary
     dryrun: true
 
   push-to-docker-hub:
