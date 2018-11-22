@@ -8,10 +8,11 @@ import (
 
 func TestGetTemplates(t *testing.T) {
 
-	t.Run("IncludesIngressIfVisibilityIsPrivate", func(t *testing.T) {
+	t.Run("IncludesIngressIfVisibilityIsPrivateAndTypeIsNotWorker", func(t *testing.T) {
 
 		params := Params{
 			Visibility: "private",
+			Type:       "api",
 		}
 
 		// act
@@ -20,10 +21,11 @@ func TestGetTemplates(t *testing.T) {
 		assert.True(t, stringArrayContains(templates, "/templates/ingress.yaml"))
 	})
 
-	t.Run("IncludesIngressIfVisibilityIsIap", func(t *testing.T) {
+	t.Run("IncludesIngressIfVisibilityIsIapAndTypeIsNotWorker", func(t *testing.T) {
 
 		params := Params{
 			Visibility: "iap",
+			Type:       "api",
 		}
 
 		// act

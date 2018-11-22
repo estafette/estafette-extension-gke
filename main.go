@@ -64,34 +64,52 @@ func main() {
 		}
 	}
 
-	log.Printf("Unmarshalling parameters / custom properties...")
+	log.Printf("Unmarshalling credentials parameter...")
+	var credentialsParam CredentialsParam
+	err := json.Unmarshal([]byte(*paramsJSON), &credentialsParam)
+	if err != nil {
+		log.Fatal("Failed unmarshalling credential parameter: ", err)
+	}
+
+	log.Printf("Setting default for credential parameter...")
+	credentialsParam.SetDefaults(*releaseName)
+
+	log.Printf("Validating required credential parameter...")
+	valid, errors := credentialsParam.ValidateRequiredProperties()
+	if !valid {
+		log.Fatal("Not all valid fields are set: ", errors)
+	}
+
+	log.Printf("Unmarshalling injected credentials...")
+	var credentials []GKECredentials
+	err = json.Unmarshal([]byte(*credentialsJSON), &credentials)
+	if err != nil {
+		log.Fatal("Failed unmarshalling injected credentials: ", err)
+	}
+
+	log.Printf("Checking if credential %v exists...", credentialsParam.Credentials)
+	credential := GetCredentialsByName(credentials, credentialsParam.Credentials)
+	if credential == nil {
+		log.Fatalf("Credential with name %v does not exist.", credentialsParam.Credentials)
+	}
+
 	var params Params
-	err := json.Unmarshal([]byte(*paramsJSON), &params)
+	if credential.AdditionalProperties.Defaults != nil {
+		log.Printf("Setting defaults from credential defaults...")
+		params = *credential.AdditionalProperties.Defaults
+	}
+
+	log.Printf("Unmarshalling parameters / custom properties...")
+	err = json.Unmarshal([]byte(*paramsJSON), &params)
 	if err != nil {
 		log.Fatal("Failed unmarshalling parameters: ", err)
 	}
 
 	log.Printf("Setting defaults for parameters that are not set in the manifest...")
-	params.SetDefaults(*appLabel, *buildVersion, *releaseName, *releaseAction, estafetteLabels)
-
-	log.Printf("Unmarshalling credentials...")
-	var credentials []GKECredentials
-	err = json.Unmarshal([]byte(*credentialsJSON), &credentials)
-	if err != nil {
-		log.Fatal("Failed unmarshalling credentials: ", err)
-	}
-
-	log.Printf("Checking if credential %v exists...", params.Credentials)
-	credential := GetCredentialsByName(credentials, params.Credentials)
-	if credential == nil {
-		log.Fatalf("Credential with name %v does not exist.", params.Credentials)
-	}
-
-	log.Printf("Setting default namespace from credentials in case the parameter is not set in the manifest...")
-	params.SetDefaultsFromCredentials(*credential)
+	params.SetDefaults(*appLabel, *buildVersion, *releaseName, *releaseAction, *credential, estafetteLabels)
 
 	log.Printf("Validating required parameters...")
-	valid, errors := params.ValidateRequiredProperties()
+	valid, errors = params.ValidateRequiredProperties()
 	if !valid {
 		log.Fatal("Not all valid fields are set: ", errors)
 	}
@@ -139,7 +157,7 @@ func main() {
 		}
 	}
 
-	log.Printf("Storing gke credential %v on disk...\n", params.Credentials)
+	log.Printf("Storing gke credential %v on disk...\n", credentialsParam.Credentials)
 	err = ioutil.WriteFile("/key-file.json", []byte(credential.AdditionalProperties.ServiceAccountKeyfile), 0600)
 	if err != nil {
 		log.Fatal("Failed writing service account keyfile: ", err)

@@ -44,12 +44,25 @@ func getTemplates(params Params) []string {
 		return []string{}
 	}
 
-	templatesToMerge := []string{
-		"namespace.yaml",
-		"service.yaml",
-		"serviceaccount.yaml",
-		"certificate-secret.yaml",
-		"deployment.yaml",
+	templatesToMerge := []string{}
+
+	switch params.Type {
+	case "worker":
+		templatesToMerge = append(templatesToMerge, []string{
+			"namespace.yaml",
+			"serviceaccount.yaml",
+			"deployment.yaml",
+		}...)
+
+	default:
+		templatesToMerge = append(templatesToMerge, []string{
+			"namespace.yaml",
+			"service.yaml",
+			"serviceaccount.yaml",
+			"certificate-secret.yaml",
+			"deployment.yaml",
+		}...)
+
 	}
 
 	if params.Action == "deploy-simple" || params.Action == "deploy-stable" {
@@ -59,7 +72,7 @@ func getTemplates(params Params) []string {
 		}...)
 	}
 
-	if params.Visibility == "private" || params.Visibility == "iap" {
+	if (params.Type == "api" || params.Type == "web") && (params.Visibility == "private" || params.Visibility == "iap") {
 		templatesToMerge = append(templatesToMerge, "ingress.yaml")
 	}
 	if len(params.Secrets.Keys) > 0 {

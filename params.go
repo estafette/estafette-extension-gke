@@ -7,8 +7,8 @@ import (
 // Params is used to parameterize the deployment, set from custom properties in the manifest
 type Params struct {
 	// control params
-	Credentials     string          `json:"credentials,omitempty"`
 	Action          string          `json:"action,omitempty"`
+	Type            string          `json:"type,omitempty"`
 	DryRun          bool            `json:"dryrun,string,omitempty"`
 	BuildVersion    string          `json:"-"`
 	ChaosProof      bool            `json:"chaosproof,string,omitempty"`
@@ -119,14 +119,30 @@ type ConfigsParams struct {
 }
 
 // SetDefaults fills in empty fields with convention-based defaults
-func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction string, estafetteLabels map[string]string) {
+func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction string, credentials GKECredentials, estafetteLabels map[string]string) {
 
 	p.BuildVersion = buildVersion
 
+	// default action to deploy-simple unless it's either specified on the stage or passed in as a release action
 	if releaseAction != "" {
 		p.Action = releaseAction
 	} else if p.Action == "" && releaseAction == "" {
 		p.Action = "deploy-simple"
+	}
+
+	// default type to api
+	if p.Type == "" {
+		p.Type = "api"
+	}
+
+	// default namespace to credential default namespace if no override in stage params
+	if p.Namespace == "" && credentials.AdditionalProperties.DefaultNamespace != "" {
+		p.Namespace = credentials.AdditionalProperties.DefaultNamespace
+	}
+
+	// default image repository to credential project if no override in stage params
+	if p.Container.ImageRepository == "" && credentials.AdditionalProperties.Project != "" {
+		p.Container.ImageRepository = credentials.AdditionalProperties.Project
 	}
 
 	// default app to estafette app label if no override in stage params
@@ -142,11 +158,6 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 	// default image tag to estafette build version if no override in stage params
 	if p.Container.ImageTag == "" && buildVersion != "" {
 		p.Container.ImageTag = buildVersion
-	}
-
-	// default credentials to release name if no override in stage params
-	if p.Credentials == "" && releaseName != "" {
-		p.Credentials = fmt.Sprintf("gke-%v", releaseName)
 	}
 
 	// default labels to estafette labels if no override in stage params
@@ -248,7 +259,13 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 
 	// set sidecar defaults
 	if p.Sidecar.Type == "" {
-		p.Sidecar.Type = "openresty"
+		switch p.Type {
+		case "worker":
+			p.Sidecar.Type = "none"
+
+		default:
+			p.Sidecar.Type = "openresty"
+		}
 	}
 	if p.Sidecar.Image == "" {
 		p.Sidecar.Image = "estafette/openresty-sidecar:1.13.6.1-alpine"
@@ -333,29 +350,10 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 	}
 }
 
-// SetDefaultsFromCredentials sets defaults based on the credentials fetched with first-run defaults
-func (p *Params) SetDefaultsFromCredentials(credentials GKECredentials) {
-
-	// default namespace to credential default namespace if no override in stage params
-	if p.Namespace == "" && credentials.AdditionalProperties.DefaultNamespace != "" {
-		p.Namespace = credentials.AdditionalProperties.DefaultNamespace
-	}
-
-	// default image repository to credential project if no override in stage params
-	if p.Container.ImageRepository == "" && credentials.AdditionalProperties.Project != "" {
-		p.Container.ImageRepository = credentials.AdditionalProperties.Project
-	}
-}
-
 // ValidateRequiredProperties checks whether all needed properties are set
 func (p *Params) ValidateRequiredProperties() (bool, []error) {
 
 	errors := []error{}
-
-	// validate control params
-	if p.Credentials == "" {
-		errors = append(errors, fmt.Errorf("Credentials property is required; set it via credentials property on this stage"))
-	}
 
 	// validate app params
 	if p.App == "" {
@@ -370,27 +368,6 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 		return len(errors) == 0, errors
 	}
 
-	if p.Visibility == "" || (p.Visibility != "private" && p.Visibility != "public" && p.Visibility != "iap") {
-		errors = append(errors, fmt.Errorf("Visibility property is required; set it via visibility property on this stage; allowed values are private, iap or public"))
-	}
-	if len(p.Hosts) == 0 {
-		errors = append(errors, fmt.Errorf("At least one host is required; set it via hosts array property on this stage"))
-	}
-	if p.Basepath == "" {
-		errors = append(errors, fmt.Errorf("Basepath property is required; set it via basepath property on this stage"))
-	}
-
-	// validate autoscale params
-	if p.Autoscale.MinReplicas <= 0 {
-		errors = append(errors, fmt.Errorf("Autoscaling min replicas must be larger than zero; set it via autoscale.min property on this stage"))
-	}
-	if p.Autoscale.MaxReplicas <= 0 {
-		errors = append(errors, fmt.Errorf("Autoscaling max replicas must be larger than zero; set it via autoscale.max property on this stage"))
-	}
-	if p.Autoscale.CPUPercentage <= 0 {
-		errors = append(errors, fmt.Errorf("Autoscaling cpu percentage must be larger than zero; set it via autoscale.cpu property on this stage"))
-	}
-
 	// validate container params
 	if p.Container.ImageRepository == "" {
 		errors = append(errors, fmt.Errorf("Image repository is required; set it via container.repository property on this stage"))
@@ -400,9 +377,6 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 	}
 	if p.Container.ImageTag == "" {
 		errors = append(errors, fmt.Errorf("Image tag is required; set it via container.tag property on this stage"))
-	}
-	if p.Container.Port <= 0 {
-		errors = append(errors, fmt.Errorf("Container port must be larger than zero; set it via container.port property on this stage"))
 	}
 
 	// validate cpu params
@@ -419,6 +393,44 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 	}
 	if p.Container.Memory.Limit == "" {
 		errors = append(errors, fmt.Errorf("Memory limit is required; set it via container.memory.limit property on this stage"))
+	}
+
+	// defaults for rollingupdate
+	if p.RollingUpdate.MaxSurge == "" {
+		errors = append(errors, fmt.Errorf("Rollingupdate max surge is required; set it via rollingupdate.maxsurge property on this stage"))
+	}
+	if p.RollingUpdate.MaxUnavailable == "" {
+		errors = append(errors, fmt.Errorf("Rollingupdate max unavailable is required; set it via rollingupdate.maxunavailable property on this stage"))
+	}
+
+	if p.Type == "worker" {
+		// the above properties are all you need for a worker
+		return len(errors) == 0, errors
+	}
+
+	// validate params with respect to incoming requests
+	if p.Visibility == "" || (p.Visibility != "private" && p.Visibility != "public" && p.Visibility != "iap") {
+		errors = append(errors, fmt.Errorf("Visibility property is required; set it via visibility property on this stage; allowed values are private, iap or public"))
+	}
+	if len(p.Hosts) == 0 {
+		errors = append(errors, fmt.Errorf("At least one host is required; set it via hosts array property on this stage"))
+	}
+	if p.Basepath == "" {
+		errors = append(errors, fmt.Errorf("Basepath property is required; set it via basepath property on this stage"))
+	}
+	if p.Container.Port <= 0 {
+		errors = append(errors, fmt.Errorf("Container port must be larger than zero; set it via container.port property on this stage"))
+	}
+
+	// validate autoscale params
+	if p.Autoscale.MinReplicas <= 0 {
+		errors = append(errors, fmt.Errorf("Autoscaling min replicas must be larger than zero; set it via autoscale.min property on this stage"))
+	}
+	if p.Autoscale.MaxReplicas <= 0 {
+		errors = append(errors, fmt.Errorf("Autoscaling max replicas must be larger than zero; set it via autoscale.max property on this stage"))
+	}
+	if p.Autoscale.CPUPercentage <= 0 {
+		errors = append(errors, fmt.Errorf("Autoscaling cpu percentage must be larger than zero; set it via autoscale.cpu property on this stage"))
 	}
 
 	// validate liveness params
@@ -453,7 +465,7 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 		}
 	}
 
-	// validate sidear params
+	// validate sidecar params
 	if p.Sidecar.Type == "" {
 		errors = append(errors, fmt.Errorf("Sidecar type is required; set it via sidecar.type property on this stage; allowed values are openresty"))
 	}
@@ -461,7 +473,7 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 		errors = append(errors, fmt.Errorf("Sidecar image is required; set it via sidecar.image property on this stage"))
 	}
 
-	// validate sidear cpu params
+	// validate sidecar cpu params
 	if p.Sidecar.CPU.Request == "" {
 		errors = append(errors, fmt.Errorf("Sidecar cpu request is required; set it via sidecar.cpu.request property on this stage"))
 	}
@@ -469,20 +481,12 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 		errors = append(errors, fmt.Errorf("Sidecar cpu limit is required; set it via sidecar.cpu.limit property on this stage"))
 	}
 
-	// validate sidear memory params
+	// validate sidecar memory params
 	if p.Sidecar.Memory.Request == "" {
 		errors = append(errors, fmt.Errorf("Sidecar memory request is required; set it via sidecar.memory.request property on this stage"))
 	}
 	if p.Sidecar.Memory.Limit == "" {
 		errors = append(errors, fmt.Errorf("Sidecar memory limit is required; set it via sidecar.memory.limit property on this stage"))
-	}
-
-	// defaults for rollingupdate
-	if p.RollingUpdate.MaxSurge == "" {
-		errors = append(errors, fmt.Errorf("Rollingupdate max surge is required; set it via rollingupdate.maxsurge property on this stage"))
-	}
-	if p.RollingUpdate.MaxUnavailable == "" {
-		errors = append(errors, fmt.Errorf("Rollingupdate max unavailable is required; set it via rollingupdate.maxunavailable property on this stage"))
 	}
 
 	return len(errors) == 0, errors

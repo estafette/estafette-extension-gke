@@ -128,6 +128,14 @@ stages:
     - gke.estafette.io
     dryrun: true
 
+  test-alpha-version-worker:
+    image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+    credentials: gke-tooling
+    type: worker
+    container:
+      repository: extensions
+    dryrun: true
+
   test-alpha-version-canary:
     image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
     credentials: gke-tooling

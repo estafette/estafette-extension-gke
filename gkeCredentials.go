@@ -9,12 +9,13 @@ type GKECredentials struct {
 
 // GKECredentialAdditionalProperties contains the non standard fields for this type of credentials
 type GKECredentialAdditionalProperties struct {
-	Project               string `json:"project,omitempty"`
-	Cluster               string `json:"cluster,omitempty"`
-	Region                string `json:"region,omitempty"`
-	Zone                  string `json:"zone,omitempty"`
-	DefaultNamespace      string `json:"defaultNamespace,omitempty"`
-	ServiceAccountKeyfile string `json:"serviceAccountKeyfile,omitempty"`
+	Project               string  `json:"project,omitempty"`
+	Cluster               string  `json:"cluster,omitempty"`
+	Region                string  `json:"region,omitempty"`
+	Zone                  string  `json:"zone,omitempty"`
+	DefaultNamespace      string  `json:"defaultNamespace,omitempty"`
+	ServiceAccountKeyfile string  `json:"serviceAccountKeyfile,omitempty"`
+	Defaults              *Params `json:"defaults,omitempty"`
 }
 
 // GetCredentialsByName returns a credential if the name exists
