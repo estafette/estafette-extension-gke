@@ -11,7 +11,6 @@ import (
 	"strings"
 
 	"github.com/alecthomas/kingpin"
-	yaml "gopkg.in/yaml.v2"
 )
 
 var (
@@ -97,10 +96,11 @@ func main() {
 	var params Params
 	if credential.AdditionalProperties.Defaults != nil {
 		log.Printf("Using defaults from credential defaults...")
-		defaultsAsYAML, err := yaml.Marshal(credential.AdditionalProperties.Defaults)
-		if err == nil {
-			log.Printf(string(defaultsAsYAML))
-		}
+		// todo log just the specified defaults, not the entire parms object
+		// defaultsAsYAML, err := yaml.Marshal(credential.AdditionalProperties.Defaults)
+		// if err == nil {
+		// 	log.Printf(string(defaultsAsYAML))
+		// }
 		params = *credential.AdditionalProperties.Defaults
 	}
 
