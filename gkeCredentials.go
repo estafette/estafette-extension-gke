@@ -13,7 +13,6 @@ type GKECredentialAdditionalProperties struct {
 	Cluster               string  `json:"cluster,omitempty"`
 	Region                string  `json:"region,omitempty"`
 	Zone                  string  `json:"zone,omitempty"`
-	DefaultNamespace      string  `json:"defaultNamespace,omitempty"`
 	ServiceAccountKeyfile string  `json:"serviceAccountKeyfile,omitempty"`
 	Defaults              *Params `json:"defaults,omitempty"`
 }

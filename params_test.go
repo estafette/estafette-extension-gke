@@ -81,7 +81,7 @@ func TestSetDefaults(t *testing.T) {
 		appLabel := "myapp"
 
 		// act
-		params.SetDefaults(appLabel, "", "", "", validCredential, map[string]string{})
+		params.SetDefaults(appLabel, "", "", "", map[string]string{})
 
 		assert.Equal(t, "myapp", params.App)
 	})
@@ -94,7 +94,7 @@ func TestSetDefaults(t *testing.T) {
 		appLabel := "myapp"
 
 		// act
-		params.SetDefaults(appLabel, "", "", "", validCredential, map[string]string{})
+		params.SetDefaults(appLabel, "", "", "", map[string]string{})
 
 		assert.Equal(t, "yourapp", params.App)
 	})
@@ -109,7 +109,7 @@ func TestSetDefaults(t *testing.T) {
 		appLabel := "myapp"
 
 		// act
-		params.SetDefaults(appLabel, "", "", "", validCredential, map[string]string{})
+		params.SetDefaults(appLabel, "", "", "", map[string]string{})
 
 		assert.Equal(t, "myapp", params.Container.ImageName)
 	})
@@ -124,7 +124,7 @@ func TestSetDefaults(t *testing.T) {
 		appLabel := "myapp"
 
 		// act
-		params.SetDefaults(appLabel, "", "", "", validCredential, map[string]string{})
+		params.SetDefaults(appLabel, "", "", "", map[string]string{})
 
 		assert.Equal(t, "my-app", params.Container.ImageName)
 	})
@@ -139,7 +139,7 @@ func TestSetDefaults(t *testing.T) {
 		buildVersion := "1.0.0"
 
 		// act
-		params.SetDefaults("", buildVersion, "", "", validCredential, map[string]string{})
+		params.SetDefaults("", buildVersion, "", "", map[string]string{})
 
 		assert.Equal(t, "1.0.0", params.Container.ImageTag)
 	})
@@ -154,7 +154,7 @@ func TestSetDefaults(t *testing.T) {
 		buildVersion := "1.0.0"
 
 		// act
-		params.SetDefaults("", buildVersion, "", "", validCredential, map[string]string{})
+		params.SetDefaults("", buildVersion, "", "", map[string]string{})
 
 		assert.Equal(t, "2.1.3", params.Container.ImageTag)
 	})
@@ -171,7 +171,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, estafetteLabels)
+		params.SetDefaults("", "", "", "", estafetteLabels)
 
 		assert.Equal(t, 3, len(params.Labels))
 		assert.Equal(t, "myapp", params.Labels["app"])
@@ -194,7 +194,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, estafetteLabels)
+		params.SetDefaults("", "", "", "", estafetteLabels)
 
 		assert.Equal(t, 2, len(params.Labels))
 		assert.Equal(t, "yourapp", params.Labels["app"])
@@ -216,7 +216,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults(appLabel, "", "", "", validCredential, estafetteLabels)
+		params.SetDefaults(appLabel, "", "", "", estafetteLabels)
 
 		assert.Equal(t, 2, len(params.Labels))
 		assert.Equal(t, "myapp", params.Labels["app"])
@@ -234,7 +234,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults(appLabel, "", "", "", validCredential, estafetteLabels)
+		params.SetDefaults(appLabel, "", "", "", estafetteLabels)
 
 		assert.Equal(t, 3, len(params.Labels))
 		assert.Equal(t, "yourapp", params.Labels["app"])
@@ -249,7 +249,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "private", params.Visibility)
 	})
@@ -261,7 +261,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "public", params.Visibility)
 	})
@@ -278,7 +278,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "100m", params.Container.CPU.Request)
 	})
@@ -295,7 +295,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "300m", params.Container.CPU.Request)
 	})
@@ -312,7 +312,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "250m", params.Container.CPU.Request)
 	})
@@ -329,7 +329,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "125m", params.Container.CPU.Limit)
 	})
@@ -346,7 +346,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "300m", params.Container.CPU.Limit)
 	})
@@ -363,7 +363,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "250m", params.Container.CPU.Limit)
 	})
@@ -380,7 +380,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "128Mi", params.Container.Memory.Request)
 	})
@@ -397,7 +397,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "256Mi", params.Container.Memory.Request)
 	})
@@ -414,7 +414,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "512Mi", params.Container.Memory.Request)
 	})
@@ -431,7 +431,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "128Mi", params.Container.Memory.Limit)
 	})
@@ -448,7 +448,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "768Mi", params.Container.Memory.Limit)
 	})
@@ -465,7 +465,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "1024Mi", params.Container.Memory.Limit)
 	})
@@ -479,7 +479,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, 5000, params.Container.Port)
 	})
@@ -493,7 +493,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, 3000, params.Container.Port)
 	})
@@ -507,7 +507,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, 3, params.Autoscale.MinReplicas)
 	})
@@ -521,7 +521,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, 2, params.Autoscale.MinReplicas)
 	})
@@ -535,7 +535,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, 100, params.Autoscale.MaxReplicas)
 	})
@@ -549,7 +549,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, 50, params.Autoscale.MaxReplicas)
 	})
@@ -563,7 +563,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, 80, params.Autoscale.CPUPercentage)
 	})
@@ -577,7 +577,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, 30, params.Autoscale.CPUPercentage)
 	})
@@ -593,7 +593,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, 30, params.Container.LivenessProbe.InitialDelaySeconds)
 	})
@@ -609,7 +609,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, 120, params.Container.LivenessProbe.InitialDelaySeconds)
 	})
@@ -625,7 +625,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, 1, params.Container.LivenessProbe.TimeoutSeconds)
 	})
@@ -641,7 +641,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, 5, params.Container.LivenessProbe.TimeoutSeconds)
 	})
@@ -657,7 +657,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "/liveness", params.Container.LivenessProbe.Path)
 	})
@@ -673,7 +673,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "/healthz", params.Container.LivenessProbe.Path)
 	})
@@ -689,7 +689,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, 0, params.Container.ReadinessProbe.InitialDelaySeconds)
 	})
@@ -705,7 +705,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, 120, params.Container.ReadinessProbe.InitialDelaySeconds)
 	})
@@ -721,7 +721,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, 1, params.Container.ReadinessProbe.TimeoutSeconds)
 	})
@@ -737,7 +737,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, 5, params.Container.ReadinessProbe.TimeoutSeconds)
 	})
@@ -753,7 +753,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "/readiness", params.Container.ReadinessProbe.Path)
 	})
@@ -769,7 +769,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "/healthz", params.Container.ReadinessProbe.Path)
 	})
@@ -785,7 +785,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "/metrics", params.Container.Metrics.Path)
 	})
@@ -801,7 +801,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "/mymetrics", params.Container.Metrics.Path)
 	})
@@ -818,7 +818,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, 5000, params.Container.Metrics.Port)
 	})
@@ -835,7 +835,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, 5001, params.Container.Metrics.Port)
 	})
@@ -851,7 +851,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "true", params.Container.Metrics.Scrape)
 	})
@@ -867,7 +867,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "false", params.Container.Metrics.Scrape)
 	})
@@ -882,7 +882,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "openresty", params.Sidecar.Type)
 	})
@@ -897,7 +897,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "none", params.Sidecar.Type)
 	})
@@ -911,7 +911,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "istio", params.Sidecar.Type)
 	})
@@ -925,7 +925,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "estafette/openresty-sidecar:1.13.6.1-alpine", params.Sidecar.Image)
 	})
@@ -939,7 +939,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "estafette/openresty-sidecar:latest", params.Sidecar.Image)
 	})
@@ -956,7 +956,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "10m", params.Sidecar.CPU.Request)
 	})
@@ -973,7 +973,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "300m", params.Sidecar.CPU.Request)
 	})
@@ -990,7 +990,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "250m", params.Sidecar.CPU.Request)
 	})
@@ -1007,7 +1007,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "50m", params.Sidecar.CPU.Limit)
 	})
@@ -1024,7 +1024,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "300m", params.Sidecar.CPU.Limit)
 	})
@@ -1041,7 +1041,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "250m", params.Sidecar.CPU.Limit)
 	})
@@ -1058,7 +1058,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "10Mi", params.Sidecar.Memory.Request)
 	})
@@ -1075,7 +1075,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "256Mi", params.Sidecar.Memory.Request)
 	})
@@ -1092,7 +1092,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "512Mi", params.Sidecar.Memory.Request)
 	})
@@ -1109,7 +1109,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "50Mi", params.Sidecar.Memory.Limit)
 	})
@@ -1126,7 +1126,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "768Mi", params.Sidecar.Memory.Limit)
 	})
@@ -1143,7 +1143,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "1024Mi", params.Sidecar.Memory.Limit)
 	})
@@ -1155,7 +1155,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "/", params.Basepath)
 	})
@@ -1167,7 +1167,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "/api", params.Basepath)
 	})
@@ -1181,7 +1181,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "25%", params.RollingUpdate.MaxSurge)
 	})
@@ -1195,7 +1195,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "10%", params.RollingUpdate.MaxSurge)
 	})
@@ -1209,7 +1209,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "25%", params.RollingUpdate.MaxUnavailable)
 	})
@@ -1223,7 +1223,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "20%", params.RollingUpdate.MaxUnavailable)
 	})
@@ -1237,7 +1237,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "5m", params.RollingUpdate.Timeout)
 	})
@@ -1251,7 +1251,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "10m", params.RollingUpdate.Timeout)
 	})
@@ -1262,7 +1262,7 @@ func TestSetDefaults(t *testing.T) {
 		buildVersion := "1.0.0"
 
 		// act
-		params.SetDefaults("", buildVersion, "", "", validCredential, map[string]string{})
+		params.SetDefaults("", buildVersion, "", "", map[string]string{})
 
 		assert.Equal(t, "1.0.0", params.BuildVersion)
 	})
@@ -1276,7 +1276,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "/configs", params.Configs.MountPath)
 	})
@@ -1290,7 +1290,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "/etc/app-config", params.Configs.MountPath)
 	})
@@ -1304,7 +1304,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "/secrets", params.Secrets.MountPath)
 	})
@@ -1318,7 +1318,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "/etc/app-secret", params.Secrets.MountPath)
 	})
@@ -1330,7 +1330,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, 14, len(params.TrustedIPRanges))
 		assert.Equal(t, "103.21.244.0/22", params.TrustedIPRanges[0])
@@ -1346,7 +1346,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, 1, len(params.TrustedIPRanges))
 		assert.Equal(t, "0.0.0.0/0", params.TrustedIPRanges[0])
@@ -1359,7 +1359,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "deploy-simple", params.Action)
 	})
@@ -1371,7 +1371,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "deploy-canary", params.Action)
 	})
@@ -1383,7 +1383,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "rollback-canary", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "rollback-canary", map[string]string{})
 
 		assert.Equal(t, "rollback-canary", params.Action)
 	})
@@ -1395,7 +1395,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "rollback-canary", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "rollback-canary", map[string]string{})
 
 		assert.Equal(t, "rollback-canary", params.Action)
 	})
@@ -1407,7 +1407,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "api", params.Type)
 	})
@@ -1419,89 +1419,9 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", validCredential, map[string]string{})
+		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "worker", params.Type)
-	})
-
-	t.Run("DefaultsNamespaceToCredentialDefaultNamespaceIfEmpty", func(t *testing.T) {
-
-		params := Params{
-			Namespace: "",
-		}
-		credentials := GKECredentials{
-			Name: "gke-1",
-			Type: "kubernetes-engine",
-			AdditionalProperties: GKECredentialAdditionalProperties{
-				DefaultNamespace: "mynamespace",
-			},
-		}
-
-		// act
-		params.SetDefaults("", "", "", "", credentials, map[string]string{})
-
-		assert.Equal(t, "mynamespace", params.Namespace)
-	})
-
-	t.Run("KeepsNamespaceIfNotEmpty", func(t *testing.T) {
-
-		params := Params{
-			Namespace: "yournamespace",
-		}
-		credentials := GKECredentials{
-			Name: "gke-1",
-			Type: "kubernetes-engine",
-			AdditionalProperties: GKECredentialAdditionalProperties{
-				DefaultNamespace: "mynamespace",
-			},
-		}
-
-		// act
-		params.SetDefaults("", "", "", "", credentials, map[string]string{})
-
-		assert.Equal(t, "yournamespace", params.Namespace)
-	})
-
-	t.Run("DefaultsImageRepositoryToCredentialProjectIfEmpty", func(t *testing.T) {
-
-		params := Params{
-			Container: ContainerParams{
-				ImageRepository: "",
-			},
-		}
-		credentials := GKECredentials{
-			Name: "gke-1",
-			Type: "kubernetes-engine",
-			AdditionalProperties: GKECredentialAdditionalProperties{
-				Project: "myproject",
-			},
-		}
-
-		// act
-		params.SetDefaults("", "", "", "", credentials, map[string]string{})
-
-		assert.Equal(t, "myproject", params.Container.ImageRepository)
-	})
-
-	t.Run("KeepsImageRepositoryIfNotEmpty", func(t *testing.T) {
-
-		params := Params{
-			Container: ContainerParams{
-				ImageRepository: "extensions",
-			},
-		}
-		credentials := GKECredentials{
-			Name: "gke-1",
-			Type: "kubernetes-engine",
-			AdditionalProperties: GKECredentialAdditionalProperties{
-				Project: "myproject",
-			},
-		}
-
-		// act
-		params.SetDefaults("", "", "", "", credentials, map[string]string{})
-
-		assert.Equal(t, "extensions", params.Container.ImageRepository)
 	})
 }
 

@@ -119,7 +119,7 @@ type ConfigsParams struct {
 }
 
 // SetDefaults fills in empty fields with convention-based defaults
-func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction string, credentials GKECredentials, estafetteLabels map[string]string) {
+func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction string, estafetteLabels map[string]string) {
 
 	p.BuildVersion = buildVersion
 
@@ -133,16 +133,6 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 	// default type to api
 	if p.Type == "" {
 		p.Type = "api"
-	}
-
-	// default namespace to credential default namespace if no override in stage params
-	if p.Namespace == "" && credentials.AdditionalProperties.DefaultNamespace != "" {
-		p.Namespace = credentials.AdditionalProperties.DefaultNamespace
-	}
-
-	// default image repository to credential project if no override in stage params
-	if p.Container.ImageRepository == "" && credentials.AdditionalProperties.Project != "" {
-		p.Container.ImageRepository = credentials.AdditionalProperties.Project
 	}
 
 	// default app to estafette app label if no override in stage params

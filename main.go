@@ -106,7 +106,7 @@ func main() {
 	}
 
 	log.Printf("Setting defaults for parameters that are not set in the manifest...")
-	params.SetDefaults(*appLabel, *buildVersion, *releaseName, *releaseAction, *credential, estafetteLabels)
+	params.SetDefaults(*appLabel, *buildVersion, *releaseName, *releaseAction, estafetteLabels)
 
 	log.Printf("Validating required parameters...")
 	valid, errors = params.ValidateRequiredProperties()
