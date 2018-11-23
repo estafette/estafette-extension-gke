@@ -721,7 +721,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		params := Params{
 			Secrets: SecretsParams{
-				Keys: map[string]string{
+				Keys: map[string]interface{}{
 					"secret-file-1.json": "c29tZSBzZWNyZXQgdmFsdWU=",
 					"secret-file-2.yaml": "YW5vdGhlciBzZWNyZXQgdmFsdWU=",
 				},
@@ -740,7 +740,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		params := Params{
 			Secrets: SecretsParams{
-				Keys: map[string]string{
+				Keys: map[string]interface{}{
 					"secret-file-1.json": "c29tZSBzZWNyZXQgdmFsdWU=",
 					"secret-file-2.yaml": "YW5vdGhlciBzZWNyZXQgdmFsdWU=",
 				},
@@ -757,7 +757,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		params := Params{
 			Secrets: SecretsParams{
-				Keys: map[string]string{},
+				Keys: map[string]interface{}{},
 			},
 		}
 
@@ -1033,7 +1033,7 @@ func TestGenerateTemplateData(t *testing.T) {
 					"./gke/service.yaml",
 					"./gke/ingress.yaml",
 				},
-				Data: map[string]string{
+				Data: map[string]interface{}{
 					"property1": "value 1",
 					"property2": "value 2",
 					"property3": "value 3",

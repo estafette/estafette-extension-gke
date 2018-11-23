@@ -23,7 +23,7 @@ type TemplateData struct {
 	Container                   ContainerData
 	Sidecar                     SidecarData
 	MountApplicationSecrets     bool
-	Secrets                     map[string]string
+	Secrets                     map[string]interface{}
 	SecretMountPath             string
 	MountConfigmap              bool
 	ConfigmapFiles              map[string]string
@@ -34,7 +34,7 @@ type TemplateData struct {
 	BuildVersion                string
 	LimitTrustedIPRanges        bool
 	TrustedIPRanges             []string
-	ManifestData                map[string]string
+	ManifestData                map[string]interface{}
 	IncludeTrackLabel           bool
 	TrackLabel                  string
 	AdditionalVolumeMounts      []VolumeMountData

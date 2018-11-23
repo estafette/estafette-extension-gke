@@ -103,22 +103,22 @@ type RollingUpdateParams struct {
 
 // ManifestsParams can be used to override or add additional manifests located in the application repository
 type ManifestsParams struct {
-	Files []string          `json:"files,omitempty"`
-	Data  map[string]string `json:"data,omitempty"`
+	Files []string               `json:"files,omitempty"`
+	Data  map[string]interface{} `json:"data,omitempty"`
 }
 
 // SecretsParams allows secrets to be set dynamically for the application
 type SecretsParams struct {
-	Keys      map[string]string `json:"keys,omitempty"`
-	MountPath string            `json:"mountpath,omitempty"`
+	Keys      map[string]interface{} `json:"keys,omitempty"`
+	MountPath string                 `json:"mountpath,omitempty"`
 }
 
 // ConfigsParams allows configs to be set dynamically for the application
 type ConfigsParams struct {
-	Files               []string          `json:"files,omitempty"`
-	Data                map[string]string `json:"data,omitempty"`
-	MountPath           string            `json:"mountpath,omitempty"`
-	RenderedFileContent map[string]string `json:"-"`
+	Files               []string               `json:"files,omitempty"`
+	Data                map[string]interface{} `json:"data,omitempty"`
+	MountPath           string                 `json:"mountpath,omitempty"`
+	RenderedFileContent map[string]string      `json:"-"`
 }
 
 // VolumeMountParams allows additional mounts for already existing volumes, secrets, etc

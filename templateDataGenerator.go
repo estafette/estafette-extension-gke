@@ -102,7 +102,7 @@ func generateTemplateData(params Params) TemplateData {
 
 	data.ConfigmapFiles = params.Configs.RenderedFileContent
 
-	data.ManifestData = map[string]string{}
+	data.ManifestData = map[string]interface{}{}
 	for k, v := range params.Manifests.Data {
 		data.ManifestData[k] = v
 	}
