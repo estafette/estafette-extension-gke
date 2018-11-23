@@ -9,9 +9,9 @@ type Params struct {
 	// control params
 	Action          string          `json:"action,omitempty"`
 	Type            string          `json:"type,omitempty"`
-	DryRun          bool            `json:"dryrun,string,omitempty"`
+	DryRun          bool            `json:"dryrun,omitempty"`
 	BuildVersion    string          `json:"-"`
-	ChaosProof      bool            `json:"chaosproof,string,omitempty"`
+	ChaosProof      bool            `json:"chaosproof,omitempty"`
 	Manifests       ManifestsParams `json:"manifests,omitempty"`
 	TrustedIPRanges []string        `json:"trustedips,omitempty"`
 
@@ -27,7 +27,7 @@ type Params struct {
 	Configs      ConfigsParams       `json:"configs,omitempty"`
 	VolumeMounts []VolumeMountParams `json:"volumemounts,omitempty"`
 
-	EnablePayloadLogging bool `json:"enablePayloadLogging,string,omitempty"`
+	EnablePayloadLogging bool `json:"enablePayloadLogging,omitempty"`
 
 	// container params
 	Container     ContainerParams     `json:"container,omitempty"`
@@ -40,7 +40,7 @@ type ContainerParams struct {
 	ImageRepository      string            `json:"repository,omitempty"`
 	ImageName            string            `json:"name,omitempty"`
 	ImageTag             string            `json:"tag,omitempty"`
-	Port                 int               `json:"port,string,omitempty"`
+	Port                 int               `json:"port,omitempty"`
 	EnvironmentVariables map[string]string `json:"env,omitempty"`
 
 	CPU            CPUParams     `json:"cpu,omitempty"`
@@ -64,24 +64,24 @@ type MemoryParams struct {
 
 // AutoscaleParams controls autoscaling
 type AutoscaleParams struct {
-	MinReplicas   int `json:"min,string,omitempty"`
-	MaxReplicas   int `json:"max,string,omitempty"`
-	CPUPercentage int `json:"cpu,string,omitempty"`
+	MinReplicas   int `json:"min,omitempty"`
+	MaxReplicas   int `json:"max,omitempty"`
+	CPUPercentage int `json:"cpu,omitempty"`
 }
 
 // ProbeParams sets params for liveness or readiness probe
 type ProbeParams struct {
 	Path                string `json:"path,omitempty"`
-	Port                int    `json:"port,string,omitempty"`
-	InitialDelaySeconds int    `json:"delay,string,omitempty"`
-	TimeoutSeconds      int    `json:"timeout,string,omitempty"`
+	Port                int    `json:"port,omitempty"`
+	InitialDelaySeconds int    `json:"delay,omitempty"`
+	TimeoutSeconds      int    `json:"timeout,omitempty"`
 }
 
 // MetricsParams sets params for scraping prometheus metrics
 type MetricsParams struct {
 	Scrape string `json:"scrape,omitempty"`
 	Path   string `json:"path,omitempty"`
-	Port   int    `json:"port,string,omitempty"`
+	Port   int    `json:"port,omitempty"`
 }
 
 // SidecarParams sets params for sidecar injection
