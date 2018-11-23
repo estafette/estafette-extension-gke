@@ -62,6 +62,7 @@ type ProbeData struct {
 	Port                int
 	InitialDelaySeconds int
 	TimeoutSeconds      int
+	IncludeOnContainer  bool
 }
 
 // MetricsData has data to configure prometheus metrics scraping

@@ -56,12 +56,14 @@ func generateTemplateData(params Params) TemplateData {
 				Port:                params.Container.LivenessProbe.Port,
 				InitialDelaySeconds: params.Container.LivenessProbe.InitialDelaySeconds,
 				TimeoutSeconds:      params.Container.LivenessProbe.TimeoutSeconds,
+				IncludeOnContainer:  true,
 			},
 			Readiness: ProbeData{
 				Path:                params.Container.ReadinessProbe.Path,
 				Port:                params.Container.ReadinessProbe.Port,
 				InitialDelaySeconds: params.Container.ReadinessProbe.InitialDelaySeconds,
 				TimeoutSeconds:      params.Container.ReadinessProbe.TimeoutSeconds,
+				IncludeOnContainer:  params.Sidecar.Type != "openresty" || params.Container.ReadinessProbe.Port != params.Container.Port || params.Container.ReadinessProbe.Path != params.Sidecar.HealthCheckPath,
 			},
 			Metrics: MetricsData{
 				Path: params.Container.Metrics.Path,

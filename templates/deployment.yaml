@@ -97,12 +97,14 @@ spec:
             port: {{.Container.Liveness.Port}}
           initialDelaySeconds: {{.Container.Liveness.InitialDelaySeconds}}
           timeoutSeconds: {{.Container.Liveness.TimeoutSeconds}}
+        {{- if .Container.Readiness.IncludeOnContainer }}
         readinessProbe:
           httpGet:
             path: {{.Container.Readiness.Path}}
             port: {{.Container.Readiness.Port}}
           initialDelaySeconds: {{.Container.Readiness.InitialDelaySeconds}}
           timeoutSeconds: {{.Container.Readiness.TimeoutSeconds}}
+        {{- end }}
         {{- if or .MountApplicationSecrets .MountConfigmap .MountPayloadLogging }}
         volumeMounts:
         {{- if .MountApplicationSecrets }}
