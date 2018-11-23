@@ -199,5 +199,5 @@ spec:
       {{- end }}
       {{- range .AdditionalVolumeMounts}}
       - name: {{.Name}}
-        {{- .VolumeYAML | indent 8}}
+{{.VolumeYAML | indent 8}}
       {{- end}}
