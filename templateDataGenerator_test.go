@@ -581,7 +581,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		params := Params{
 			Container: ContainerParams{
 				Metrics: MetricsParams{
-					Scrape: "true",
+					Scrape: &trueValue,
 				},
 			},
 		}
@@ -589,7 +589,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		// act
 		templateData := generateTemplateData(params)
 
-		assert.Equal(t, "true", templateData.Container.Metrics.Scrape)
+		assert.Equal(t, true, templateData.Container.Metrics.Scrape)
 	})
 
 	t.Run("SetsSidecarUseOpenrestySidecarToTrueIfSidecarTypeParamEqualsOpenresty", func(t *testing.T) {

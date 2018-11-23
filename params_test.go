@@ -7,6 +7,8 @@ import (
 )
 
 var (
+	trueValue   = true
+	falseValue  = false
 	validParams = Params{
 		Action:    "deploy-simple",
 		App:       "myapp",
@@ -47,7 +49,7 @@ var (
 				TimeoutSeconds:      1,
 			},
 			Metrics: MetricsParams{
-				Scrape: "true",
+				Scrape: &trueValue,
 				Path:   "/metrics",
 				Port:   5000,
 			},
@@ -915,7 +917,7 @@ func TestSetDefaults(t *testing.T) {
 		params := Params{
 			Container: ContainerParams{
 				Metrics: MetricsParams{
-					Scrape: "",
+					Scrape: nil,
 				},
 			},
 		}
@@ -923,7 +925,7 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, "true", params.Container.Metrics.Scrape)
+		assert.Equal(t, true, *params.Container.Metrics.Scrape)
 	})
 
 	t.Run("KeepsMetricsScrapeIfNotEmpty", func(t *testing.T) {
@@ -931,7 +933,7 @@ func TestSetDefaults(t *testing.T) {
 		params := Params{
 			Container: ContainerParams{
 				Metrics: MetricsParams{
-					Scrape: "false",
+					Scrape: &falseValue,
 				},
 			},
 		}
@@ -939,7 +941,7 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, "false", params.Container.Metrics.Scrape)
+		assert.Equal(t, false, *params.Container.Metrics.Scrape)
 	})
 
 	t.Run("DefaultsSidecarTypeToOpenrestyIfEmptyAndGlobalTypeIsNotWorker", func(t *testing.T) {
@@ -2125,7 +2127,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfMetricsPathIsEmptyButScrapeIsFalse", func(t *testing.T) {
 
 		params := validParams
-		params.Container.Metrics.Scrape = "false"
+		params.Container.Metrics.Scrape = &falseValue
 		params.Container.Metrics.Path = ""
 
 		// act
@@ -2162,7 +2164,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfMetricsPortIsZeroOrLessButScrapeIsFalse", func(t *testing.T) {
 
 		params := validParams
-		params.Container.Metrics.Scrape = "false"
+		params.Container.Metrics.Scrape = &falseValue
 		params.Container.Metrics.Port = 0
 
 		// act
@@ -2175,7 +2177,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfMetricsScrapeIsEmpty", func(t *testing.T) {
 
 		params := validParams
-		params.Container.Metrics.Scrape = ""
+		params.Container.Metrics.Scrape = nil
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
@@ -2187,7 +2189,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfMetricsScrapeIsTrue", func(t *testing.T) {
 
 		params := validParams
-		params.Container.Metrics.Scrape = "true"
+		params.Container.Metrics.Scrape = &trueValue
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
@@ -2199,25 +2201,13 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfMetricsScrapeIsFalse", func(t *testing.T) {
 
 		params := validParams
-		params.Container.Metrics.Scrape = "false"
+		params.Container.Metrics.Scrape = &falseValue
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
-	})
-
-	t.Run("ReturnsFalseIfMetricsScrapeIsNonBoolean", func(t *testing.T) {
-
-		params := validParams
-		params.Container.Metrics.Scrape = "yessir"
-
-		// act
-		valid, errors := params.ValidateRequiredProperties()
-
-		assert.False(t, valid)
-		assert.True(t, len(errors) > 0)
 	})
 
 	t.Run("ReturnsFalseIfSidecarTypeIsNotSet", func(t *testing.T) {

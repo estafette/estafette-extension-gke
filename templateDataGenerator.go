@@ -64,9 +64,8 @@ func generateTemplateData(params Params) TemplateData {
 				TimeoutSeconds:      params.Container.ReadinessProbe.TimeoutSeconds,
 			},
 			Metrics: MetricsData{
-				Scrape: params.Container.Metrics.Scrape,
-				Path:   params.Container.Metrics.Path,
-				Port:   params.Container.Metrics.Port,
+				Path: params.Container.Metrics.Path,
+				Port: params.Container.Metrics.Port,
 			},
 		},
 
@@ -82,6 +81,10 @@ func generateTemplateData(params Params) TemplateData {
 
 			EnvironmentVariables: params.Sidecar.EnvironmentVariables,
 		},
+	}
+
+	if params.Container.Metrics.Scrape != nil {
+		data.Container.Metrics.Scrape = *params.Container.Metrics.Scrape
 	}
 
 	switch params.Action {

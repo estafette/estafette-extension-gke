@@ -66,7 +66,7 @@ type ProbeData struct {
 
 // MetricsData has data to configure prometheus metrics scraping
 type MetricsData struct {
-	Scrape string
+	Scrape bool
 	Path   string
 	Port   int
 }
