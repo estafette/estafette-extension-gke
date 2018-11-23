@@ -95,7 +95,7 @@ func main() {
 
 	var params Params
 	if credential.AdditionalProperties.Defaults != nil {
-		log.Printf("Using defaults from credential defaults...")
+		log.Printf("Using defaults from credential %v...", credentialsParam.Credentials)
 		// todo log just the specified defaults, not the entire parms object
 		// defaultsAsYAML, err := yaml.Marshal(credential.AdditionalProperties.Defaults)
 		// if err == nil {

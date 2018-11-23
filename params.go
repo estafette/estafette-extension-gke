@@ -71,6 +71,7 @@ type AutoscaleParams struct {
 // ProbeParams sets params for liveness or readiness probe
 type ProbeParams struct {
 	Path                string `json:"path,omitempty"`
+	Port                int    `json:"port,string,omitempty"`
 	InitialDelaySeconds int    `json:"delay,string,omitempty"`
 	TimeoutSeconds      int    `json:"timeout,string,omitempty"`
 }
@@ -89,6 +90,7 @@ type SidecarParams struct {
 	EnvironmentVariables map[string]string `json:"env,omitempty"`
 	CPU                  CPUParams         `json:"cpu,omitempty"`
 	Memory               MemoryParams      `json:"memory,omitempty"`
+	HealthCheckPath      string            `json:"healthcheckpath,omitempty"`
 }
 
 // RollingUpdateParams sets params for controlling rolling update speed
@@ -221,6 +223,9 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 	if p.Container.LivenessProbe.Path == "" {
 		p.Container.LivenessProbe.Path = "/liveness"
 	}
+	if p.Container.LivenessProbe.Port <= 0 {
+		p.Container.LivenessProbe.Port = p.Container.Port
+	}
 	if p.Container.LivenessProbe.InitialDelaySeconds <= 0 {
 		p.Container.LivenessProbe.InitialDelaySeconds = 30
 	}
@@ -231,6 +236,9 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 	// set readiness probe defaults
 	if p.Container.ReadinessProbe.Path == "" {
 		p.Container.ReadinessProbe.Path = "/readiness"
+	}
+	if p.Container.ReadinessProbe.Port <= 0 {
+		p.Container.ReadinessProbe.Port = p.Container.Port
 	}
 	if p.Container.ReadinessProbe.TimeoutSeconds <= 0 {
 		p.Container.ReadinessProbe.TimeoutSeconds = 1
@@ -259,6 +267,9 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 	}
 	if p.Sidecar.Image == "" {
 		p.Sidecar.Image = "estafette/openresty-sidecar:1.13.6.1-alpine"
+	}
+	if p.Sidecar.HealthCheckPath == "" {
+		p.Sidecar.HealthCheckPath = p.Container.ReadinessProbe.Path
 	}
 
 	// set sidecar cpu defaults
@@ -427,6 +438,9 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 	if p.Container.LivenessProbe.Path == "" {
 		errors = append(errors, fmt.Errorf("Liveness path is required; set it via container.liveness.path property on this stage"))
 	}
+	if p.Container.LivenessProbe.Port <= 0 {
+		errors = append(errors, fmt.Errorf("Liveness port must be larger than zero; set it via container.liveness.port property on this stage"))
+	}
 	if p.Container.LivenessProbe.InitialDelaySeconds <= 0 {
 		errors = append(errors, fmt.Errorf("Liveness initial delay must be larger than zero; set it via container.liveness.delay property on this stage"))
 	}
@@ -437,6 +451,9 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 	// validate readiness params
 	if p.Container.ReadinessProbe.Path == "" {
 		errors = append(errors, fmt.Errorf("Readiness path is required; set it via container.readiness.path property on this stage"))
+	}
+	if p.Container.ReadinessProbe.Port <= 0 {
+		errors = append(errors, fmt.Errorf("Readiness port must be larger than zero; set it via container.readiness.port property on this stage"))
 	}
 	if p.Container.ReadinessProbe.TimeoutSeconds <= 0 {
 		errors = append(errors, fmt.Errorf("Readiness timeout must be larger than zero; set it via container.readiness.timeout property on this stage"))

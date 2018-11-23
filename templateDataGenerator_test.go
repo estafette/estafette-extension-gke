@@ -413,6 +413,22 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "/liveness", templateData.Container.Liveness.Path)
 	})
 
+	t.Run("SetsLivenessPortToLivenessProbePortParam", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				LivenessProbe: ProbeParams{
+					Port: 5001,
+				},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, 5001, templateData.Container.Liveness.Port)
+	})
+
 	t.Run("SetsLivenessInitialDelaySecondsToLivenessProbeInitialDelaySecondsParam", func(t *testing.T) {
 
 		params := Params{
@@ -459,6 +475,22 @@ func TestGenerateTemplateData(t *testing.T) {
 		templateData := generateTemplateData(params)
 
 		assert.Equal(t, "/readiness", templateData.Container.Readiness.Path)
+	})
+
+	t.Run("SetsReadinessPortToReadinessProbePortParam", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				ReadinessProbe: ProbeParams{
+					Port: 5002,
+				},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, 5002, templateData.Container.Readiness.Port)
 	})
 
 	t.Run("SetsReadinessInitialDelaySecondsToReadinessProbeInitialDelaySecondsParam", func(t *testing.T) {
@@ -586,6 +618,20 @@ func TestGenerateTemplateData(t *testing.T) {
 		templateData := generateTemplateData(params)
 
 		assert.Equal(t, "estafette/openresty-sidecar:1.13.6.1-alpine", templateData.Sidecar.Image)
+	})
+
+	t.Run("SetsSidecarHealthCheckPathToSidecarHealthCheckPathParam", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				HealthCheckPath: "/readiness",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "/readiness", templateData.Sidecar.HealthCheckPath)
 	})
 
 	t.Run("SetsSidecarCPURequestToSidecarCPURequestParam", func(t *testing.T) {

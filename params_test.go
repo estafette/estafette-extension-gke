@@ -36,11 +36,13 @@ var (
 			},
 			LivenessProbe: ProbeParams{
 				Path:                "/liveness",
+				Port:                5000,
 				InitialDelaySeconds: 30,
 				TimeoutSeconds:      1,
 			},
 			ReadinessProbe: ProbeParams{
 				Path:                "/readiness",
+				Port:                5000,
 				InitialDelaySeconds: 0,
 				TimeoutSeconds:      1,
 			},
@@ -678,6 +680,40 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "/healthz", params.Container.LivenessProbe.Path)
 	})
 
+	t.Run("DefaultsLivenessProbePortToContainerPortIfZero", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				Port: 8080,
+				LivenessProbe: ProbeParams{
+					Port: 0,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, 8080, params.Container.LivenessProbe.Port)
+	})
+
+	t.Run("KeepsLivenessProbePortIfLargerThanZero", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				Port: 8080,
+				LivenessProbe: ProbeParams{
+					Port: 8081,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, 8081, params.Container.LivenessProbe.Port)
+	})
+
 	t.Run("DefaultsReadinessInitialDelaySecondsTo0IfZero", func(t *testing.T) {
 
 		params := Params{
@@ -772,6 +808,40 @@ func TestSetDefaults(t *testing.T) {
 		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "/healthz", params.Container.ReadinessProbe.Path)
+	})
+
+	t.Run("DefaultsReadinessProbePortToContainerPortIfZero", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				Port: 8080,
+				ReadinessProbe: ProbeParams{
+					Port: 0,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, 8080, params.Container.ReadinessProbe.Port)
+	})
+
+	t.Run("KeepsReadinessProbePortIfLargerThanZero", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				Port: 8080,
+				ReadinessProbe: ProbeParams{
+					Port: 8082,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, 8082, params.Container.ReadinessProbe.Port)
 	})
 
 	t.Run("DefaultsMetricsPathToMetricsIfEmpty", func(t *testing.T) {
@@ -942,6 +1012,43 @@ func TestSetDefaults(t *testing.T) {
 		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "estafette/openresty-sidecar:latest", params.Sidecar.Image)
+	})
+
+	t.Run("DefaultsSidecarHealthCheckPathToContainerReadinessPathIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				ReadinessProbe: ProbeParams{
+					Path: "/myreadiness",
+				},
+			},
+			Sidecar: SidecarParams{
+				HealthCheckPath: "",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, "/myreadiness", params.Sidecar.HealthCheckPath)
+	})
+
+	t.Run("KeepsSidecarHealthCheckPathIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				ReadinessProbe: ProbeParams{
+					Path: "/myreadiness",
+				},
+			},
+			Sidecar: SidecarParams{
+				HealthCheckPath: "/nomyreadiness",
+			},
+		}
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, "/nomyreadiness", params.Sidecar.HealthCheckPath)
 	})
 
 	t.Run("DefaultsSidecarCpuRequestTo10MIfBothRequestAndLimitAreEmpty", func(t *testing.T) {
@@ -1847,6 +1954,30 @@ func TestValidateRequiredProperties(t *testing.T) {
 		assert.True(t, len(errors) == 0)
 	})
 
+	t.Run("ReturnsFalseIfLivenessProbePortIsZeroOrLess", func(t *testing.T) {
+
+		params := validParams
+		params.Container.LivenessProbe.Port = 0
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfLivenessProbePortIsLargerThanZero", func(t *testing.T) {
+
+		params := validParams
+		params.Container.LivenessProbe.Port = 5000
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
 	t.Run("ReturnsFalseIfLivenessInitialDelaySecondsIsZeroOrLess", func(t *testing.T) {
 
 		params := validParams
@@ -1911,6 +2042,30 @@ func TestValidateRequiredProperties(t *testing.T) {
 
 		params := validParams
 		params.Container.ReadinessProbe.Path = "/readiness"
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfReadinessProbePortIsZeroOrLess", func(t *testing.T) {
+
+		params := validParams
+		params.Container.ReadinessProbe.Port = 0
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfReadinessProbePortIsLargerThanZero", func(t *testing.T) {
+
+		params := validParams
+		params.Container.ReadinessProbe.Port = 5000
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()

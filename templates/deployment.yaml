@@ -94,9 +94,15 @@ spec:
         livenessProbe:
           httpGet:
             path: {{.Container.Liveness.Path}}
-            port: web
+            port: {{.Container.Liveness.Port}}
           initialDelaySeconds: {{.Container.Liveness.InitialDelaySeconds}}
           timeoutSeconds: {{.Container.Liveness.TimeoutSeconds}}
+        readinessProbe:
+          httpGet:
+            path: {{.Container.Readiness.Path}}
+            port: {{.Container.Readiness.Port}}
+          initialDelaySeconds: {{.Container.Readiness.InitialDelaySeconds}}
+          timeoutSeconds: {{.Container.Readiness.TimeoutSeconds}}
         {{- if or .MountApplicationSecrets .MountConfigmap .MountPayloadLogging }}
         volumeMounts:
         {{- if .MountApplicationSecrets }}
@@ -144,7 +150,7 @@ spec:
         - name: "NAMESPACE"
           value: "{{.Namespace}}"
         - name: "HEALT_CHECK_PATH"
-          value: "{{.Container.Readiness.Path}}"
+          value: "{{.Sidecar.HealthCheckPath}}"
         {{- range $key, $value := .Sidecar.EnvironmentVariables }}
         - name: "{{ $key }}"
           value: "{{ $value }}"

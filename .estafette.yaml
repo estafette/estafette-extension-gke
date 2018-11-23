@@ -59,19 +59,22 @@ stages:
         limit: 256Mi
       liveness:
         path: /liveness
+        port: 5001
         delay: 30
         timeout: 1
       readiness:
         path: /readiness
+        port: 5002
         delay: 30
         timeout: 1
       metrics:
         scrape: true
         path: /metrics
-        port: 5001
+        port: 5003
     sidecar:
       type: openresty
       image: estafette/openresty-sidecar:1.13.6.1-alpine
+      healthcheckpath: /readiness
       env:
         CORS_ALLOWED_ORIGINS: "*"
         CORS_MAX_AGE: "86400"

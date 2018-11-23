@@ -58,6 +58,7 @@ type ContainerData struct {
 // ProbeData has data specific to liveness and readiness probes
 type ProbeData struct {
 	Path                string
+	Port                int
 	InitialDelaySeconds int
 	TimeoutSeconds      int
 }
@@ -73,6 +74,7 @@ type MetricsData struct {
 type SidecarData struct {
 	UseOpenrestySidecar  bool
 	Image                string
+	HealthCheckPath      string
 	EnvironmentVariables map[string]string
 	CPURequest           string
 	MemoryRequest        string

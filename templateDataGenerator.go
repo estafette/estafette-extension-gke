@@ -51,11 +51,13 @@ func generateTemplateData(params Params) TemplateData {
 
 			Liveness: ProbeData{
 				Path:                params.Container.LivenessProbe.Path,
+				Port:                params.Container.LivenessProbe.Port,
 				InitialDelaySeconds: params.Container.LivenessProbe.InitialDelaySeconds,
 				TimeoutSeconds:      params.Container.LivenessProbe.TimeoutSeconds,
 			},
 			Readiness: ProbeData{
 				Path:                params.Container.ReadinessProbe.Path,
+				Port:                params.Container.ReadinessProbe.Port,
 				InitialDelaySeconds: params.Container.ReadinessProbe.InitialDelaySeconds,
 				TimeoutSeconds:      params.Container.ReadinessProbe.TimeoutSeconds,
 			},
@@ -69,11 +71,12 @@ func generateTemplateData(params Params) TemplateData {
 		Sidecar: SidecarData{
 			UseOpenrestySidecar: params.Sidecar.Type == "openresty",
 
-			Image:         params.Sidecar.Image,
-			CPURequest:    params.Sidecar.CPU.Request,
-			CPULimit:      params.Sidecar.CPU.Limit,
-			MemoryRequest: params.Sidecar.Memory.Request,
-			MemoryLimit:   params.Sidecar.Memory.Limit,
+			Image:           params.Sidecar.Image,
+			HealthCheckPath: params.Sidecar.HealthCheckPath,
+			CPURequest:      params.Sidecar.CPU.Request,
+			CPULimit:        params.Sidecar.CPU.Limit,
+			MemoryRequest:   params.Sidecar.Memory.Request,
+			MemoryLimit:     params.Sidecar.Memory.Limit,
 
 			EnvironmentVariables: params.Sidecar.EnvironmentVariables,
 		},
