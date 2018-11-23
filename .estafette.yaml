@@ -118,7 +118,7 @@ stages:
           items:
           - key: key
             path: key
-            mode: 600
+            mode: 0600
           - key: cert
             path: cert
     manifests:
