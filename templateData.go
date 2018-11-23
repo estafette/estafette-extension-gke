@@ -50,7 +50,7 @@ type ContainerData struct {
 	CPULimit             string
 	MemoryLimit          string
 	Port                 int
-	EnvironmentVariables map[string]string
+	EnvironmentVariables map[string]interface{}
 	Liveness             ProbeData
 	Readiness            ProbeData
 	Metrics              MetricsData
@@ -76,7 +76,7 @@ type SidecarData struct {
 	UseOpenrestySidecar  bool
 	Image                string
 	HealthCheckPath      string
-	EnvironmentVariables map[string]string
+	EnvironmentVariables map[string]interface{}
 	CPURequest           string
 	MemoryRequest        string
 	CPULimit             string

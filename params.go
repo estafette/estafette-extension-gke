@@ -37,11 +37,11 @@ type Params struct {
 
 // ContainerParams defines the container image to deploy
 type ContainerParams struct {
-	ImageRepository      string            `json:"repository,omitempty"`
-	ImageName            string            `json:"name,omitempty"`
-	ImageTag             string            `json:"tag,omitempty"`
-	Port                 int               `json:"port,omitempty"`
-	EnvironmentVariables map[string]string `json:"env,omitempty"`
+	ImageRepository      string                 `json:"repository,omitempty"`
+	ImageName            string                 `json:"name,omitempty"`
+	ImageTag             string                 `json:"tag,omitempty"`
+	Port                 int                    `json:"port,omitempty"`
+	EnvironmentVariables map[string]interface{} `json:"env,omitempty"`
 
 	CPU            CPUParams     `json:"cpu,omitempty"`
 	Memory         MemoryParams  `json:"memory,omitempty"`
@@ -86,12 +86,12 @@ type MetricsParams struct {
 
 // SidecarParams sets params for sidecar injection
 type SidecarParams struct {
-	Type                 string            `json:"type,omitempty"`
-	Image                string            `json:"image,omitempty"`
-	EnvironmentVariables map[string]string `json:"env,omitempty"`
-	CPU                  CPUParams         `json:"cpu,omitempty"`
-	Memory               MemoryParams      `json:"memory,omitempty"`
-	HealthCheckPath      string            `json:"healthcheckpath,omitempty"`
+	Type                 string                 `json:"type,omitempty"`
+	Image                string                 `json:"image,omitempty"`
+	EnvironmentVariables map[string]interface{} `json:"env,omitempty"`
+	CPU                  CPUParams              `json:"cpu,omitempty"`
+	Memory               MemoryParams           `json:"memory,omitempty"`
+	HealthCheckPath      string                 `json:"healthcheckpath,omitempty"`
 }
 
 // RollingUpdateParams sets params for controlling rolling update speed

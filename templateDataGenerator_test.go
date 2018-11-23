@@ -529,7 +529,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		params := Params{
 			Container: ContainerParams{
-				EnvironmentVariables: map[string]string{
+				EnvironmentVariables: map[string]interface{}{
 					"MY_CUSTOM_ENV":       "value1",
 					"MY_OTHER_CUSTOM_ENV": "value2",
 				},
@@ -702,7 +702,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		params := Params{
 			Sidecar: SidecarParams{
-				EnvironmentVariables: map[string]string{
+				EnvironmentVariables: map[string]interface{}{
 					"MY_CUSTOM_ENV":       "value1",
 					"MY_OTHER_CUSTOM_ENV": "value2",
 				},
