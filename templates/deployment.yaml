@@ -118,6 +118,10 @@ spec:
           mountPath: /var/log/travix
         {{- end }}
         {{- end }}
+        {{- range .AdditionalVolumeMounts}}
+        - name: {{.Name}}
+          mountPath: {{.MountPath}}
+        {{- end}}
       {{- if .Sidecar.UseOpenrestySidecar }}
       - name: {{.Name}}-openresty
         image: {{.Sidecar.Image}}
@@ -193,3 +197,7 @@ spec:
         hostPath:
           path: /var/log
       {{- end }}
+      {{- range .AdditionalVolumeMounts}}
+      - name: {{.Name}}
+        {{- .VolumeYAML | indent 8}}
+      {{- end}}

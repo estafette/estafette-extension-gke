@@ -16,15 +16,16 @@ type Params struct {
 	TrustedIPRanges []string        `json:"trustedips,omitempty"`
 
 	// app params
-	App        string            `json:"app,omitempty"`
-	Namespace  string            `json:"namespace,omitempty"`
-	Labels     map[string]string `json:"labels,omitempty"`
-	Visibility string            `json:"visibility,omitempty"`
-	Hosts      []string          `json:"hosts,omitempty"`
-	Basepath   string            `json:"basepath,omitempty"`
-	Autoscale  AutoscaleParams   `json:"autoscale,omitempty"`
-	Secrets    SecretsParams     `json:"secrets,omitempty"`
-	Configs    ConfigsParams     `json:"configs,omitempty"`
+	App          string              `json:"app,omitempty"`
+	Namespace    string              `json:"namespace,omitempty"`
+	Labels       map[string]string   `json:"labels,omitempty"`
+	Visibility   string              `json:"visibility,omitempty"`
+	Hosts        []string            `json:"hosts,omitempty"`
+	Basepath     string              `json:"basepath,omitempty"`
+	Autoscale    AutoscaleParams     `json:"autoscale,omitempty"`
+	Secrets      SecretsParams       `json:"secrets,omitempty"`
+	Configs      ConfigsParams       `json:"configs,omitempty"`
+	VolumeMounts []VolumeMountParams `json:"volumemounts,omitempty"`
 
 	EnablePayloadLogging bool `json:"enablePayloadLogging,string,omitempty"`
 
@@ -118,6 +119,13 @@ type ConfigsParams struct {
 	Data                map[string]string `json:"data,omitempty"`
 	MountPath           string            `json:"mountpath,omitempty"`
 	RenderedFileContent map[string]string `json:"-"`
+}
+
+// VolumeMountParams allows additional mounts for already existing volumes, secrets, etc
+type VolumeMountParams struct {
+	Name      string                 `json:"name,omitempty"`
+	MountPath string                 `json:"mountpath,omitempty"`
+	Volume    map[string]interface{} `json:"volume,omitempty"`
 }
 
 // SetDefaults fills in empty fields with convention-based defaults

@@ -2,6 +2,8 @@ package main
 
 import (
 	"strings"
+
+	"gopkg.in/yaml.v2"
 )
 
 func generateTemplateData(params Params) TemplateData {
@@ -133,6 +135,18 @@ func generateTemplateData(params Params) TemplateData {
 	}
 
 	data.TrustedIPRanges = params.TrustedIPRanges
+
+	data.AdditionalVolumeMounts = []VolumeMountData{}
+	for _, vm := range params.VolumeMounts {
+		yamlBytes, err := yaml.Marshal(vm.Volume)
+		if err == nil {
+			data.AdditionalVolumeMounts = append(data.AdditionalVolumeMounts, VolumeMountData{
+				Name:       vm.Name,
+				MountPath:  vm.MountPath,
+				VolumeYAML: string(yamlBytes),
+			})
+		}
+	}
 
 	return data
 }

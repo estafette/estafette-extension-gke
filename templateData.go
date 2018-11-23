@@ -37,6 +37,7 @@ type TemplateData struct {
 	ManifestData                map[string]string
 	IncludeTrackLabel           bool
 	TrackLabel                  string
+	AdditionalVolumeMounts      []VolumeMountData
 }
 
 // ContainerData has data specific to the application container
@@ -80,4 +81,11 @@ type SidecarData struct {
 	MemoryRequest        string
 	CPULimit             string
 	MemoryLimit          string
+}
+
+// VolumeMountData configures additional volume mounts for shared secrets, existing volumes, etc
+type VolumeMountData struct {
+	Name       string
+	MountPath  string
+	VolumeYAML string
 }

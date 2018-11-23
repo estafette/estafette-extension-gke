@@ -101,6 +101,18 @@ stages:
         property1: value 1
         property2: value 2
       mountpath: /configs
+    volumemounts:
+    - name: client-certs
+      mountpath: /cockroach-certs
+      volume:
+        secret:
+          secretName: estafette.client.estafette
+          items:
+          - key: key
+            path: key
+            mode: 0600
+          - key: cert
+            path: cert
     manifests:
       files:
       - override/service.yaml
