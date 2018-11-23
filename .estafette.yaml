@@ -51,6 +51,8 @@ stages:
       env:
         MY_CUSTOM_ENV: value1
         MY_OTHER_CUSTOM_ENV: value2
+        MY_BOOL_ENV: true
+        MY_INT_ENV: 123123
       cpu:
         request: 100m
         limit: 100m
@@ -78,6 +80,8 @@ stages:
       env:
         CORS_ALLOWED_ORIGINS: "*"
         CORS_MAX_AGE: "86400"
+        MY_BOOL_ENV: true
+        MY_INT_ENV: 123123
       cpu:
         request: 10m
         limit: 50m
@@ -92,6 +96,8 @@ stages:
       keys:
         secret-file-1.json: c29tZSBzZWNyZXQgdmFsdWU=
         secret-file-2.yaml: YW5vdGhlciBzZWNyZXQgdmFsdWU=
+        bool-file: true
+        int-file: 123123
       mountpath: /secrets
     configs:
       files:
@@ -100,6 +106,8 @@ stages:
       data:
         property1: value 1
         property2: value 2
+        property4: true
+        property5: 123123
       mountpath: /configs
     volumemounts:
     - name: client-certs
@@ -118,6 +126,8 @@ stages:
       - override/service.yaml
       data:
         property3: value 3
+        property6: true
+        property7: 123123
     hosts:
     - gke.estafette.io
     - gke-deploy.estafette.io
