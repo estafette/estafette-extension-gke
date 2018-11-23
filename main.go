@@ -217,6 +217,7 @@ func main() {
 			deleteConfigsForParamsChange(params, fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
 			deleteSecretsForParamsChange(params, fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
 			deleteIngressForVisibilityChange(params, templateData.Name, templateData.Namespace)
+			removeEstafetteCloudflareAnnotations(params, templateData.Name, templateData.Namespace)
 			break
 		case "rollback-canary":
 			scaleCanaryDeployment(templateData.Name, templateData.Namespace, 0)
@@ -227,6 +228,7 @@ func main() {
 			deleteConfigsForParamsChange(params, templateData.Name, templateData.Namespace)
 			deleteSecretsForParamsChange(params, templateData.Name, templateData.Namespace)
 			deleteIngressForVisibilityChange(params, templateData.Name, templateData.Namespace)
+			removeEstafetteCloudflareAnnotations(params, templateData.Name, templateData.Namespace)
 			break
 		}
 
@@ -269,6 +271,17 @@ func deleteIngressForVisibilityChange(params Params, name, namespace string) {
 		// public uses service of type loadbalancer and doesn't need ingress
 		log.Printf("Deleting ingress if it exists, which is used for visibility private or iap...\n")
 		runCommand("kubectl", []string{"delete", "ingress", name, "-n", namespace, "--ignore-not-found=true"})
+	}
+}
+
+func removeEstafetteCloudflareAnnotations(params Params, name, namespace string) {
+	if params.Visibility == "private" || params.Visibility == "iap" {
+		// ingress is used and has the estafette.io/cloudflare annotations, so they should be removed from the service
+		log.Printf("Removing estafette.io/cloudflare annotations on the service if they exists, since they're now set on the ingress instead...\n")
+		runCommand("kubectl", []string{"annotate", "svc", name, "-n", namespace, "estafette.io/cloudflare-dns-"})
+		runCommand("kubectl", []string{"annotate", "svc", name, "-n", namespace, "estafette.io/cloudflare-proxy-"})
+		runCommand("kubectl", []string{"annotate", "svc", name, "-n", namespace, "estafette.io/cloudflare-hostnames-"})
+		runCommand("kubectl", []string{"annotate", "svc", name, "-n", namespace, "estafette.io/cloudflare-state-"})
 	}
 }
 
