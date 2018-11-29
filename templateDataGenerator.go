@@ -31,7 +31,8 @@ func generateTemplateData(params Params) TemplateData {
 		MountConfigmap:          len(params.Configs.Files) > 0,
 		ConfigMountPath:         params.Configs.MountPath,
 
-		MountPayloadLogging: params.EnablePayloadLogging,
+		MountPayloadLogging:      params.EnablePayloadLogging,
+		AddSafeToEvictAnnotation: params.EnablePayloadLogging,
 
 		RollingUpdateMaxSurge:       params.RollingUpdate.MaxSurge,
 		RollingUpdateMaxUnavailable: params.RollingUpdate.MaxUnavailable,

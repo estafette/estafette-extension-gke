@@ -35,6 +35,9 @@ spec:
         prometheus.io/path: "{{.Container.Metrics.Path}}"
         prometheus.io/port: "{{.Container.Metrics.Port}}"
         prometheus.io/scrape-nginx-sidecar: "true"
+        {{- if .AddSafeToEvictAnnotation }}
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+        {{- end}}
     spec:
       serviceAccount: {{.Name}}
       affinity:

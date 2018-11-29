@@ -828,6 +828,30 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.False(t, templateData.MountPayloadLogging)
 	})
 
+	t.Run("SetsAddSafeToEvictAnnotationToTrueIfEnablePayloadLoggingParamIsTrue", func(t *testing.T) {
+
+		params := Params{
+			EnablePayloadLogging: true,
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.True(t, templateData.AddSafeToEvictAnnotation)
+	})
+
+	t.Run("SetsAddSafeToEvictAnnotationToFalseIfEnablePayloadLoggingParamIsFalse", func(t *testing.T) {
+
+		params := Params{
+			EnablePayloadLogging: false,
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.False(t, templateData.AddSafeToEvictAnnotation)
+	})
+
 	t.Run("SetsRollingUpdateMaxSurgeToRollingUpdateMaxSurgeParam", func(t *testing.T) {
 
 		params := Params{

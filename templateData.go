@@ -37,6 +37,7 @@ type TemplateData struct {
 	ManifestData                map[string]interface{}
 	IncludeTrackLabel           bool
 	TrackLabel                  string
+	AddSafeToEvictAnnotation    bool
 	AdditionalVolumeMounts      []VolumeMountData
 }
 
