@@ -207,7 +207,7 @@ func main() {
 		paramsForTroubleshooting = params
 
 		if tmpl != nil {
-			patchServiceIfRequired(params, templateData.Name, templateData.Namespace)
+			patchServiceIfRequired(templateData, templateData.Name, templateData.Namespace)
 			patchDeploymentIfRequired(params, templateData.Name, templateData.Namespace)
 
 			logInfo("Applying the manifests for real...")
@@ -229,8 +229,8 @@ func main() {
 			deleteResourcesForTypeSwitch(templateData.Name, templateData.Namespace)
 			deleteConfigsForParamsChange(params, fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
 			deleteSecretsForParamsChange(params, fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
-			deleteIngressForVisibilityChange(params, templateData.Name, templateData.Namespace)
-			removeEstafetteCloudflareAnnotations(params, templateData.Name, templateData.Namespace)
+			deleteIngressForVisibilityChange(templateData, templateData.Name, templateData.Namespace)
+			removeEstafetteCloudflareAnnotations(templateData, templateData.Name, templateData.Namespace)
 			break
 		case "rollback-canary":
 			scaleCanaryDeployment(templateData.Name, templateData.Namespace, 0)
@@ -240,8 +240,8 @@ func main() {
 			deleteResourcesForTypeSwitch(fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
 			deleteConfigsForParamsChange(params, templateData.Name, templateData.Namespace)
 			deleteSecretsForParamsChange(params, templateData.Name, templateData.Namespace)
-			deleteIngressForVisibilityChange(params, templateData.Name, templateData.Namespace)
-			removeEstafetteCloudflareAnnotations(params, templateData.Name, templateData.Namespace)
+			deleteIngressForVisibilityChange(templateData, templateData.Name, templateData.Namespace)
+			removeEstafetteCloudflareAnnotations(templateData, templateData.Name, templateData.Namespace)
 			break
 		}
 
@@ -308,16 +308,16 @@ func deleteSecretsForParamsChange(params Params, name, namespace string) {
 	}
 }
 
-func deleteIngressForVisibilityChange(params Params, name, namespace string) {
-	if params.Visibility == "public" {
+func deleteIngressForVisibilityChange(templateData TemplateData, name, namespace string) {
+	if !templateData.UseNginxIngress && !templateData.UseGCEIngress {
 		// public uses service of type loadbalancer and doesn't need ingress
-		logInfo("Deleting ingress if it exists, which is used for visibility private or iap...")
+		logInfo("Deleting ingress if it exists, which is used for visibility private, iap or public-whitelist...")
 		runCommand("kubectl", []string{"delete", "ingress", name, "-n", namespace, "--ignore-not-found=true"})
 	}
 }
 
-func patchServiceIfRequired(params Params, name, namespace string) {
-	if params.Visibility == "private" {
+func patchServiceIfRequired(templateData TemplateData, name, namespace string) {
+	if templateData.ServiceType == "ClusterIP" {
 		serviceType, err := getCommandOutput("kubectl", []string{"get", "service", name, "-n", namespace, "-o=jsonpath={.spec.type}"})
 		if err != nil {
 			logInfo("Failed retrieving service type: %v", err)
@@ -359,8 +359,8 @@ func patchDeploymentIfRequired(params Params, name, namespace string) {
 	}
 }
 
-func removeEstafetteCloudflareAnnotations(params Params, name, namespace string) {
-	if params.Visibility == "private" || params.Visibility == "iap" {
+func removeEstafetteCloudflareAnnotations(templateData TemplateData, name, namespace string) {
+	if !templateData.UseDNSAnnotationsOnService {
 		// ingress is used and has the estafette.io/cloudflare annotations, so they should be removed from the service
 		logInfo("Removing estafette.io/cloudflare annotations on the service if they exists, since they're now set on the ingress instead...")
 		runCommand("kubectl", []string{"annotate", "svc", name, "-n", namespace, "estafette.io/cloudflare-dns-"})

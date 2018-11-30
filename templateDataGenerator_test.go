@@ -115,6 +115,18 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "ClusterIP", templateData.ServiceType)
 	})
 
+	t.Run("SetsServiceTypeToClusterIPIfVisibilityParamIsPublicWhitelist", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "public-whitelist",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "ClusterIP", templateData.ServiceType)
+	})
+
 	t.Run("SetsServiceTypeToNodePortIfVisibilityParamIsIap", func(t *testing.T) {
 
 		params := Params{
@@ -151,6 +163,18 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.True(t, templateData.UseDNSAnnotationsOnIngress)
 	})
 
+	t.Run("SetsUseDNSAnnotationsOnIngressToTrueIfVisibilityParamIsPublicWhitelist", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "public-whitelist",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.True(t, templateData.UseDNSAnnotationsOnIngress)
+	})
+
 	t.Run("SetsUseDNSAnnotationsOnIngressToFalseIfVisibilityParamIsPublic", func(t *testing.T) {
 
 		params := Params{
@@ -179,6 +203,18 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		params := Params{
 			Visibility: "private",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.False(t, templateData.UseDNSAnnotationsOnService)
+	})
+
+	t.Run("SetsUseDNSAnnotationsOnServiceToFalseIfVisibilityParamIsPublicWhitelist", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "public-whitelist",
 		}
 
 		// act
@@ -337,6 +373,18 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.True(t, templateData.UseNginxIngress)
 	})
 
+	t.Run("SetsUseNginxIngressToTrueIfVisibilityIsPublicWhitelist", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "public-whitelist",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.True(t, templateData.UseNginxIngress)
+	})
+
 	t.Run("SetsUseNginxIngressToFalseIfVisibilityIsPublic", func(t *testing.T) {
 
 		params := Params{
@@ -389,6 +437,18 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		params := Params{
 			Visibility: "private",
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.False(t, templateData.UseGCEIngress)
+	})
+
+	t.Run("SetsUseGCEIngressToFalseIfVisibilityIsPublicWhitelist", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "public-whitelist",
 		}
 
 		// act
@@ -1271,4 +1331,95 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, 8085, templateData.AdditionalServicePorts[0].Port)
 		assert.Equal(t, "TCP", templateData.AdditionalServicePorts[0].Protocol)
 	})
+
+	t.Run("SetsOverrideDefaultWhitelistToTrueIfVisibilityEqualsPublicWhitelistAndWhitelistedIPSHasOneOrMoreItems", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "public-whitelist",
+			WhitelistedIPS: []string{
+				"0.0.0.0/0",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.True(t, templateData.OverrideDefaultWhitelist)
+	})
+
+	t.Run("SetsOverrideDefaultWhitelistToFalseIfVisibilityEqualsPublicWhitelistButWhitelistedIPSHasNoItems", func(t *testing.T) {
+
+		params := Params{
+			Visibility:     "public-whitelist",
+			WhitelistedIPS: []string{},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.False(t, templateData.OverrideDefaultWhitelist)
+	})
+
+	t.Run("SetsOverrideDefaultWhitelistToFalseIfVisibilityIsPrivate", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "private",
+			WhitelistedIPS: []string{
+				"0.0.0.0/0",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.False(t, templateData.OverrideDefaultWhitelist)
+	})
+
+	t.Run("SetsOverrideDefaultWhitelistToFalseIfVisibilityIsPrivate", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "iap",
+			WhitelistedIPS: []string{
+				"0.0.0.0/0",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.False(t, templateData.OverrideDefaultWhitelist)
+	})
+
+	t.Run("SetsOverrideDefaultWhitelistToFalseIfVisibilityIsPrivate", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "public",
+			WhitelistedIPS: []string{
+				"0.0.0.0/0",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.False(t, templateData.OverrideDefaultWhitelist)
+	})
+
+	t.Run("SetsNginxIngressWhitelistToCommaSeparatedJoingOfWhitelistedIPS", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "public-whitelist",
+			WhitelistedIPS: []string{
+				"10.0.0.0/8",
+				"172.16.0.0/12",
+				"192.168.0.0/16",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16", templateData.NginxIngressWhitelist)
+	})
+
 }

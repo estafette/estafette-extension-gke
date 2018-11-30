@@ -16,16 +16,17 @@ type Params struct {
 	TrustedIPRanges []string        `json:"trustedips,omitempty"`
 
 	// app params
-	App          string              `json:"app,omitempty"`
-	Namespace    string              `json:"namespace,omitempty"`
-	Labels       map[string]string   `json:"labels,omitempty"`
-	Visibility   string              `json:"visibility,omitempty"`
-	Hosts        []string            `json:"hosts,omitempty"`
-	Basepath     string              `json:"basepath,omitempty"`
-	Autoscale    AutoscaleParams     `json:"autoscale,omitempty"`
-	Secrets      SecretsParams       `json:"secrets,omitempty"`
-	Configs      ConfigsParams       `json:"configs,omitempty"`
-	VolumeMounts []VolumeMountParams `json:"volumemounts,omitempty"`
+	App            string              `json:"app,omitempty"`
+	Namespace      string              `json:"namespace,omitempty"`
+	Labels         map[string]string   `json:"labels,omitempty"`
+	Visibility     string              `json:"visibility,omitempty"`
+	WhitelistedIPS []string            `json:"whitelist,omitempty"`
+	Hosts          []string            `json:"hosts,omitempty"`
+	Basepath       string              `json:"basepath,omitempty"`
+	Autoscale      AutoscaleParams     `json:"autoscale,omitempty"`
+	Secrets        SecretsParams       `json:"secrets,omitempty"`
+	Configs        ConfigsParams       `json:"configs,omitempty"`
+	VolumeMounts   []VolumeMountParams `json:"volumemounts,omitempty"`
 
 	EnablePayloadLogging bool `json:"enablePayloadLogging,omitempty"`
 
@@ -441,8 +442,8 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 	}
 
 	// validate params with respect to incoming requests
-	if p.Visibility == "" || (p.Visibility != "private" && p.Visibility != "public" && p.Visibility != "iap") {
-		errors = append(errors, fmt.Errorf("Visibility property is required; set it via visibility property on this stage; allowed values are private, iap or public"))
+	if p.Visibility == "" || (p.Visibility != "private" && p.Visibility != "public" && p.Visibility != "iap" && p.Visibility != "public-whitelist") {
+		errors = append(errors, fmt.Errorf("Visibility property is required; set it via visibility property on this stage; allowed values are private, iap, public-whitelist or public"))
 	}
 	if len(p.Hosts) == 0 {
 		errors = append(errors, fmt.Errorf("At least one host is required; set it via hosts array property on this stage"))

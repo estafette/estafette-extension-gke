@@ -110,27 +110,43 @@ func generateTemplateData(params Params) TemplateData {
 		data.ManifestData[k] = v
 	}
 
-	if params.Visibility == "private" {
+	switch params.Visibility {
+	case "private":
 		data.ServiceType = "ClusterIP"
 		data.UseNginxIngress = true
 		data.UseGCEIngress = false
 		data.UseDNSAnnotationsOnIngress = true
 		data.UseDNSAnnotationsOnService = false
 		data.LimitTrustedIPRanges = false
-	} else if params.Visibility == "iap" {
+		data.OverrideDefaultWhitelist = false
+
+	case "iap":
 		data.ServiceType = "NodePort"
 		data.UseNginxIngress = false
 		data.UseGCEIngress = true
 		data.UseDNSAnnotationsOnIngress = true
 		data.UseDNSAnnotationsOnService = false
 		data.LimitTrustedIPRanges = false
-	} else if params.Visibility == "public" {
+		data.OverrideDefaultWhitelist = false
+
+	case "public-whitelist":
+		data.ServiceType = "ClusterIP"
+		data.UseNginxIngress = true
+		data.UseGCEIngress = false
+		data.UseDNSAnnotationsOnIngress = true
+		data.UseDNSAnnotationsOnService = false
+		data.LimitTrustedIPRanges = false
+		data.OverrideDefaultWhitelist = len(params.WhitelistedIPS) > 0
+		data.NginxIngressWhitelist = strings.Join(params.WhitelistedIPS, ",")
+
+	case "public":
 		data.ServiceType = "LoadBalancer"
 		data.UseNginxIngress = false
 		data.UseGCEIngress = false
 		data.UseDNSAnnotationsOnIngress = false
 		data.UseDNSAnnotationsOnService = true
 		data.LimitTrustedIPRanges = true
+		data.OverrideDefaultWhitelist = false
 	}
 
 	if !strings.HasSuffix(data.IngressPath, "/") && !strings.HasSuffix(data.IngressPath, "*") {

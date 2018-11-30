@@ -42,7 +42,11 @@ stages:
     action: deploy-simple
     app: gke
     namespace: estafette
-    visibility: public
+    visibility: public-whitelist
+    whitelist:
+		- 10.0.0.0/8
+		- 172.16.0.0/12
+    - 192.168.0.0/16
     container:
       repository: extensions
       name: gke

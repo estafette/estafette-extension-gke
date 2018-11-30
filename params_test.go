@@ -1778,10 +1778,22 @@ func TestValidateRequiredProperties(t *testing.T) {
 		assert.True(t, len(errors) == 0)
 	})
 
-	t.Run("ReturnsTrueIfVisibilityIsSetToPrivate", func(t *testing.T) {
+	t.Run("ReturnsTrueIfVisibilityIsSetToIAP", func(t *testing.T) {
 
 		params := validParams
 		params.Visibility = "iap"
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsTrueIfVisibilityIsSetToPublicWhitelist", func(t *testing.T) {
+
+		params := validParams
+		params.Visibility = "public-whitelist"
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()

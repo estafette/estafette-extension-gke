@@ -41,6 +41,8 @@ type TemplateData struct {
 	AdditionalVolumeMounts      []VolumeMountData
 	AdditionalContainerPorts    []AdditionalPortData
 	AdditionalServicePorts      []AdditionalPortData
+	OverrideDefaultWhitelist    bool
+	NginxIngressWhitelist       string
 }
 
 // ContainerData has data specific to the application container

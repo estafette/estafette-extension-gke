@@ -34,6 +34,19 @@ func TestGetTemplates(t *testing.T) {
 		assert.True(t, stringArrayContains(templates, "/templates/ingress.yaml"))
 	})
 
+	t.Run("IncludesIngressIfVisibilityIsPublicWhitelistAndTypeIsNotWorker", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "public-whitelist",
+			Type:       "api",
+		}
+
+		// act
+		templates := getTemplates(params)
+
+		assert.True(t, stringArrayContains(templates, "/templates/ingress.yaml"))
+	})
+
 	t.Run("DoesNotIncludeIngressIfVisibilityIsPublic", func(t *testing.T) {
 
 		params := Params{
