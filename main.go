@@ -280,7 +280,7 @@ func deleteServiceNodePortsForVisibilityChange(params Params, name, namespace st
 	if params.Visibility == "private" {
 		// public uses service of type loadbalancer and doesn't need ingress
 		log.Printf("Removing service node portsif they exists, since a cluster ip service does not need them...\n")
-		runCommand("kubectl", []string{"patch", "service", name, "-n", namespace, "--type", "json", "--patch", "[{\"op\": \"remove\", \"path\": \"/spec/externalTrafficPolicy\"}, {\"op\": \"remove\", \"path\": \"/spec/ports/0/nodePort\"}, {\"op\": \"remove\", \"path\": \"/spec/ports/1/nodePort\"}, {\"op\": \"replace\", \"path\": \"/spec/type\", \"value\": \"ClusterIP\"}]", "||", "true"})
+		runCommandExtended("kubectl", []string{"patch", "service", name, "-n", namespace, "--type", "json", "--patch", "[{\"op\": \"remove\", \"path\": \"/spec/externalTrafficPolicy\"}, {\"op\": \"remove\", \"path\": \"/spec/ports/0/nodePort\"}, {\"op\": \"remove\", \"path\": \"/spec/ports/1/nodePort\"}, {\"op\": \"replace\", \"path\": \"/spec/type\", \"value\": \"ClusterIP\"}]"}, true)
 	}
 }
 
@@ -302,11 +302,18 @@ func handleError(err error) {
 }
 
 func runCommand(command string, args []string) {
+	runCommandExtended(command, args, false)
+}
+
+func runCommandExtended(command string, args []string, ignoreErrors bool) {
 	log.Printf("Running command '%v %v'...", command, strings.Join(args, " "))
 	cmd := exec.Command(command, args...)
 	cmd.Dir = "/estafette-work"
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
+	if ignoreErrors {
+		return
+	}
 	handleError(err)
 }
