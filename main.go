@@ -348,8 +348,8 @@ func updateSelectorIfRequired(params Params, name, namespace string) {
 		if selectorLabels != fmt.Sprintf("map[app:%v]", name) {
 			logInfo("Deployment selector labels %v not correct, patching it...", selectorLabels)
 
-			// brute force patch the service
-			err = runCommandExtended("kubectl", []string{"patch", "service", name, "-n", namespace, "--type", "json", "--patch", fmt.Sprintf("[{\"op\": \"replace\", \"path\": \"/spec/selector/matchLabels\", \"value\": {\"app\":\"%v\"}]", name)})
+			// patch the deployment
+			err = runCommandExtended("kubectl", []string{"patch", "deploy", name, "-n", namespace, "--type", "json", "--patch", fmt.Sprintf("[{\"op\": \"replace\", \"path\": \"/spec/selector/matchLabels\", \"value\": {\"app\":\"%v\"}}]", name)})
 			if err != nil {
 				log.Fatal(fmt.Sprintf("Failed patching deployment to change selector labels from %v to app=%v: ", selectorLabels, name), err)
 			}
