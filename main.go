@@ -208,6 +208,7 @@ func main() {
 
 		if tmpl != nil {
 			patchServiceIfRequired(params, templateData.Name, templateData.Namespace)
+			updateSelectorIfRequired(params, templateData.Name, templateData.Namespace)
 
 			logInfo("Applying the manifests for real...")
 			runCommand("kubectl", kubectlApplyArgs)
@@ -334,6 +335,26 @@ func patchServiceIfRequired(params Params, name, namespace string) {
 			}
 		} else {
 			logInfo("Service is of type %v, no need to patch it", serviceType)
+		}
+	}
+}
+
+func updateSelectorIfRequired(params Params, name, namespace string) {
+	if params.Action == "deploy-simple" {
+		selectorLabels, err := getCommandOutput("kubectl", []string{"get", "deploy", name, "-n", namespace, "-o=jsonpath={.spec.selector.matchLabels}"})
+		if err != nil {
+			logInfo("Failed retrieving deployment selector labels: %v", err)
+		}
+		if selectorLabels != fmt.Sprintf("map[app:%v]", name) {
+			logInfo("Deployment selector labels %v not correct, patching it...", selectorLabels)
+
+			// brute force patch the service
+			err = runCommandExtended("kubectl", []string{"patch", "service", name, "-n", namespace, "--type", "json", "--patch", fmt.Sprintf("[{\"op\": \"replace\", \"path\": \"/spec/selector/matchLabels\", \"value\": {\"app\":\"%v\"}]", name)})
+			if err != nil {
+				log.Fatal(fmt.Sprintf("Failed patching deployment to change selector labels from %v to app=%v: ", selectorLabels, name), err)
+			}
+		} else {
+			logInfo("Deployment selector labels %v are correct, not patching", selectorLabels)
 		}
 	}
 }
