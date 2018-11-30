@@ -197,27 +197,7 @@ func main() {
 
 	if !params.DryRun {
 		if tmpl != nil {
-			if params.Visibility == "private" {
-				// force apply service to be able to change from loadbalancer or node port to clusterip
-				serviceTmpl, err := buildServiceTemplate(params)
-				if err != nil {
-					log.Fatal("Failed building service template: ", err)
-				}
-				if serviceTmpl != nil {
-					// render the template
-					renderedServiceTemplate, err := renderTemplate(serviceTmpl, templateData)
-					if err != nil {
-						log.Fatal("Failed rendering service template: ", err)
-					}
-					log.Printf("Storing rendered service manifest on disk...\n")
-					err = ioutil.WriteFile("/service.yaml", renderedServiceTemplate.Bytes(), 0600)
-					if err != nil {
-						log.Fatal("Failed writing service manifest: ", err)
-					}
-
-					runCommand("kubectl", []string{"apply", "-f", "/service.yaml", "-n", templateData.Namespace, "--force"})
-				}
-			}
+			patchServiceIfRequired(params, templateData.Name, templateData.Namespace)
 
 			log.Printf("Applying the manifests for real...\n")
 			runCommand("kubectl", kubectlApplyArgs)
@@ -296,6 +276,21 @@ func deleteIngressForVisibilityChange(params Params, name, namespace string) {
 	}
 }
 
+func patchServiceIfRequired(params Params, name, namespace string) {
+	if params.Visibility == "private" {
+
+		serviceType := getCommandOutput("kubectl", []string{"get", "service", name, "-n", namespace, "-o=jsonpath='{.spec.type}'"})
+		if serviceType == "NodePort" || serviceType == "LoadBalancer" {
+			log.Printf("Service is of type %v, patching it...\n", serviceType)
+
+			// brute force patch the service
+			runCommandExtended("kubectl", []string{"patch", "service", name, "-n", namespace, "--type", "json", "--patch", "[{\"op\": \"remove\", \"path\": \"/spec/loadBalancerSourceRanges\"},{\"op\": \"remove\", \"path\": \"/spec/externalTrafficPolicy\"}, {\"op\": \"remove\", \"path\": \"/spec/ports/0/nodePort\"}, {\"op\": \"remove\", \"path\": \"/spec/ports/1/nodePort\"}, {\"op\": \"replace\", \"path\": \"/spec/type\", \"value\": \"ClusterIP\"}]"}, true)
+			runCommandExtended("kubectl", []string{"patch", "service", name, "-n", namespace, "--type", "json", "--patch", "[{\"op\": \"remove\", \"path\": \"/spec/externalTrafficPolicy\"}, {\"op\": \"remove\", \"path\": \"/spec/ports/0/nodePort\"}, {\"op\": \"remove\", \"path\": \"/spec/ports/1/nodePort\"}, {\"op\": \"replace\", \"path\": \"/spec/type\", \"value\": \"ClusterIP\"}]"}, true)
+			runCommandExtended("kubectl", []string{"patch", "service", name, "-n", namespace, "--type", "json", "--patch", "[{\"op\": \"remove\", \"path\": \"/spec/ports/0/nodePort\"}, {\"op\": \"remove\", \"path\": \"/spec/ports/1/nodePort\"}, {\"op\": \"replace\", \"path\": \"/spec/type\", \"value\": \"ClusterIP\"}]"}, true)
+		}
+	}
+}
+
 func removeEstafetteCloudflareAnnotations(params Params, name, namespace string) {
 	if params.Visibility == "private" || params.Visibility == "iap" {
 		// ingress is used and has the estafette.io/cloudflare annotations, so they should be removed from the service
@@ -328,4 +323,11 @@ func runCommandExtended(command string, args []string, ignoreErrors bool) {
 		return
 	}
 	handleError(err)
+}
+
+func getCommandOutput(command string, args []string) string {
+	log.Printf("Running command '%v %v'...", command, strings.Join(args, " "))
+	output, _ := exec.Command(command, args...).Output()
+
+	return string(output)
 }

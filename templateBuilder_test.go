@@ -130,5 +130,13 @@ func TestGetTemplates(t *testing.T) {
 		assert.False(t, stringArrayContains(templates, "/templates/horizontalpodautoscaler.yaml"))
 		assert.False(t, stringArrayContains(templates, "/templates/poddisruptionbudget.yaml"))
 	})
+}
 
+func stringArrayContains(array []string, search string) bool {
+	for _, v := range array {
+		if v == search {
+			return true
+		}
+	}
+	return false
 }
