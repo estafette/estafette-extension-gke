@@ -159,3 +159,30 @@ func renderTemplate(tmpl *template.Template, templateData TemplateData) (bytes.B
 
 	return renderedTemplate, err
 }
+
+func buildServiceTemplate(params Params) (*template.Template, error) {
+
+	// merge templates
+	templatesToMerge := getTemplates(params)
+
+	if len(templatesToMerge) == 0 || !stringArrayContains(templatesToMerge, "/templates/service.yaml") {
+		return nil, nil
+	}
+
+	data, err := ioutil.ReadFile("/templates/service.yaml")
+	if err != nil {
+		log.Fatal("Failed reading file /templates/service.yaml.", err)
+	}
+
+	// parse templates
+	return template.New("kubernetes.yaml").Funcs(sprig.TxtFuncMap()).Parse(string(data))
+}
+
+func stringArrayContains(array []string, search string) bool {
+	for _, v := range array {
+		if v == search {
+			return true
+		}
+	}
+	return false
+}

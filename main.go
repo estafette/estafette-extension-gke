@@ -197,7 +197,27 @@ func main() {
 
 	if !params.DryRun {
 		if tmpl != nil {
-			deleteServiceNodePortsForVisibilityChange(params, templateData.Name, templateData.Namespace)
+			if params.Visibility == "private" {
+				// force apply service to be able to change from loadbalancer or node port to clusterip
+				serviceTmpl, err := buildServiceTemplate(params)
+				if err != nil {
+					log.Fatal("Failed building service template: ", err)
+				}
+				if serviceTmpl != nil {
+					// render the template
+					renderedServiceTemplate, err := renderTemplate(serviceTmpl, templateData)
+					if err != nil {
+						log.Fatal("Failed rendering service template: ", err)
+					}
+					log.Printf("Storing rendered service manifest on disk...\n")
+					err = ioutil.WriteFile("/service.yaml", renderedServiceTemplate.Bytes(), 0600)
+					if err != nil {
+						log.Fatal("Failed writing service manifest: ", err)
+					}
+
+					runCommand("kubectl", []string{"apply", "-f", "/service.yaml", "-n", templateData.Namespace, "--force"})
+				}
+			}
 
 			log.Printf("Applying the manifests for real...\n")
 			runCommand("kubectl", kubectlApplyArgs)
@@ -273,14 +293,6 @@ func deleteIngressForVisibilityChange(params Params, name, namespace string) {
 		// public uses service of type loadbalancer and doesn't need ingress
 		log.Printf("Deleting ingress if it exists, which is used for visibility private or iap...\n")
 		runCommand("kubectl", []string{"delete", "ingress", name, "-n", namespace, "--ignore-not-found=true"})
-	}
-}
-
-func deleteServiceNodePortsForVisibilityChange(params Params, name, namespace string) {
-	if params.Visibility == "private" {
-		// public uses service of type loadbalancer and doesn't need ingress
-		log.Printf("Removing service node portsif they exists, since a cluster ip service does not need them...\n")
-		runCommandExtended("kubectl", []string{"patch", "service", name, "-n", namespace, "--allow-missing-template-keys=true", "--type", "json", "--patch", "[{\"op\": \"remove\", \"path\": \"/spec/loadBalancerSourceRanges\"},{\"op\": \"remove\", \"path\": \"/spec/externalTrafficPolicy\"}, {\"op\": \"remove\", \"path\": \"/spec/ports/0/nodePort\"}, {\"op\": \"remove\", \"path\": \"/spec/ports/1/nodePort\"}, {\"op\": \"replace\", \"path\": \"/spec/type\", \"value\": \"ClusterIP\"}]"}, true)
 	}
 }
 
