@@ -48,6 +48,15 @@ stages:
       name: gke
       tag: alpha
       port: 5000
+      additionalports:
+      - name: grpc
+        port: 8085
+        protocol: TCP
+        visibility: private
+      - name: snmp
+        port: 8086
+        protocol: UDP
+        visibility: public
       env:
         MY_CUSTOM_ENV: value1
         MY_OTHER_CUSTOM_ENV: value2

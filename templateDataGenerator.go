@@ -154,5 +154,22 @@ func generateTemplateData(params Params) TemplateData {
 		}
 	}
 
+	data.AdditionalContainerPorts = []AdditionalPortData{}
+	data.AdditionalServicePorts = []AdditionalPortData{}
+	for _, ap := range params.Container.AdditionalPorts {
+		additionalPortData := AdditionalPortData{
+			Name:     ap.Name,
+			Port:     ap.Port,
+			Protocol: ap.Protocol,
+		}
+		data.AdditionalContainerPorts = append(data.AdditionalContainerPorts, additionalPortData)
+
+		includeAsServicePort := ap.Visibility == params.Visibility
+
+		if includeAsServicePort {
+			data.AdditionalServicePorts = append(data.AdditionalServicePorts, additionalPortData)
+		}
+	}
+
 	return data
 }

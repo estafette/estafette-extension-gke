@@ -48,6 +48,16 @@ type ContainerParams struct {
 	LivenessProbe  ProbeParams   `json:"liveness,omitempty"`
 	ReadinessProbe ProbeParams   `json:"readiness,omitempty"`
 	Metrics        MetricsParams `json:"metrics,omitempty"`
+
+	AdditionalPorts []*AdditionalPortParams `json:"additionalports,omitempty"`
+}
+
+// AdditionalPortParams provides information about any additional ports exposed and accessible via a service
+type AdditionalPortParams struct {
+	Name       string `json:"name,omitempty"`
+	Port       int    `json:"port,omitempty"`
+	Protocol   string `json:"protocol,omitempty"`
+	Visibility string `json:"visibility,omitempty"`
 }
 
 // CPUParams sets cpu request and limit values
@@ -214,6 +224,18 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 	// set container port defaults
 	if p.Container.Port <= 0 {
 		p.Container.Port = 5000
+	}
+
+	// set additional ports defaults
+	if len(p.Container.AdditionalPorts) > 0 {
+		for _, ap := range p.Container.AdditionalPorts {
+			if ap.Protocol == "" {
+				ap.Protocol = "TCP"
+			}
+			if ap.Visibility == "" {
+				ap.Visibility = p.Visibility
+			}
+		}
 	}
 
 	// set autoscale defaults

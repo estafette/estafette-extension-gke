@@ -33,5 +33,11 @@ spec:
     port: 443
     targetPort: https
     protocol: TCP
+  {{- range .AdditionalServicePorts}}
+  - name: {{.Name}}
+    port: {{.Port}}
+    targetPort: {{.Name}}
+    protocol: {{.Protocol}}
+  {{- end}}
   selector:
     app: {{.AppLabelSelector}}

@@ -94,6 +94,11 @@ spec:
         ports:
         - name: web
           containerPort: {{.Container.Port}}
+        {{- range .AdditionalContainerPorts}}
+        - name: {{.Name}}
+          containerPort: {{.Port}}
+          protocol: {{.Protocol}}
+        {{- end}}
         livenessProbe:
           httpGet:
             path: {{.Container.Liveness.Path}}

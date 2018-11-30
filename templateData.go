@@ -39,6 +39,8 @@ type TemplateData struct {
 	TrackLabel                  string
 	AddSafeToEvictAnnotation    bool
 	AdditionalVolumeMounts      []VolumeMountData
+	AdditionalContainerPorts    []AdditionalPortData
+	AdditionalServicePorts      []AdditionalPortData
 }
 
 // ContainerData has data specific to the application container
@@ -90,4 +92,11 @@ type VolumeMountData struct {
 	Name       string
 	MountPath  string
 	VolumeYAML string
+}
+
+// AdditionalPortData provides information about extra ports on the container
+type AdditionalPortData struct {
+	Name     string
+	Port     int
+	Protocol string
 }

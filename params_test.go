@@ -502,6 +502,80 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, 3000, params.Container.Port)
 	})
 
+	t.Run("DefaultsAdditionalPortProtocolToTCPIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				AdditionalPorts: []*AdditionalPortParams{
+					&AdditionalPortParams{
+						Protocol: "",
+					},
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, "TCP", params.Container.AdditionalPorts[0].Protocol)
+	})
+
+	t.Run("KeepsAdditionalPortProtocolIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				AdditionalPorts: []*AdditionalPortParams{
+					&AdditionalPortParams{
+						Protocol: "UDP",
+					},
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, "UDP", params.Container.AdditionalPorts[0].Protocol)
+	})
+
+	t.Run("DefaultsAdditionalPortVisibilityToApplicationVisibilityIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "public",
+			Container: ContainerParams{
+				AdditionalPorts: []*AdditionalPortParams{
+					&AdditionalPortParams{
+						Visibility: "",
+					},
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, "public", params.Container.AdditionalPorts[0].Visibility)
+	})
+
+	t.Run("KeepsAdditionalPortVisibilityIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "public",
+			Container: ContainerParams{
+				AdditionalPorts: []*AdditionalPortParams{
+					&AdditionalPortParams{
+						Visibility: "private",
+					},
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, "private", params.Container.AdditionalPorts[0].Visibility)
+	})
+
 	t.Run("DefaultsAutoscaleMinReplicasTo3IfZero", func(t *testing.T) {
 
 		params := Params{

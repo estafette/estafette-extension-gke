@@ -1177,4 +1177,98 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		assert.Equal(t, "stable", templateData.TrackLabel)
 	})
+
+	t.Run("SetsAdditionalVolumeMountsToVolumeMountsParam", func(t *testing.T) {
+
+		params := Params{
+			VolumeMounts: []VolumeMountParams{
+				VolumeMountParams{
+					Name:      "client-certs",
+					MountPath: "/cockroach-certs",
+					Volume: map[string]interface{}{
+						"secret": map[string]interface{}{
+							"secretName": "estafette.client.estafette",
+							"items": []interface{}{
+								map[string]interface{}{
+									"key":  "key",
+									"path": "key",
+									"mode": 0600,
+								},
+								map[string]interface{}{
+									"key":  "cert",
+									"path": "cert",
+								},
+							},
+						},
+					},
+				},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, 1, len(templateData.AdditionalVolumeMounts))
+		assert.Equal(t, "client-certs", templateData.AdditionalVolumeMounts[0].Name)
+		assert.Equal(t, "/cockroach-certs", templateData.AdditionalVolumeMounts[0].MountPath)
+		assert.Equal(t, "secret:\n  items:\n  - key: key\n    mode: 384\n    path: key\n  - key: cert\n    path: cert\n  secretName: estafette.client.estafette\n", templateData.AdditionalVolumeMounts[0].VolumeYAML)
+	})
+
+	t.Run("SetsAdditionalContainerPortsToContainerAdditionalPortsParam", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				AdditionalPorts: []*AdditionalPortParams{
+					&AdditionalPortParams{
+						Name:       "grpc",
+						Port:       8085,
+						Protocol:   "TCP",
+						Visibility: "private",
+					},
+					&AdditionalPortParams{
+						Name:       "grpc",
+						Port:       8085,
+						Protocol:   "UDP",
+						Visibility: "public",
+					},
+				},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, 2, len(templateData.AdditionalContainerPorts))
+	})
+
+	t.Run("SetsAdditionalServicePortsToContainerAdditionalPortsParamForPortsWithVisibilityEqualToVisibilityParam", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "private",
+			Container: ContainerParams{
+				AdditionalPorts: []*AdditionalPortParams{
+					&AdditionalPortParams{
+						Name:       "grpc",
+						Port:       8085,
+						Protocol:   "TCP",
+						Visibility: "private",
+					},
+					&AdditionalPortParams{
+						Name:       "snmp",
+						Port:       8086,
+						Protocol:   "UDP",
+						Visibility: "public",
+					},
+				},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params)
+
+		assert.Equal(t, 1, len(templateData.AdditionalServicePorts))
+		assert.Equal(t, "grpc", templateData.AdditionalServicePorts[0].Name)
+		assert.Equal(t, 8085, templateData.AdditionalServicePorts[0].Port)
+		assert.Equal(t, "TCP", templateData.AdditionalServicePorts[0].Protocol)
+	})
 }
