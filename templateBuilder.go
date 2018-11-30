@@ -21,7 +21,7 @@ func buildTemplates(params Params) (*template.Template, error) {
 		return nil, nil
 	}
 
-	log.Printf("Merging templates %v...", strings.Join(templatesToMerge, ", "))
+	logInfo("Merging templates %v...", strings.Join(templatesToMerge, ", "))
 
 	templateStrings := []string{}
 	for _, t := range templatesToMerge {
@@ -34,7 +34,7 @@ func buildTemplates(params Params) (*template.Template, error) {
 	templateString := strings.Join(templateStrings, "\n---\n")
 
 	// parse templates
-	log.Printf("Parsing merged templates...")
+	logInfo("Parsing merged templates...")
 	return template.New("kubernetes.yaml").Funcs(sprig.TxtFuncMap()).Parse(templateString)
 }
 
@@ -113,7 +113,7 @@ func renderConfig(params Params) (renderedConfigFiles map[string]string) {
 	renderedConfigFiles = map[string]string{}
 
 	if params.Action != "rollback-canary" && len(params.Configs.Files) > 0 {
-		log.Printf("Prerendering config files...")
+		logInfo("Prerendering config files...")
 
 		for _, cf := range params.Configs.Files {
 
@@ -146,14 +146,14 @@ func renderTemplate(tmpl *template.Template, templateData TemplateData) (bytes.B
 	}
 
 	// render templates
-	log.Printf("Rendering merged templates...")
+	logInfo("Rendering merged templates...")
 	var renderedTemplate bytes.Buffer
 	err := tmpl.Execute(&renderedTemplate, templateData)
 	if err != nil {
 		return renderedTemplate, err
 	}
 
-	log.Printf("Template after rendering:\n\n")
+	logInfo("Template after rendering:\n\n")
 	log.Println(renderedTemplate.String())
 	log.Println("")
 

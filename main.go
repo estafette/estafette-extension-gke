@@ -49,10 +49,10 @@ func main() {
 	log.SetFlags(log.Flags() &^ (log.Ldate | log.Ltime))
 
 	// log startup message
-	log.Printf("Starting %v version %v...", app, version)
+	logInfo("Starting %v version %v...", app, version)
 
 	// put all estafette labels in map
-	log.Printf("Getting all estafette labels from envvars...")
+	logInfo("Getting all estafette labels from envvars...")
 	estafetteLabels := map[string]string{}
 	for _, e := range os.Environ() {
 		kvPair := strings.SplitN(e, "=", 2)
@@ -69,30 +69,30 @@ func main() {
 		}
 	}
 
-	log.Printf("Unmarshalling credentials parameter...")
+	logInfo("Unmarshalling credentials parameter...\n")
 	var credentialsParam CredentialsParam
 	err := json.Unmarshal([]byte(*paramsJSON), &credentialsParam)
 	if err != nil {
 		log.Fatal("Failed unmarshalling credential parameter: ", err)
 	}
 
-	log.Printf("Setting default for credential parameter...")
+	logInfo("Setting default for credential parameter...")
 	credentialsParam.SetDefaults(*releaseName)
 
-	log.Printf("Validating required credential parameter...")
+	logInfo("Validating required credential parameter...")
 	valid, errors := credentialsParam.ValidateRequiredProperties()
 	if !valid {
 		log.Fatal("Not all valid fields are set: ", errors)
 	}
 
-	log.Printf("Unmarshalling injected credentials...")
+	logInfo("Unmarshalling injected credentials...")
 	var credentials []GKECredentials
 	err = json.Unmarshal([]byte(*credentialsJSON), &credentials)
 	if err != nil {
 		log.Fatal("Failed unmarshalling injected credentials: ", err)
 	}
 
-	log.Printf("Checking if credential %v exists...", credentialsParam.Credentials)
+	logInfo("Checking if credential %v exists...", credentialsParam.Credentials)
 	credential := GetCredentialsByName(credentials, credentialsParam.Credentials)
 	if credential == nil {
 		log.Fatalf("Credential with name %v does not exist.", credentialsParam.Credentials)
@@ -100,7 +100,7 @@ func main() {
 
 	var params Params
 	if credential.AdditionalProperties.Defaults != nil {
-		log.Printf("Using defaults from credential %v...", credentialsParam.Credentials)
+		logInfo("Using defaults from credential %v...", credentialsParam.Credentials)
 		// todo log just the specified defaults, not the entire parms object
 		// defaultsAsYAML, err := yaml.Marshal(credential.AdditionalProperties.Defaults)
 		// if err == nil {
@@ -109,16 +109,16 @@ func main() {
 		params = *credential.AdditionalProperties.Defaults
 	}
 
-	log.Printf("Unmarshalling parameters / custom properties...")
+	logInfo("Unmarshalling parameters / custom properties...")
 	err = json.Unmarshal([]byte(*paramsJSON), &params)
 	if err != nil {
 		log.Fatal("Failed unmarshalling parameters: ", err)
 	}
 
-	log.Printf("Setting defaults for parameters that are not set in the manifest...")
+	logInfo("Setting defaults for parameters that are not set in the manifest...")
 	params.SetDefaults(*appLabel, *buildVersion, *releaseName, *releaseAction, estafetteLabels)
 
-	log.Printf("Validating required parameters...")
+	logInfo("Validating required parameters...")
 	valid, errors = params.ValidateRequiredProperties()
 	if !valid {
 		log.Fatal("Not all valid fields are set: ", errors)
@@ -143,14 +143,14 @@ func main() {
 	}
 
 	if tmpl != nil {
-		log.Printf("Storing rendered manifest on disk...\n")
+		logInfo("Storing rendered manifest on disk...")
 		err = ioutil.WriteFile("/kubernetes.yaml", renderedTemplate.Bytes(), 0600)
 		if err != nil {
 			log.Fatal("Failed writing manifest: ", err)
 		}
 	}
 
-	log.Printf("Retrieving service account email from credentials...\n")
+	logInfo("Retrieving service account email from credentials...")
 	var keyFileMap map[string]interface{}
 	err = json.Unmarshal([]byte(credential.AdditionalProperties.ServiceAccountKeyfile), &keyFileMap)
 	if err != nil {
@@ -167,22 +167,22 @@ func main() {
 		}
 	}
 
-	log.Printf("Storing gke credential %v on disk...\n", credentialsParam.Credentials)
+	logInfo("Storing gke credential %v on disk...", credentialsParam.Credentials)
 	err = ioutil.WriteFile("/key-file.json", []byte(credential.AdditionalProperties.ServiceAccountKeyfile), 0600)
 	if err != nil {
 		log.Fatal("Failed writing service account keyfile: ", err)
 	}
 
-	log.Printf("Authenticating to google cloud\n")
+	logInfo("Authenticating to google cloud")
 	runCommand("gcloud", []string{"auth", "activate-service-account", saClientEmail, "--key-file", "/key-file.json"})
 
-	log.Printf("Setting gcloud account\n")
+	logInfo("Setting gcloud account")
 	runCommand("gcloud", []string{"config", "set", "account", saClientEmail})
 
-	log.Printf("Setting gcloud project\n")
+	logInfo("Setting gcloud project")
 	runCommand("gcloud", []string{"config", "set", "project", credential.AdditionalProperties.Project})
 
-	log.Printf("Getting gke credentials for cluster %v\n", credential.AdditionalProperties.Cluster)
+	logInfo("Getting gke credentials for cluster %v", credential.AdditionalProperties.Cluster)
 	clustersGetCredentialsArsgs := []string{"container", "clusters", "get-credentials", credential.AdditionalProperties.Cluster}
 	if credential.AdditionalProperties.Zone != "" {
 		clustersGetCredentialsArsgs = append(clustersGetCredentialsArsgs, "--zone", credential.AdditionalProperties.Zone)
@@ -196,7 +196,7 @@ func main() {
 	kubectlApplyArgs := []string{"apply", "-f", "/kubernetes.yaml", "-n", templateData.Namespace}
 	if tmpl != nil {
 		// always perform a dryrun to ensure we're not ending up in a semi broken state where half of the templates is successfully applied and others not
-		log.Printf("Performing a dryrun to test the validity of the manifests...\n")
+		logInfo("Performing a dryrun to test the validity of the manifests...")
 		runCommand("kubectl", append(kubectlApplyArgs, "--dry-run"))
 	}
 
@@ -209,10 +209,10 @@ func main() {
 		if tmpl != nil {
 			patchServiceIfRequired(params, templateData.Name, templateData.Namespace)
 
-			log.Printf("Applying the manifests for real...\n")
+			logInfo("Applying the manifests for real...")
 			runCommand("kubectl", kubectlApplyArgs)
 
-			log.Printf("Waiting for the deployment to finish...\n")
+			logInfo("Waiting for the deployment to finish...")
 			runCommand("kubectl", []string{"rollout", "status", "deployment", templateData.NameWithTrack, "-n", templateData.Namespace})
 		}
 
@@ -250,15 +250,15 @@ func main() {
 
 func assistTroubleshooting() {
 	if assistTroubleshootingOnError {
-		log.Printf("Showing current ingresses, services, configmaps, secrets, deployments ,poddisruptionbudgets, horizontalpodautoscalers, pods, endpoints for app=%v...\n", paramsForTroubleshooting.App)
+		logInfo("Showing current ingresses, services, configmaps, secrets, deployments ,poddisruptionbudgets, horizontalpodautoscalers, pods, endpoints for app=%v...", paramsForTroubleshooting.App)
 		runCommandExtended("kubectl", []string{"get", "ing,svc,cm,secret,deploy,pdb,hpa,po,ep", "-l", fmt.Sprintf("app=%v", paramsForTroubleshooting.App), "-n", paramsForTroubleshooting.Namespace})
 
 		if paramsForTroubleshooting.Action == "deploy-canary" {
-			log.Printf("Showing logs for canary deployment...\n")
+			logInfo("Showing logs for canary deployment...")
 			runCommandExtended("kubectl", []string{"logs", "-l", fmt.Sprintf("app=%v,track=canary", paramsForTroubleshooting.App), "-n", paramsForTroubleshooting.Namespace, "-c", paramsForTroubleshooting.App})
 		}
 
-		log.Printf("Showing kubernetes events with the word %v in it...\n", paramsForTroubleshooting.App)
+		logInfo("Showing kubernetes events with the word %v in it...", paramsForTroubleshooting.App)
 		c1 := exec.Command("kubectl", "get", "events", "--sort-by=.metadata.creationTimestamp", "-n", paramsForTroubleshooting.Namespace)
 		c2 := exec.Command("grep", paramsForTroubleshooting.App)
 
@@ -279,13 +279,13 @@ func assistTroubleshooting() {
 }
 
 func scaleCanaryDeployment(name, namespace string, replicas int) {
-	log.Printf("Scaling canary deployment to %v replicas...\n", replicas)
+	logInfo("Scaling canary deployment to %v replicas...", replicas)
 	runCommand("kubectl", []string{"scale", "deploy", fmt.Sprintf("%v-canary", name), "-n", namespace, fmt.Sprintf("--replicas=%v", replicas)})
 }
 
 func deleteResourcesForTypeSwitch(name, namespace string) {
 	// clean up resources in case a switch from simple to canary releases or vice versa has been made
-	log.Printf("Deleting simple type deployment, configmap, secret, hpa and pdb...\n")
+	logInfo("Deleting simple type deployment, configmap, secret, hpa and pdb...")
 	runCommand("kubectl", []string{"delete", "deploy", name, "-n", namespace, "--ignore-not-found=true"})
 	runCommand("kubectl", []string{"delete", "configmap", fmt.Sprintf("%v-configs", name), "-n", namespace, "--ignore-not-found=true"})
 	runCommand("kubectl", []string{"delete", "secret", fmt.Sprintf("%v-secrets", name), "-n", namespace, "--ignore-not-found=true"})
@@ -295,14 +295,14 @@ func deleteResourcesForTypeSwitch(name, namespace string) {
 
 func deleteConfigsForParamsChange(params Params, name, namespace string) {
 	if len(params.Configs.Files) == 0 {
-		log.Printf("Deleting application configs if it exists, because no configs are specified...\n")
+		logInfo("Deleting application configs if it exists, because no configs are specified...")
 		runCommand("kubectl", []string{"delete", "configmap", fmt.Sprintf("%v-configs", name), "-n", namespace, "--ignore-not-found=true"})
 	}
 }
 
 func deleteSecretsForParamsChange(params Params, name, namespace string) {
 	if len(params.Secrets.Keys) == 0 {
-		log.Printf("Deleting application secrets if it exists, because no secrets are specified...\n")
+		logInfo("Deleting application secrets if it exists, because no secrets are specified...")
 		runCommand("kubectl", []string{"delete", "secret", fmt.Sprintf("%v-secrets", name), "-n", namespace, "--ignore-not-found=true"})
 	}
 }
@@ -310,7 +310,7 @@ func deleteSecretsForParamsChange(params Params, name, namespace string) {
 func deleteIngressForVisibilityChange(params Params, name, namespace string) {
 	if params.Visibility == "public" {
 		// public uses service of type loadbalancer and doesn't need ingress
-		log.Printf("Deleting ingress if it exists, which is used for visibility private or iap...\n")
+		logInfo("Deleting ingress if it exists, which is used for visibility private or iap...")
 		runCommand("kubectl", []string{"delete", "ingress", name, "-n", namespace, "--ignore-not-found=true"})
 	}
 }
@@ -319,10 +319,10 @@ func patchServiceIfRequired(params Params, name, namespace string) {
 	if params.Visibility == "private" {
 		serviceType, err := getCommandOutput("kubectl", []string{"get", "service", name, "-n", namespace, "-o=jsonpath={.spec.type}"})
 		if err != nil {
-			log.Printf("Failed retrieving service type: %v", err)
+			logInfo("Failed retrieving service type: %v", err)
 		}
 		if serviceType == "NodePort" || serviceType == "LoadBalancer" {
-			log.Printf("Service is of type %v, patching it...\n", serviceType)
+			logInfo("Service is of type %v, patching it...", serviceType)
 
 			// brute force patch the service
 			err = runCommandExtended("kubectl", []string{"patch", "service", name, "-n", namespace, "--type", "json", "--patch", "[{\"op\": \"remove\", \"path\": \"/spec/loadBalancerSourceRanges\"},{\"op\": \"remove\", \"path\": \"/spec/externalTrafficPolicy\"}, {\"op\": \"remove\", \"path\": \"/spec/ports/0/nodePort\"}, {\"op\": \"remove\", \"path\": \"/spec/ports/1/nodePort\"}, {\"op\": \"replace\", \"path\": \"/spec/type\", \"value\": \"ClusterIP\"}]"})
@@ -333,7 +333,7 @@ func patchServiceIfRequired(params Params, name, namespace string) {
 				log.Fatal(fmt.Sprintf("Failed patching service to change from %v to ClusterIP: ", serviceType), err)
 			}
 		} else {
-			log.Printf("Service is of type %v, no need to patch it\n", serviceType)
+			logInfo("Service is of type %v, no need to patch it", serviceType)
 		}
 	}
 }
@@ -341,7 +341,7 @@ func patchServiceIfRequired(params Params, name, namespace string) {
 func removeEstafetteCloudflareAnnotations(params Params, name, namespace string) {
 	if params.Visibility == "private" || params.Visibility == "iap" {
 		// ingress is used and has the estafette.io/cloudflare annotations, so they should be removed from the service
-		log.Printf("Removing estafette.io/cloudflare annotations on the service if they exists, since they're now set on the ingress instead...\n")
+		logInfo("Removing estafette.io/cloudflare annotations on the service if they exists, since they're now set on the ingress instead...")
 		runCommand("kubectl", []string{"annotate", "svc", name, "-n", namespace, "estafette.io/cloudflare-dns-"})
 		runCommand("kubectl", []string{"annotate", "svc", name, "-n", namespace, "estafette.io/cloudflare-proxy-"})
 		runCommand("kubectl", []string{"annotate", "svc", name, "-n", namespace, "estafette.io/cloudflare-hostnames-"})
@@ -362,7 +362,7 @@ func runCommand(command string, args []string) {
 }
 
 func runCommandExtended(command string, args []string) error {
-	log.Printf("Running command '%v %v'...", command, strings.Join(args, " "))
+	logInfo("Running command '%v %v'...", command, strings.Join(args, " "))
 	cmd := exec.Command(command, args...)
 	cmd.Dir = "/estafette-work"
 	cmd.Stdout = os.Stdout
@@ -372,8 +372,13 @@ func runCommandExtended(command string, args []string) error {
 }
 
 func getCommandOutput(command string, args []string) (string, error) {
-	log.Printf("Running command '%v %v'...", command, strings.Join(args, " "))
+	logInfo("Running command '%v %v'...", command, strings.Join(args, " "))
 	output, err := exec.Command(command, args...).Output()
 
 	return string(output), err
+}
+
+func logInfo(message string, args ...interface{}) {
+	formattedMessage := fmt.Sprintf(message, args)
+	log.Printf("\n%v\n\n", formattedMessage)
 }
