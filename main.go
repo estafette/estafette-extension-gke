@@ -389,11 +389,12 @@ func runCommandExtended(command string, args []string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
+	log.Println("")
 	return err
 }
 
 func getCommandOutput(command string, args []string) (string, error) {
-	logInfo("Running command '%v %v'...", command, strings.Join(args, " "))
+	logInfo("Getting output for command '%v %v'...", command, strings.Join(args, " "))
 	output, err := exec.Command(command, args...).Output()
 
 	return string(output), err
@@ -401,5 +402,5 @@ func getCommandOutput(command string, args []string) (string, error) {
 
 func logInfo(message string, args ...interface{}) {
 	formattedMessage := fmt.Sprintf(message, args...)
-	log.Printf("\n%v\n", formattedMessage)
+	log.Printf("%v\n\n", formattedMessage)
 }
