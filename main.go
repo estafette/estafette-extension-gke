@@ -253,6 +253,11 @@ func assistTroubleshooting() {
 		log.Printf("Showing current ingresses, services, configmaps, secrets, deployments ,poddisruptionbudgets, horizontalpodautoscalers, pods, endpoints for app=%v...\n", paramsForTroubleshooting.App)
 		runCommandExtended("kubectl", []string{"get", "ing,svc,cm,secret,deploy,pdb,hpa,po,ep", "-l", fmt.Sprintf("app=%v", paramsForTroubleshooting.App), "-n", paramsForTroubleshooting.Namespace})
 
+		if paramsForTroubleshooting.Action == "deploy-canary" {
+			log.Printf("Showing logs for canary deployment...\n")
+			runCommandExtended("kubectl", []string{"logs", "-l", fmt.Sprintf("app=%v,track=canary", paramsForTroubleshooting.App), "-n", paramsForTroubleshooting.Namespace, "-c", paramsForTroubleshooting.App})
+		}
+
 		log.Printf("Showing kubernetes events with the word %v in it...\n", paramsForTroubleshooting.App)
 		c1 := exec.Command("kubectl", "get", "events", "--sort-by=.metadata.creationTimestamp", "-n", paramsForTroubleshooting.Namespace)
 		c2 := exec.Command("grep", paramsForTroubleshooting.App)
