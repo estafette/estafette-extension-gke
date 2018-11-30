@@ -235,7 +235,7 @@ func main() {
 		}
 
 		log.Printf("Showing current secrets, configmaps, horizontalpodautoscalers, services, ingresses, deployments and pods for app=%v...\n", params.App)
-		runCommand("kubectl", []string{"get", "secret,cm,hpa,pdb,svc,ing,deploy,po", "-l", fmt.Sprintf("app=%v", params.App), "-n", params.Namespace})
+		runCommand("kubectl", []string{"get", "ing,svc,cm,secret,deploy,pdb,hpa,po,ep", "-l", fmt.Sprintf("app=%v", params.App), "-n", params.Namespace})
 	}
 }
 
@@ -278,7 +278,6 @@ func deleteIngressForVisibilityChange(params Params, name, namespace string) {
 
 func patchServiceIfRequired(params Params, name, namespace string) {
 	if params.Visibility == "private" {
-
 		serviceType, err := getCommandOutput("kubectl", []string{"get", "service", name, "-n", namespace, "-o=jsonpath={.spec.type}"})
 		if err != nil {
 			log.Printf("Failed retrieving service type: %v", err)
