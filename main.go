@@ -379,6 +379,6 @@ func getCommandOutput(command string, args []string) (string, error) {
 }
 
 func logInfo(message string, args ...interface{}) {
-	formattedMessage := fmt.Sprintf(message, args)
+	formattedMessage := fmt.Sprintf(message, args...)
 	log.Printf("\n%v\n\n", formattedMessage)
 }
