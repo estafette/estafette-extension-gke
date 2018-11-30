@@ -208,7 +208,7 @@ func main() {
 
 		if tmpl != nil {
 			patchServiceIfRequired(params, templateData.Name, templateData.Namespace)
-			updateSelectorIfRequired(params, templateData.Name, templateData.Namespace)
+			patchDeploymentIfRequired(params, templateData.Name, templateData.Namespace)
 
 			logInfo("Applying the manifests for real...")
 			runCommand("kubectl", kubectlApplyArgs)
@@ -339,7 +339,7 @@ func patchServiceIfRequired(params Params, name, namespace string) {
 	}
 }
 
-func updateSelectorIfRequired(params Params, name, namespace string) {
+func patchDeploymentIfRequired(params Params, name, namespace string) {
 	if params.Action == "deploy-simple" {
 		selectorLabels, err := getCommandOutput("kubectl", []string{"get", "deploy", name, "-n", namespace, "-o=jsonpath={.spec.selector.matchLabels}"})
 		if err != nil {
