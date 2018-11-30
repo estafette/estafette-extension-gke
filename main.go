@@ -197,6 +197,8 @@ func main() {
 
 	if !params.DryRun {
 		if tmpl != nil {
+			deleteServiceNodePortsForVisibilityChange(params, templateData.Name, templateData.Namespace)
+
 			log.Printf("Applying the manifests for real...\n")
 			runCommand("kubectl", kubectlApplyArgs)
 
@@ -271,6 +273,14 @@ func deleteIngressForVisibilityChange(params Params, name, namespace string) {
 		// public uses service of type loadbalancer and doesn't need ingress
 		log.Printf("Deleting ingress if it exists, which is used for visibility private or iap...\n")
 		runCommand("kubectl", []string{"delete", "ingress", name, "-n", namespace, "--ignore-not-found=true"})
+	}
+}
+
+func deleteServiceNodePortsForVisibilityChange(params Params, name, namespace string) {
+	if params.Visibility == "private" {
+		// public uses service of type loadbalancer and doesn't need ingress
+		log.Printf("Removing service node portsif they exists, since a cluster ip service does not need them...\n")
+		runCommand("kubectl", []string{"patch", "service", name, "-n", namespace, "--type='json'", "-p='[{\"op\": \"remove\", \"path\": \"/spec/externalTrafficPolicy\"}, {\"op\": \"remove\", \"path\": \"/spec/ports/0/nodePort\"}, {\"op\": \"remove\", \"path\": \"/spec/ports/1/nodePort\"}, {\"op\": \"replace\", \"path\": \"/spec/type\", \"value\": \"ClusterIP\"}]'", "||", "true"})
 	}
 }
 
