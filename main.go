@@ -32,6 +32,9 @@ var (
 	buildVersion  = kingpin.Flag("build-version", "Version number, used if not passed explicitly.").Envar("ESTAFETTE_BUILD_VERSION").String()
 	releaseName   = kingpin.Flag("release-name", "Name of the release section, which is used by convention to resolve the credentials.").Envar("ESTAFETTE_RELEASE_NAME").String()
 	releaseAction = kingpin.Flag("release-action", "Name of the release action, to control the type of release.").Envar("ESTAFETTE_RELEASE_ACTION").String()
+
+	assistTroubleshootingOnError = false
+	paramsForTroubleshooting     = Params{}
 )
 
 func main() {
@@ -196,6 +199,11 @@ func main() {
 	}
 
 	if !params.DryRun {
+
+		// ensure that from now on any error runs the troubleshooting assistant
+		assistTroubleshootingOnError = true
+		paramsForTroubleshooting = params
+
 		if tmpl != nil {
 			patchServiceIfRequired(params, templateData.Name, templateData.Namespace)
 
@@ -234,8 +242,17 @@ func main() {
 			break
 		}
 
-		log.Printf("Showing current secrets, configmaps, horizontalpodautoscalers, services, ingresses, deployments and pods for app=%v...\n", params.App)
-		runCommand("kubectl", []string{"get", "ing,svc,cm,secret,deploy,pdb,hpa,po,ep", "-l", fmt.Sprintf("app=%v", params.App), "-n", params.Namespace})
+		assistTroubleshooting()
+	}
+}
+
+func assistTroubleshooting() {
+	if assistTroubleshootingOnError {
+		log.Printf("Showing current ingresses, services, configmaps, secrets, deployments ,poddisruptionbudgets, horizontalpodautoscalers, pods, endpoints for app=%v...\n", paramsForTroubleshooting.App)
+		runCommandExtended("kubectl", []string{"get", "ing,svc,cm,secret,deploy,pdb,hpa,po,ep", "-l", fmt.Sprintf("app=%v", paramsForTroubleshooting.App), "-n", paramsForTroubleshooting.Namespace})
+
+		log.Printf("Showing kubernetes events with the word %v in it...\n", paramsForTroubleshooting.App)
+		runCommandExtended("kubectl", []string{"get", "events", "--sort-by=.metadata.creationTimestamp", "-n", paramsForTroubleshooting.Namespace, "|", "grep", fmt.Sprintf("app=%v", paramsForTroubleshooting.App)})
 	}
 }
 
@@ -312,6 +329,7 @@ func removeEstafetteCloudflareAnnotations(params Params, name, namespace string)
 
 func handleError(err error) {
 	if err != nil {
+		assistTroubleshooting()
 		log.Fatal(err)
 	}
 }
