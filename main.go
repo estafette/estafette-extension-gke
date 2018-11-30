@@ -279,7 +279,7 @@ func deleteIngressForVisibilityChange(params Params, name, namespace string) {
 func patchServiceIfRequired(params Params, name, namespace string) {
 	if params.Visibility == "private" {
 
-		serviceType, err := getCommandOutput("kubectl", []string{"get", "service", name, "-n", namespace, "-o=jsonpath='{.spec.type}'"})
+		serviceType, err := getCommandOutput("kubectl", []string{"get", "service", name, "-n", namespace, "-o=jsonpath={.spec.type}"})
 		if err != nil {
 			log.Printf("Failed retrieving service type: %v", err)
 		}
