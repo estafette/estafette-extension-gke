@@ -69,7 +69,7 @@ func main() {
 		}
 	}
 
-	logInfo("Unmarshalling credentials parameter...\n")
+	logInfo("Unmarshalling credentials parameter...")
 	var credentialsParam CredentialsParam
 	err := json.Unmarshal([]byte(*paramsJSON), &credentialsParam)
 	if err != nil {

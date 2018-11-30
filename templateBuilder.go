@@ -153,7 +153,7 @@ func renderTemplate(tmpl *template.Template, templateData TemplateData) (bytes.B
 		return renderedTemplate, err
 	}
 
-	logInfo("Template after rendering:\n\n")
+	logInfo("Template after rendering:")
 	log.Println(renderedTemplate.String())
 	log.Println("")
 
