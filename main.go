@@ -322,7 +322,7 @@ func patchServiceIfRequired(params Params, name, namespace string) {
 		if err != nil {
 			logInfo("Failed retrieving service type: %v", err)
 		}
-		if serviceType == "NodePort" || serviceType == "LoadBalancer" {
+		if err == nil && (serviceType == "NodePort" || serviceType == "LoadBalancer") {
 			logInfo("Service is of type %v, patching it...", serviceType)
 
 			// brute force patch the service
@@ -345,7 +345,7 @@ func updateSelectorIfRequired(params Params, name, namespace string) {
 		if err != nil {
 			logInfo("Failed retrieving deployment selector labels: %v", err)
 		}
-		if selectorLabels != fmt.Sprintf("map[app:%v]", name) {
+		if err == nil && selectorLabels != fmt.Sprintf("map[app:%v]", name) {
 			logInfo("Deployment selector labels %v not correct, patching it...", selectorLabels)
 
 			// patch the deployment
