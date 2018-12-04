@@ -15,7 +15,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "myapp", templateData.Name)
 	})
@@ -27,7 +27,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "mynamespace", templateData.Namespace)
 	})
@@ -42,7 +42,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, 2, len(templateData.Labels))
 		assert.Equal(t, "myapp", templateData.Labels["app"])
@@ -56,7 +56,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "myapp", templateData.AppLabelSelector)
 	})
@@ -70,7 +70,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "myproject", templateData.Container.Repository)
 	})
@@ -84,7 +84,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "my-app", templateData.Container.Name)
 	})
@@ -98,7 +98,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "1.0.0", templateData.Container.Tag)
 	})
@@ -110,7 +110,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "ClusterIP", templateData.ServiceType)
 	})
@@ -122,7 +122,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "ClusterIP", templateData.ServiceType)
 	})
@@ -134,7 +134,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "NodePort", templateData.ServiceType)
 	})
@@ -146,7 +146,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "LoadBalancer", templateData.ServiceType)
 	})
@@ -158,7 +158,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.True(t, templateData.UseDNSAnnotationsOnIngress)
 	})
@@ -170,7 +170,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.True(t, templateData.UseDNSAnnotationsOnIngress)
 	})
@@ -182,7 +182,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.False(t, templateData.UseDNSAnnotationsOnIngress)
 	})
@@ -194,7 +194,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.True(t, templateData.UseDNSAnnotationsOnService)
 	})
@@ -206,7 +206,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.False(t, templateData.UseDNSAnnotationsOnService)
 	})
@@ -218,7 +218,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.False(t, templateData.UseDNSAnnotationsOnService)
 	})
@@ -234,7 +234,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "1200m", templateData.Container.CPURequest)
 	})
@@ -250,7 +250,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "1500m", templateData.Container.CPULimit)
 	})
@@ -266,7 +266,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "1024Mi", templateData.Container.MemoryRequest)
 	})
@@ -282,7 +282,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "2048Mi", templateData.Container.MemoryLimit)
 	})
@@ -296,7 +296,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, 3080, templateData.Container.Port)
 	})
@@ -311,7 +311,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, 2, len(templateData.Hosts))
 		assert.Equal(t, "gke.estafette.io", templateData.Hosts[0])
@@ -328,7 +328,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "gke.estafette.io,gke-deploy.estafette.io", templateData.HostsJoined)
 	})
@@ -342,7 +342,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, 5, templateData.MinReplicas)
 	})
@@ -356,7 +356,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, 16, templateData.MaxReplicas)
 	})
@@ -368,7 +368,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.True(t, templateData.UseNginxIngress)
 	})
@@ -380,7 +380,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.True(t, templateData.UseNginxIngress)
 	})
@@ -392,7 +392,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.False(t, templateData.UseNginxIngress)
 	})
@@ -404,7 +404,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.False(t, templateData.UseNginxIngress)
 	})
@@ -416,7 +416,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.True(t, templateData.UseGCEIngress)
 	})
@@ -428,7 +428,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.False(t, templateData.UseGCEIngress)
 	})
@@ -440,7 +440,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.False(t, templateData.UseGCEIngress)
 	})
@@ -452,7 +452,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.False(t, templateData.UseGCEIngress)
 	})
@@ -468,7 +468,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "/liveness", templateData.Container.Liveness.Path)
 	})
@@ -484,7 +484,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, 5001, templateData.Container.Liveness.Port)
 	})
@@ -500,7 +500,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, 30, templateData.Container.Liveness.InitialDelaySeconds)
 	})
@@ -516,7 +516,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, 1, templateData.Container.Liveness.TimeoutSeconds)
 	})
@@ -532,7 +532,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "/readiness", templateData.Container.Readiness.Path)
 	})
@@ -548,7 +548,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, 5002, templateData.Container.Readiness.Port)
 	})
@@ -564,7 +564,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, 30, templateData.Container.Readiness.InitialDelaySeconds)
 	})
@@ -580,7 +580,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, 1, templateData.Container.Readiness.TimeoutSeconds)
 	})
@@ -597,7 +597,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, 2, len(templateData.Container.EnvironmentVariables))
 		assert.Equal(t, "value1", templateData.Container.EnvironmentVariables["MY_CUSTOM_ENV"])
@@ -615,7 +615,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "/readiness", templateData.Container.Metrics.Path)
 	})
@@ -631,7 +631,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, 3080, templateData.Container.Metrics.Port)
 	})
@@ -647,7 +647,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, true, templateData.Container.Metrics.Scrape)
 	})
@@ -661,7 +661,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.True(t, templateData.Sidecar.UseOpenrestySidecar)
 	})
@@ -675,7 +675,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "estafette/openresty-sidecar:1.13.6.1-alpine", templateData.Sidecar.Image)
 	})
@@ -689,7 +689,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "/readiness", templateData.Sidecar.HealthCheckPath)
 	})
@@ -705,7 +705,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "1200m", templateData.Sidecar.CPURequest)
 	})
@@ -721,7 +721,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "1500m", templateData.Sidecar.CPULimit)
 	})
@@ -737,7 +737,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "1024Mi", templateData.Sidecar.MemoryRequest)
 	})
@@ -753,7 +753,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "2048Mi", templateData.Sidecar.MemoryLimit)
 	})
@@ -770,7 +770,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, 2, len(templateData.Sidecar.EnvironmentVariables))
 		assert.Equal(t, "value1", templateData.Sidecar.EnvironmentVariables["MY_CUSTOM_ENV"])
@@ -789,7 +789,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, 2, len(templateData.Secrets))
 		assert.Equal(t, "c29tZSBzZWNyZXQgdmFsdWU=", templateData.Secrets["secret-file-1.json"])
@@ -808,7 +808,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.True(t, templateData.MountApplicationSecrets)
 	})
@@ -822,7 +822,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.False(t, templateData.MountApplicationSecrets)
 	})
@@ -834,7 +834,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "/", templateData.IngressPath)
 	})
@@ -846,7 +846,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "/api/", templateData.IngressPath)
 	})
@@ -859,7 +859,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "/api/*", templateData.IngressPath)
 	})
@@ -871,7 +871,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.True(t, templateData.MountPayloadLogging)
 	})
@@ -883,7 +883,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.False(t, templateData.MountPayloadLogging)
 	})
@@ -895,7 +895,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.True(t, templateData.AddSafeToEvictAnnotation)
 	})
@@ -907,7 +907,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.False(t, templateData.AddSafeToEvictAnnotation)
 	})
@@ -921,7 +921,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "25%", templateData.RollingUpdateMaxSurge)
 	})
@@ -935,7 +935,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "15%", templateData.RollingUpdateMaxUnavailable)
 	})
@@ -947,7 +947,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "1.2.3", templateData.BuildVersion)
 	})
@@ -959,7 +959,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.True(t, templateData.PreferPreemptibles)
 	})
@@ -971,7 +971,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.False(t, templateData.PreferPreemptibles)
 	})
@@ -987,7 +987,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.True(t, templateData.MountConfigmap)
 	})
@@ -1001,7 +1001,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.False(t, templateData.MountConfigmap)
 	})
@@ -1015,7 +1015,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "/configs", templateData.ConfigMountPath)
 	})
@@ -1029,7 +1029,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "/secrets", templateData.SecretMountPath)
 	})
@@ -1041,7 +1041,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.True(t, templateData.LimitTrustedIPRanges)
 	})
@@ -1053,7 +1053,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.True(t, templateData.LimitTrustedIPRanges)
 	})
@@ -1065,7 +1065,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.False(t, templateData.LimitTrustedIPRanges)
 	})
@@ -1077,7 +1077,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.False(t, templateData.LimitTrustedIPRanges)
 	})
@@ -1104,7 +1104,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, 14, len(templateData.TrustedIPRanges))
 	})
@@ -1126,7 +1126,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, 3, len(templateData.ManifestData))
 		assert.Equal(t, "value 1", templateData.ManifestData["property1"])
@@ -1142,7 +1142,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "myapp-canary", templateData.NameWithTrack)
 	})
@@ -1155,7 +1155,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "myapp-stable", templateData.NameWithTrack)
 	})
@@ -1168,7 +1168,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "myapp", templateData.NameWithTrack)
 	})
@@ -1181,7 +1181,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.False(t, templateData.IncludeTrackLabel)
 	})
@@ -1194,7 +1194,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.True(t, templateData.IncludeTrackLabel)
 	})
@@ -1207,7 +1207,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.True(t, templateData.IncludeTrackLabel)
 	})
@@ -1220,7 +1220,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "canary", templateData.TrackLabel)
 	})
@@ -1233,7 +1233,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "stable", templateData.TrackLabel)
 	})
@@ -1266,7 +1266,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, 1, len(templateData.AdditionalVolumeMounts))
 		assert.Equal(t, "client-certs", templateData.AdditionalVolumeMounts[0].Name)
@@ -1296,7 +1296,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, 2, len(templateData.AdditionalContainerPorts))
 	})
@@ -1324,7 +1324,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, 1, len(templateData.AdditionalServicePorts))
 		assert.Equal(t, "grpc", templateData.AdditionalServicePorts[0].Name)
@@ -1342,7 +1342,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.True(t, templateData.OverrideDefaultWhitelist)
 	})
@@ -1355,7 +1355,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.False(t, templateData.OverrideDefaultWhitelist)
 	})
@@ -1370,7 +1370,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.False(t, templateData.OverrideDefaultWhitelist)
 	})
@@ -1385,7 +1385,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.False(t, templateData.OverrideDefaultWhitelist)
 	})
@@ -1400,7 +1400,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.False(t, templateData.OverrideDefaultWhitelist)
 	})
@@ -1417,9 +1417,52 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params)
+		templateData := generateTemplateData(params, -1)
 
 		assert.Equal(t, "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16", templateData.NginxIngressWhitelist)
 	})
 
+	t.Run("SetsIncludeReplicasToTrueIfCurrentReplicasIsGreaterThanZero", func(t *testing.T) {
+
+		params := Params{}
+
+		// act
+		templateData := generateTemplateData(params, 1)
+
+		assert.True(t, templateData.IncludeReplicas)
+	})
+
+	t.Run("SetsIncludeReplicasToFalseIfCurrentReplicasIsZeroOrLess", func(t *testing.T) {
+
+		params := Params{}
+
+		// act
+		templateData := generateTemplateData(params, 0)
+
+		assert.False(t, templateData.IncludeReplicas)
+	})
+
+	t.Run("SetsReplicasToCurrentReplicasIfGreaterThanZero", func(t *testing.T) {
+
+		params := Params{}
+
+		// act
+		templateData := generateTemplateData(params, 15)
+
+		assert.Equal(t, 15, templateData.Replicas)
+	})
+
+	t.Run("SetsReplicasToMinReplicasIfReplicasIsZeroOrLess", func(t *testing.T) {
+
+		params := Params{
+			Autoscale: AutoscaleParams{
+				MinReplicas: 3,
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, 0)
+
+		assert.Equal(t, 3, templateData.Replicas)
+	})
 }

@@ -43,6 +43,8 @@ type TemplateData struct {
 	AdditionalServicePorts      []AdditionalPortData
 	OverrideDefaultWhitelist    bool
 	NginxIngressWhitelist       string
+	IncludeReplicas             bool
+	Replicas                    int
 }
 
 // ContainerData has data specific to the application container

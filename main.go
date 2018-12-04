@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strconv"
 	"strings"
 
 	"github.com/alecthomas/kingpin"
@@ -133,8 +134,11 @@ func main() {
 	// pre-render config files if they exist
 	params.Configs.RenderedFileContent = renderConfig(params)
 
+	// checking number of replicas for existing deployment to make switching deployment type safe
+	currentReplicas := getExistingNumberOfReplicas(params)
+
 	// generate the data required for rendering the templates
-	templateData := generateTemplateData(params)
+	templateData := generateTemplateData(params, currentReplicas)
 
 	// render the template
 	renderedTemplate, err := renderTemplate(tmpl, templateData)
@@ -337,6 +341,29 @@ func patchServiceIfRequired(templateData TemplateData, name, namespace string) {
 			logInfo("Service is of type %v, no need to patch it", serviceType)
 		}
 	}
+}
+
+func getExistingNumberOfReplicas(params Params) int {
+	deploymentName := ""
+	if params.Action == "deploy-simple" {
+		deploymentName = params.App + "-stable"
+	} else if params.Action == "deploy-stable" {
+		deploymentName = params.App
+	}
+	if deploymentName != "" {
+		replicas, err := getCommandOutput("kubectl", []string{"get", "deploy", deploymentName, "-n", params.Namespace, "-o=jsonpath={.spec.replicas}"})
+		if err != nil {
+			return -1
+		}
+		replicasInt, err := strconv.Atoi(replicas)
+		if err != nil {
+			return -1
+		}
+		logInfo("Retrieved number of replicas for %v is %v; using it to set correct number of replicas switching deployment type...", deploymentName, replicasInt)
+		return replicasInt
+	}
+
+	return -1
 }
 
 func patchDeploymentIfRequired(params Params, name, namespace string) {

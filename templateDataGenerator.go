@@ -6,7 +6,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func generateTemplateData(params Params) TemplateData {
+func generateTemplateData(params Params, currentReplicas int) TemplateData {
 
 	data := TemplateData{
 		BuildVersion: params.BuildVersion,
@@ -20,6 +20,8 @@ func generateTemplateData(params Params) TemplateData {
 		Hosts:       params.Hosts,
 		HostsJoined: strings.Join(params.Hosts, ","),
 		IngressPath: params.Basepath,
+
+		IncludeReplicas: currentReplicas > 0,
 
 		MinReplicas:         params.Autoscale.MinReplicas,
 		MaxReplicas:         params.Autoscale.MaxReplicas,
@@ -88,6 +90,12 @@ func generateTemplateData(params Params) TemplateData {
 
 	if params.Container.Metrics.Scrape != nil {
 		data.Container.Metrics.Scrape = *params.Container.Metrics.Scrape
+	}
+
+	if currentReplicas > 0 {
+		data.Replicas = currentReplicas
+	} else {
+		data.Replicas = data.MinReplicas
 	}
 
 	switch params.Action {
