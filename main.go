@@ -1,10 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -263,23 +261,23 @@ func assistTroubleshooting() {
 			runCommandExtended("kubectl", []string{"logs", "-l", fmt.Sprintf("app=%v,track=canary", paramsForTroubleshooting.App), "-n", paramsForTroubleshooting.Namespace, "-c", paramsForTroubleshooting.App})
 		}
 
-		logInfo("Showing kubernetes events with the word %v in it...", paramsForTroubleshooting.App)
-		c1 := exec.Command("kubectl", "get", "events", "--sort-by=.metadata.creationTimestamp", "-n", paramsForTroubleshooting.Namespace)
-		c2 := exec.Command("grep", paramsForTroubleshooting.App)
+		// logInfo("Showing kubernetes events with the word %v in it...", paramsForTroubleshooting.App)
+		// c1 := exec.Command("kubectl", "get", "events", "--sort-by=.metadata.creationTimestamp", "-n", paramsForTroubleshooting.Namespace)
+		// c2 := exec.Command("grep", paramsForTroubleshooting.App)
 
-		r, w := io.Pipe()
-		c1.Stdout = w
-		c2.Stdin = r
+		// r, w := io.Pipe()
+		// c1.Stdout = w
+		// c2.Stdin = r
 
-		var b2 bytes.Buffer
-		c2.Stdout = &b2
+		// var b2 bytes.Buffer
+		// c2.Stdout = &b2
 
-		c1.Start()
-		c2.Start()
-		c1.Wait()
-		w.Close()
-		c2.Wait()
-		io.Copy(os.Stdout, &b2)
+		// c1.Start()
+		// c2.Start()
+		// c1.Wait()
+		// w.Close()
+		// c2.Wait()
+		// io.Copy(os.Stdout, &b2)
 	}
 }
 
