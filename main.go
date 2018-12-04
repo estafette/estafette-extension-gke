@@ -353,12 +353,12 @@ func getExistingNumberOfReplicas(params Params) int {
 	if deploymentName != "" {
 		replicas, err := getCommandOutput("kubectl", []string{"get", "deploy", deploymentName, "-n", params.Namespace, "-o=jsonpath={.spec.replicas}"})
 		if err != nil {
-			logInfo("Failed retrieving replicas for %v; ignoring setting replicas since there's no switch for deployment type...", deploymentName)
+			logInfo("Failed retrieving replicas for %v: %v ignoring setting replicas since there's no switch for deployment type...", deploymentName, err)
 			return -1
 		}
 		replicasInt, err := strconv.Atoi(replicas)
 		if err != nil {
-			logInfo("Failed converting replicas value %v for %v; ignoring setting replicas since there's no switch for deployment type...", replicas, deploymentName)
+			logInfo("Failed converting replicas value %v for %v: %v ignoring setting replicas since there's no switch for deployment type...", replicas, deploymentName, err)
 			return -1
 		}
 		logInfo("Retrieved number of replicas for %v is %v; using it to set correct number of replicas switching deployment type...", deploymentName, replicasInt)
