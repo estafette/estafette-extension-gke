@@ -125,35 +125,6 @@ func main() {
 		log.Fatal("Not all valid fields are set: ", errors)
 	}
 
-	// combine templates
-	tmpl, err := buildTemplates(params)
-	if err != nil {
-		log.Fatal("Failed building templates: ", err)
-	}
-
-	// pre-render config files if they exist
-	params.Configs.RenderedFileContent = renderConfig(params)
-
-	// checking number of replicas for existing deployment to make switching deployment type safe
-	currentReplicas := getExistingNumberOfReplicas(params)
-
-	// generate the data required for rendering the templates
-	templateData := generateTemplateData(params, currentReplicas)
-
-	// render the template
-	renderedTemplate, err := renderTemplate(tmpl, templateData)
-	if err != nil {
-		log.Fatal("Failed rendering templates: ", err)
-	}
-
-	if tmpl != nil {
-		logInfo("Storing rendered manifest on disk...")
-		err = ioutil.WriteFile("/kubernetes.yaml", renderedTemplate.Bytes(), 0600)
-		if err != nil {
-			log.Fatal("Failed writing manifest: ", err)
-		}
-	}
-
 	logInfo("Retrieving service account email from credentials...")
 	var keyFileMap map[string]interface{}
 	err = json.Unmarshal([]byte(credential.AdditionalProperties.ServiceAccountKeyfile), &keyFileMap)
@@ -196,6 +167,35 @@ func main() {
 		log.Fatal("Credentials have no zone or region; at least one of them has to be defined")
 	}
 	runCommand("gcloud", clustersGetCredentialsArsgs)
+
+	// combine templates
+	tmpl, err := buildTemplates(params)
+	if err != nil {
+		log.Fatal("Failed building templates: ", err)
+	}
+
+	// pre-render config files if they exist
+	params.Configs.RenderedFileContent = renderConfig(params)
+
+	// checking number of replicas for existing deployment to make switching deployment type safe
+	currentReplicas := getExistingNumberOfReplicas(params)
+
+	// generate the data required for rendering the templates
+	templateData := generateTemplateData(params, currentReplicas)
+
+	// render the template
+	renderedTemplate, err := renderTemplate(tmpl, templateData)
+	if err != nil {
+		log.Fatal("Failed rendering templates: ", err)
+	}
+
+	if tmpl != nil {
+		logInfo("Storing rendered manifest on disk...")
+		err = ioutil.WriteFile("/kubernetes.yaml", renderedTemplate.Bytes(), 0600)
+		if err != nil {
+			log.Fatal("Failed writing manifest: ", err)
+		}
+	}
 
 	kubectlApplyArgs := []string{"apply", "-f", "/kubernetes.yaml", "-n", templateData.Namespace}
 	if tmpl != nil {
