@@ -211,7 +211,7 @@ func main() {
 		if tmpl != nil {
 			patchServiceIfRequired(templateData, templateData.Name, templateData.Namespace)
 			patchDeploymentIfRequired(params, templateData.Name, templateData.Namespace)
-			removePoddisruptionBudgetIfRequired(params, templateData.Name, templateData.Namespace)
+			removePoddisruptionBudgetIfRequired(params, templateData.NameWithTrack, templateData.Namespace)
 
 			logInfo("Applying the manifests for real...")
 			runCommand("kubectl", kubectlApplyArgs)
@@ -320,7 +320,7 @@ func deleteIngressForVisibilityChange(templateData TemplateData, name, namespace
 }
 
 func removePoddisruptionBudgetIfRequired(params Params, name, namespace string) {
-	if params.Action == "deploy-simple" {
+	if params.Action == "deploy-simple" || params.Action == "deploy-stable" {
 		// if there's a pdb that doesn't use maxUnavailable: 1 remove it so a new one can be created with correct settings
 		deletePoddisruptionBudget := false
 		maxUnavailable, err := getCommandOutput("kubectl", []string{"get", "pdb", name, "-n", namespace, "-o=jsonpath={.spec.maxUnavailable}"})
