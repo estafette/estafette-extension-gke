@@ -211,6 +211,7 @@ func main() {
 		if tmpl != nil {
 			patchServiceIfRequired(templateData, templateData.Name, templateData.Namespace)
 			patchDeploymentIfRequired(params, templateData.Name, templateData.Namespace)
+			removePoddisruptionBudgetIfRequired(params, templateData.Name, templateData.Namespace)
 
 			logInfo("Applying the manifests for real...")
 			runCommand("kubectl", kubectlApplyArgs)
@@ -223,14 +224,14 @@ func main() {
 		switch params.Action {
 		case "deploy-canary":
 			scaleCanaryDeployment(templateData.Name, templateData.Namespace, 1)
-			deleteConfigsForParamsChange(params, fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
-			deleteSecretsForParamsChange(params, fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
+			deleteConfigsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
+			deleteSecretsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
 			break
 		case "deploy-stable":
 			scaleCanaryDeployment(templateData.Name, templateData.Namespace, 0)
 			deleteResourcesForTypeSwitch(templateData.Name, templateData.Namespace)
-			deleteConfigsForParamsChange(params, fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
-			deleteSecretsForParamsChange(params, fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
+			deleteConfigsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
+			deleteSecretsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
 			deleteIngressForVisibilityChange(templateData, templateData.Name, templateData.Namespace)
 			removeEstafetteCloudflareAnnotations(templateData, templateData.Name, templateData.Namespace)
 			break
@@ -315,6 +316,33 @@ func deleteIngressForVisibilityChange(templateData TemplateData, name, namespace
 		// public uses service of type loadbalancer and doesn't need ingress
 		logInfo("Deleting ingress if it exists, which is used for visibility private, iap or public-whitelist...")
 		runCommand("kubectl", []string{"delete", "ingress", name, "-n", namespace, "--ignore-not-found=true"})
+	}
+}
+
+func removePoddisruptionBudgetIfRequired(params Params, name, namespace string) {
+	if params.Action == "deploy-simple" {
+		// if there's a pdb that doesn't use maxUnavailable: 1 remove it so a new one can be created with correct settings
+		deletePoddisruptionBudget := false
+		maxUnavailable, err := getCommandOutput("kubectl", []string{"get", "pdb", name, "-n", namespace, "-o=jsonpath={.spec.maxUnavailable}"})
+		if err == nil {
+			maxUnavailableInt, err := strconv.Atoi(maxUnavailable)
+			if err == nil {
+				if maxUnavailableInt != 1 {
+					logInfo("MaxUnavailable from pdb %v is %v instead of 1", name, maxUnavailableInt)
+					deletePoddisruptionBudget = true
+				}
+			} else {
+				logInfo("Failed reading maxUnavailable from pdb %v: %v", name, err)
+				deletePoddisruptionBudget = true
+			}
+		} else {
+			logInfo("Failed retrieving pdb %v: %v", name, err)
+			deletePoddisruptionBudget = true
+		}
+
+		if deletePoddisruptionBudget {
+			runCommand("kubectl", []string{"delete", "pdb", name, "-n", namespace, "--ignore-not-found=true"})
+		}
 	}
 }
 
