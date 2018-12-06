@@ -342,6 +342,8 @@ func removePoddisruptionBudgetIfRequired(params Params, name, namespace string) 
 
 		if deletePoddisruptionBudget {
 			runCommand("kubectl", []string{"delete", "pdb", name, "-n", namespace, "--ignore-not-found=true"})
+		} else {
+			logInfo("Poddisruptionbudet %v is fine, not removing it", name)
 		}
 	}
 }
