@@ -360,7 +360,7 @@ func removeIngressIfRequired(params Params, templateData TemplateData, name, nam
 					logInfo("Deleting ingress so the gce ingress controller removes the related load balancer...")
 					runCommand("kubectl", []string{"delete", "ingress", name, "-n", namespace, "--ignore-not-found=true"})
 				} else {
-					logInfo("Ingress %v already has kubernetes.io/ingress.class: %v annotation, no need to delete the ingress: %v", name, ingressClass, err)
+					logInfo("Ingress %v already has kubernetes.io/ingress.class: %v annotation, no need to delete the ingress", name, ingressClass)
 				}
 			} else {
 				logInfo("Ingress %v or kubernetes.io/ingress.class annotation doesn't exist, no need to delete the ingress: %v", name, err)
@@ -374,7 +374,7 @@ func removeIngressIfRequired(params Params, templateData TemplateData, name, nam
 					logInfo("Deleting ingress so the nginx ingress controller removes related config...")
 					runCommand("kubectl", []string{"delete", "ingress", name, "-n", namespace, "--ignore-not-found=true"})
 				} else {
-					logInfo("Ingress %v already has kubernetes.io/ingress.class: %v annotation, no need to delete the ingress: %v", name, ingressClass, err)
+					logInfo("Ingress %v already has kubernetes.io/ingress.class: %v annotation, no need to delete the ingress", name, ingressClass)
 				}
 			} else {
 				logInfo("Ingress %v or kubernetes.io/ingress.class annotation doesn't exist, no need to delete the ingress: %v", name, err)
