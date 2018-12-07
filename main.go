@@ -212,6 +212,7 @@ func main() {
 			patchServiceIfRequired(templateData, templateData.Name, templateData.Namespace)
 			patchDeploymentIfRequired(params, templateData.Name, templateData.Namespace)
 			removePoddisruptionBudgetIfRequired(params, templateData.NameWithTrack, templateData.Namespace)
+			removeIngressIfRequired(params, templateData, templateData.Name, templateData.Namespace)
 
 			logInfo("Applying the manifests for real...")
 			runCommand("kubectl", kubectlApplyArgs)
@@ -344,6 +345,26 @@ func removePoddisruptionBudgetIfRequired(params Params, name, namespace string) 
 			runCommand("kubectl", []string{"delete", "pdb", name, "-n", namespace, "--ignore-not-found=true"})
 		} else {
 			logInfo("Poddisruptionbudet %v is fine, not removing it", name)
+		}
+	}
+}
+
+func removeIngressIfRequired(params Params, templateData TemplateData, name, namespace string) {
+	if params.Action == "deploy-simple" || params.Action == "deploy-canary" || params.Action == "deploy-stable" {
+		if templateData.UseNginxIngress {
+			// check if ingress exists and has kubernetes.io/ingress.class: gce, then delete it because of https://github.com/kubernetes/ingress-gce/issues/481
+			ingressClass, err := getCommandOutput("kubectl", []string{"get", "ing", name, "-n", namespace, "-o=go-template='{{index .metadata.annotations \"kubernetes.io/ingress.class\"}}'"})
+			if err == nil {
+				if ingressClass == "gce" {
+					// delete the ingress so all related load balancers, etc get deleted
+					logInfo("Deleting ingress so the gce ingress controller removes the related load balancer...")
+					runCommand("kubectl", []string{"delete", "ingress", name, "-n", namespace, "--ignore-not-found=true"})
+				} else {
+					logInfo("Ingress %v already has kubernetes.io/ingress.class: %v annotation, no need to delete the ingress: %v", name, ingressClass, err)
+				}
+			} else {
+				logInfo("Ingress %v or kubernetes.io/ingress.class annotation doesn't exist, no need to delete the ingress: %v", name, err)
+			}
 		}
 	}
 }
