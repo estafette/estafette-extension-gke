@@ -353,7 +353,7 @@ func removeIngressIfRequired(params Params, templateData TemplateData, name, nam
 	if params.Action == "deploy-simple" || params.Action == "deploy-canary" || params.Action == "deploy-stable" {
 		if templateData.UseNginxIngress {
 			// check if ingress exists and has kubernetes.io/ingress.class: gce, then delete it because of https://github.com/kubernetes/ingress-gce/issues/481
-			ingressClass, err := getCommandOutput("kubectl", []string{"get", "ing", name, "-n", namespace, "-o=go-template='{{index .metadata.annotations \"kubernetes.io/ingress.class\"}}'"})
+			ingressClass, err := getCommandOutput("kubectl", []string{"get", "ing", name, "-n", namespace, "-o=go-template={{index .metadata.annotations \"kubernetes.io/ingress.class\"}}"})
 			if err == nil {
 				if ingressClass == "gce" {
 					// delete the ingress so all related load balancers, etc get deleted
@@ -367,7 +367,7 @@ func removeIngressIfRequired(params Params, templateData TemplateData, name, nam
 			}
 		} else if templateData.UseGCEIngress {
 			// check if ingress exists and has kubernetes.io/ingress.class: gce, then delete it to ensure there's no nginx ingress annotations lingering around
-			ingressClass, err := getCommandOutput("kubectl", []string{"get", "ing", name, "-n", namespace, "-o=go-template='{{index .metadata.annotations \"kubernetes.io/ingress.class\"}}'"})
+			ingressClass, err := getCommandOutput("kubectl", []string{"get", "ing", name, "-n", namespace, "-o=go-template={{index .metadata.annotations \"kubernetes.io/ingress.class\"}}"})
 			if err == nil {
 				if ingressClass == "nginx" {
 					// delete the ingress so all related nginx ingress config gets deleted
