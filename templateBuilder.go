@@ -112,9 +112,10 @@ func renderConfig(params Params) (renderedConfigFiles map[string]string) {
 
 	renderedConfigFiles = map[string]string{}
 
-	if params.Action != "rollback-canary" && len(params.Configs.Files) > 0 {
+	if params.Action != "rollback-canary" && (len(params.Configs.Files) > 0 || len(params.Configs.InlineFiles) > 0) {
 		logInfo("Prerendering config files...")
 
+		// render files passed with configs.files property, replacing placeholders with values specified in configs.data property
 		for _, cf := range params.Configs.Files {
 
 			data, err := ioutil.ReadFile(cf)
@@ -133,6 +134,11 @@ func renderConfig(params Params) (renderedConfigFiles map[string]string) {
 			}
 
 			renderedConfigFiles[filepath.Base(cf)] = renderedTemplate.String()
+		}
+
+		// add files passed with configs.inline property as is
+		for filename, content := range params.Configs.InlineFiles {
+			renderedConfigFiles[filename] = content
 		}
 	}
 
