@@ -113,7 +113,7 @@ stages:
         int-file: 123123
       mountpath: /secrets
     configs:
-      # these are local files with golang template style placeholders, replaced with the values specified in the data section; 
+      # these are local files with golang template style placeholders, replaced with the values specified in the data section;
       # set clone: true on the release target to ensure you have access to these files stored in your repository
       files:
       - config/config.json
