@@ -128,6 +128,7 @@ type SecretsParams struct {
 type ConfigsParams struct {
 	Files               []string               `json:"files,omitempty"`
 	Data                map[string]interface{} `json:"data,omitempty"`
+	InlineFiles         map[string]string      `json:"inline,omitempty"`
 	MountPath           string                 `json:"mountpath,omitempty"`
 	RenderedFileContent map[string]string      `json:"-"`
 }
