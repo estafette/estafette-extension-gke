@@ -78,7 +78,7 @@ func getTemplates(params Params) []string {
 	if len(params.Secrets.Keys) > 0 {
 		templatesToMerge = append(templatesToMerge, "application-secrets.yaml")
 	}
-	if len(params.Configs.Files) > 0 {
+	if len(params.Configs.Files) > 0 || len(params.Configs.InlineFiles) > 0 {
 		templatesToMerge = append(templatesToMerge, "configmap.yaml")
 	}
 
