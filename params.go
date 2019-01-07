@@ -299,7 +299,7 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 		}
 	}
 	if p.Sidecar.Image == "" {
-		p.Sidecar.Image = "estafette/openresty-sidecar:1.13.6.1-alpine"
+		p.Sidecar.Image = "estafette/openresty-sidecar:1.13.6.2-alpine"
 	}
 	if p.Sidecar.HealthCheckPath == "" {
 		p.Sidecar.HealthCheckPath = p.Container.ReadinessProbe.Path
