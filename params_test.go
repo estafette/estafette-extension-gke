@@ -59,7 +59,7 @@ var (
 		Basepath:   "/",
 		Sidecar: SidecarParams{
 			Type:  "openresty",
-			Image: "estafette/openresty-sidecar:1.13.6.1-alpine",
+			Image: "estafette/openresty-sidecar:1.13.6.2-alpine",
 			CPU: CPUParams{
 				Request: "10m",
 				Limit:   "50m",
@@ -1073,7 +1073,7 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, "estafette/openresty-sidecar:1.13.6.1-alpine", params.Sidecar.Image)
+		assert.Equal(t, "estafette/openresty-sidecar:1.13.6.2-alpine", params.Sidecar.Image)
 	})
 
 	t.Run("KeepsSidecarImageIfNotEmpty", func(t *testing.T) {
@@ -2335,7 +2335,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfSidecarImageIsSet", func(t *testing.T) {
 
 		params := validParams
-		params.Sidecar.Image = "estafette/openresty-sidecar:1.13.6.1-alpine"
+		params.Sidecar.Image = "estafette/openresty-sidecar:1.13.6.2-alpine"
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
