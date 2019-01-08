@@ -139,9 +139,7 @@ spec:
         lifecycle:
           preStop:
             exec:
-              command:
-              - /bin/sleep
-              - 5s
+              command: ["/bin/sleep","5s"]
         {{- end}}
       {{- if .Sidecar.UseOpenrestySidecar }}
       - name: {{.Name}}-openresty
