@@ -44,12 +44,11 @@ type ContainerParams struct {
 	Port                 int                    `json:"port,omitempty"`
 	EnvironmentVariables map[string]interface{} `json:"env,omitempty"`
 
-	CPU            CPUParams       `json:"cpu,omitempty"`
-	Memory         MemoryParams    `json:"memory,omitempty"`
-	LivenessProbe  ProbeParams     `json:"liveness,omitempty"`
-	ReadinessProbe ProbeParams     `json:"readiness,omitempty"`
-	Metrics        MetricsParams   `json:"metrics,omitempty"`
-	Lifecycle      LifecycleParams `json:"lifecycle,omitempty"`
+	CPU            CPUParams     `json:"cpu,omitempty"`
+	Memory         MemoryParams  `json:"memory,omitempty"`
+	LivenessProbe  ProbeParams   `json:"liveness,omitempty"`
+	ReadinessProbe ProbeParams   `json:"readiness,omitempty"`
+	Metrics        MetricsParams `json:"metrics,omitempty"`
 
 	AdditionalPorts []*AdditionalPortParams `json:"additionalports,omitempty"`
 }
@@ -94,11 +93,6 @@ type MetricsParams struct {
 	Scrape *bool  `json:"scrape,omitempty"`
 	Path   string `json:"path,omitempty"`
 	Port   int    `json:"port,omitempty"`
-}
-
-// LifecycleParams sets params for lifecycle commands
-type LifecycleParams struct {
-	Prestop *bool `json:"prestop,omitempty"`
 }
 
 // SidecarParams sets params for sidecar injection
@@ -292,12 +286,6 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 	if p.Container.Metrics.Scrape == nil {
 		trueValue := true
 		p.Container.Metrics.Scrape = &trueValue
-	}
-
-	// set lifecycle defaults
-	if p.Container.Lifecycle.Prestop == nil {
-		trueValue := true
-		p.Container.Lifecycle.Prestop = &trueValue
 	}
 
 	// set sidecar defaults

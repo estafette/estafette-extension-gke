@@ -86,8 +86,6 @@ stages:
         scrape: true
         path: /metrics
         port: 5003
-      lifecycle:
-        prestop: true
     sidecar:
       type: openresty
       image: estafette/openresty-sidecar:1.13.6.1-alpine
