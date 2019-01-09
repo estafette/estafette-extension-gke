@@ -188,6 +188,7 @@ spec:
           initialDelaySeconds: {{.Container.Readiness.InitialDelaySeconds}}
           timeoutSeconds: {{.Container.Readiness.TimeoutSeconds}}
       {{- end }}
+      terminationGracePeriodSeconds: 300
       volumes:
       - name: ssl-certificate
         secret:
