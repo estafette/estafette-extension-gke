@@ -2036,6 +2036,18 @@ func TestValidateRequiredProperties(t *testing.T) {
 		assert.True(t, len(errors) > 0)
 	})
 
+	t.Run("ReturnsFalseIfHostHasOtherCharacterThanAlphaNumericOrHyphen", func(t *testing.T) {
+
+		params := validParams
+		params.Hosts = []string{"gke_site.estafette.io"}
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
 	t.Run("ReturnsFalseIfAutoscaleMinReplicasIsZeroOrLess", func(t *testing.T) {
 
 		params := validParams

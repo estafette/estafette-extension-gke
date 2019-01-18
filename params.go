@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 )
 
@@ -479,6 +480,11 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 				errors = append(errors, fmt.Errorf("Host %v has labels - the parts between dots - that are longer than the allowed 63 characters, which is invalid for DNS; please shorten your host", host))
 				break
 			}
+		}
+
+		matchesInvalidChars, _ := regexp.MatchString("[^a-zA-Z0-9-.]", host)
+		if matchesInvalidChars {
+			errors = append(errors, fmt.Errorf("Host %v has invalid characters; only a-z, 0-9, - and . are allowed; please fix your host", host))
 		}
 	}
 	if p.Basepath == "" {
