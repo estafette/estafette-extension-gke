@@ -2012,6 +2012,18 @@ func TestValidateRequiredProperties(t *testing.T) {
 		assert.True(t, len(errors) == 0)
 	})
 
+	t.Run("ReturnsTrueIfOneOrMoreUppercaseHostsAreSet", func(t *testing.T) {
+
+		params := validParams
+		params.Hosts = []string{"GKE.ESTAFETTE.IO"}
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
 	t.Run("ReturnsFalseIfHostHasLabelsLongerThan63Characters", func(t *testing.T) {
 
 		params := validParams
