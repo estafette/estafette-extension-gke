@@ -98,7 +98,8 @@ type MetricsParams struct {
 
 // LifecycleParams sets params for lifecycle commands
 type LifecycleParams struct {
-	Prestop *bool `json:"prestop,omitempty"`
+	PrestopSleep        *bool `json:"prestopsleep,omitempty"`
+	PrestopSleepSeconds *int  `json:"prestopsleepseconds,omitempty"`
 }
 
 // SidecarParams sets params for sidecar injection
@@ -295,9 +296,13 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 	}
 
 	// set lifecycle defaults
-	if p.Container.Lifecycle.Prestop == nil {
+	if p.Container.Lifecycle.PrestopSleep == nil {
 		trueValue := true
-		p.Container.Lifecycle.Prestop = &trueValue
+		p.Container.Lifecycle.PrestopSleep = &trueValue
+	}
+	if p.Container.Lifecycle.PrestopSleepSeconds == nil {
+		defaultSleepValue := 15
+		p.Container.Lifecycle.PrestopSleepSeconds = &defaultSleepValue
 	}
 
 	// set sidecar defaults

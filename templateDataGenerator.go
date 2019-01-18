@@ -91,8 +91,11 @@ func generateTemplateData(params Params, currentReplicas int) TemplateData {
 	if params.Container.Metrics.Scrape != nil {
 		data.Container.Metrics.Scrape = *params.Container.Metrics.Scrape
 	}
-	if params.Container.Lifecycle.Prestop != nil {
-		data.Container.UseLifecyclePreStopCommand = *params.Container.Lifecycle.Prestop
+	if params.Container.Lifecycle.PrestopSleep != nil {
+		data.Container.UseLifecyclePreStopSleepCommand = *params.Container.Lifecycle.PrestopSleep
+	}
+	if params.Container.Lifecycle.PrestopSleepSeconds != nil {
+		data.Container.PreStopSleepSeconds = *params.Container.Lifecycle.PrestopSleepSeconds
 	}
 
 	if currentReplicas > 0 {

@@ -1018,12 +1018,12 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, false, *params.Container.Metrics.Scrape)
 	})
 
-	t.Run("DefaultsLifecyclePrestopToTrueIfEmpty", func(t *testing.T) {
+	t.Run("DefaultsLifecyclePrestopSleepToTrueIfEmpty", func(t *testing.T) {
 
 		params := Params{
 			Container: ContainerParams{
 				Lifecycle: LifecycleParams{
-					Prestop: nil,
+					PrestopSleep: nil,
 				},
 			},
 		}
@@ -1031,15 +1031,15 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, true, *params.Container.Lifecycle.Prestop)
+		assert.Equal(t, true, *params.Container.Lifecycle.PrestopSleep)
 	})
 
-	t.Run("KeepsLifecyclePrestopIfNotEmpty", func(t *testing.T) {
+	t.Run("KeepsLifecyclePrestopSleepIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
 			Container: ContainerParams{
 				Lifecycle: LifecycleParams{
-					Prestop: &falseValue,
+					PrestopSleep: &falseValue,
 				},
 			},
 		}
@@ -1047,7 +1047,41 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, false, *params.Container.Lifecycle.Prestop)
+		assert.Equal(t, false, *params.Container.Lifecycle.PrestopSleep)
+	})
+
+	t.Run("DefaultsLifecyclePrestopSleepSecondsTo15IfEmpty", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				Lifecycle: LifecycleParams{
+					PrestopSleepSeconds: nil,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, 15, *params.Container.Lifecycle.PrestopSleepSeconds)
+	})
+
+	t.Run("KeepsLifecyclePrestopSleepIfNotEmpty", func(t *testing.T) {
+
+		nonDefaultValue := 25
+
+		params := Params{
+			Container: ContainerParams{
+				Lifecycle: LifecycleParams{
+					PrestopSleepSeconds: &nonDefaultValue,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, 25, *params.Container.Lifecycle.PrestopSleepSeconds)
 	})
 
 	t.Run("DefaultsSidecarTypeToOpenrestyIfEmptyAndGlobalTypeIsNotWorker", func(t *testing.T) {

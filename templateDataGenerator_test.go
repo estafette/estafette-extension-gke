@@ -652,12 +652,12 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, true, templateData.Container.Metrics.Scrape)
 	})
 
-	t.Run("SetsUseLifecyclePreStopCommandToLifecyclePrestopParam", func(t *testing.T) {
+	t.Run("SetsUseLifecyclePreStopSleepCommandToLifecyclePrestopSleepParam", func(t *testing.T) {
 
 		params := Params{
 			Container: ContainerParams{
 				Lifecycle: LifecycleParams{
-					Prestop: &trueValue,
+					PrestopSleep: &trueValue,
 				},
 			},
 		}
@@ -665,7 +665,25 @@ func TestGenerateTemplateData(t *testing.T) {
 		// act
 		templateData := generateTemplateData(params, -1)
 
-		assert.Equal(t, true, templateData.Container.UseLifecyclePreStopCommand)
+		assert.Equal(t, true, templateData.Container.UseLifecyclePreStopSleepCommand)
+	})
+
+	t.Run("SetsPreStopSleepSecondsToLifecyclePrestopSleepSecondsParam", func(t *testing.T) {
+
+		sleepValue := 25
+
+		params := Params{
+			Container: ContainerParams{
+				Lifecycle: LifecycleParams{
+					PrestopSleepSeconds: &sleepValue,
+				},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1)
+
+		assert.Equal(t, 25, templateData.Container.PreStopSleepSeconds)
 	})
 
 	t.Run("SetsSidecarUseOpenrestySidecarToTrueIfSidecarTypeParamEqualsOpenresty", func(t *testing.T) {
