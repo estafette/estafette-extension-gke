@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 )
 
 // Params is used to parameterize the deployment, set from custom properties in the manifest
@@ -465,6 +466,20 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 	}
 	if len(p.Hosts) == 0 {
 		errors = append(errors, fmt.Errorf("At least one host is required; set it via hosts array property on this stage"))
+	}
+	for _, host := range p.Hosts {
+		if len(host) > 253 {
+			errors = append(errors, fmt.Errorf("Host %v is longer than the allowed 253 characters, which is invalid for DNS; please shorten your host", host))
+			break
+		}
+
+		hostLabels := strings.Split(host, ".")
+		for _, label := range hostLabels {
+			if len(label) > 63 {
+				errors = append(errors, fmt.Errorf("Host %v has labels - the parts between dots - that are longer than the allowed 63 characters, which is invalid for DNS; please shorten your host", host))
+				break
+			}
+		}
 	}
 	if p.Basepath == "" {
 		errors = append(errors, fmt.Errorf("Basepath property is required; set it via basepath property on this stage"))
