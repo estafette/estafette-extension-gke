@@ -1018,6 +1018,38 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, false, *params.Container.Metrics.Scrape)
 	})
 
+	t.Run("DefaultsLifecyclePrestopToTrueIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				Lifecycle: LifecycleParams{
+					Prestop: nil,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, true, *params.Container.Lifecycle.Prestop)
+	})
+
+	t.Run("KeepsLifecyclePrestopIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				Lifecycle: LifecycleParams{
+					Prestop: &falseValue,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, false, *params.Container.Lifecycle.Prestop)
+	})
+
 	t.Run("DefaultsSidecarTypeToOpenrestyIfEmptyAndGlobalTypeIsNotWorker", func(t *testing.T) {
 
 		params := Params{
