@@ -36,6 +36,8 @@ type TemplateData struct {
 	TrustedIPRanges             []string
 	ManifestData                map[string]interface{}
 	IncludeTrackLabel           bool
+	IncludeReleaseIDLabel       bool
+	ReleaseIDLabel              string
 	TrackLabel                  string
 	AddSafeToEvictAnnotation    bool
 	AdditionalVolumeMounts      []VolumeMountData

@@ -6,7 +6,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func generateTemplateData(params Params, currentReplicas int) TemplateData {
+func generateTemplateData(params Params, currentReplicas int, releaseID string) TemplateData {
 
 	data := TemplateData{
 		BuildVersion: params.BuildVersion,
@@ -102,6 +102,11 @@ func generateTemplateData(params Params, currentReplicas int) TemplateData {
 		data.Replicas = currentReplicas
 	} else {
 		data.Replicas = data.MinReplicas
+	}
+
+	if releaseID != "" {
+		data.IncludeReleaseIDLabel = true
+		data.ReleaseIDLabel = releaseID
 	}
 
 	switch params.Action {

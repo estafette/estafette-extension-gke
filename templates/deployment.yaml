@@ -30,6 +30,9 @@ spec:
         {{$key}}: {{$value}}
         {{- end}}
         version: {{.BuildVersion}}
+        {{- if .IncludeReleaseIDLabel}}
+        release-id: {{.ReleaseIDLabel}}
+        {{- end}}
         {{- if .IncludeTrackLabel}}
         track: {{.TrackLabel}}
         {{- end}}
