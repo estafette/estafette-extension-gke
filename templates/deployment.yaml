@@ -31,7 +31,7 @@ spec:
         {{- end}}
         version: {{.BuildVersion}}
         {{- if .IncludeReleaseIDLabel}}
-        release-id: {{.ReleaseIDLabel}}
+        release-id: "{{.ReleaseIDLabel}}"
         {{- end}}
         {{- if .IncludeTrackLabel}}
         track: {{.TrackLabel}}
