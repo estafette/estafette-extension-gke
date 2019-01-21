@@ -368,7 +368,7 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 		p.RollingUpdate.MaxSurge = "25%"
 	}
 	if p.RollingUpdate.MaxUnavailable == "" {
-		p.RollingUpdate.MaxUnavailable = "25%"
+		p.RollingUpdate.MaxUnavailable = "0"
 	}
 	if p.RollingUpdate.Timeout == "" {
 		p.RollingUpdate.Timeout = "5m"

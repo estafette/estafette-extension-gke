@@ -1449,7 +1449,7 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "10%", params.RollingUpdate.MaxSurge)
 	})
 
-	t.Run("DefaultsRollingUpdateMaxUnavailableTo25%IfEmpty", func(t *testing.T) {
+	t.Run("DefaultsRollingUpdateMaxUnavailableTo0IfEmpty", func(t *testing.T) {
 
 		params := Params{
 			RollingUpdate: RollingUpdateParams{
@@ -1460,7 +1460,7 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, "25%", params.RollingUpdate.MaxUnavailable)
+		assert.Equal(t, "0", params.RollingUpdate.MaxUnavailable)
 	})
 
 	t.Run("KeepsRollingUpdateMaxUnavailableIfNotEmpty", func(t *testing.T) {
