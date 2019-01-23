@@ -59,6 +59,30 @@ func TestGetTemplates(t *testing.T) {
 		assert.False(t, stringArrayContains(templates, "/templates/ingress.yaml"))
 	})
 
+	t.Run("IncludesInternalIngressIfOneOrMoreInternalHostsAreSet", func(t *testing.T) {
+
+		params := Params{
+			InternalHosts: []string{"ci.estafette.internal"},
+		}
+
+		// act
+		templates := getTemplates(params)
+
+		assert.True(t, stringArrayContains(templates, "/templates/ingress-internal.yaml"))
+	})
+
+	t.Run("DoesNotIncludeInternalIngressIfNoInternalHostsAreSet", func(t *testing.T) {
+
+		params := Params{
+			InternalHosts: []string{},
+		}
+
+		// act
+		templates := getTemplates(params)
+
+		assert.False(t, stringArrayContains(templates, "/templates/ingress-internal.yaml"))
+	})
+
 	t.Run("IncludesApplicationSecretsIfLengthOfSecretsIsMoreThanZero", func(t *testing.T) {
 
 		params := Params{

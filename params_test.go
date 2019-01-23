@@ -2060,6 +2060,78 @@ func TestValidateRequiredProperties(t *testing.T) {
 		assert.True(t, len(errors) > 0)
 	})
 
+	t.Run("ReturnsTrueIfInternalHostsAreNotSet", func(t *testing.T) {
+
+		params := validParams
+		params.InternalHosts = []string{}
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsTrueIfOneOrMoreInternalHostsAreSet", func(t *testing.T) {
+
+		params := validParams
+		params.InternalHosts = []string{"ci.estafette.internal"}
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsTrueIfOneOrMoreUppercaseInternalHostsAreSet", func(t *testing.T) {
+
+		params := validParams
+		params.InternalHosts = []string{"CI.ESTAFETTE.INTERNAL"}
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfInternalHostHasLabelsLongerThan63Characters", func(t *testing.T) {
+
+		params := validParams
+		params.InternalHosts = []string{"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl.estafette.internal"}
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsFalseIfInternalHostIsLongerThan253Characters", func(t *testing.T) {
+
+		params := validParams
+		params.InternalHosts = []string{"abcdefghijklmnopqrstuvw.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.estafette.internal"}
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsFalseIfInternalHostHasOtherCharacterThanAlphaNumericOrHyphen", func(t *testing.T) {
+
+		params := validParams
+		params.InternalHosts = []string{"gke_site.estafette.internal"}
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
 	t.Run("ReturnsFalseIfAutoscaleMinReplicasIsZeroOrLess", func(t *testing.T) {
 
 		params := validParams

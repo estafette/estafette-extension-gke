@@ -155,6 +155,9 @@ stages:
     hosts:
     - gke.estafette.io
     - gke-deploy.estafette.io
+    internalhosts:
+    - gke.estafette.internal
+    - gke-deploy.estafette.local
     basepath: /
     enablePayloadLogging: true
     chaosproof: true

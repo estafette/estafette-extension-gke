@@ -333,6 +333,38 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "gke.estafette.io,gke-deploy.estafette.io", templateData.HostsJoined)
 	})
 
+	t.Run("SetsInternalHostsToInternalHostsParam", func(t *testing.T) {
+
+		params := Params{
+			InternalHosts: []string{
+				"gke.estafette.io",
+				"gke-deploy.estafette.io",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "")
+
+		assert.Equal(t, 2, len(templateData.InternalHosts))
+		assert.Equal(t, "gke.estafette.io", templateData.InternalHosts[0])
+		assert.Equal(t, "gke-deploy.estafette.io", templateData.InternalHosts[1])
+	})
+
+	t.Run("SetsInternalHostsJoinedToCommaSeparatedJoinOfInternalHostsParam", func(t *testing.T) {
+
+		params := Params{
+			InternalHosts: []string{
+				"gke.estafette.io",
+				"gke-deploy.estafette.io",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "")
+
+		assert.Equal(t, "gke.estafette.io,gke-deploy.estafette.io", templateData.InternalHostsJoined)
+	})
+
 	t.Run("SetsMinReplicasToAutoscaleMinReplicasParam", func(t *testing.T) {
 
 		params := Params{

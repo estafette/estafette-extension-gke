@@ -17,9 +17,11 @@ func generateTemplateData(params Params, currentReplicas int, releaseID string) 
 		Labels:           params.Labels,
 		AppLabelSelector: params.App,
 
-		Hosts:       params.Hosts,
-		HostsJoined: strings.Join(params.Hosts, ","),
-		IngressPath: params.Basepath,
+		Hosts:               params.Hosts,
+		HostsJoined:         strings.Join(params.Hosts, ","),
+		InternalHosts:       params.InternalHosts,
+		InternalHostsJoined: strings.Join(params.InternalHosts, ","),
+		IngressPath:         params.Basepath,
 
 		IncludeReplicas: currentReplicas > 0,
 

@@ -75,6 +75,9 @@ func getTemplates(params Params) []string {
 	if (params.Type == "api" || params.Type == "web") && (params.Visibility == "private" || params.Visibility == "iap" || params.Visibility == "public-whitelist") {
 		templatesToMerge = append(templatesToMerge, "ingress.yaml")
 	}
+	if len(params.InternalHosts) > 0 {
+		templatesToMerge = append(templatesToMerge, "ingress-internal.yaml")
+	}
 	if len(params.Secrets.Keys) > 0 {
 		templatesToMerge = append(templatesToMerge, "application-secrets.yaml")
 	}

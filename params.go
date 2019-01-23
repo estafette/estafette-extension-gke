@@ -24,6 +24,7 @@ type Params struct {
 	Visibility     string              `json:"visibility,omitempty"`
 	WhitelistedIPS []string            `json:"whitelist,omitempty"`
 	Hosts          []string            `json:"hosts,omitempty"`
+	InternalHosts  []string            `json:"internalhosts,omitempty"`
 	Basepath       string              `json:"basepath,omitempty"`
 	Autoscale      AutoscaleParams     `json:"autoscale,omitempty"`
 	Secrets        SecretsParams       `json:"secrets,omitempty"`
@@ -486,6 +487,26 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 			}
 		}
 	}
+
+	for _, host := range p.InternalHosts {
+		if len(host) > 253 {
+			errors = append(errors, fmt.Errorf("Internal host %v is longer than the allowed 253 characters, which is invalid for DNS; please shorten your host", host))
+			break
+		}
+
+		matchesInvalidChars, _ := regexp.MatchString("[^a-zA-Z0-9-.]", host)
+		if matchesInvalidChars {
+			errors = append(errors, fmt.Errorf("Internal host %v has invalid characters; only a-z, 0-9, - and . are allowed; please fix your host", host))
+		}
+
+		hostLabels := strings.Split(host, ".")
+		for _, label := range hostLabels {
+			if len(label) > 63 {
+				errors = append(errors, fmt.Errorf("Internal host %v has label %v - the parts between dots - that is longer than the allowed 63 characters, which is invalid for DNS; please shorten your host label", host, label))
+			}
+		}
+	}
+
 	if p.Basepath == "" {
 		errors = append(errors, fmt.Errorf("Basepath property is required; set it via basepath property on this stage"))
 	}

@@ -9,6 +9,8 @@ type TemplateData struct {
 	AppLabelSelector            string
 	Hosts                       []string
 	HostsJoined                 string
+	InternalHosts               []string
+	InternalHostsJoined         string
 	IngressPath                 string
 	UseIngress                  bool
 	UseNginxIngress             bool
