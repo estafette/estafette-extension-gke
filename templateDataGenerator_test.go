@@ -905,7 +905,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "/", templateData.IngressPath)
 	})
 
-	t.Run("AppendSlashToIngressPathToIfBasepathParamDoesNotEndInSlash", func(t *testing.T) {
+	t.Run("AppendSlashToIngressPathIfBasepathParamDoesNotEndInSlash", func(t *testing.T) {
 
 		params := Params{
 			Basepath: "/api",
@@ -917,7 +917,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "/api/", templateData.IngressPath)
 	})
 
-	t.Run("AppendSlashStarToIngressPathToIfUseGCEIngressIsTrue", func(t *testing.T) {
+	t.Run("AppendSlashStarToIngressPathIfUseGCEIngressIsTrue", func(t *testing.T) {
 
 		params := Params{
 			Basepath:   "/api",
@@ -928,6 +928,43 @@ func TestGenerateTemplateData(t *testing.T) {
 		templateData := generateTemplateData(params, -1, "")
 
 		assert.Equal(t, "/api/*", templateData.IngressPath)
+	})
+
+	t.Run("SetsInternalIngressPathToBasepathParam", func(t *testing.T) {
+
+		params := Params{
+			Basepath: "/",
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "")
+
+		assert.Equal(t, "/", templateData.InternalIngressPath)
+	})
+
+	t.Run("AppendSlashToInternalIngressPathIfBasepathParamDoesNotEndInSlash", func(t *testing.T) {
+
+		params := Params{
+			Basepath: "/api",
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "")
+
+		assert.Equal(t, "/api/", templateData.InternalIngressPath)
+	})
+
+	t.Run("DoNotAppendSlashStarToInternalIngressPathIfUseGCEIngressIsTrue", func(t *testing.T) {
+
+		params := Params{
+			Basepath:   "/api",
+			Visibility: "iap",
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "")
+
+		assert.Equal(t, "/api/", templateData.InternalIngressPath)
 	})
 
 	t.Run("SetsMountPayloadLoggingToTrueIfEnablePayloadLoggingParamIsTrue", func(t *testing.T) {

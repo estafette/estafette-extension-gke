@@ -22,6 +22,7 @@ func generateTemplateData(params Params, currentReplicas int, releaseID string) 
 		InternalHosts:       params.InternalHosts,
 		InternalHostsJoined: strings.Join(params.InternalHosts, ","),
 		IngressPath:         params.Basepath,
+		InternalIngressPath: params.Basepath,
 
 		IncludeReplicas: currentReplicas > 0,
 
@@ -175,6 +176,9 @@ func generateTemplateData(params Params, currentReplicas int, releaseID string) 
 	}
 	if data.UseGCEIngress && !strings.HasSuffix(data.IngressPath, "*") {
 		data.IngressPath += "*"
+	}
+	if !strings.HasSuffix(data.InternalIngressPath, "/") && !strings.HasSuffix(data.InternalIngressPath, "*") {
+		data.InternalIngressPath += "/"
 	}
 
 	data.TrustedIPRanges = params.TrustedIPRanges

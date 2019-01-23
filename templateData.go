@@ -12,6 +12,7 @@ type TemplateData struct {
 	InternalHosts               []string
 	InternalHostsJoined         string
 	IngressPath                 string
+	InternalIngressPath         string
 	UseIngress                  bool
 	UseNginxIngress             bool
 	UseGCEIngress               bool

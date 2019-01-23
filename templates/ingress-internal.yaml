@@ -23,7 +23,7 @@ spec:
   - host: {{.}}
     http:
       paths:
-      - path: {{$.IngressPath}}
+      - path: {{$.InternalIngressPath}}
         backend:
           serviceName: {{$.Name}}
           servicePort: https
