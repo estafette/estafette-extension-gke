@@ -331,14 +331,14 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 		if p.Sidecar.CPU.Limit != "" {
 			p.Sidecar.CPU.Request = p.Sidecar.CPU.Limit
 		} else {
-			p.Sidecar.CPU.Request = "10m"
+			p.Sidecar.CPU.Request = "50m"
 		}
 	}
 	if p.Sidecar.CPU.Limit == "" {
 		if !sidecarCPURequestIsEmpty {
 			p.Sidecar.CPU.Limit = p.Sidecar.CPU.Request
 		} else {
-			p.Sidecar.CPU.Limit = "50m"
+			p.Sidecar.CPU.Limit = "75m"
 		}
 	}
 
@@ -348,7 +348,7 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 		if p.Sidecar.Memory.Limit != "" {
 			p.Sidecar.Memory.Request = p.Sidecar.Memory.Limit
 		} else {
-			p.Sidecar.Memory.Request = "10Mi"
+			p.Sidecar.Memory.Request = "30Mi"
 		}
 	}
 	if p.Sidecar.Memory.Limit == "" {

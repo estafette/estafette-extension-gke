@@ -1193,7 +1193,7 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "/nomyreadiness", params.Sidecar.HealthCheckPath)
 	})
 
-	t.Run("DefaultsSidecarCpuRequestTo10MIfBothRequestAndLimitAreEmpty", func(t *testing.T) {
+	t.Run("DefaultsSidecarCpuRequestTo50MIfBothRequestAndLimitAreEmpty", func(t *testing.T) {
 
 		params := Params{
 			Sidecar: SidecarParams{
@@ -1207,7 +1207,7 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, "10m", params.Sidecar.CPU.Request)
+		assert.Equal(t, "50m", params.Sidecar.CPU.Request)
 	})
 
 	t.Run("DefaultsSidecarCpuRequestToLimitIfRequestIsEmptyButLimitIsNot", func(t *testing.T) {
@@ -1244,7 +1244,7 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "250m", params.Sidecar.CPU.Request)
 	})
 
-	t.Run("DefaultsSidecarCpuLimitTo50MIfBothRequestAndLimitAreEmpty", func(t *testing.T) {
+	t.Run("DefaultsSidecarCpuLimitTo75MIfBothRequestAndLimitAreEmpty", func(t *testing.T) {
 
 		params := Params{
 			Sidecar: SidecarParams{
@@ -1258,7 +1258,7 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, "50m", params.Sidecar.CPU.Limit)
+		assert.Equal(t, "75m", params.Sidecar.CPU.Limit)
 	})
 
 	t.Run("DefaultsSidecarCpuLimitToRequestIfLimitIsEmptyButRequestIsNot", func(t *testing.T) {
@@ -1295,7 +1295,7 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "250m", params.Sidecar.CPU.Limit)
 	})
 
-	t.Run("DefaultsSidecarMemoryRequestTo10MiIfBothRequestAndLimitAreEmpty", func(t *testing.T) {
+	t.Run("DefaultsSidecarMemoryRequestTo30MiIfBothRequestAndLimitAreEmpty", func(t *testing.T) {
 
 		params := Params{
 			Sidecar: SidecarParams{
@@ -1309,7 +1309,7 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, "10Mi", params.Sidecar.Memory.Request)
+		assert.Equal(t, "30Mi", params.Sidecar.Memory.Request)
 	})
 
 	t.Run("DefaultsSidecarMemoryRequestToLimitIfRequestIsEmptyButLimitIsNot", func(t *testing.T) {
