@@ -12,6 +12,9 @@ metadata:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     estafette.io/google-cloud-dns: "true"
     estafette.io/google-cloud-dns-hostnames: "{{.InternalHostsJoined}}"
+    estafette.io/cloudflare-dns: "true"
+    estafette.io/cloudflare-proxy: "false"
+    estafette.io/cloudflare-hostnames: "{{.InternalHostsJoined}}"
 spec:
   tls:
   - hosts:
