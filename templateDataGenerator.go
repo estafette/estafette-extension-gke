@@ -3,7 +3,7 @@ package main
 import (
 	"strings"
 
-	"gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v2"
 )
 
 func generateTemplateData(params Params, currentReplicas int, releaseID string) TemplateData {
@@ -90,6 +90,20 @@ func generateTemplateData(params Params, currentReplicas int, releaseID string) 
 			EnvironmentVariables: params.Sidecar.EnvironmentVariables,
 		},
 	}
+
+	// set request params on sidecar
+	data.Sidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Sidecar.EnvironmentVariables, "SEND_TIMEOUT", params.Request.Timeout)
+	data.Sidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Sidecar.EnvironmentVariables, "CLIENT_BODY_TIMEOUT", params.Request.Timeout)
+	data.Sidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Sidecar.EnvironmentVariables, "CLIENT_HEADER_TIMEOUT", params.Request.Timeout)
+	data.Sidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Sidecar.EnvironmentVariables, "PROXY_CONNECT_TIMEOUT", params.Request.Timeout)
+	data.Sidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Sidecar.EnvironmentVariables, "PROXY_SEND_TIMEOUT", params.Request.Timeout)
+	data.Sidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Sidecar.EnvironmentVariables, "PROXY_READ_TIMEOUT", params.Request.Timeout)
+	data.NginxIngressProxyConnectTimeout = params.Request.Timeout
+	data.NginxIngressProxySendTimeout = params.Request.Timeout
+	data.NginxIngressProxyReadTimeout = params.Request.Timeout
+
+	data.Sidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Sidecar.EnvironmentVariables, "CLIENT_MAX_BODY_SIZE", params.Request.MaxBodySize)
+	data.NginxIngressProxyBodySize = params.Request.MaxBodySize
 
 	if params.Container.Metrics.Scrape != nil {
 		data.Container.Metrics.Scrape = *params.Container.Metrics.Scrape
@@ -213,4 +227,16 @@ func generateTemplateData(params Params, currentReplicas int, releaseID string) 
 	}
 
 	return data
+}
+
+func addEnvironmentVariableIfNotSet(environmentVariables map[string]interface{}, name, value string) map[string]interface{} {
+
+	if environmentVariables == nil {
+		environmentVariables = map[string]interface{}{}
+	}
+	if _, ok := environmentVariables[name]; !ok {
+		environmentVariables[name] = value
+	}
+
+	return environmentVariables
 }

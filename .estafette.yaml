@@ -108,6 +108,9 @@ stages:
       min: 3
       max: 50
       cpu: 80
+    request:
+      timeout: 60s
+      maxbodysize: 128M
     secrets:
       keys:
         secret-file-1.json: c29tZSBzZWNyZXQgdmFsdWU=

@@ -660,6 +660,62 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, 30, params.Autoscale.CPUPercentage)
 	})
 
+	t.Run("DefaultsRequestTimeoutTo60sIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			Request: RequestParams{
+				Timeout: "",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, "60s", params.Request.Timeout)
+	})
+
+	t.Run("KeepsRequestTimeoutIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			Request: RequestParams{
+				Timeout: "10s",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, "10s", params.Request.Timeout)
+	})
+
+	t.Run("DefaultsRequestMaxBodySizeTo128MIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			Request: RequestParams{
+				MaxBodySize: "",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, "128M", params.Request.MaxBodySize)
+	})
+
+	t.Run("KeepsRequestMaxBodySizeIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			Request: RequestParams{
+				MaxBodySize: "16M",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, "16M", params.Request.MaxBodySize)
+	})
+
 	t.Run("DefaultsLivenessInitialDelaySecondsTo30IfZero", func(t *testing.T) {
 
 		params := Params{

@@ -10,6 +10,10 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: "nginx-internal"
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    nginx.ingress.kubernetes.io/proxy-body-size: "{{.NginxIngressProxyBodySize}}"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "{{.NginxIngressProxyConnectTimeout}}"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "{{.NginxIngressProxySendTimeout}}"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "{{.NginxIngressProxyReadTimeout}}"
     # estafette.io/google-cloud-dns: "true"
     # estafette.io/google-cloud-dns-hostnames: "{{.InternalHostsJoined}}"
     estafette.io/cloudflare-dns: "true"

@@ -27,6 +27,7 @@ type Params struct {
 	InternalHosts  []string            `json:"internalhosts,omitempty"`
 	Basepath       string              `json:"basepath,omitempty"`
 	Autoscale      AutoscaleParams     `json:"autoscale,omitempty"`
+	Request        RequestParams       `json:"request,omitempty"`
 	Secrets        SecretsParams       `json:"secrets,omitempty"`
 	Configs        ConfigsParams       `json:"configs,omitempty"`
 	VolumeMounts   []VolumeMountParams `json:"volumemounts,omitempty"`
@@ -82,6 +83,12 @@ type AutoscaleParams struct {
 	MinReplicas   int `json:"min,omitempty"`
 	MaxReplicas   int `json:"max,omitempty"`
 	CPUPercentage int `json:"cpu,omitempty"`
+}
+
+// RequestParams controls timeouts, max body size, etc
+type RequestParams struct {
+	Timeout     string `json:"timeout,omitempty"`
+	MaxBodySize string `json:"maxbodysize,omitempty"`
 }
 
 // ProbeParams sets params for liveness or readiness probe
@@ -259,6 +266,14 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 	}
 	if p.Autoscale.CPUPercentage <= 0 {
 		p.Autoscale.CPUPercentage = 80
+	}
+
+	// set request defaults
+	if p.Request.Timeout == "" {
+		p.Request.Timeout = "60s"
+	}
+	if p.Request.MaxBodySize == "" {
+		p.Request.MaxBodySize = "128M"
 	}
 
 	// set liveness probe defaults
