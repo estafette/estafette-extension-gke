@@ -10,9 +10,6 @@ metadata:
 spec:
   completions: 1
   parallelism: 1
-  selector:
-    matchLabels:
-      app: {{.AppLabelSelector}}
   template:
     metadata:
       labels:
