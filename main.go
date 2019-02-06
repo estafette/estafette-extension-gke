@@ -418,7 +418,10 @@ func patchServiceIfRequired(params Params, templateData TemplateData, name, name
 
 func cleanupJobIfRequired(params Params, templateData TemplateData, name, namespace string) {
 	if params.Kind == "job" {
-		err = runCommandExtended("kubectl", []string{"delete", "job", name, "-n", namespace, "--ignore-not-found=true"})
+		err := runCommandExtended("kubectl", []string{"delete", "job", name, "-n", namespace, "--ignore-not-found=true"})
+		if err != nil {
+			logInfo("Deleting job %v failed: %v", name, err)
+		}
 	}
 }
 
