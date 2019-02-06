@@ -1610,4 +1610,16 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		assert.Equal(t, 3, templateData.Replicas)
 	})
+
+	t.Run("SetsScheduleToScheduleParam", func(t *testing.T) {
+
+		params := Params{
+			Schedule: "*/5 * * * *",
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "")
+
+		assert.Equal(t, "*/5 * * * *", templateData.Schedule)
+	})
 }

@@ -54,6 +54,13 @@ func getTemplates(params Params) []string {
 			"job.yaml",
 		}...)
 
+	case "cronjob":
+		templatesToMerge = append(templatesToMerge, []string{
+			"namespace.yaml",
+			"serviceaccount.yaml",
+			"cronjob.yaml",
+		}...)
+
 	default:
 		templatesToMerge = append(templatesToMerge, []string{
 			"namespace.yaml",

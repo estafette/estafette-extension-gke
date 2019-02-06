@@ -5,6 +5,7 @@ type TemplateData struct {
 	Name                            string
 	NameWithTrack                   string
 	Namespace                       string
+	Schedule                        string
 	Labels                          map[string]string
 	AppLabelSelector                string
 	Hosts                           []string

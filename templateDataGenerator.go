@@ -14,6 +14,7 @@ func generateTemplateData(params Params, currentReplicas int, releaseID string) 
 		Name:             params.App,
 		NameWithTrack:    params.App,
 		Namespace:        params.Namespace,
+		Schedule:         params.Schedule,
 		Labels:           params.Labels,
 		AppLabelSelector: params.App,
 

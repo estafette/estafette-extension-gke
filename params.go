@@ -20,6 +20,7 @@ type Params struct {
 	// app params
 	App            string              `json:"app,omitempty"`
 	Namespace      string              `json:"namespace,omitempty"`
+	Schedule       string              `json:"schedule,omitempty"`
 	Labels         map[string]string   `json:"labels,omitempty"`
 	Visibility     string              `json:"visibility,omitempty"`
 	WhitelistedIPS []string            `json:"whitelist,omitempty"`
@@ -472,7 +473,11 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 		errors = append(errors, fmt.Errorf("Rollingupdate max unavailable is required; set it via rollingupdate.maxunavailable property on this stage"))
 	}
 
-	if p.Kind == "job" {
+	if p.Kind == "cronjob" && p.Schedule == "" {
+		errors = append(errors, fmt.Errorf("Schedule is required for a cronjob; set it via schedule property on this stage"))
+	}
+
+	if p.Kind == "job" || p.Kind == "cronjob" {
 		// the above properties are all you need for a worker
 		return len(errors) == 0, errors
 	}

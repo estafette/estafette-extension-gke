@@ -423,6 +423,12 @@ func cleanupJobIfRequired(params Params, templateData TemplateData, name, namesp
 			logInfo("Deleting job %v failed: %v", name, err)
 		}
 	}
+	if params.Kind == "cronjob" {
+		err := runCommandExtended("kubectl", []string{"delete", "cronjob", name, "-n", namespace, "--ignore-not-found=true"})
+		if err != nil {
+			logInfo("Deleting cronjob %v failed: %v", name, err)
+		}
+	}
 }
 
 func getExistingNumberOfReplicas(params Params) int {

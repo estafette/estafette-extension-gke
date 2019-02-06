@@ -1717,7 +1717,7 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "deployment", params.Kind)
 	})
 
-	t.Run("KeepsTypeIfNotEmpty", func(t *testing.T) {
+	t.Run("KeepsKindIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
 			Kind: "job",
@@ -2746,6 +2746,32 @@ func TestValidateRequiredProperties(t *testing.T) {
 
 		params := validParams
 		params.RollingUpdate.MaxUnavailable = "25%"
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfScheduleIsNotSetAndKindIsCronjob", func(t *testing.T) {
+
+		params := validParams
+		params.Kind = "cronjob"
+		params.Schedule = ""
+
+		// act
+		valid, errors := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfScheduleIsSetAndKindIsCronjob", func(t *testing.T) {
+
+		params := validParams
+		params.Kind = "cronjob"
+		params.Schedule = "*/5 * * * *"
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()
