@@ -146,9 +146,19 @@ func renderConfig(params Params) (renderedConfigFiles map[string]string) {
 			renderedConfigFiles[filepath.Base(cf)] = renderedTemplate.String()
 		}
 
-		// add files passed with configs.inline property as is
+		// add files passed with configs.inline property, replacing placeholders with values specified in configs.data property
 		for filename, content := range params.Configs.InlineFiles {
-			renderedConfigFiles[filename] = content
+			tmpl, err := template.New(filename).Parse(content)
+			if err != nil {
+				log.Fatal(fmt.Sprintf("Failed building template from inline file %v: ", filename), err)
+			}
+			var renderedTemplate bytes.Buffer
+			err = tmpl.Execute(&renderedTemplate, params.Configs.Data)
+			if err != nil {
+				log.Fatal(fmt.Sprintf("Failed rendering template from file %v: ", filename), err)
+			}
+
+			renderedConfigFiles[filename] = renderedTemplate.String()
 		}
 	}
 
