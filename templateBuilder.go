@@ -65,7 +65,7 @@ func getTemplates(params Params) []string {
 
 	}
 
-	if params.Action == "deploy-simple" || params.Action == "deploy-stable" {
+	if params.Kind == "deployment" && (params.Action == "deploy-simple" || params.Action == "deploy-stable") {
 		templatesToMerge = append(templatesToMerge, []string{
 			"poddisruptionbudget.yaml",
 			"horizontalpodautoscaler.yaml",

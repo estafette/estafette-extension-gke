@@ -426,25 +426,27 @@ func cleanupJobIfRequired(params Params, templateData TemplateData, name, namesp
 }
 
 func getExistingNumberOfReplicas(params Params) int {
-	deploymentName := ""
-	if params.Action == "deploy-simple" {
-		deploymentName = params.App + "-stable"
-	} else if params.Action == "deploy-stable" {
-		deploymentName = params.App
-	}
-	if deploymentName != "" {
-		replicas, err := getCommandOutput("kubectl", []string{"get", "deploy", deploymentName, "-n", params.Namespace, "-o=jsonpath={.spec.replicas}"})
-		if err != nil {
-			logInfo("Failed retrieving replicas for %v: %v ignoring setting replicas since there's no switch for deployment type...", deploymentName, err)
-			return -1
+	if params.Kind == "deployment" {
+		deploymentName := ""
+		if params.Action == "deploy-simple" {
+			deploymentName = params.App + "-stable"
+		} else if params.Action == "deploy-stable" {
+			deploymentName = params.App
 		}
-		replicasInt, err := strconv.Atoi(replicas)
-		if err != nil {
-			logInfo("Failed converting replicas value %v for %v: %v ignoring setting replicas since there's no switch for deployment type...", replicas, deploymentName, err)
-			return -1
+		if deploymentName != "" {
+			replicas, err := getCommandOutput("kubectl", []string{"get", "deploy", deploymentName, "-n", params.Namespace, "-o=jsonpath={.spec.replicas}"})
+			if err != nil {
+				logInfo("Failed retrieving replicas for %v: %v ignoring setting replicas since there's no switch for deployment type...", deploymentName, err)
+				return -1
+			}
+			replicasInt, err := strconv.Atoi(replicas)
+			if err != nil {
+				logInfo("Failed converting replicas value %v for %v: %v ignoring setting replicas since there's no switch for deployment type...", replicas, deploymentName, err)
+				return -1
+			}
+			logInfo("Retrieved number of replicas for %v is %v; using it to set correct number of replicas switching deployment type...", deploymentName, replicasInt)
+			return replicasInt
 		}
-		logInfo("Retrieved number of replicas for %v is %v; using it to set correct number of replicas switching deployment type...", deploymentName, replicasInt)
-		return replicasInt
 	}
 
 	return -1
