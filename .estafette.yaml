@@ -178,6 +178,7 @@ stages:
     - gke-deploy.estafette.local
     basepath: /
     enablePayloadLogging: true
+    useGoogleCloudCredentials: true
     chaosproof: true
     rollingupdate:
       maxsurge: 25%

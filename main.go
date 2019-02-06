@@ -316,7 +316,7 @@ func deleteConfigsForParamsChange(params Params, name, namespace string) {
 }
 
 func deleteSecretsForParamsChange(params Params, name, namespace string) {
-	if len(params.Secrets.Keys) == 0 {
+	if len(params.Secrets.Keys) == 0 && !params.UseGoogleCloudCredentials {
 		logInfo("Deleting application secrets if it exists, because no secrets are specified...")
 		runCommand("kubectl", []string{"delete", "secret", fmt.Sprintf("%v-secrets", name), "-n", namespace, "--ignore-not-found=true"})
 	}
