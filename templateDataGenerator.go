@@ -34,7 +34,7 @@ func generateTemplateData(params Params, currentReplicas int, releaseID string) 
 		Secrets:                 params.Secrets.Keys,
 		MountApplicationSecrets: len(params.Secrets.Keys) > 0,
 		SecretMountPath:         params.Secrets.MountPath,
-		MountConfigmap:          len(params.Configs.Files) > 0,
+		MountConfigmap:          len(params.Configs.Files) > 0 || len(params.Configs.InlineFiles) > 0,
 		ConfigMountPath:         params.Configs.MountPath,
 
 		MountPayloadLogging:      params.EnablePayloadLogging,

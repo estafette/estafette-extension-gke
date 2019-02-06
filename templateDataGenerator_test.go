@@ -1095,11 +1095,28 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.True(t, templateData.MountConfigmap)
 	})
 
-	t.Run("SetsMountConfigmapToFalseIfConfigFilesParamsLengthIsZero", func(t *testing.T) {
+	t.Run("SetsMountConfigmapToTrueIfInlineFilesParamsLengthIsLargerThanZero", func(t *testing.T) {
 
 		params := Params{
 			Configs: ConfigsParams{
-				Files: []string{},
+				InlineFiles: map[string]string{
+					"inline-config.properties": "enemies=aliens\nlives=3",
+				},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "")
+
+		assert.True(t, templateData.MountConfigmap)
+	})
+
+	t.Run("SetsMountConfigmapToFalseIfConfigFilesAndInlineFilesParamsLengthAreZero", func(t *testing.T) {
+
+		params := Params{
+			Configs: ConfigsParams{
+				Files:       []string{},
+				InlineFiles: map[string]string{},
 			},
 		}
 
