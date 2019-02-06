@@ -49,7 +49,7 @@ spec:
           limits:
             cpu: {{.Container.CPULimit}}
             memory: {{.Container.MemoryLimit}}
-        {{- if or .MountApplicationSecrets .MountConfigmap .MountPayloadLogging }}
+        {{- if or .MountApplicationSecrets .MountConfigmap .MountAdditionalVolumes }}
         volumeMounts:
         {{- if .MountApplicationSecrets }}
         - name: app-secrets
@@ -59,11 +59,11 @@ spec:
         - name: app-configs
           mountPath: {{.ConfigMountPath}}
         {{- end }}
-        {{- end }}
         {{- range .AdditionalVolumeMounts}}
         - name: {{.Name}}
           mountPath: {{.MountPath}}
         {{- end}}
+        {{- end }}
       terminationGracePeriodSeconds: 300
       volumes:
       {{- if .MountApplicationSecrets }}

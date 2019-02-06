@@ -43,6 +43,7 @@ type TemplateData struct {
 	ReleaseIDLabel                  string
 	TrackLabel                      string
 	AddSafeToEvictAnnotation        bool
+	MountAdditionalVolumes          bool
 	AdditionalVolumeMounts          []VolumeMountData
 	AdditionalContainerPorts        []AdditionalPortData
 	AdditionalServicePorts          []AdditionalPortData

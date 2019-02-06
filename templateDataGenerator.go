@@ -208,6 +208,7 @@ func generateTemplateData(params Params, currentReplicas int, releaseID string) 
 			})
 		}
 	}
+	data.MountAdditionalVolumes = len(data.AdditionalVolumeMounts) > 0
 
 	data.AdditionalContainerPorts = []AdditionalPortData{}
 	data.AdditionalServicePorts = []AdditionalPortData{}

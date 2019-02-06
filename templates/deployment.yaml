@@ -119,7 +119,7 @@ spec:
           initialDelaySeconds: {{.Container.Readiness.InitialDelaySeconds}}
           timeoutSeconds: {{.Container.Readiness.TimeoutSeconds}}
         {{- end }}
-        {{- if or .MountApplicationSecrets .MountConfigmap .MountPayloadLogging }}
+        {{- if or .MountApplicationSecrets .MountConfigmap .MountPayloadLogging .MountAdditionalVolumes }}
         volumeMounts:
         {{- if .MountApplicationSecrets }}
         - name: app-secrets
@@ -133,11 +133,11 @@ spec:
         - name: pod-log
           mountPath: /var/log/travix
         {{- end }}
-        {{- end }}
         {{- range .AdditionalVolumeMounts}}
         - name: {{.Name}}
           mountPath: {{.MountPath}}
         {{- end}}
+        {{- end }}
         {{- if .Container.UseLifecyclePreStopSleepCommand }}
         lifecycle:
           preStop:
