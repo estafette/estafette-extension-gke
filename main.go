@@ -265,8 +265,8 @@ func main() {
 
 func assistTroubleshooting() {
 	if assistTroubleshootingOnError {
-		logInfo("Showing current ingresses, services, configmaps, secrets, deployments, jobs, poddisruptionbudgets, horizontalpodautoscalers, pods, endpoints for app=%v...", paramsForTroubleshooting.App)
-		runCommandExtended("kubectl", []string{"get", "ing,svc,cm,secret,deploy,job,pdb,hpa,po,ep", "-l", fmt.Sprintf("app=%v", paramsForTroubleshooting.App), "-n", paramsForTroubleshooting.Namespace})
+		logInfo("Showing current ingresses, services, configmaps, secrets, deployments, jobs, cronjobs, poddisruptionbudgets, horizontalpodautoscalers, pods, endpoints for app=%v...", paramsForTroubleshooting.App)
+		runCommandExtended("kubectl", []string{"get", "ing,svc,cm,secret,deploy,job,cronjob,pdb,hpa,po,ep", "-l", fmt.Sprintf("app=%v", paramsForTroubleshooting.App), "-n", paramsForTroubleshooting.Namespace})
 
 		if paramsForTroubleshooting.Action == "deploy-canary" {
 			logInfo("Showing logs for canary deployment...")
