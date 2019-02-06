@@ -8,11 +8,11 @@ import (
 
 func TestGetTemplates(t *testing.T) {
 
-	t.Run("IncludesIngressIfVisibilityIsPrivateAndTypeIsNotWorker", func(t *testing.T) {
+	t.Run("IncludesIngressIfVisibilityIsPrivateAndKindIsDeployment", func(t *testing.T) {
 
 		params := Params{
 			Visibility: "private",
-			Type:       "api",
+			Kind:       "deployment",
 		}
 
 		// act
@@ -21,11 +21,11 @@ func TestGetTemplates(t *testing.T) {
 		assert.True(t, stringArrayContains(templates, "/templates/ingress.yaml"))
 	})
 
-	t.Run("IncludesIngressIfVisibilityIsIapAndTypeIsNotWorker", func(t *testing.T) {
+	t.Run("IncludesIngressIfVisibilityIsIapAndKindIsDeployment", func(t *testing.T) {
 
 		params := Params{
 			Visibility: "iap",
-			Type:       "api",
+			Kind:       "deployment",
 		}
 
 		// act
@@ -34,11 +34,11 @@ func TestGetTemplates(t *testing.T) {
 		assert.True(t, stringArrayContains(templates, "/templates/ingress.yaml"))
 	})
 
-	t.Run("IncludesIngressIfVisibilityIsPublicWhitelistAndTypeIsNotWorker", func(t *testing.T) {
+	t.Run("IncludesIngressIfVisibilityIsPublicWhitelistAndKindIsDeployment", func(t *testing.T) {
 
 		params := Params{
 			Visibility: "public-whitelist",
-			Type:       "api",
+			Kind:       "deployment",
 		}
 
 		// act
@@ -59,9 +59,10 @@ func TestGetTemplates(t *testing.T) {
 		assert.False(t, stringArrayContains(templates, "/templates/ingress.yaml"))
 	})
 
-	t.Run("IncludesInternalIngressIfOneOrMoreInternalHostsAreSet", func(t *testing.T) {
+	t.Run("IncludesInternalIngressIfOneOrMoreInternalHostsAreSetAndKindIsDeployment", func(t *testing.T) {
 
 		params := Params{
+			Kind:          "deployment",
 			InternalHosts: []string{"ci.estafette.internal"},
 		}
 

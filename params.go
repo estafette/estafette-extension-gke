@@ -10,7 +10,7 @@ import (
 type Params struct {
 	// control params
 	Action          string          `json:"action,omitempty"`
-	Type            string          `json:"type,omitempty"`
+	Kind            string          `json:"kind,omitempty"`
 	DryRun          bool            `json:"dryrun,omitempty"`
 	BuildVersion    string          `json:"-"`
 	ChaosProof      bool            `json:"chaosproof,omitempty"`
@@ -169,9 +169,9 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 		p.Action = "deploy-simple"
 	}
 
-	// default type to api
-	if p.Type == "" {
-		p.Type = "api"
+	// default kind to deployment
+	if p.Kind == "" {
+		p.Kind = "deployment"
 	}
 
 	// default app to estafette app label if no override in stage params
@@ -325,8 +325,8 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 
 	// set sidecar defaults
 	if p.Sidecar.Type == "" {
-		switch p.Type {
-		case "worker":
+		switch p.Kind {
+		case "job":
 			p.Sidecar.Type = "none"
 
 		default:
@@ -472,7 +472,7 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 		errors = append(errors, fmt.Errorf("Rollingupdate max unavailable is required; set it via rollingupdate.maxunavailable property on this stage"))
 	}
 
-	if p.Type == "worker" {
+	if p.Kind == "job" {
 		// the above properties are all you need for a worker
 		return len(errors) == 0, errors
 	}

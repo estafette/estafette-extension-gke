@@ -1140,10 +1140,10 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, 25, *params.Container.Lifecycle.PrestopSleepSeconds)
 	})
 
-	t.Run("DefaultsSidecarTypeToOpenrestyIfEmptyAndGlobalTypeIsNotWorker", func(t *testing.T) {
+	t.Run("DefaultsSidecarTypeToOpenrestyIfEmptyAndGlobalKindIsDeployment", func(t *testing.T) {
 
 		params := Params{
-			Type: "api",
+			Kind: "deployment",
 			Sidecar: SidecarParams{
 				Type: "",
 			},
@@ -1155,10 +1155,10 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "openresty", params.Sidecar.Type)
 	})
 
-	t.Run("DefaultsSidecarTypeToNoneIfEmptyAndGlobalTypeIsWorker", func(t *testing.T) {
+	t.Run("DefaultsSidecarTypeToNoneIfEmptyAndGlobalKindIsJob", func(t *testing.T) {
 
 		params := Params{
-			Type: "worker",
+			Kind: "job",
 			Sidecar: SidecarParams{
 				Type: "",
 			},
@@ -1705,28 +1705,28 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "rollback-canary", params.Action)
 	})
 
-	t.Run("DefaultsTypeToApiIfEmpty", func(t *testing.T) {
+	t.Run("DefaultsKindToDeploymentIfEmpty", func(t *testing.T) {
 
 		params := Params{
-			Type: "",
+			Kind: "",
 		}
 
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, "api", params.Type)
+		assert.Equal(t, "deployment", params.Kind)
 	})
 
 	t.Run("KeepsTypeIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
-			Type: "worker",
+			Kind: "job",
 		}
 
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, "worker", params.Type)
+		assert.Equal(t, "job", params.Kind)
 	})
 }
 

@@ -210,43 +210,52 @@ func main() {
 		paramsForTroubleshooting = params
 
 		if tmpl != nil {
-			patchServiceIfRequired(templateData, templateData.Name, templateData.Namespace)
+			patchServiceIfRequired(params, templateData, templateData.Name, templateData.Namespace)
 			patchDeploymentIfRequired(params, templateData.Name, templateData.Namespace)
 			removePoddisruptionBudgetIfRequired(params, templateData.NameWithTrack, templateData.Namespace)
 			removeIngressIfRequired(params, templateData, templateData.Name, templateData.Namespace)
+			cleanupJobIfRequired(params, templateData, templateData.Name, templateData.Namespace)
 
 			logInfo("Applying the manifests for real...")
 			runCommand("kubectl", kubectlApplyArgs)
 
-			logInfo("Waiting for the deployment to finish...")
-			runCommand("kubectl", []string{"rollout", "status", "deployment", templateData.NameWithTrack, "-n", templateData.Namespace})
+			if params.Kind == "deployment" {
+				logInfo("Waiting for the deployment to finish...")
+				runCommand("kubectl", []string{"rollout", "status", "deployment", templateData.NameWithTrack, "-n", templateData.Namespace})
+			}
 		}
 
 		// clean up old stuff
-		switch params.Action {
-		case "deploy-canary":
-			scaleCanaryDeployment(templateData.Name, templateData.Namespace, 1)
-			deleteConfigsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
-			deleteSecretsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
+		switch params.Kind {
+		case "deployment":
+			switch params.Action {
+			case "deploy-canary":
+				scaleCanaryDeployment(templateData.Name, templateData.Namespace, 1)
+				deleteConfigsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
+				deleteSecretsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
+				break
+			case "deploy-stable":
+				scaleCanaryDeployment(templateData.Name, templateData.Namespace, 0)
+				deleteResourcesForTypeSwitch(templateData.Name, templateData.Namespace)
+				deleteConfigsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
+				deleteSecretsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
+				deleteIngressForVisibilityChange(templateData, templateData.Name, templateData.Namespace)
+				removeEstafetteCloudflareAnnotations(templateData, templateData.Name, templateData.Namespace)
+				break
+			case "rollback-canary":
+				scaleCanaryDeployment(templateData.Name, templateData.Namespace, 0)
+				break
+			case "deploy-simple":
+				deleteResourcesForTypeSwitch(fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
+				deleteResourcesForTypeSwitch(fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
+				deleteConfigsForParamsChange(params, templateData.Name, templateData.Namespace)
+				deleteSecretsForParamsChange(params, templateData.Name, templateData.Namespace)
+				deleteIngressForVisibilityChange(templateData, templateData.Name, templateData.Namespace)
+				removeEstafetteCloudflareAnnotations(templateData, templateData.Name, templateData.Namespace)
+				break
+			}
 			break
-		case "deploy-stable":
-			scaleCanaryDeployment(templateData.Name, templateData.Namespace, 0)
-			deleteResourcesForTypeSwitch(templateData.Name, templateData.Namespace)
-			deleteConfigsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
-			deleteSecretsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
-			deleteIngressForVisibilityChange(templateData, templateData.Name, templateData.Namespace)
-			removeEstafetteCloudflareAnnotations(templateData, templateData.Name, templateData.Namespace)
-			break
-		case "rollback-canary":
-			scaleCanaryDeployment(templateData.Name, templateData.Namespace, 0)
-			break
-		case "deploy-simple":
-			deleteResourcesForTypeSwitch(fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
-			deleteResourcesForTypeSwitch(fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
-			deleteConfigsForParamsChange(params, templateData.Name, templateData.Namespace)
-			deleteSecretsForParamsChange(params, templateData.Name, templateData.Namespace)
-			deleteIngressForVisibilityChange(templateData, templateData.Name, templateData.Namespace)
-			removeEstafetteCloudflareAnnotations(templateData, templateData.Name, templateData.Namespace)
+		case "job":
 			break
 		}
 
@@ -256,8 +265,8 @@ func main() {
 
 func assistTroubleshooting() {
 	if assistTroubleshootingOnError {
-		logInfo("Showing current ingresses, services, configmaps, secrets, deployments ,poddisruptionbudgets, horizontalpodautoscalers, pods, endpoints for app=%v...", paramsForTroubleshooting.App)
-		runCommandExtended("kubectl", []string{"get", "ing,svc,cm,secret,deploy,pdb,hpa,po,ep", "-l", fmt.Sprintf("app=%v", paramsForTroubleshooting.App), "-n", paramsForTroubleshooting.Namespace})
+		logInfo("Showing current ingresses, services, configmaps, secrets, deployments, jobs, poddisruptionbudgets, horizontalpodautoscalers, pods, endpoints for app=%v...", paramsForTroubleshooting.App)
+		runCommandExtended("kubectl", []string{"get", "ing,svc,cm,secret,deploy,job,pdb,hpa,po,ep", "-l", fmt.Sprintf("app=%v", paramsForTroubleshooting.App), "-n", paramsForTroubleshooting.Namespace})
 
 		if paramsForTroubleshooting.Action == "deploy-canary" {
 			logInfo("Showing logs for canary deployment...")
@@ -322,7 +331,7 @@ func deleteIngressForVisibilityChange(templateData TemplateData, name, namespace
 }
 
 func removePoddisruptionBudgetIfRequired(params Params, name, namespace string) {
-	if params.Action == "deploy-simple" || params.Action == "deploy-stable" {
+	if params.Kind == "deployment" && (params.Action == "deploy-simple" || params.Action == "deploy-stable") {
 		// if there's a pdb that doesn't use maxUnavailable: 1 remove it so a new one can be created with correct settings
 		deletePoddisruptionBudget := false
 		maxUnavailable, err := getCommandOutput("kubectl", []string{"get", "pdb", name, "-n", namespace, "-o=jsonpath={.spec.maxUnavailable}"})
@@ -351,7 +360,7 @@ func removePoddisruptionBudgetIfRequired(params Params, name, namespace string) 
 }
 
 func removeIngressIfRequired(params Params, templateData TemplateData, name, namespace string) {
-	if params.Action == "deploy-simple" || params.Action == "deploy-canary" || params.Action == "deploy-stable" {
+	if params.Kind == "deployment" && (params.Action == "deploy-simple" || params.Action == "deploy-canary" || params.Action == "deploy-stable") {
 		if templateData.UseNginxIngress {
 			// check if ingress exists and has kubernetes.io/ingress.class: gce, then delete it because of https://github.com/kubernetes/ingress-gce/issues/481
 			ingressClass, err := getCommandOutput("kubectl", []string{"get", "ing", name, "-n", namespace, "-o=go-template={{index .metadata.annotations \"kubernetes.io/ingress.class\"}}"})
@@ -384,8 +393,8 @@ func removeIngressIfRequired(params Params, templateData TemplateData, name, nam
 	}
 }
 
-func patchServiceIfRequired(templateData TemplateData, name, namespace string) {
-	if templateData.ServiceType == "ClusterIP" {
+func patchServiceIfRequired(params Params, templateData TemplateData, name, namespace string) {
+	if params.Kind == "deployment" && templateData.ServiceType == "ClusterIP" {
 		serviceType, err := getCommandOutput("kubectl", []string{"get", "service", name, "-n", namespace, "-o=jsonpath={.spec.type}"})
 		if err != nil {
 			logInfo("Failed retrieving service type: %v", err)
@@ -404,6 +413,12 @@ func patchServiceIfRequired(templateData TemplateData, name, namespace string) {
 		} else {
 			logInfo("Service is of type %v, no need to patch it", serviceType)
 		}
+	}
+}
+
+func cleanupJobIfRequired(params Params, templateData TemplateData, name, namespace string) {
+	if params.Kind == "job" {
+		err = runCommandExtended("kubectl", []string{"delete", "job", name, "-n", namespace, "--ignore-not-found=true"})
 	}
 }
 
@@ -433,7 +448,7 @@ func getExistingNumberOfReplicas(params Params) int {
 }
 
 func patchDeploymentIfRequired(params Params, name, namespace string) {
-	if params.Action == "deploy-simple" {
+	if params.Kind == "deployment" && params.Action == "deploy-simple" {
 		selectorLabels, err := getCommandOutput("kubectl", []string{"get", "deploy", name, "-n", namespace, "-o=jsonpath={.spec.selector.matchLabels}"})
 		if err != nil {
 			logInfo("Failed retrieving deployment selector labels: %v", err)
