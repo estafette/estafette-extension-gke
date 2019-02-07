@@ -53,7 +53,7 @@ spec:
               limits:
                 cpu: {{.Container.CPULimit}}
                 memory: {{.Container.MemoryLimit}}
-            {{- if or .MountApplicationSecrets .MountConfigmap .MountAdditionalVolumes }}
+            {{- if or .MountApplicationSecrets .MountConfigmap .MountServiceAccountSecret .MountAdditionalVolumes }}
             volumeMounts:
             {{- if .MountApplicationSecrets }}
             - name: app-secrets
@@ -63,12 +63,17 @@ spec:
             - name: app-configs
               mountPath: {{.ConfigMountPath}}
             {{- end }}
+            {{- if .MountServiceAccountSecret }}
+            - name: gcp-service-account
+              mountPath: /gcp-service-account
+            {{- end }}
             {{- range .AdditionalVolumeMounts}}
             - name: {{.Name}}
               mountPath: {{.MountPath}}
             {{- end}}
             {{- end }}
           terminationGracePeriodSeconds: 300
+          {{- if or .MountApplicationSecrets .MountConfigmap .MountServiceAccountSecret .MountAdditionalVolumes }}
           volumes:
           {{- if .MountApplicationSecrets }}
           - name: app-secrets
@@ -80,7 +85,13 @@ spec:
             configMap:
               name: {{.Name}}-configs
           {{- end }}
+          {{- if .MountServiceAccountSecret }}
+          - name: gcp-service-account
+            secret:
+              secretName: {{.Name}}-gcp-service-account
+          {{- end }}
           {{- range .AdditionalVolumeMounts}}
           - name: {{.Name}}
 {{.VolumeYAML | indent 12}}
+          {{- end}}
           {{- end}}

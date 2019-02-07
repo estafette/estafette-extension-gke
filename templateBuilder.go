@@ -85,8 +85,11 @@ func getTemplates(params Params) []string {
 	if params.Kind == "deployment" && len(params.InternalHosts) > 0 {
 		templatesToMerge = append(templatesToMerge, "ingress-internal.yaml")
 	}
-	if len(params.Secrets.Keys) > 0 || params.UseGoogleCloudCredentials {
+	if len(params.Secrets.Keys) > 0 {
 		templatesToMerge = append(templatesToMerge, "application-secrets.yaml")
+	}
+	if params.UseGoogleCloudCredentials {
+		templatesToMerge = append(templatesToMerge, "service-account-secret.yaml")
 	}
 	if len(params.Configs.Files) > 0 || len(params.Configs.InlineFiles) > 0 {
 		templatesToMerge = append(templatesToMerge, "configmap.yaml")

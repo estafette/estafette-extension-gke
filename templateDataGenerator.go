@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"strings"
 
 	yaml "gopkg.in/yaml.v2"
@@ -33,7 +32,7 @@ func generateTemplateData(params Params, currentReplicas int, releaseID string) 
 		TargetCPUPercentage: params.Autoscale.CPUPercentage,
 
 		Secrets:                 params.Secrets.Keys,
-		MountApplicationSecrets: len(params.Secrets.Keys) > 0 || params.UseGoogleCloudCredentials,
+		MountApplicationSecrets: len(params.Secrets.Keys) > 0,
 		SecretMountPath:         params.Secrets.MountPath,
 		MountConfigmap:          len(params.Configs.Files) > 0 || len(params.Configs.InlineFiles) > 0,
 		ConfigMountPath:         params.Configs.MountPath,
@@ -44,8 +43,8 @@ func generateTemplateData(params Params, currentReplicas int, releaseID string) 
 		RollingUpdateMaxSurge:       params.RollingUpdate.MaxSurge,
 		RollingUpdateMaxUnavailable: params.RollingUpdate.MaxUnavailable,
 
-		PreferPreemptibles:                  params.ChaosProof,
-		UseGoogleCloudCredentialsAnnotation: params.UseGoogleCloudCredentials,
+		PreferPreemptibles:        params.ChaosProof,
+		MountServiceAccountSecret: params.UseGoogleCloudCredentials,
 
 		Container: ContainerData{
 			Repository: params.Container.ImageRepository,
@@ -95,7 +94,7 @@ func generateTemplateData(params Params, currentReplicas int, releaseID string) 
 	}
 
 	if params.UseGoogleCloudCredentials {
-		data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "GOOGLE_APPLICATION_CREDENTIALS", fmt.Sprintf("%v/service-account-key.json", data.SecretMountPath))
+		data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "GOOGLE_APPLICATION_CREDENTIALS", "/gcp-service-account/service-account-key.json")
 	}
 
 	// set request params on sidecar

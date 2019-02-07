@@ -239,6 +239,7 @@ func main() {
 				deleteResourcesForTypeSwitch(templateData.Name, templateData.Namespace)
 				deleteConfigsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
 				deleteSecretsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
+				deleteServiceAccountSecretForParamsChange(params, templateData.Name, templateData.Namespace)
 				deleteIngressForVisibilityChange(templateData, templateData.Name, templateData.Namespace)
 				removeEstafetteCloudflareAnnotations(templateData, templateData.Name, templateData.Namespace)
 				break
@@ -250,6 +251,7 @@ func main() {
 				deleteResourcesForTypeSwitch(fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
 				deleteConfigsForParamsChange(params, templateData.Name, templateData.Namespace)
 				deleteSecretsForParamsChange(params, templateData.Name, templateData.Namespace)
+				deleteServiceAccountSecretForParamsChange(params, templateData.Name, templateData.Namespace)
 				deleteIngressForVisibilityChange(templateData, templateData.Name, templateData.Namespace)
 				removeEstafetteCloudflareAnnotations(templateData, templateData.Name, templateData.Namespace)
 				break
@@ -309,16 +311,23 @@ func deleteResourcesForTypeSwitch(name, namespace string) {
 }
 
 func deleteConfigsForParamsChange(params Params, name, namespace string) {
-	if len(params.Configs.Files) == 0 {
+	if len(params.Configs.Files) == 0 && len(params.Configs.InlineFiles) == 0 {
 		logInfo("Deleting application configs if it exists, because no configs are specified...")
 		runCommand("kubectl", []string{"delete", "configmap", fmt.Sprintf("%v-configs", name), "-n", namespace, "--ignore-not-found=true"})
 	}
 }
 
 func deleteSecretsForParamsChange(params Params, name, namespace string) {
-	if len(params.Secrets.Keys) == 0 && !params.UseGoogleCloudCredentials {
+	if len(params.Secrets.Keys) == 0 {
 		logInfo("Deleting application secrets if it exists, because no secrets are specified...")
 		runCommand("kubectl", []string{"delete", "secret", fmt.Sprintf("%v-secrets", name), "-n", namespace, "--ignore-not-found=true"})
+	}
+}
+
+func deleteServiceAccountSecretForParamsChange(params Params, name, namespace string) {
+	if !params.UseGoogleCloudCredentials {
+		logInfo("Deleting service account secret if it exists, because no use of service account is specified...")
+		runCommand("kubectl", []string{"delete", "secret", fmt.Sprintf("%v-gcp-service-account", name), "-n", namespace, "--ignore-not-found=true"})
 	}
 }
 
