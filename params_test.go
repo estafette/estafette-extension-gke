@@ -716,6 +716,34 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "16M", params.Request.MaxBodySize)
 	})
 
+	t.Run("DefaultsRequestMaxBufferSizeTo4kIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			Request: RequestParams{
+				MaxBufferSize: "",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, "4k", params.Request.MaxBufferSize)
+	})
+
+	t.Run("KeepsRequestMaxBufferSizeIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			Request: RequestParams{
+				MaxBufferSize: "8k",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, "8k", params.Request.MaxBufferSize)
+	})
+
 	t.Run("DefaultsLivenessInitialDelaySecondsTo30IfZero", func(t *testing.T) {
 
 		params := Params{
