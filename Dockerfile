@@ -1,9 +1,9 @@
-FROM google/cloud-sdk:236.0.0-alpine
+FROM google/cloud-sdk:237.0.0-alpine
 
 LABEL maintainer="estafette.io" \
       description="The estafette-extension-gke component is an Estafette extension to deploy applications to a Kubernetes Engine cluster"
 
-RUN curl https://storage.googleapis.com/kubernetes-release/release/v1.10.7/bin/linux/amd64/kubectl --output /google-cloud-sdk/bin/kubectl \
+RUN curl https://storage.googleapis.com/kubernetes-release/release/v1.11.7/bin/linux/amd64/kubectl --output /google-cloud-sdk/bin/kubectl \
     && chmod +x /google-cloud-sdk/bin/kubectl \
     && kubectl version --client
 
