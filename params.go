@@ -91,7 +91,7 @@ type AutoscaleParams struct {
 type RequestParams struct {
 	Timeout              string `json:"timeout,omitempty"`
 	MaxBodySize          string `json:"maxbodysize,omitempty"`
-	ProxyBufferSize      string `json:"maxbuffersize,omitempty"`
+	ProxyBufferSize      string `json:"proxybuffersize,omitempty"`
 	ClientBodyBufferSize string `json:"clientbodybuffersize,omitempty"`
 }
 

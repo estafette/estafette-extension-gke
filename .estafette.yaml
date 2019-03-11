@@ -124,7 +124,7 @@ stages:
     request:
       timeout: 60s
       maxbodysize: 128m
-      maxbuffersize: 4k
+      proxybuffersize: 4k
       clientbodybuffersize: 8k
     secrets:
       keys:
