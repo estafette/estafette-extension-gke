@@ -688,7 +688,7 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "10s", params.Request.Timeout)
 	})
 
-	t.Run("DefaultsRequestMaxBodySizeTo128MIfEmpty", func(t *testing.T) {
+	t.Run("DefaultsRequestMaxBodySizeTo128mIfEmpty", func(t *testing.T) {
 
 		params := Params{
 			Request: RequestParams{
@@ -699,49 +699,49 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, "128M", params.Request.MaxBodySize)
+		assert.Equal(t, "128m", params.Request.MaxBodySize)
 	})
 
 	t.Run("KeepsRequestMaxBodySizeIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
 			Request: RequestParams{
-				MaxBodySize: "16M",
+				MaxBodySize: "16m",
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, "16M", params.Request.MaxBodySize)
+		assert.Equal(t, "16m", params.Request.MaxBodySize)
 	})
 
-	t.Run("DefaultsRequestMaxBufferSizeTo4kIfEmpty", func(t *testing.T) {
+	t.Run("DefaultsRequestProxyBufferSizeTo4kIfEmpty", func(t *testing.T) {
 
 		params := Params{
 			Request: RequestParams{
-				MaxBufferSize: "",
+				ProxyBufferSize: "",
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, "4k", params.Request.MaxBufferSize)
+		assert.Equal(t, "4k", params.Request.ProxyBufferSize)
 	})
 
-	t.Run("KeepsRequestMaxBufferSizeIfNotEmpty", func(t *testing.T) {
+	t.Run("KeepsRequestProxyBufferSizeIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
 			Request: RequestParams{
-				MaxBufferSize: "8k",
+				ProxyBufferSize: "8k",
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, "8k", params.Request.MaxBufferSize)
+		assert.Equal(t, "8k", params.Request.ProxyBufferSize)
 	})
 
 	t.Run("DefaultsLivenessInitialDelaySecondsTo30IfZero", func(t *testing.T) {

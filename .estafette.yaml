@@ -123,7 +123,9 @@ stages:
       cpu: 80
     request:
       timeout: 60s
-      maxbodysize: 128M
+      maxbodysize: 128m
+      maxbuffersize: 4k
+      clientbodybuffersize: 8k
     secrets:
       keys:
         secret-file-1.json: c29tZSBzZWNyZXQgdmFsdWU=

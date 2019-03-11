@@ -89,9 +89,10 @@ type AutoscaleParams struct {
 
 // RequestParams controls timeouts, max body size, etc
 type RequestParams struct {
-	Timeout       string `json:"timeout,omitempty"`
-	MaxBodySize   string `json:"maxbodysize,omitempty"`
-	MaxBufferSize string `json:"maxbuffersize,omitempty"`
+	Timeout              string `json:"timeout,omitempty"`
+	MaxBodySize          string `json:"maxbodysize,omitempty"`
+	ProxyBufferSize      string `json:"maxbuffersize,omitempty"`
+	ClientBodyBufferSize string `json:"clientbodybuffersize,omitempty"`
 }
 
 // ProbeParams sets params for liveness or readiness probe
@@ -276,10 +277,13 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 		p.Request.Timeout = "60s"
 	}
 	if p.Request.MaxBodySize == "" {
-		p.Request.MaxBodySize = "128M"
+		p.Request.MaxBodySize = "128m"
 	}
-	if p.Request.MaxBufferSize == "" {
-		p.Request.MaxBufferSize = "4k"
+	if p.Request.ProxyBufferSize == "" {
+		p.Request.ProxyBufferSize = "4k"
+	}
+	if p.Request.ClientBodyBufferSize == "" {
+		p.Request.ClientBodyBufferSize = "8k"
 	}
 
 	// set liveness probe defaults
