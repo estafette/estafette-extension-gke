@@ -57,6 +57,7 @@ type TemplateData struct {
 	NginxIngressProxyReadTimeout     string
 	NginxIngressProxyBodySize        string
 	NginxIngressProxyBufferSize      string
+	NginxIngressProxyBuffersNumber   string
 	IncludeReplicas                  bool
 	Replicas                         int
 }

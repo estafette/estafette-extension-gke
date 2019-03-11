@@ -92,6 +92,7 @@ type RequestParams struct {
 	Timeout              string `json:"timeout,omitempty"`
 	MaxBodySize          string `json:"maxbodysize,omitempty"`
 	ProxyBufferSize      string `json:"proxybuffersize,omitempty"`
+	ProxyBuffersNumber   int    `json:"proxybuffersnumber,omitempty"`
 	ClientBodyBufferSize string `json:"clientbodybuffersize,omitempty"`
 }
 
@@ -282,6 +283,10 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 	if p.Request.ProxyBufferSize == "" {
 		p.Request.ProxyBufferSize = "4k"
 	}
+	if p.Request.ProxyBuffersNumber <= 0 {
+		p.Request.ProxyBuffersNumber = 4
+	}
+
 	if p.Request.ClientBodyBufferSize == "" {
 		p.Request.ClientBodyBufferSize = "8k"
 	}
