@@ -115,6 +115,7 @@ func generateTemplateData(params Params, currentReplicas int, releaseID string) 
 	data.NginxIngressClientBodyBufferSize = params.Request.ClientBodyBufferSize
 
 	data.Sidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Sidecar.EnvironmentVariables, "PROXY_BUFFER_SIZE", params.Request.ProxyBufferSize)
+	data.Sidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Sidecar.EnvironmentVariables, "PROXY_BUFFERS_SIZE", params.Request.ProxyBufferSize)
 	data.NginxIngressProxyBufferSize = params.Request.ProxyBufferSize
 
 	if params.Container.Metrics.Scrape != nil {
