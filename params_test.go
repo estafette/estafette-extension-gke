@@ -1168,7 +1168,7 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, 25, *params.Container.Lifecycle.PrestopSleepSeconds)
 	})
 
-	t.Run("DefaultsSidecarTypeToOpenrestyIfEmptyAndGlobalKindIsDeployment", func(t *testing.T) {
+	t.Run("AddsDefaultsOpenrestySidecarIfEmptyAndGlobalKindIsDeployment", func(t *testing.T) {
 
 		params := Params{
 			Kind: "deployment",
@@ -1180,10 +1180,10 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, "openresty", params.Sidecar.Type)
+		assert.Equal(t, "openresty", params.Sidecars[0].Type)
 	})
 
-	t.Run("DefaultsSidecarTypeToNoneIfEmptyAndGlobalKindIsJob", func(t *testing.T) {
+	t.Run("AddsNoDefaultSidecarIfEmptyAndGlobalKindIsJob", func(t *testing.T) {
 
 		params := Params{
 			Kind: "job",
@@ -1195,7 +1195,8 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, "none", params.Sidecar.Type)
+		assert.Equal(t, 0, len(params.Sidecars))
+		assert.Equal(t, "", params.Sidecar.Type)
 	})
 
 	t.Run("KeepsSidecarTypeIfNotEmpty", func(t *testing.T) {
@@ -1223,7 +1224,7 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, "estafette/openresty-sidecar:1.13.6.2-alpine", params.Sidecar.Image)
+		assert.Equal(t, "estafette/openresty-sidecar:1.13.6.2-alpine", params.Sidecars[0].Image)
 	})
 
 	t.Run("KeepsSidecarImageIfNotEmpty", func(t *testing.T) {

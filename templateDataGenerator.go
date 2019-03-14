@@ -85,16 +85,12 @@ func generateTemplateData(params Params, currentReplicas int, releaseID string) 
 		data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "GOOGLE_APPLICATION_CREDENTIALS", "/gcp-service-account/service-account-key.json")
 	}
 
-	if isKnownSidecarType(params.Sidecar.Type) {
-		mainSidecar := buildSidecar(params.Sidecar, params.Request)
-		data.Sidecars = append(data.Sidecars, mainSidecar)
-	}
+	mainSidecar := buildSidecar(params.Sidecar, params.Request)
+	data.Sidecars = append(data.Sidecars, mainSidecar)
 
 	for _, sidecarParams := range params.Sidecars {
-		if isKnownSidecarType(sidecarParams.Type) {
-			sidecar := buildSidecar(sidecarParams, params.Request)
-			data.Sidecars = append(data.Sidecars, sidecar)
-		}
+		sidecar := buildSidecar(sidecarParams, params.Request)
+		data.Sidecars = append(data.Sidecars, sidecar)
 	}
 
 	// set request params on the nginx ingress
@@ -229,10 +225,6 @@ func generateTemplateData(params Params, currentReplicas int, releaseID string) 
 	}
 
 	return data
-}
-
-func isKnownSidecarType(sidecarType string) bool {
-	return sidecarType == "openresty" || sidecarType == "cloudsqlproxy"
 }
 
 func buildSidecar(sidecar SidecarParams, request RequestParams) SidecarData {

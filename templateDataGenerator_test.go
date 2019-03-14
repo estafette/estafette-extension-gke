@@ -718,7 +718,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, 25, templateData.Container.PreStopSleepSeconds)
 	})
 
-	t.Run("SetsSidecarUseOpenrestySidecarToTrueIfSidecarTypeParamEqualsOpenresty", func(t *testing.T) {
+	t.Run("SidcarAddedToSidecarsCollection", func(t *testing.T) {
 
 		params := Params{
 			Sidecar: SidecarParams{
@@ -729,7 +729,21 @@ func TestGenerateTemplateData(t *testing.T) {
 		// act
 		templateData := generateTemplateData(params, -1, "")
 
-		assert.True(t, templateData.Sidecar.UseOpenrestySidecar)
+		assert.Equal(t, 1, len(templateData.Sidecars))
+	})
+
+	t.Run("SetsSidecarTypeToSidecarType", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				Type: "openresty",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "")
+
+		assert.Equal(t, "openresty", templateData.Sidecars[0].Type)
 	})
 
 	t.Run("SetsSidecarImageToSidecarImageParam", func(t *testing.T) {
@@ -743,7 +757,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		// act
 		templateData := generateTemplateData(params, -1, "")
 
-		assert.Equal(t, "estafette/openresty-sidecar:1.13.6.1-alpine", templateData.Sidecar.Image)
+		assert.Equal(t, "estafette/openresty-sidecar:1.13.6.1-alpine", templateData.Sidecars[0].Image)
 	})
 
 	t.Run("SetsSidecarHealthCheckPathToSidecarHealthCheckPathParam", func(t *testing.T) {
@@ -757,7 +771,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		// act
 		templateData := generateTemplateData(params, -1, "")
 
-		assert.Equal(t, "/readiness", templateData.Sidecar.HealthCheckPath)
+		assert.Equal(t, "/readiness", templateData.Sidecars[0].HealthCheckPath)
 	})
 
 	t.Run("SetsSidecarCPURequestToSidecarCPURequestParam", func(t *testing.T) {
@@ -773,7 +787,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		// act
 		templateData := generateTemplateData(params, -1, "")
 
-		assert.Equal(t, "1200m", templateData.Sidecar.CPURequest)
+		assert.Equal(t, "1200m", templateData.Sidecars[0].CPURequest)
 	})
 
 	t.Run("SetsSidecarCPULimitToSidecarCPULimitParam", func(t *testing.T) {
@@ -789,7 +803,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		// act
 		templateData := generateTemplateData(params, -1, "")
 
-		assert.Equal(t, "1500m", templateData.Sidecar.CPULimit)
+		assert.Equal(t, "1500m", templateData.Sidecars[0].CPULimit)
 	})
 
 	t.Run("SetsSidecarMemoryRequestToSidecarMemoryRequestParam", func(t *testing.T) {
@@ -805,7 +819,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		// act
 		templateData := generateTemplateData(params, -1, "")
 
-		assert.Equal(t, "1024Mi", templateData.Sidecar.MemoryRequest)
+		assert.Equal(t, "1024Mi", templateData.Sidecars[0].MemoryRequest)
 	})
 
 	t.Run("SetsSidecarMemoryLimitToSidecarMemoryLimitParam", func(t *testing.T) {
@@ -821,7 +835,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		// act
 		templateData := generateTemplateData(params, -1, "")
 
-		assert.Equal(t, "2048Mi", templateData.Sidecar.MemoryLimit)
+		assert.Equal(t, "2048Mi", templateData.Sidecars[0].MemoryLimit)
 	})
 
 	t.Run("SetsSidecarEnvironmentVariablesToSidecarEnvironmentVariablesParam", func(t *testing.T) {
@@ -839,8 +853,8 @@ func TestGenerateTemplateData(t *testing.T) {
 		templateData := generateTemplateData(params, -1, "")
 
 		// assert.Equal(t, 2, len(templateData.Sidecar.EnvironmentVariables))
-		assert.Equal(t, "value1", templateData.Sidecar.EnvironmentVariables["MY_CUSTOM_ENV"])
-		assert.Equal(t, "value2", templateData.Sidecar.EnvironmentVariables["MY_OTHER_CUSTOM_ENV"])
+		assert.Equal(t, "value1", templateData.Sidecars[0].EnvironmentVariables["MY_CUSTOM_ENV"])
+		assert.Equal(t, "value2", templateData.Sidecars[0].EnvironmentVariables["MY_OTHER_CUSTOM_ENV"])
 	})
 
 	t.Run("SetsSecretsToSecretsParam", func(t *testing.T) {

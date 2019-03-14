@@ -633,6 +633,11 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 		errors = validateSidecar(sidecar, errors)
 	}
 
+	// Either the Sidecar has to be not empty, or Sidecars has to contain an element
+	if (p.Sidecar.Type == "" || p.Sidecar.Type == "none") && len(p.Sidecars) == 0 {
+		errors = append(errors, fmt.Errorf("Specifying a sidecar is required; Add one to the sidecars collection"))
+	}
+
 	return len(errors) == 0, errors
 }
 
