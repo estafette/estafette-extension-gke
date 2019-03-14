@@ -205,7 +205,7 @@ spec:
           initialDelaySeconds: {{$deployment.Container.Readiness.InitialDelaySeconds}}
           timeoutSeconds: {{$deployment.Container.Readiness.TimeoutSeconds}}
         {{- else if eq .Type "cloudsqlproxy" }}
-        - name: {{$deployment.Name}}-cloudsql-proxy
+      - name: {{$deployment.Name}}-cloudsql-proxy
         image: {{.Image}}
         resources:
           requests:
