@@ -235,6 +235,7 @@ func buildSidecar(sidecar SidecarParams, request RequestParams) SidecarData {
 		Image:                    sidecar.Image,
 		HealthCheckPath:          sidecar.HealthCheckPath,
 		DbInstanceConnectionName: sidecar.DbInstanceConnectionName,
+		SQLProxyPort:             sidecar.SQLProxyPort,
 		CPURequest:               sidecar.CPU.Request,
 		CPULimit:                 sidecar.CPU.Limit,
 		MemoryRequest:            sidecar.Memory.Request,

@@ -102,6 +102,7 @@ type SidecarData struct {
 	Image                    string
 	HealthCheckPath          string
 	DbInstanceConnectionName string
+	SQLProxyPort             string
 	EnvironmentVariables     map[string]interface{}
 	CPURequest               string
 	MemoryRequest            string
