@@ -215,7 +215,7 @@ spec:
             cpu: {{.CPULimit}}
             memory: {{.MemoryLimit}}
         command: ["/cloud_sql_proxy",
-                  "-instances={{ .DbInstanceConnectionName }}=tcp:{{ .SqlProxyPort }}",
+                  "-instances={{ .DbInstanceConnectionName }}=tcp:{{ .SQLProxyPort }}",
                   "-credential_file=/gcp-service-account/service-account-key.json"]
           {{- if $deployment.MountServiceAccountSecret }}
         volumeMounts:
