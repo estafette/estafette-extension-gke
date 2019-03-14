@@ -117,6 +117,15 @@ stages:
       memory:
         request: 10Mi
         limit: 50Mi
+    sidecars:
+    - type: cloudsqlproxy
+      dbinstanceconnectionname: travix-development:europe-west1:my-service
+      cpu:
+        request: 10m
+        limit: 50m
+      memory:
+        request: 10Mi
+        limit: 50Mi
     autoscale:
       min: 3
       max: 50
