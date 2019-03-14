@@ -1227,6 +1227,82 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "estafette/openresty-sidecar:1.13.6.2-alpine", params.Sidecars[0].Image)
 	})
 
+	t.Run("IfNoOpenrestSidecarPresentThenCustomSidecarsKeptAndOpenrestySidecarAdded", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				Type: "prometheus",
+			},
+			Sidecars: []SidecarParams{
+				SidecarParams{
+					Type: "istio",
+				},
+				SidecarParams{
+					Type: "logger",
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, 3, len(params.Sidecars))
+		assert.Equal(t, "prometheus", params.Sidecar.Type)
+		assert.Equal(t, "istio", params.Sidecars[0].Type)
+		assert.Equal(t, "logger", params.Sidecars[1].Type)
+		assert.Equal(t, "openresty", params.Sidecars[2].Type)
+	})
+
+	t.Run("SidecarIsOpenrestyThenOtherSidecarsAreKeptAndNoExtraSidecarAdded", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				Type: "openresty",
+			},
+			Sidecars: []SidecarParams{
+				SidecarParams{
+					Type: "istio",
+				},
+				SidecarParams{
+					Type: "prometheus",
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, 2, len(params.Sidecars))
+		assert.Equal(t, "openresty", params.Sidecar.Type)
+		assert.Equal(t, "istio", params.Sidecars[0].Type)
+		assert.Equal(t, "prometheus", params.Sidecars[1].Type)
+	})
+
+	t.Run("OneOfTheSidecarsIsOpenrestyThenOtherSidecarsAreKeptAndNoExtraSidecarAdded", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				Type: "istio",
+			},
+			Sidecars: []SidecarParams{
+				SidecarParams{
+					Type: "openresty",
+				},
+				SidecarParams{
+					Type: "prometheus",
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, 2, len(params.Sidecars))
+		assert.Equal(t, "istio", params.Sidecar.Type)
+		assert.Equal(t, "openresty", params.Sidecars[0].Type)
+		assert.Equal(t, "prometheus", params.Sidecars[1].Type)
+	})
+
 	t.Run("KeepsSidecarImageIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
