@@ -362,8 +362,8 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 
 	initializeSidecarDefaults(&p.Sidecar, p)
 
-	for _, sidecar := range p.Sidecars {
-		initializeSidecarDefaults(&sidecar, p)
+	for i := range p.Sidecars {
+		initializeSidecarDefaults(&p.Sidecars[i], p)
 	}
 
 	// default basepath to /
