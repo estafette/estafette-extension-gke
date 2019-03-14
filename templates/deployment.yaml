@@ -152,7 +152,7 @@ spec:
         {{- end}}
       {{ $deployment := . }}
       {{- range .Sidecars}}
-        {{- if eq .SidecarType "openresty" }}
+        {{- if eq .Type "openresty" }}
       - name: {{$deployment.Name}}-openresty
         image: {{.Image}}
         imagePullPolicy: Always
@@ -204,7 +204,7 @@ spec:
             scheme: HTTPS
           initialDelaySeconds: {{$deployment.Container.Readiness.InitialDelaySeconds}}
           timeoutSeconds: {{$deployment.Container.Readiness.TimeoutSeconds}}
-        {{- else if eq .SidecarType "cloudsqlproxy" }}
+        {{- else if eq .Type "cloudsqlproxy" }}
         - name: {{$deployment.Name}}-cloudsql-proxy
         image: {{.Image}}
         resources:
