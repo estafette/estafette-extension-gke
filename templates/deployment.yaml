@@ -150,17 +150,19 @@ spec:
               - /bin/sleep
               - {{.Container.PreStopSleepSeconds}}s
         {{- end}}
-      {{- if .Sidecar.UseOpenrestySidecar }}
-      - name: {{.Name}}-openresty
-        image: {{.Sidecar.Image}}
+      {{ $deployment := . }}
+      {{- range .Sidecars}}
+        {{- if eq .SidecarType "openresty" }}
+      - name: {{$deployment.Name}}-openresty
+        image: {{.Image}}
         imagePullPolicy: Always
         resources:
           requests:
-            cpu: {{.Sidecar.CPURequest}}
-            memory: {{.Sidecar.MemoryRequest}}
+            cpu: {{.CPURequest}}
+            memory: {{.MemoryRequest}}
           limits:
-            cpu: {{.Sidecar.CPULimit}}
-            memory: {{.Sidecar.MemoryLimit}}
+            cpu: {{.CPULimit}}
+            memory: {{.MemoryLimit}}
         ports:
         - name: http
           containerPort: 80
@@ -182,8 +184,8 @@ spec:
         - name: "NAMESPACE"
           value: "{{.Namespace}}"
         - name: "HEALT_CHECK_PATH"
-          value: "{{.Sidecar.HealthCheckPath}}"
-        {{- range $key, $value := .Sidecar.EnvironmentVariables }}
+          value: "{{.HealthCheckPath}}"
+        {{- range $key, $value := .EnvironmentVariables }}
         - name: "{{ $key }}"
           value: "{{ $value }}"
         {{- end }}
@@ -197,11 +199,30 @@ spec:
           initialDelaySeconds: 15
         readinessProbe:
           httpGet:
-            path: {{.Container.Readiness.Path}}
+            path: {{$deployment.Container.Readiness.Path}}
             port: https
             scheme: HTTPS
-          initialDelaySeconds: {{.Container.Readiness.InitialDelaySeconds}}
-          timeoutSeconds: {{.Container.Readiness.TimeoutSeconds}}
+          initialDelaySeconds: {{$deployment.Container.Readiness.InitialDelaySeconds}}
+          timeoutSeconds: {{$deployment.Container.Readiness.TimeoutSeconds}}
+        {{- else if eq .SidecarType "cloudsqlproxy" }}
+        - name: {{$deployment.Name}}-cloudsql-proxy
+        image: {{.Image}}
+        resources:
+          requests:
+            cpu: {{.CPURequest}}
+            memory: {{.MemoryRequest}}
+          limits:
+            cpu: {{.CPULimit}}
+            memory: {{.MemoryLimit}}
+        command: ["/cloud_sql_proxy",
+                  "-instances={{ .DbInstanceConnectionName }}=tcp:5432",
+                  "-credential_file=/gcp-service-account/service-account-key.json"]
+          {{- if .MountServiceAccountSecret }}
+        volumeMounts:
+          - name: gcp-service-account
+            mountPath: /gcp-service-account
+          {{- end }}
+        {{- end }}
       {{- end }}
       terminationGracePeriodSeconds: 300
       volumes:

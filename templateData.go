@@ -25,7 +25,7 @@ type TemplateData struct {
 	TargetCPUPercentage              int
 	PreferPreemptibles               bool
 	Container                        ContainerData
-	Sidecar                          SidecarData
+	Sidecars                         []SidecarData
 	MountApplicationSecrets          bool
 	Secrets                          map[string]interface{}
 	SecretMountPath                  string
@@ -98,14 +98,16 @@ type MetricsData struct {
 
 // SidecarData configures the injected sidecar
 type SidecarData struct {
-	UseOpenrestySidecar  bool
-	Image                string
-	HealthCheckPath      string
-	EnvironmentVariables map[string]interface{}
-	CPURequest           string
-	MemoryRequest        string
-	CPULimit             string
-	MemoryLimit          string
+	// UseOpenrestySidecar  bool
+	Type                     string
+	Image                    string
+	HealthCheckPath          string
+	DbInstanceConnectionName string
+	EnvironmentVariables     map[string]interface{}
+	CPURequest               string
+	MemoryRequest            string
+	CPULimit                 string
+	MemoryLimit              string
 }
 
 // VolumeMountData configures additional volume mounts for shared secrets, existing volumes, etc
