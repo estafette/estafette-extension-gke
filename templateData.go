@@ -98,7 +98,6 @@ type MetricsData struct {
 
 // SidecarData configures the injected sidecar
 type SidecarData struct {
-	// UseOpenrestySidecar  bool
 	Type                     string
 	Image                    string
 	HealthCheckPath          string
