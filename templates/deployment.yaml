@@ -217,7 +217,7 @@ spec:
         command: ["/cloud_sql_proxy",
                   "-instances={{ .DbInstanceConnectionName }}=tcp:5432",
                   "-credential_file=/gcp-service-account/service-account-key.json"]
-          {{- if .MountServiceAccountSecret }}
+          {{- if $deployment.MountServiceAccountSecret }}
         volumeMounts:
           - name: gcp-service-account
             mountPath: /gcp-service-account
