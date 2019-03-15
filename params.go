@@ -628,13 +628,13 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 
 	// The "sidecar" field is deprecated, so it can be empty. But if it's specified, then we validate it.
 	if p.Sidecar.Type != "" && p.Sidecar.Type != "none" {
-		errors = validateSidecar(p.Sidecar, errors)
+		errors = p.validateSidecar(p.Sidecar, errors)
 		// TODO: Print warning that the sidecar field is deprecated.
 	}
 
 	// validate sidecars params
 	for _, sidecar := range p.Sidecars {
-		errors = validateSidecar(sidecar, errors)
+		errors = p.validateSidecar(sidecar, errors)
 	}
 
 	// Either the Sidecar has to be not empty, or Sidecars has to contain an element
@@ -645,7 +645,7 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 	return len(errors) == 0, errors
 }
 
-func validateSidecar(sidecar SidecarParams, errors []error) []error {
+func (p *Params) validateSidecar(sidecar SidecarParams, errors []error) []error {
 	if sidecar.Type == "" {
 		errors = append(errors, fmt.Errorf("Sidecar type is required; set it via sidecar.type property on this stage; allowed values are openresty"))
 	}
