@@ -645,14 +645,10 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 }
 
 func (p *Params) validateSidecar(sidecar SidecarParams, errors []error) []error {
-	if sidecar.Type != "openresty" && sidecar.Type != "cloudsqlproxy" {
-		errors = append(errors, fmt.Errorf("The sidecar type is incorrect; allowed values are openresty or cloudsqlproxy"))
-	}
-	if sidecar.Image == "" {
-		errors = append(errors, fmt.Errorf("Sidecar image is required; set it via sidecar.image property on this stage"))
-	}
-
-	if sidecar.Type == "cloudsqlproxy" {
+	switch sidecar.Type {
+	case "openresty":
+		break
+	case "cloudsqlproxy":
 		//if sidecar.SidecarSpecificProperties["dbinstanceconnectionname"] == nil || sidecar.SidecarSpecificProperties["dbinstanceconnectionname"] == "" {
 		if sidecar.DbInstanceConnectionName == "" {
 			errors = append(errors, fmt.Errorf("The name of the DB instance used by this Cloud SQL Proxy is required; set it via sidecar.dbinstanceconnectionname property on this stage"))
@@ -661,6 +657,12 @@ func (p *Params) validateSidecar(sidecar SidecarParams, errors []error) []error 
 		if sidecar.SQLProxyPort == "" {
 			errors = append(errors, fmt.Errorf("The port on which the Cloud SQL Proxy listens is required; set it via sidecar.sqlproxyport property on this stage"))
 		}
+	default:
+		errors = append(errors, fmt.Errorf("The sidecar type is incorrect; allowed values are openresty or cloudsqlproxy"))
+	}
+
+	if sidecar.Image == "" {
+		errors = append(errors, fmt.Errorf("Sidecar image is required; set it via sidecar.image property on this stage"))
 	}
 
 	// validate sidecar cpu params
