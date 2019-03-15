@@ -238,8 +238,7 @@ func buildSidecar(sidecar SidecarParams, request RequestParams) SidecarData {
 		CPULimit:                 sidecar.CPU.Limit,
 		MemoryRequest:            sidecar.Memory.Request,
 		MemoryLimit:              sidecar.Memory.Limit,
-
-		EnvironmentVariables: sidecar.EnvironmentVariables,
+		EnvironmentVariables:     sidecar.EnvironmentVariables,
 	}
 
 	if builtSidecar.Type == "openresty" {
