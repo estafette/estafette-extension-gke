@@ -1326,16 +1326,15 @@ func TestSetDefaults(t *testing.T) {
 				},
 			},
 			Sidecar: SidecarParams{
-				SidecarSpecificProperties: map[string]interface{}{
-					"healthcheckpath": "",
-				},
+				Type:            "openresty",
+				HealthCheckPath: "",
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, "/myreadiness", params.Sidecar.SidecarSpecificProperties["healthcheckpath"])
+		assert.Equal(t, "/myreadiness", params.Sidecar.HealthCheckPath)
 	})
 
 	t.Run("KeepsSidecarHealthCheckPathIfNotEmpty", func(t *testing.T) {
@@ -1347,15 +1346,13 @@ func TestSetDefaults(t *testing.T) {
 				},
 			},
 			Sidecar: SidecarParams{
-				SidecarSpecificProperties: map[string]interface{}{
-					"healthcheckpath": "/nomyreadiness",
-				},
+				HealthCheckPath: "/nomyreadiness",
 			},
 		}
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, "/nomyreadiness", params.Sidecar.SidecarSpecificProperties["healthcheckpath"])
+		assert.Equal(t, "/nomyreadiness", params.Sidecar.HealthCheckPath)
 	})
 
 	t.Run("DefaultsSidecarCpuRequestTo50MIfBothRequestAndLimitAreEmpty", func(t *testing.T) {
@@ -2647,10 +2644,10 @@ func TestValidateRequiredProperties(t *testing.T) {
 		assert.True(t, len(errors) == 0)
 	})
 
-	t.Run("ReturnsFalseIfSidecarTypeIsNotSet", func(t *testing.T) {
+	t.Run("ReturnsFalseIfSidecarTypeIsIncorrect", func(t *testing.T) {
 
 		params := validParams
-		params.Sidecar.Type = ""
+		params.Sidecar.Type = "unknownsidecar"
 
 		// act
 		valid, errors := params.ValidateRequiredProperties()

@@ -764,9 +764,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		params := Params{
 			Sidecar: SidecarParams{
-				SidecarSpecificProperties: map[string]interface{}{
-					"healthcheckpath": "/readiness",
-				},
+				HealthCheckPath: "/readiness",
 			},
 		}
 

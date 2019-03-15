@@ -120,12 +120,14 @@ type LifecycleParams struct {
 
 // SidecarParams sets params for sidecar injection
 type SidecarParams struct {
-	Type                      string                 `json:"type,omitempty"`
-	Image                     string                 `json:"image,omitempty"`
-	EnvironmentVariables      map[string]interface{} `json:"env,omitempty"`
-	CPU                       CPUParams              `json:"cpu,omitempty"`
-	Memory                    MemoryParams           `json:"memory,omitempty"`
-	SidecarSpecificProperties map[string]interface{} `json:",inline"`
+	Type                     string                 `json:"type,omitempty"`
+	Image                    string                 `json:"image,omitempty"`
+	EnvironmentVariables     map[string]interface{} `json:"env,omitempty"`
+	CPU                      CPUParams              `json:"cpu,omitempty"`
+	Memory                   MemoryParams           `json:"memory,omitempty"`
+	HealthCheckPath          string                 `json:"healthcheckpath,omitempty"`
+	DbInstanceConnectionName string                 `json:"dbinstanceconnectionname,omitempty"`
+	SQLProxyPort             string                 `json:"sqlproxyport,omitempty"`
 }
 
 // RollingUpdateParams sets params for controlling rolling update speed
@@ -411,21 +413,23 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 }
 
 func (p *Params) initializeSidecarDefaults(sidecar *SidecarParams) {
+	// if sidecar.SidecarSpecificProperties == nil {
+	// 	sidecar.SidecarSpecificProperties = make(map[string]interface{})
+	// }
+
 	if sidecar.Image == "" {
 		switch sidecar.Type {
 		case "openresty":
 			sidecar.Image = "estafette/openresty-sidecar:1.13.6.2-alpine"
+			// if sidecar.SidecarSpecificProperties["healthcheckpath"] == nil || sidecar.SidecarSpecificProperties["healthcheckpath"] == "" {
+			// 	sidecar.SidecarSpecificProperties["healthcheckpath"] = p.Container.ReadinessProbe.Path
+			// }
+			if sidecar.HealthCheckPath == "" {
+				sidecar.HealthCheckPath = p.Container.ReadinessProbe.Path
+			}
 		case "cloudsqlproxy":
 			sidecar.Image = "gcr.io/cloudsql-docker/gce-proxy:1.12"
 		}
-	}
-
-	if sidecar.SidecarSpecificProperties == nil {
-		sidecar.SidecarSpecificProperties = make(map[string]interface{})
-	}
-
-	if sidecar.SidecarSpecificProperties["healthcheckpath"] == nil || sidecar.SidecarSpecificProperties["healthcheckpath"] == "" {
-		sidecar.SidecarSpecificProperties["healthcheckpath"] = p.Container.ReadinessProbe.Path
 	}
 
 	// set sidecar cpu defaults
@@ -637,27 +641,24 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 		errors = p.validateSidecar(sidecar, errors)
 	}
 
-	// Either the Sidecar has to be not empty, or Sidecars has to contain an element
-	if (p.Sidecar.Type == "" || p.Sidecar.Type == "none") && len(p.Sidecars) == 0 {
-		errors = append(errors, fmt.Errorf("Specifying a sidecar is required; Add one to the sidecars collection"))
-	}
-
 	return len(errors) == 0, errors
 }
 
 func (p *Params) validateSidecar(sidecar SidecarParams, errors []error) []error {
-	if sidecar.Type == "" {
-		errors = append(errors, fmt.Errorf("Sidecar type is required; set it via sidecar.type property on this stage; allowed values are openresty"))
+	if sidecar.Type != "openresty" && sidecar.Type != "cloudsqlproxy" {
+		errors = append(errors, fmt.Errorf("The sidecar type is incorrect; allowed values are openresty or cloudsqlproxy"))
 	}
 	if sidecar.Image == "" {
 		errors = append(errors, fmt.Errorf("Sidecar image is required; set it via sidecar.image property on this stage"))
 	}
 
 	if sidecar.Type == "cloudsqlproxy" {
-		if sidecar.SidecarSpecificProperties["dbinstanceconnectionname"] == nil || sidecar.SidecarSpecificProperties["dbinstanceconnectionname"] == "" {
+		//if sidecar.SidecarSpecificProperties["dbinstanceconnectionname"] == nil || sidecar.SidecarSpecificProperties["dbinstanceconnectionname"] == "" {
+		if sidecar.DbInstanceConnectionName == "" {
 			errors = append(errors, fmt.Errorf("The name of the DB instance used by this Cloud SQL Proxy is required; set it via sidecar.dbinstanceconnectionname property on this stage"))
 		}
-		if sidecar.SidecarSpecificProperties["sqlproxyport"] == nil || sidecar.SidecarSpecificProperties["sqlproxyport"] == "" {
+		// if sidecar.SidecarSpecificProperties["sqlproxyport"] == nil || sidecar.SidecarSpecificProperties["sqlproxyport"] == "" {
+		if sidecar.SQLProxyPort == "" {
 			errors = append(errors, fmt.Errorf("The port on which the Cloud SQL Proxy listens is required; set it via sidecar.sqlproxyport property on this stage"))
 		}
 	}
