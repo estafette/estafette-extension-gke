@@ -229,8 +229,6 @@ func generateTemplateData(params Params, currentReplicas int, releaseID string) 
 
 func buildSidecar(sidecar SidecarParams, request RequestParams) SidecarData {
 	builtSidecar := SidecarData{
-		// UseOpenrestySidecar: params.Sidecar.Type == "openresty",
-
 		Type:                     sidecar.Type,
 		Image:                    sidecar.Image,
 		HealthCheckPath:          sidecar.HealthCheckPath,
