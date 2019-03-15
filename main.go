@@ -119,9 +119,13 @@ func main() {
 	params.SetDefaults(*appLabel, *buildVersion, *releaseName, *releaseAction, estafetteLabels)
 
 	logInfo("Validating required parameters...")
-	valid, errors = params.ValidateRequiredProperties()
+	valid, errors, warnings := params.ValidateRequiredProperties()
 	if !valid {
 		log.Fatal("Not all valid fields are set: ", errors)
+	}
+
+	for _, warning := range warnings {
+		log.Printf("Warning: %s", warning)
 	}
 
 	logInfo("Retrieving service account email from credentials...")

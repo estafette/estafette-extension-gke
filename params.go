@@ -468,9 +468,10 @@ func (p *Params) initializeSidecarDefaults(sidecar *SidecarParams) {
 }
 
 // ValidateRequiredProperties checks whether all needed properties are set
-func (p *Params) ValidateRequiredProperties() (bool, []error) {
+func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 
 	errors := []error{}
+	warnings := []string{}
 
 	// validate app params
 	if p.App == "" {
@@ -482,7 +483,7 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 
 	if p.Action == "rollback-canary" {
 		// the above properties are all you need for a rollback
-		return len(errors) == 0, errors
+		return len(errors) == 0, errors, warnings
 	}
 
 	// validate container params
@@ -526,7 +527,7 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 
 	if p.Kind == "job" || p.Kind == "cronjob" {
 		// the above properties are all you need for a worker
-		return len(errors) == 0, errors
+		return len(errors) == 0, errors, warnings
 	}
 
 	// validate params with respect to incoming requests
@@ -633,7 +634,7 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 	// The "sidecar" field is deprecated, so it can be empty. But if it's specified, then we validate it.
 	if p.Sidecar.Type != "" && p.Sidecar.Type != "none" {
 		errors = p.validateSidecar(p.Sidecar, errors)
-		// TODO: Print warning that the sidecar field is deprecated.
+		warnings = append(warnings, "The sidecar field is deprecated, the sidecars list should be used instead.")
 	}
 
 	// validate sidecars params
@@ -641,7 +642,7 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 		errors = p.validateSidecar(sidecar, errors)
 	}
 
-	return len(errors) == 0, errors
+	return len(errors) == 0, errors, warnings
 }
 
 func (p *Params) validateSidecar(sidecar SidecarParams, errors []error) []error {
