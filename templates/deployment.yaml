@@ -184,7 +184,7 @@ spec:
         - name: "NAMESPACE"
           value: "{{$deployment.Namespace}}"
         - name: "HEALT_CHECK_PATH"
-          value: "{{.HealthCheckPath}}"
+          value: "{{index .SidecarSpecificProperties "healthcheckpath"}}"
         {{- range $key, $value := .EnvironmentVariables }}
         - name: "{{ $key }}"
           value: "{{ $value }}"
@@ -215,7 +215,7 @@ spec:
             cpu: {{.CPULimit}}
             memory: {{.MemoryLimit}}
         command: ["/cloud_sql_proxy",
-                  "-instances={{ .DbInstanceConnectionName }}=tcp:{{ .SQLProxyPort }}",
+                  "-instances={{ index .SidecarSpecificProperties "dbinstanceconnectionname" }}=tcp:{{ index .SidecarSpecificProperties "sqlproxyport" }}",
                   "-credential_file=/gcp-service-account/service-account-key.json"]
           {{- if $deployment.MountServiceAccountSecret }}
         volumeMounts:

@@ -1326,14 +1326,16 @@ func TestSetDefaults(t *testing.T) {
 				},
 			},
 			Sidecar: SidecarParams{
-				HealthCheckPath: "",
+				SidecarSpecificProperties: map[string]interface{}{
+					"healthcheckpath": "",
+				},
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, "/myreadiness", params.Sidecar.HealthCheckPath)
+		assert.Equal(t, "/myreadiness", params.Sidecar.SidecarSpecificProperties["healthcheckpath"])
 	})
 
 	t.Run("KeepsSidecarHealthCheckPathIfNotEmpty", func(t *testing.T) {
@@ -1345,13 +1347,15 @@ func TestSetDefaults(t *testing.T) {
 				},
 			},
 			Sidecar: SidecarParams{
-				HealthCheckPath: "/nomyreadiness",
+				SidecarSpecificProperties: map[string]interface{}{
+					"healthcheckpath": "/nomyreadiness",
+				},
 			},
 		}
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, "/nomyreadiness", params.Sidecar.HealthCheckPath)
+		assert.Equal(t, "/nomyreadiness", params.Sidecar.SidecarSpecificProperties["healthcheckpath"])
 	})
 
 	t.Run("DefaultsSidecarCpuRequestTo50MIfBothRequestAndLimitAreEmpty", func(t *testing.T) {

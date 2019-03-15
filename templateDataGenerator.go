@@ -72,7 +72,7 @@ func generateTemplateData(params Params, currentReplicas int, releaseID string) 
 				Port:                params.Container.ReadinessProbe.Port,
 				InitialDelaySeconds: params.Container.ReadinessProbe.InitialDelaySeconds,
 				TimeoutSeconds:      params.Container.ReadinessProbe.TimeoutSeconds,
-				IncludeOnContainer:  params.Sidecar.Type != "openresty" || params.Container.ReadinessProbe.Port != params.Container.Port || params.Container.ReadinessProbe.Path != params.Sidecar.HealthCheckPath,
+				IncludeOnContainer:  params.Sidecar.Type != "openresty" || params.Container.ReadinessProbe.Port != params.Container.Port || params.Container.ReadinessProbe.Path != params.Sidecar.SidecarSpecificProperties["healthcheckpath"],
 			},
 			Metrics: MetricsData{
 				Path: params.Container.Metrics.Path,
@@ -229,16 +229,14 @@ func generateTemplateData(params Params, currentReplicas int, releaseID string) 
 
 func buildSidecar(sidecar SidecarParams, request RequestParams) SidecarData {
 	builtSidecar := SidecarData{
-		Type:                     sidecar.Type,
-		Image:                    sidecar.Image,
-		HealthCheckPath:          sidecar.HealthCheckPath,
-		DbInstanceConnectionName: sidecar.DbInstanceConnectionName,
-		SQLProxyPort:             sidecar.SQLProxyPort,
-		CPURequest:               sidecar.CPU.Request,
-		CPULimit:                 sidecar.CPU.Limit,
-		MemoryRequest:            sidecar.Memory.Request,
-		MemoryLimit:              sidecar.Memory.Limit,
-		EnvironmentVariables:     sidecar.EnvironmentVariables,
+		Type:                      sidecar.Type,
+		Image:                     sidecar.Image,
+		CPURequest:                sidecar.CPU.Request,
+		CPULimit:                  sidecar.CPU.Limit,
+		MemoryRequest:             sidecar.Memory.Request,
+		MemoryLimit:               sidecar.Memory.Limit,
+		EnvironmentVariables:      sidecar.EnvironmentVariables,
+		SidecarSpecificProperties: sidecar.SidecarSpecificProperties,
 	}
 
 	if builtSidecar.Type == "openresty" {

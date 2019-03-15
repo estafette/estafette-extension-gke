@@ -98,16 +98,14 @@ type MetricsData struct {
 
 // SidecarData configures the injected sidecar
 type SidecarData struct {
-	Type                     string
-	Image                    string
-	HealthCheckPath          string
-	DbInstanceConnectionName string
-	SQLProxyPort             string
-	EnvironmentVariables     map[string]interface{}
-	CPURequest               string
-	MemoryRequest            string
-	CPULimit                 string
-	MemoryLimit              string
+	Type                      string
+	Image                     string
+	EnvironmentVariables      map[string]interface{}
+	CPURequest                string
+	MemoryRequest             string
+	CPULimit                  string
+	MemoryLimit               string
+	SidecarSpecificProperties map[string]interface{}
 }
 
 // VolumeMountData configures additional volume mounts for shared secrets, existing volumes, etc

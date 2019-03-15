@@ -120,14 +120,12 @@ type LifecycleParams struct {
 
 // SidecarParams sets params for sidecar injection
 type SidecarParams struct {
-	Type                     string                 `json:"type,omitempty"`
-	Image                    string                 `json:"image,omitempty"`
-	EnvironmentVariables     map[string]interface{} `json:"env,omitempty"`
-	CPU                      CPUParams              `json:"cpu,omitempty"`
-	Memory                   MemoryParams           `json:"memory,omitempty"`
-	HealthCheckPath          string                 `json:"healthcheckpath,omitempty"`
-	DbInstanceConnectionName string                 `json:"dbinstanceconnectionname,omitempty"`
-	SQLProxyPort             string                 `json:"sqlproxyport,omitempty"`
+	Type                      string                 `json:"type,omitempty"`
+	Image                     string                 `json:"image,omitempty"`
+	EnvironmentVariables      map[string]interface{} `json:"env,omitempty"`
+	CPU                       CPUParams              `json:"cpu,omitempty"`
+	Memory                    MemoryParams           `json:"memory,omitempty"`
+	SidecarSpecificProperties map[string]interface{} `json:",inline"`
 }
 
 // RollingUpdateParams sets params for controlling rolling update speed
@@ -343,7 +341,7 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 
 	// Code for backwards-compatibility: in the parameters the sidecar can be specified both in the "sidecar" field, and also as an element in the "sidecars" collection.
 	// The "sidecar" field is kept around for backwards compatibility, but due to this we need some extra checks to cover all cases.
-	openrestySidecarSpecified := p.Sidecar.Type == "openresty"
+	legacyOpenrestySidecarSpecified := p.Sidecar.Type == "openresty"
 
 	openrestySidecarSpecifiedInList := false
 	for _, sidecar := range p.Sidecars {
@@ -353,18 +351,18 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 	}
 
 	// If the openresty sidecar is not specified either in the "sidecar" field, nor in the "sidecars" collection (and this is not a Job), we add it to the list.
-	if !openrestySidecarSpecified && !openrestySidecarSpecifiedInList && p.Kind != "job" {
+	if !legacyOpenrestySidecarSpecified && !openrestySidecarSpecifiedInList && p.Kind != "job" {
 		openrestySidecar := SidecarParams{Type: "openresty"}
 
-		initializeSidecarDefaults(&openrestySidecar, p)
+		p.initializeSidecarDefaults(&openrestySidecar)
 
 		p.Sidecars = append(p.Sidecars, openrestySidecar)
 	}
 
-	initializeSidecarDefaults(&p.Sidecar, p)
+	p.initializeSidecarDefaults(&p.Sidecar)
 
 	for i := range p.Sidecars {
-		initializeSidecarDefaults(&p.Sidecars[i], p)
+		p.initializeSidecarDefaults(&p.Sidecars[i])
 	}
 
 	// default basepath to /
@@ -412,7 +410,7 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 	}
 }
 
-func initializeSidecarDefaults(sidecar *SidecarParams, params *Params) {
+func (p *Params) initializeSidecarDefaults(sidecar *SidecarParams) {
 	if sidecar.Image == "" {
 		switch sidecar.Type {
 		case "openresty":
@@ -422,8 +420,12 @@ func initializeSidecarDefaults(sidecar *SidecarParams, params *Params) {
 		}
 	}
 
-	if sidecar.HealthCheckPath == "" {
-		sidecar.HealthCheckPath = params.Container.ReadinessProbe.Path
+	if sidecar.SidecarSpecificProperties == nil {
+		sidecar.SidecarSpecificProperties = make(map[string]interface{})
+	}
+
+	if sidecar.SidecarSpecificProperties["healthcheckpath"] == nil || sidecar.SidecarSpecificProperties["healthcheckpath"] == "" {
+		sidecar.SidecarSpecificProperties["healthcheckpath"] = p.Container.ReadinessProbe.Path
 	}
 
 	// set sidecar cpu defaults
@@ -627,6 +629,7 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 	// The "sidecar" field is deprecated, so it can be empty. But if it's specified, then we validate it.
 	if p.Sidecar.Type != "" && p.Sidecar.Type != "none" {
 		errors = validateSidecar(p.Sidecar, errors)
+		// TODO: Print warning that the sidecar field is deprecated.
 	}
 
 	// validate sidecars params
@@ -651,10 +654,10 @@ func validateSidecar(sidecar SidecarParams, errors []error) []error {
 	}
 
 	if sidecar.Type == "cloudsqlproxy" {
-		if sidecar.DbInstanceConnectionName == "" {
+		if sidecar.SidecarSpecificProperties["dbinstanceconnectionname"] == nil || sidecar.SidecarSpecificProperties["dbinstanceconnectionname"] == "" {
 			errors = append(errors, fmt.Errorf("The name of the DB instance used by this Cloud SQL Proxy is required; set it via sidecar.dbinstanceconnectionname property on this stage"))
 		}
-		if sidecar.SQLProxyPort == "" {
+		if sidecar.SidecarSpecificProperties["sqlproxyport"] == nil || sidecar.SidecarSpecificProperties["sqlproxyport"] == "" {
 			errors = append(errors, fmt.Errorf("The port on which the Cloud SQL Proxy listens is required; set it via sidecar.sqlproxyport property on this stage"))
 		}
 	}

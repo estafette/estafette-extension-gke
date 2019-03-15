@@ -764,14 +764,16 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		params := Params{
 			Sidecar: SidecarParams{
-				HealthCheckPath: "/readiness",
+				SidecarSpecificProperties: map[string]interface{}{
+					"healthcheckpath": "/readiness",
+				},
 			},
 		}
 
 		// act
 		templateData := generateTemplateData(params, -1, "")
 
-		assert.Equal(t, "/readiness", templateData.Sidecars[0].HealthCheckPath)
+		assert.Equal(t, "/readiness", templateData.Sidecars[0].SidecarSpecificProperties["healthcheckpath"])
 	})
 
 	t.Run("SetsSidecarCPURequestToSidecarCPURequestParam", func(t *testing.T) {
