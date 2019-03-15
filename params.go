@@ -127,7 +127,7 @@ type SidecarParams struct {
 	Memory                   MemoryParams           `json:"memory,omitempty"`
 	HealthCheckPath          string                 `json:"healthcheckpath,omitempty"`
 	DbInstanceConnectionName string                 `json:"dbinstanceconnectionname,omitempty"`
-	SQLProxyPort             string                 `json:"sqlproxyport,omitempty"`
+	SQLProxyPort             int                    `json:"sqlproxyport,omitempty"`
 }
 
 // RollingUpdateParams sets params for controlling rolling update speed
@@ -655,7 +655,7 @@ func (p *Params) validateSidecar(sidecar SidecarParams, errors []error) []error 
 			errors = append(errors, fmt.Errorf("The name of the DB instance used by this Cloud SQL Proxy is required; set it via sidecar.dbinstanceconnectionname property on this stage"))
 		}
 		// if sidecar.SidecarSpecificProperties["sqlproxyport"] == nil || sidecar.SidecarSpecificProperties["sqlproxyport"] == "" {
-		if sidecar.SQLProxyPort == "" {
+		if sidecar.SQLProxyPort == 0 {
 			errors = append(errors, fmt.Errorf("The port on which the Cloud SQL Proxy listens is required; set it via sidecar.sqlproxyport property on this stage"))
 		}
 	default:

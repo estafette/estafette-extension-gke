@@ -120,7 +120,7 @@ stages:
     sidecars:
     - type: cloudsqlproxy
       dbinstanceconnectionname: my-gcloud-project:europe-west1:my-database
-      sqlproxyport: "5043"
+      sqlproxyport: 5043
       cpu:
         request: 10m
         limit: 50m

@@ -2788,6 +2788,48 @@ func TestValidateRequiredProperties(t *testing.T) {
 		assert.True(t, len(errors) == 0)
 	})
 
+	t.Run("ReturnsFalseIfSqlProxyInstanceNameNotSet", func(t *testing.T) {
+
+		params := validParams
+		params.Sidecar.Type = "cloudsqlproxy"
+		params.Sidecar.DbInstanceConnectionName = ""
+		params.Sidecar.SQLProxyPort = 8080
+
+		// act
+		valid, errors, _ := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) == 1)
+	})
+
+	t.Run("ReturnsFalseIfSqlProxyPortNotSet", func(t *testing.T) {
+
+		params := validParams
+		params.Sidecar.Type = "cloudsqlproxy"
+		params.Sidecar.DbInstanceConnectionName = "instance"
+		params.Sidecar.SQLProxyPort = 0
+
+		// act
+		valid, errors, _ := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) == 1)
+	})
+
+	t.Run("ReturnsTrueIfSqlProxyProperlyConfigured", func(t *testing.T) {
+
+		params := validParams
+		params.Sidecar.Type = "cloudsqlproxy"
+		params.Sidecar.DbInstanceConnectionName = "instance"
+		params.Sidecar.SQLProxyPort = 8080
+
+		// act
+		valid, errors, _ := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
 	t.Run("ReturnsWarningIfSidecarFieldUsed", func(t *testing.T) {
 
 		params := validParams
