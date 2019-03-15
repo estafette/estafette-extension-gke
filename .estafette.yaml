@@ -119,7 +119,7 @@ stages:
         limit: 50Mi
     sidecars:
     - type: cloudsqlproxy
-      dbinstanceconnectionname: travix-development:europe-west1:my-service
+      dbinstanceconnectionname: my-gcloud-project:europe-west1:my-database
       sqlproxyport: "5043"
       cpu:
         request: 10m
