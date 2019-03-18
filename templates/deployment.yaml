@@ -68,6 +68,14 @@ spec:
                 operator: In
                 values:
                 - "true"
+        {{- else}}
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+              - key: cloud.google.com/gke-preemptible
+                operator: DoesNotExist
         {{- end}}
       {{- if .MountPayloadLogging }}
       initContainers:
