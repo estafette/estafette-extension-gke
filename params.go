@@ -413,22 +413,15 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 }
 
 func (p *Params) initializeSidecarDefaults(sidecar *SidecarParams) {
-	// if sidecar.SidecarSpecificProperties == nil {
-	// 	sidecar.SidecarSpecificProperties = make(map[string]interface{})
-	// }
-
 	if sidecar.Image == "" {
 		switch sidecar.Type {
 		case "openresty":
 			sidecar.Image = "estafette/openresty-sidecar:1.13.6.2-alpine"
-			// if sidecar.SidecarSpecificProperties["healthcheckpath"] == nil || sidecar.SidecarSpecificProperties["healthcheckpath"] == "" {
-			// 	sidecar.SidecarSpecificProperties["healthcheckpath"] = p.Container.ReadinessProbe.Path
-			// }
 			if sidecar.HealthCheckPath == "" {
 				sidecar.HealthCheckPath = p.Container.ReadinessProbe.Path
 			}
 		case "cloudsqlproxy":
-			sidecar.Image = "gcr.io/cloudsql-docker/gce-proxy:1.12"
+			sidecar.Image = "gcr.io/cloudsql-docker/gce-proxy:1.13"
 		}
 	}
 
@@ -650,11 +643,9 @@ func (p *Params) validateSidecar(sidecar SidecarParams, errors []error) []error 
 	case "openresty":
 		break
 	case "cloudsqlproxy":
-		//if sidecar.SidecarSpecificProperties["dbinstanceconnectionname"] == nil || sidecar.SidecarSpecificProperties["dbinstanceconnectionname"] == "" {
 		if sidecar.DbInstanceConnectionName == "" {
 			errors = append(errors, fmt.Errorf("The name of the DB instance used by this Cloud SQL Proxy is required; set it via sidecar.dbinstanceconnectionname property on this stage"))
 		}
-		// if sidecar.SidecarSpecificProperties["sqlproxyport"] == nil || sidecar.SidecarSpecificProperties["sqlproxyport"] == "" {
 		if sidecar.SQLProxyPort == 0 {
 			errors = append(errors, fmt.Errorf("The port on which the Cloud SQL Proxy listens is required; set it via sidecar.sqlproxyport property on this stage"))
 		}
