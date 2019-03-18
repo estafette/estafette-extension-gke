@@ -776,7 +776,7 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, 120, params.Container.LivenessProbe.InitialDelaySeconds)
 	})
 
-	t.Run("DefaultsLivenessTimeoutSecondsTo1IfZero", func(t *testing.T) {
+	t.Run("DefaultsLivenessTimeoutSecondsTo5IfZero", func(t *testing.T) {
 
 		params := Params{
 			Container: ContainerParams{
@@ -789,7 +789,7 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, 1, params.Container.LivenessProbe.TimeoutSeconds)
+		assert.Equal(t, 5, params.Container.LivenessProbe.TimeoutSeconds)
 	})
 
 	t.Run("KeepsLivenessTimeoutSecondsIfLargerThanZero", func(t *testing.T) {
@@ -797,7 +797,7 @@ func TestSetDefaults(t *testing.T) {
 		params := Params{
 			Container: ContainerParams{
 				LivenessProbe: ProbeParams{
-					TimeoutSeconds: 5,
+					TimeoutSeconds: 10,
 				},
 			},
 		}
@@ -805,7 +805,7 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, 5, params.Container.LivenessProbe.TimeoutSeconds)
+		assert.Equal(t, 10, params.Container.LivenessProbe.TimeoutSeconds)
 	})
 
 	t.Run("DefaultsLivenessPathToLivenessIfEmpty", func(t *testing.T) {
@@ -906,7 +906,7 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, 120, params.Container.ReadinessProbe.InitialDelaySeconds)
 	})
 
-	t.Run("DefaultsReadinessTimeoutSecondsTo1IfZero", func(t *testing.T) {
+	t.Run("DefaultsReadinessTimeoutSecondsTo5IfZero", func(t *testing.T) {
 
 		params := Params{
 			Container: ContainerParams{
@@ -919,7 +919,7 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, 1, params.Container.ReadinessProbe.TimeoutSeconds)
+		assert.Equal(t, 5, params.Container.ReadinessProbe.TimeoutSeconds)
 	})
 
 	t.Run("KeepsReadinessTimeoutSecondsIfLargerThanZero", func(t *testing.T) {
@@ -927,7 +927,7 @@ func TestSetDefaults(t *testing.T) {
 		params := Params{
 			Container: ContainerParams{
 				ReadinessProbe: ProbeParams{
-					TimeoutSeconds: 5,
+					TimeoutSeconds: 10,
 				},
 			},
 		}
@@ -935,7 +935,7 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, 5, params.Container.ReadinessProbe.TimeoutSeconds)
+		assert.Equal(t, 10, params.Container.ReadinessProbe.TimeoutSeconds)
 	})
 
 	t.Run("DefaultsReadinessPathToReadinessIfEmpty", func(t *testing.T) {
