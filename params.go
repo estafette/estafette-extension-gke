@@ -302,7 +302,7 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 		p.Container.LivenessProbe.InitialDelaySeconds = 30
 	}
 	if p.Container.LivenessProbe.TimeoutSeconds <= 0 {
-		p.Container.LivenessProbe.TimeoutSeconds = 5
+		p.Container.LivenessProbe.TimeoutSeconds = 1
 	}
 
 	// set readiness probe defaults
@@ -313,7 +313,7 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 		p.Container.ReadinessProbe.Port = p.Container.Port
 	}
 	if p.Container.ReadinessProbe.TimeoutSeconds <= 0 {
-		p.Container.ReadinessProbe.TimeoutSeconds = 5
+		p.Container.ReadinessProbe.TimeoutSeconds = 1
 	}
 
 	// set metrics defaults
