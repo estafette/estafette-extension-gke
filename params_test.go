@@ -1168,7 +1168,7 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, 25, *params.Container.Lifecycle.PrestopSleepSeconds)
 	})
 
-	t.Run("DefaultsSidecarTypeToOpenrestyIfEmptyAndGlobalKindIsDeployment", func(t *testing.T) {
+	t.Run("AddsDefaultsOpenrestySidecarIfEmptyAndGlobalKindIsDeployment", func(t *testing.T) {
 
 		params := Params{
 			Kind: "deployment",
@@ -1180,10 +1180,10 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, "openresty", params.Sidecar.Type)
+		assert.Equal(t, "openresty", params.Sidecars[0].Type)
 	})
 
-	t.Run("DefaultsSidecarTypeToNoneIfEmptyAndGlobalKindIsJob", func(t *testing.T) {
+	t.Run("AddsNoDefaultSidecarIfEmptyAndGlobalKindIsJob", func(t *testing.T) {
 
 		params := Params{
 			Kind: "job",
@@ -1195,7 +1195,8 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, "none", params.Sidecar.Type)
+		assert.Equal(t, 0, len(params.Sidecars))
+		assert.Equal(t, "", params.Sidecar.Type)
 	})
 
 	t.Run("KeepsSidecarTypeIfNotEmpty", func(t *testing.T) {
@@ -1223,7 +1224,83 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", map[string]string{})
 
-		assert.Equal(t, "estafette/openresty-sidecar:1.13.6.2-alpine", params.Sidecar.Image)
+		assert.Equal(t, "estafette/openresty-sidecar:1.13.6.2-alpine", params.Sidecars[0].Image)
+	})
+
+	t.Run("IfNoOpenrestSidecarPresentThenCustomSidecarsKeptAndOpenrestySidecarAdded", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				Type: "prometheus",
+			},
+			Sidecars: []SidecarParams{
+				SidecarParams{
+					Type: "istio",
+				},
+				SidecarParams{
+					Type: "logger",
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, 3, len(params.Sidecars))
+		assert.Equal(t, "prometheus", params.Sidecar.Type)
+		assert.Equal(t, "istio", params.Sidecars[0].Type)
+		assert.Equal(t, "logger", params.Sidecars[1].Type)
+		assert.Equal(t, "openresty", params.Sidecars[2].Type)
+	})
+
+	t.Run("SidecarIsOpenrestyThenOtherSidecarsAreKeptAndNoExtraSidecarAdded", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				Type: "openresty",
+			},
+			Sidecars: []SidecarParams{
+				SidecarParams{
+					Type: "istio",
+				},
+				SidecarParams{
+					Type: "prometheus",
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, 2, len(params.Sidecars))
+		assert.Equal(t, "openresty", params.Sidecar.Type)
+		assert.Equal(t, "istio", params.Sidecars[0].Type)
+		assert.Equal(t, "prometheus", params.Sidecars[1].Type)
+	})
+
+	t.Run("OneOfTheSidecarsIsOpenrestyThenOtherSidecarsAreKeptAndNoExtraSidecarAdded", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				Type: "istio",
+			},
+			Sidecars: []SidecarParams{
+				SidecarParams{
+					Type: "openresty",
+				},
+				SidecarParams{
+					Type: "prometheus",
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, 2, len(params.Sidecars))
+		assert.Equal(t, "istio", params.Sidecar.Type)
+		assert.Equal(t, "openresty", params.Sidecars[0].Type)
+		assert.Equal(t, "prometheus", params.Sidecars[1].Type)
 	})
 
 	t.Run("KeepsSidecarImageIfNotEmpty", func(t *testing.T) {
@@ -1249,6 +1326,7 @@ func TestSetDefaults(t *testing.T) {
 				},
 			},
 			Sidecar: SidecarParams{
+				Type:            "openresty",
 				HealthCheckPath: "",
 			},
 		}
@@ -1766,7 +1844,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.App = ""
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -1778,7 +1856,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.App = "myapp"
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -1790,7 +1868,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Namespace = ""
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -1802,7 +1880,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Namespace = "mynamespace"
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -1814,7 +1892,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.ImageRepository = ""
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -1826,7 +1904,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.ImageRepository = "myrepository"
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -1838,7 +1916,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.ImageName = ""
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -1850,7 +1928,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.ImageName = "myimage"
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -1862,7 +1940,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.ImageTag = ""
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -1874,7 +1952,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.ImageTag = "1.0.0"
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -1886,7 +1964,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Visibility = ""
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -1898,7 +1976,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Visibility = "everywhere"
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -1910,7 +1988,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Visibility = "public"
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -1922,7 +2000,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Visibility = "private"
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -1934,7 +2012,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Visibility = "iap"
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -1946,7 +2024,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Visibility = "public-whitelist"
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -1958,7 +2036,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.CPU.Request = ""
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -1970,7 +2048,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.CPU.Request = "100m"
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -1982,7 +2060,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.CPU.Limit = ""
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -1994,7 +2072,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.CPU.Limit = "100m"
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2006,7 +2084,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.Memory.Request = ""
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2018,7 +2096,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.Memory.Request = "100m"
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2030,7 +2108,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.Memory.Limit = ""
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2042,7 +2120,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.Memory.Limit = "100m"
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2054,7 +2132,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.Port = 0
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2066,7 +2144,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.Port = 5000
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2078,7 +2156,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Hosts = []string{}
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2090,7 +2168,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Hosts = []string{"gke.estafette.io"}
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2102,7 +2180,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Hosts = []string{"GKE.ESTAFETTE.IO"}
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2114,7 +2192,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Hosts = []string{"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl.estafette.io"}
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2126,7 +2204,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Hosts = []string{"ab.abcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.estafette.io"}
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2138,7 +2216,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Hosts = []string{"gke_site.estafette.io"}
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2150,7 +2228,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.InternalHosts = []string{}
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2162,7 +2240,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.InternalHosts = []string{"ci.estafette.internal"}
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2174,7 +2252,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.InternalHosts = []string{"CI.ESTAFETTE.INTERNAL"}
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2186,7 +2264,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.InternalHosts = []string{"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl.estafette.internal"}
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2198,7 +2276,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.InternalHosts = []string{"abcdefghijklmnopqrstuvw.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.estafette.internal"}
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2210,7 +2288,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.InternalHosts = []string{"gke_site.estafette.internal"}
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2222,7 +2300,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Autoscale.MinReplicas = 0
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2234,7 +2312,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Autoscale.MinReplicas = 5
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2246,7 +2324,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Autoscale.MaxReplicas = 0
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2258,7 +2336,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Autoscale.MaxReplicas = 15
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2270,7 +2348,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Autoscale.CPUPercentage = 0
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2282,7 +2360,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Autoscale.CPUPercentage = 35
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2294,7 +2372,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.LivenessProbe.Path = ""
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2306,7 +2384,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.LivenessProbe.Path = "/liveness"
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2318,7 +2396,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.LivenessProbe.Port = 0
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2330,7 +2408,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.LivenessProbe.Port = 5000
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2342,7 +2420,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.LivenessProbe.InitialDelaySeconds = 0
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2354,7 +2432,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.LivenessProbe.InitialDelaySeconds = 30
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2366,7 +2444,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.LivenessProbe.TimeoutSeconds = 0
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2378,7 +2456,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.LivenessProbe.TimeoutSeconds = 2
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2390,7 +2468,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.ReadinessProbe.Path = ""
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2402,7 +2480,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.ReadinessProbe.Path = "/readiness"
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2414,7 +2492,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.ReadinessProbe.Port = 0
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2426,7 +2504,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.ReadinessProbe.Port = 5000
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2438,7 +2516,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.ReadinessProbe.TimeoutSeconds = 0
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2450,7 +2528,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.ReadinessProbe.TimeoutSeconds = 2
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2462,7 +2540,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.Metrics.Path = ""
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2474,7 +2552,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.Metrics.Path = "/metrics"
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2487,7 +2565,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.Metrics.Path = ""
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2499,7 +2577,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.Metrics.Port = 0
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2511,7 +2589,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.Metrics.Port = 5000
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2524,7 +2602,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.Metrics.Port = 0
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2536,7 +2614,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.Metrics.Scrape = nil
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2548,7 +2626,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.Metrics.Scrape = &trueValue
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2560,19 +2638,19 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Container.Metrics.Scrape = &falseValue
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
 	})
 
-	t.Run("ReturnsFalseIfSidecarTypeIsNotSet", func(t *testing.T) {
+	t.Run("ReturnsFalseIfSidecarTypeIsIncorrect", func(t *testing.T) {
 
 		params := validParams
-		params.Sidecar.Type = ""
+		params.Sidecar.Type = "unknownsidecar"
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2584,7 +2662,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Sidecar.Type = "openresty"
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2596,7 +2674,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Sidecar.Image = ""
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2608,7 +2686,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Sidecar.Image = "estafette/openresty-sidecar:1.13.6.2-alpine"
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2620,7 +2698,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Sidecar.CPU.Request = ""
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2632,7 +2710,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Sidecar.CPU.Request = "100m"
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2644,7 +2722,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Sidecar.CPU.Limit = ""
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2656,7 +2734,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Sidecar.CPU.Limit = "100m"
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2668,7 +2746,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Sidecar.Memory.Request = ""
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2680,7 +2758,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Sidecar.Memory.Request = "100m"
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2692,7 +2770,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Sidecar.Memory.Limit = ""
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2704,10 +2782,106 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Sidecar.Memory.Limit = "100m"
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfSqlProxyInstanceNameNotSet", func(t *testing.T) {
+
+		params := validParams
+		params.Sidecar.Type = "cloudsqlproxy"
+		params.Sidecar.DbInstanceConnectionName = ""
+		params.Sidecar.SQLProxyPort = 8080
+
+		// act
+		valid, errors, _ := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) == 1)
+	})
+
+	t.Run("ReturnsFalseIfSqlProxyPortNotSet", func(t *testing.T) {
+
+		params := validParams
+		params.Sidecar.Type = "cloudsqlproxy"
+		params.Sidecar.DbInstanceConnectionName = "instance"
+		params.Sidecar.SQLProxyPort = 0
+
+		// act
+		valid, errors, _ := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) == 1)
+	})
+
+	t.Run("ReturnsTrueIfSqlProxyProperlyConfigured", func(t *testing.T) {
+
+		params := validParams
+		params.Sidecar.Type = "cloudsqlproxy"
+		params.Sidecar.DbInstanceConnectionName = "instance"
+		params.Sidecar.SQLProxyPort = 8080
+
+		// act
+		valid, errors, _ := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsWarningIfSidecarFieldUsed", func(t *testing.T) {
+
+		params := validParams
+		params.Sidecar = SidecarParams{
+			Type:  "openresty",
+			Image: "estafette/openresty-sidecar:1.13.6.2-alpine",
+			CPU: CPUParams{
+				Request: "10m",
+				Limit:   "50m",
+			},
+			Memory: MemoryParams{
+				Request: "10Mi",
+				Limit:   "50Mi",
+			},
+		}
+
+		// act
+		valid, errors, warnings := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+		assert.Equal(t, 1, len(warnings))
+	})
+
+	t.Run("NoWarningRetuendIfSidecarsCollectionUsed", func(t *testing.T) {
+
+		params := validParams
+		params.Sidecar = SidecarParams{
+			Type: "",
+		}
+
+		params.Sidecars = []SidecarParams{
+			SidecarParams{
+				Type:  "openresty",
+				Image: "estafette/openresty-sidecar:1.13.6.2-alpine",
+				CPU: CPUParams{
+					Request: "10m",
+					Limit:   "50m",
+				},
+				Memory: MemoryParams{
+					Request: "10Mi",
+					Limit:   "50Mi",
+				},
+			},
+		}
+
+		// act
+		valid, errors, warnings := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+		assert.Equal(t, 0, len(warnings))
 	})
 
 	t.Run("ReturnsFalseIfBasepathIsNotSet", func(t *testing.T) {
@@ -2716,7 +2890,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Basepath = ""
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2728,7 +2902,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Basepath = "/"
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2740,7 +2914,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.RollingUpdate.MaxSurge = ""
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2752,7 +2926,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.RollingUpdate.MaxSurge = "25%"
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2764,7 +2938,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.RollingUpdate.MaxUnavailable = ""
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2776,7 +2950,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.RollingUpdate.MaxUnavailable = "25%"
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
@@ -2789,7 +2963,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Schedule = ""
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.False(t, valid)
 		assert.True(t, len(errors) > 0)
@@ -2802,7 +2976,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Schedule = "*/5 * * * *"
 
 		// act
-		valid, errors := params.ValidateRequiredProperties()
+		valid, errors, _ := params.ValidateRequiredProperties()
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)

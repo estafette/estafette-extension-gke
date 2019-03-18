@@ -39,6 +39,7 @@ type Params struct {
 	// container params
 	Container     ContainerParams     `json:"container,omitempty"`
 	Sidecar       SidecarParams       `json:"sidecar,omitempty"`
+	Sidecars      []SidecarParams     `json:"sidecars,omitempty"`
 	RollingUpdate RollingUpdateParams `json:"rollingupdate,omitempty"`
 }
 
@@ -119,12 +120,14 @@ type LifecycleParams struct {
 
 // SidecarParams sets params for sidecar injection
 type SidecarParams struct {
-	Type                 string                 `json:"type,omitempty"`
-	Image                string                 `json:"image,omitempty"`
-	EnvironmentVariables map[string]interface{} `json:"env,omitempty"`
-	CPU                  CPUParams              `json:"cpu,omitempty"`
-	Memory               MemoryParams           `json:"memory,omitempty"`
-	HealthCheckPath      string                 `json:"healthcheckpath,omitempty"`
+	Type                     string                 `json:"type,omitempty"`
+	Image                    string                 `json:"image,omitempty"`
+	EnvironmentVariables     map[string]interface{} `json:"env,omitempty"`
+	CPU                      CPUParams              `json:"cpu,omitempty"`
+	Memory                   MemoryParams           `json:"memory,omitempty"`
+	HealthCheckPath          string                 `json:"healthcheckpath,omitempty"`
+	DbInstanceConnectionName string                 `json:"dbinstanceconnectionname,omitempty"`
+	SQLProxyPort             int                    `json:"sqlproxyport,omitempty"`
 }
 
 // RollingUpdateParams sets params for controlling rolling update speed
@@ -338,55 +341,30 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 		p.Container.Lifecycle.PrestopSleepSeconds = &defaultSleepValue
 	}
 
-	// set sidecar defaults
-	if p.Sidecar.Type == "" {
-		switch p.Kind {
-		case "job":
-			p.Sidecar.Type = "none"
+	// Code for backwards-compatibility: in the parameters the sidecar can be specified both in the "sidecar" field, and also as an element in the "sidecars" collection.
+	// The "sidecar" field is kept around for backwards compatibility, but due to this we need some extra checks to cover all cases.
+	legacyOpenrestySidecarSpecified := p.Sidecar.Type == "openresty"
 
-		default:
-			p.Sidecar.Type = "openresty"
-		}
-	}
-	if p.Sidecar.Image == "" {
-		p.Sidecar.Image = "estafette/openresty-sidecar:1.13.6.2-alpine"
-	}
-	if p.Sidecar.HealthCheckPath == "" {
-		p.Sidecar.HealthCheckPath = p.Container.ReadinessProbe.Path
-	}
-
-	// set sidecar cpu defaults
-	sidecarCPURequestIsEmpty := p.Sidecar.CPU.Request == ""
-	if sidecarCPURequestIsEmpty {
-		if p.Sidecar.CPU.Limit != "" {
-			p.Sidecar.CPU.Request = p.Sidecar.CPU.Limit
-		} else {
-			p.Sidecar.CPU.Request = "50m"
-		}
-	}
-	if p.Sidecar.CPU.Limit == "" {
-		if !sidecarCPURequestIsEmpty {
-			p.Sidecar.CPU.Limit = p.Sidecar.CPU.Request
-		} else {
-			p.Sidecar.CPU.Limit = "75m"
+	openrestySidecarSpecifiedInList := false
+	for _, sidecar := range p.Sidecars {
+		if sidecar.Type == "openresty" {
+			openrestySidecarSpecifiedInList = true
 		}
 	}
 
-	// set sidecar memory defaults
-	sidecarMemoryRequestIsEmpty := p.Sidecar.Memory.Request == ""
-	if sidecarMemoryRequestIsEmpty {
-		if p.Sidecar.Memory.Limit != "" {
-			p.Sidecar.Memory.Request = p.Sidecar.Memory.Limit
-		} else {
-			p.Sidecar.Memory.Request = "30Mi"
-		}
+	// If the openresty sidecar is not specified either in the "sidecar" field, nor in the "sidecars" collection (and this is not a Job), we add it to the list.
+	if !legacyOpenrestySidecarSpecified && !openrestySidecarSpecifiedInList && p.Kind != "job" {
+		openrestySidecar := SidecarParams{Type: "openresty"}
+
+		p.initializeSidecarDefaults(&openrestySidecar)
+
+		p.Sidecars = append(p.Sidecars, openrestySidecar)
 	}
-	if p.Sidecar.Memory.Limit == "" {
-		if !sidecarMemoryRequestIsEmpty {
-			p.Sidecar.Memory.Limit = p.Sidecar.Memory.Request
-		} else {
-			p.Sidecar.Memory.Limit = "50Mi"
-		}
+
+	p.initializeSidecarDefaults(&p.Sidecar)
+
+	for i := range p.Sidecars {
+		p.initializeSidecarDefaults(&p.Sidecars[i])
 	}
 
 	// default basepath to /
@@ -434,10 +412,59 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 	}
 }
 
+func (p *Params) initializeSidecarDefaults(sidecar *SidecarParams) {
+	if sidecar.Image == "" {
+		switch sidecar.Type {
+		case "openresty":
+			sidecar.Image = "estafette/openresty-sidecar:1.13.6.2-alpine"
+			if sidecar.HealthCheckPath == "" {
+				sidecar.HealthCheckPath = p.Container.ReadinessProbe.Path
+			}
+		case "cloudsqlproxy":
+			sidecar.Image = "gcr.io/cloudsql-docker/gce-proxy:1.13"
+		}
+	}
+
+	// set sidecar cpu defaults
+	sidecarCPURequestIsEmpty := sidecar.CPU.Request == ""
+	if sidecarCPURequestIsEmpty {
+		if sidecar.CPU.Limit != "" {
+			sidecar.CPU.Request = sidecar.CPU.Limit
+		} else {
+			sidecar.CPU.Request = "50m"
+		}
+	}
+	if sidecar.CPU.Limit == "" {
+		if !sidecarCPURequestIsEmpty {
+			sidecar.CPU.Limit = sidecar.CPU.Request
+		} else {
+			sidecar.CPU.Limit = "75m"
+		}
+	}
+
+	// set sidecar memory defaults
+	sidecarMemoryRequestIsEmpty := sidecar.Memory.Request == ""
+	if sidecarMemoryRequestIsEmpty {
+		if sidecar.Memory.Limit != "" {
+			sidecar.Memory.Request = sidecar.Memory.Limit
+		} else {
+			sidecar.Memory.Request = "30Mi"
+		}
+	}
+	if sidecar.Memory.Limit == "" {
+		if !sidecarMemoryRequestIsEmpty {
+			sidecar.Memory.Limit = sidecar.Memory.Request
+		} else {
+			sidecar.Memory.Limit = "50Mi"
+		}
+	}
+}
+
 // ValidateRequiredProperties checks whether all needed properties are set
-func (p *Params) ValidateRequiredProperties() (bool, []error) {
+func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 
 	errors := []error{}
+	warnings := []string{}
 
 	// validate app params
 	if p.App == "" {
@@ -449,7 +476,7 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 
 	if p.Action == "rollback-canary" {
 		// the above properties are all you need for a rollback
-		return len(errors) == 0, errors
+		return len(errors) == 0, errors, warnings
 	}
 
 	// validate container params
@@ -493,7 +520,7 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 
 	if p.Kind == "job" || p.Kind == "cronjob" {
 		// the above properties are all you need for a worker
-		return len(errors) == 0, errors
+		return len(errors) == 0, errors, warnings
 	}
 
 	// validate params with respect to incoming requests
@@ -597,29 +624,54 @@ func (p *Params) ValidateRequiredProperties() (bool, []error) {
 		}
 	}
 
-	// validate sidecar params
-	if p.Sidecar.Type == "" {
-		errors = append(errors, fmt.Errorf("Sidecar type is required; set it via sidecar.type property on this stage; allowed values are openresty"))
+	// The "sidecar" field is deprecated, so it can be empty. But if it's specified, then we validate it.
+	if p.Sidecar.Type != "" && p.Sidecar.Type != "none" {
+		errors = p.validateSidecar(p.Sidecar, errors)
+		warnings = append(warnings, "The sidecar field is deprecated, the sidecars list should be used instead.")
 	}
-	if p.Sidecar.Image == "" {
+
+	// validate sidecars params
+	for _, sidecar := range p.Sidecars {
+		errors = p.validateSidecar(sidecar, errors)
+	}
+
+	return len(errors) == 0, errors, warnings
+}
+
+func (p *Params) validateSidecar(sidecar SidecarParams, errors []error) []error {
+	switch sidecar.Type {
+	case "openresty":
+		break
+	case "cloudsqlproxy":
+		if sidecar.DbInstanceConnectionName == "" {
+			errors = append(errors, fmt.Errorf("The name of the DB instance used by this Cloud SQL Proxy is required; set it via sidecar.dbinstanceconnectionname property on this stage"))
+		}
+		if sidecar.SQLProxyPort == 0 {
+			errors = append(errors, fmt.Errorf("The port on which the Cloud SQL Proxy listens is required; set it via sidecar.sqlproxyport property on this stage"))
+		}
+	default:
+		errors = append(errors, fmt.Errorf("The sidecar type is incorrect; allowed values are openresty or cloudsqlproxy"))
+	}
+
+	if sidecar.Image == "" {
 		errors = append(errors, fmt.Errorf("Sidecar image is required; set it via sidecar.image property on this stage"))
 	}
 
 	// validate sidecar cpu params
-	if p.Sidecar.CPU.Request == "" {
+	if sidecar.CPU.Request == "" {
 		errors = append(errors, fmt.Errorf("Sidecar cpu request is required; set it via sidecar.cpu.request property on this stage"))
 	}
-	if p.Sidecar.CPU.Limit == "" {
+	if sidecar.CPU.Limit == "" {
 		errors = append(errors, fmt.Errorf("Sidecar cpu limit is required; set it via sidecar.cpu.limit property on this stage"))
 	}
 
 	// validate sidecar memory params
-	if p.Sidecar.Memory.Request == "" {
+	if sidecar.Memory.Request == "" {
 		errors = append(errors, fmt.Errorf("Sidecar memory request is required; set it via sidecar.memory.request property on this stage"))
 	}
-	if p.Sidecar.Memory.Limit == "" {
+	if sidecar.Memory.Limit == "" {
 		errors = append(errors, fmt.Errorf("Sidecar memory limit is required; set it via sidecar.memory.limit property on this stage"))
 	}
 
-	return len(errors) == 0, errors
+	return errors
 }

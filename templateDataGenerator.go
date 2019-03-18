@@ -79,47 +79,27 @@ func generateTemplateData(params Params, currentReplicas int, releaseID string) 
 				Port: params.Container.Metrics.Port,
 			},
 		},
-
-		Sidecar: SidecarData{
-			UseOpenrestySidecar: params.Sidecar.Type == "openresty",
-
-			Image:           params.Sidecar.Image,
-			HealthCheckPath: params.Sidecar.HealthCheckPath,
-			CPURequest:      params.Sidecar.CPU.Request,
-			CPULimit:        params.Sidecar.CPU.Limit,
-			MemoryRequest:   params.Sidecar.Memory.Request,
-			MemoryLimit:     params.Sidecar.Memory.Limit,
-
-			EnvironmentVariables: params.Sidecar.EnvironmentVariables,
-		},
 	}
 
 	if params.UseGoogleCloudCredentials {
 		data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "GOOGLE_APPLICATION_CREDENTIALS", "/gcp-service-account/service-account-key.json")
 	}
 
-	// set request params on sidecar
-	data.Sidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Sidecar.EnvironmentVariables, "SEND_TIMEOUT", params.Request.Timeout)
-	data.Sidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Sidecar.EnvironmentVariables, "CLIENT_BODY_TIMEOUT", params.Request.Timeout)
-	data.Sidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Sidecar.EnvironmentVariables, "CLIENT_HEADER_TIMEOUT", params.Request.Timeout)
-	data.Sidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Sidecar.EnvironmentVariables, "PROXY_CONNECT_TIMEOUT", params.Request.Timeout)
-	data.Sidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Sidecar.EnvironmentVariables, "PROXY_SEND_TIMEOUT", params.Request.Timeout)
-	data.Sidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Sidecar.EnvironmentVariables, "PROXY_READ_TIMEOUT", params.Request.Timeout)
+	mainSidecar := buildSidecar(params.Sidecar, params.Request)
+	data.Sidecars = append(data.Sidecars, mainSidecar)
+
+	for _, sidecarParams := range params.Sidecars {
+		sidecar := buildSidecar(sidecarParams, params.Request)
+		data.Sidecars = append(data.Sidecars, sidecar)
+	}
+
+	// set request params on the nginx ingress
 	data.NginxIngressProxyConnectTimeout = params.Request.Timeout
 	data.NginxIngressProxySendTimeout = params.Request.Timeout
 	data.NginxIngressProxyReadTimeout = params.Request.Timeout
-
-	data.Sidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Sidecar.EnvironmentVariables, "CLIENT_MAX_BODY_SIZE", params.Request.MaxBodySize)
 	data.NginxIngressProxyBodySize = params.Request.MaxBodySize
-
-	data.Sidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Sidecar.EnvironmentVariables, "CLIENT_BODY_BUFFER_SIZE", params.Request.ClientBodyBufferSize)
 	data.NginxIngressClientBodyBufferSize = params.Request.ClientBodyBufferSize
-
-	data.Sidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Sidecar.EnvironmentVariables, "PROXY_BUFFER_SIZE", params.Request.ProxyBufferSize)
-	data.Sidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Sidecar.EnvironmentVariables, "PROXY_BUFFERS_SIZE", params.Request.ProxyBufferSize)
 	data.NginxIngressProxyBufferSize = params.Request.ProxyBufferSize
-
-	data.Sidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Sidecar.EnvironmentVariables, "PROXY_BUFFERS_NUMBER", strconv.Itoa(params.Request.ProxyBuffersNumber))
 	data.NginxIngressProxyBuffersNumber = strconv.Itoa(params.Request.ProxyBuffersNumber)
 
 	if params.Container.Metrics.Scrape != nil {
@@ -245,6 +225,39 @@ func generateTemplateData(params Params, currentReplicas int, releaseID string) 
 	}
 
 	return data
+}
+
+func buildSidecar(sidecar SidecarParams, request RequestParams) SidecarData {
+	builtSidecar := SidecarData{
+		Type:                 sidecar.Type,
+		Image:                sidecar.Image,
+		CPURequest:           sidecar.CPU.Request,
+		CPULimit:             sidecar.CPU.Limit,
+		MemoryRequest:        sidecar.Memory.Request,
+		MemoryLimit:          sidecar.Memory.Limit,
+		EnvironmentVariables: sidecar.EnvironmentVariables,
+		SidecarSpecificProperties: map[string]interface{}{
+			"healthcheckpath":          sidecar.HealthCheckPath,
+			"dbinstanceconnectionname": sidecar.DbInstanceConnectionName,
+			"sqlproxyport":             sidecar.SQLProxyPort,
+		},
+	}
+
+	if builtSidecar.Type == "openresty" {
+		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "SEND_TIMEOUT", request.Timeout)
+		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "CLIENT_BODY_TIMEOUT", request.Timeout)
+		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "CLIENT_HEADER_TIMEOUT", request.Timeout)
+		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "PROXY_CONNECT_TIMEOUT", request.Timeout)
+		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "PROXY_SEND_TIMEOUT", request.Timeout)
+		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "PROXY_READ_TIMEOUT", request.Timeout)
+		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "CLIENT_MAX_BODY_SIZE", request.MaxBodySize)
+		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "CLIENT_BODY_BUFFER_SIZE", request.ClientBodyBufferSize)
+		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "PROXY_BUFFER_SIZE", request.ProxyBufferSize)
+		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "PROXY_BUFFERS_SIZE", request.ProxyBufferSize)
+		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "PROXY_BUFFERS_NUMBER", strconv.Itoa(request.ProxyBuffersNumber))
+	}
+
+	return builtSidecar
 }
 
 func addEnvironmentVariableIfNotSet(environmentVariables map[string]interface{}, name, value string) map[string]interface{} {
