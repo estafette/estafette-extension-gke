@@ -102,6 +102,7 @@ stages:
       lifecycle:
         prestopsleep: true
         prestopsleepseconds: 15
+    injecthttpproxysidecar: false
     autoscale:
       min: 3
       max: 50
