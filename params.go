@@ -343,7 +343,8 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 	}
 
 	if p.InjectHTTPProxySidecar == nil {
-		*p.InjectHTTPProxySidecar = true
+		trueValue := true
+		p.InjectHTTPProxySidecar = &trueValue
 	}
 
 	// Code for backwards-compatibility: in the parameters the sidecar can be specified both in the "sidecar" field, and also as an element in the "sidecars" collection.
