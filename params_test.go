@@ -1183,6 +1183,23 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "openresty", params.Sidecars[0].Type)
 	})
 
+	t.Run("DoesntAddDefaultSidecarIfInjectFlagFalsEvenIfNoSidecarSpecified", func(t *testing.T) {
+
+		falseValue := false
+		params := Params{
+			Kind: "deployment",
+			InjectHTTPProxySidecar: &falseValue,
+			Sidecar: SidecarParams{
+				Type: "",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, 0, len(params.Sidecars))
+	})
+
 	t.Run("AddsNoDefaultSidecarIfEmptyAndGlobalKindIsJob", func(t *testing.T) {
 
 		params := Params{
