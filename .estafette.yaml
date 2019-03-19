@@ -48,6 +48,50 @@ stages:
     copy:
     - templates
 
+  deploy-acceptance-rwd:
+    dryrun: true
+    image: extensions/gke:0.1.282
+    credentials: gke-development
+    namespace: frontend-acceptance
+    visibility: private
+    app: ${ESTAFETTE_BUILD_VERSION_LABEL}-rwd
+    injecthttpproxysidecar: false
+    volumemounts:
+    - name: ssl-certificate-rwd
+      mountpath: /etc/ssl
+      volume:
+        secret:
+          secretName: ${ESTAFETTE_BUILD_VERSION_LABEL}-rwd-letsencrypt-certificate
+    container:
+      name: "${ESTAFETTE_LABEL_APP}-rwd"
+      port: 80
+      additionalports:
+       - name: https
+         port: 443
+         protocol: TCP
+         visibility: duplicated
+       - name: metrics
+         port: 9090
+         protocol: TCP
+      env:
+        FE_SERVER_PERCENTAGE: 100
+        FE_SERVER_URL: https://${ESTAFETTE_BUILD_VERSION_LABEL}-fe-server
+      cpu:
+        request: 200m
+        limit: 1000m
+      memory:
+        request: 64Mi
+        limit: 256Mi
+      readiness:
+        path: /health_check
+      liveness:
+        path: /health_check
+      metrics:
+        scrape: false
+    when: status == 'succeeded' && branch != 'master'
+    hosts:
+      - ${ESTAFETTE_BUILD_VERSION_LABEL}-acceptance.cheaptickets.nl
+
   test-alpha-version:
     image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
     credentials: gke-tooling
