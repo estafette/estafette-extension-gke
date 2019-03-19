@@ -1183,7 +1183,7 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "openresty", params.Sidecars[0].Type)
 	})
 
-	t.Run("DoesntAddDefaultSidecarIfInjectFlagFalsEvenIfNoSidecarSpecified", func(t *testing.T) {
+	t.Run("DoesntAddDefaultSidecarIfInjectFlagIsFalseEvenIfNoSidecarSpecified", func(t *testing.T) {
 
 		falseValue := false
 		params := Params{
