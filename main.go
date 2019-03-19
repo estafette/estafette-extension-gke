@@ -276,7 +276,7 @@ func assistTroubleshooting() {
 
 		if paramsForTroubleshooting.Action == "deploy-canary" {
 			logInfo("Showing logs for canary deployment...")
-			runCommandExtended("kubectl", []string{"logs", "-l", fmt.Sprintf("app=%v,track=canary", paramsForTroubleshooting.App), "-n", paramsForTroubleshooting.Namespace, "-c", paramsForTroubleshooting.App})
+			runCommandExtended("kubectl", []string{"logs", "-l", fmt.Sprintf("app=%v,track=canary", paramsForTroubleshooting.App), "-n", paramsForTroubleshooting.Namespace, "-c", paramsForTroubleshooting.App, "--tail", "50"})
 		}
 
 		// logInfo("Showing kubernetes events with the word %v in it...", paramsForTroubleshooting.App)
