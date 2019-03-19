@@ -37,10 +37,11 @@ type Params struct {
 	UseGoogleCloudCredentials bool `json:"useGoogleCloudCredentials,omitempty"`
 
 	// container params
-	Container     ContainerParams     `json:"container,omitempty"`
-	Sidecar       SidecarParams       `json:"sidecar,omitempty"`
-	Sidecars      []SidecarParams     `json:"sidecars,omitempty"`
-	RollingUpdate RollingUpdateParams `json:"rollingupdate,omitempty"`
+	Container              ContainerParams     `json:"container,omitempty"`
+	InjectHTTPProxySidecar *bool               `json:"injecthttpproxysidecar,omitempty"`
+	Sidecar                SidecarParams       `json:"sidecar,omitempty"`
+	Sidecars               []SidecarParams     `json:"sidecars,omitempty"`
+	RollingUpdate          RollingUpdateParams `json:"rollingupdate,omitempty"`
 }
 
 // ContainerParams defines the container image to deploy
@@ -341,6 +342,11 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 		p.Container.Lifecycle.PrestopSleepSeconds = &defaultSleepValue
 	}
 
+	if p.InjectHTTPProxySidecar == nil {
+		trueValue := true
+		p.InjectHTTPProxySidecar = &trueValue
+	}
+
 	// Code for backwards-compatibility: in the parameters the sidecar can be specified both in the "sidecar" field, and also as an element in the "sidecars" collection.
 	// The "sidecar" field is kept around for backwards compatibility, but due to this we need some extra checks to cover all cases.
 	legacyOpenrestySidecarSpecified := p.Sidecar.Type == "openresty"
@@ -352,8 +358,8 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 		}
 	}
 
-	// If the openresty sidecar is not specified either in the "sidecar" field, nor in the "sidecars" collection (and this is not a Job), we add it to the list.
-	if !legacyOpenrestySidecarSpecified && !openrestySidecarSpecifiedInList && p.Kind != "job" {
+	// If the openresty sidecar is not specified either in the "sidecar" field, nor in the "sidecars" collection (and this is not a Job), and injecting the proxy is not explicitly disabled, we inject one by default.
+	if *p.InjectHTTPProxySidecar && !legacyOpenrestySidecarSpecified && !openrestySidecarSpecifiedInList && p.Kind != "job" {
 		openrestySidecar := SidecarParams{Type: "openresty"}
 
 		p.initializeSidecarDefaults(&openrestySidecar)
