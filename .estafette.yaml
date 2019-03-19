@@ -98,6 +98,7 @@ stages:
     action: deploy-simple
     kind: deployment
     app: gke
+    injecthttpproxysidecar: false
     namespace: estafette
     visibility: public-whitelist
     whitelist:
