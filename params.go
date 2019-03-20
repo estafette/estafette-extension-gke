@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"regexp"
 	"strings"
 )
@@ -343,9 +344,12 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 	}
 
 	if p.InjectHTTPProxySidecar == nil {
+		log.Printf("p.InjectHTTPProxySidecar was nil, setting it to true")
 		trueValue := true
 		p.InjectHTTPProxySidecar = &trueValue
 	}
+
+	log.Printf("p.InjectHTTPProxySidecar: %v", *p.InjectHTTPProxySidecar)
 
 	// Code for backwards-compatibility: in the parameters the sidecar can be specified both in the "sidecar" field, and also as an element in the "sidecars" collection.
 	// The "sidecar" field is kept around for backwards compatibility, but due to this we need some extra checks to cover all cases.
@@ -358,8 +362,10 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 		}
 	}
 
+	log.Printf("*p.InjectHTTPProxySidecar: %v, legacyOpenrestySidecarSpecified: %v, openrestySidecarSpecifiedInList: %v", *p.InjectHTTPProxySidecar, legacyOpenrestySidecarSpecified, openrestySidecarSpecifiedInList)
 	// If the openresty sidecar is not specified either in the "sidecar" field, nor in the "sidecars" collection (and this is not a Job), and injecting the proxy is not explicitly disabled, we inject one by default.
 	if *p.InjectHTTPProxySidecar && !legacyOpenrestySidecarSpecified && !openrestySidecarSpecifiedInList && p.Kind != "job" {
+		log.Printf("Injecting the default openresty sidecar")
 		openrestySidecar := SidecarParams{Type: "openresty"}
 
 		p.initializeSidecarDefaults(&openrestySidecar)
