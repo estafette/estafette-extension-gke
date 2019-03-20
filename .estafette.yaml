@@ -51,7 +51,7 @@ stages:
   deploy-acceptance-rwd:
     dryrun: true
     image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-    credentials: gke-development
+    credentials: gke-tooling
     namespace: frontend-acceptance
     visibility: private
     app: ${ESTAFETTE_BUILD_VERSION_LABEL}-rwd
@@ -94,7 +94,7 @@ stages:
 
   test-alpha-version:
     image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-    credentials: gke-tooling
+    credentials: gke-development
     action: deploy-simple
     kind: deployment
     app: gke
