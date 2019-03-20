@@ -131,6 +131,12 @@ stages:
       min: 3
       max: 50
       cpu: 80
+      safety:
+        enabled: true
+        promquery: "sum(rate(nginx_http_requests_total{app='my-app'}[5m])) by (app)"
+        ratio: 2.5
+        delta: -0.5
+        scaledownratio: 0.2
     request:
       timeout: 60s
       maxbodysize: 128m

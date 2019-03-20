@@ -7,6 +7,14 @@ metadata:
     {{- range $key, $value := .Labels}}
     {{$key}}: {{$value}}
     {{- end}}
+  {{- if .UseHpaScaler}}
+  annotations:
+    estafette.io/hpa-scaler: "true"
+    estafette.io/hpa-scaler-prometheus-query: "{{.HpaScalerPromQuery}}"
+    estafette.io/hpa-scaler-requests-per-replica: "{{.HpaScalerRequestsPerReplica}}"
+    estafette.io/hpa-scaler-delta: "{{.HpaScalerDelta}}"
+    estafette.io/hpa-scaler-scale-down-max-ratio: "{{.HpaScalerScaleDownMaxRatio}}"
+  {{- end}}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1

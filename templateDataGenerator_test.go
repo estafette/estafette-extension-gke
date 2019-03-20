@@ -1695,4 +1695,84 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		assert.Equal(t, "*/5 * * * *", templateData.Schedule)
 	})
+
+	t.Run("SetsUseHpaScalerToAutoscalerSafetyEnabledParam", func(t *testing.T) {
+
+		params := Params{
+			Autoscale: AutoscaleParams{
+				Safety: AutoscaleSafetyParams{
+					Enabled: true,
+				},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "", "")
+
+		assert.True(t, templateData.UseHpaScaler)
+	})
+
+	t.Run("SetsHpaScalerPromQueryToAutoscalerSafetyPromQueryParam", func(t *testing.T) {
+
+		params := Params{
+			Autoscale: AutoscaleParams{
+				Safety: AutoscaleSafetyParams{
+					PromQuery: "sum(rate(nginx_http_requests_total{app='my-app'}[5m])) by (app)",
+				},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "", "")
+
+		assert.Equal(t, "sum(rate(nginx_http_requests_total{app='my-app'}[5m])) by (app)", templateData.HpaScalerPromQuery)
+	})
+
+	t.Run("SetsHpaScalerRequestsPerReplicaToAutoscalerSafetyPromQueryParam", func(t *testing.T) {
+
+		params := Params{
+			Autoscale: AutoscaleParams{
+				Safety: AutoscaleSafetyParams{
+					Ratio: 0.25,
+				},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "", "")
+
+		assert.Equal(t, "0.250", templateData.HpaScalerRequestsPerReplica)
+	})
+
+	t.Run("SetsHpaScalerRequestsPerReplicaToAutoscalerSafetyPromQueryParam", func(t *testing.T) {
+
+		params := Params{
+			Autoscale: AutoscaleParams{
+				Safety: AutoscaleSafetyParams{
+					Delta: -2.7584,
+				},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "", "")
+
+		assert.Equal(t, "-2.758", templateData.HpaScalerDelta)
+	})
+
+	t.Run("SetsHpaScalerRequestsPerReplicaToAutoscalerSafetyPromQueryParam", func(t *testing.T) {
+
+		params := Params{
+			Autoscale: AutoscaleParams{
+				Safety: AutoscaleSafetyParams{
+					ScaleDownRatio: 0.2,
+				},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "", "")
+
+		assert.Equal(t, "0.200", templateData.HpaScalerScaleDownMaxRatio)
+	})
 }

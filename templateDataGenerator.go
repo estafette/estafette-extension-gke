@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -32,6 +33,12 @@ func generateTemplateData(params Params, currentReplicas int, releaseID, trigger
 		MinReplicas:         params.Autoscale.MinReplicas,
 		MaxReplicas:         params.Autoscale.MaxReplicas,
 		TargetCPUPercentage: params.Autoscale.CPUPercentage,
+
+		UseHpaScaler:                params.Autoscale.Safety.Enabled,
+		HpaScalerPromQuery:          params.Autoscale.Safety.PromQuery,
+		HpaScalerRequestsPerReplica: fmt.Sprintf("%.3f", params.Autoscale.Safety.Ratio),
+		HpaScalerDelta:              fmt.Sprintf("%.3f", params.Autoscale.Safety.Delta),
+		HpaScalerScaleDownMaxRatio:  fmt.Sprintf("%.3f", params.Autoscale.Safety.ScaleDownRatio),
 
 		Secrets:                 params.Secrets.Keys,
 		MountApplicationSecrets: len(params.Secrets.Keys) > 0,

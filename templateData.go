@@ -23,6 +23,11 @@ type TemplateData struct {
 	MinReplicas                      int
 	MaxReplicas                      int
 	TargetCPUPercentage              int
+	UseHpaScaler                     bool
+	HpaScalerPromQuery               string
+	HpaScalerRequestsPerReplica      string
+	HpaScalerDelta                   string
+	HpaScalerScaleDownMaxRatio       string
 	PreferPreemptibles               bool
 	Container                        ContainerData
 	Sidecars                         []SidecarData
