@@ -33,6 +33,9 @@ spec:
         {{- if .IncludeReleaseIDLabel}}
         release-id: "{{.ReleaseIDLabel}}"
         {{- end}}
+        {{- if .IncludeTriggeredByLabel}}
+        triggered-by: "{{.TriggeredByLabel}}"
+        {{- end}}
         {{- if .IncludeTrackLabel}}
         track: {{.TrackLabel}}
         {{- end}}
