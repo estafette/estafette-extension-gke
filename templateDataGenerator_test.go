@@ -1377,7 +1377,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.True(t, templateData.IncludeTriggeredByLabel)
 	})
 
-	t.Run("SetsTriggeredByLabelToTriggeredBy", func(t *testing.T) {
+	t.Run("SetsTriggeredByLabelToTriggeredBySanitizedAsLabel", func(t *testing.T) {
 
 		params := Params{
 			App:    "myapp",
@@ -1388,7 +1388,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		// act
 		templateData := generateTemplateData(params, -1, "", triggeredBy)
 
-		assert.Equal(t, "user@estafette.io", templateData.TriggeredByLabel)
+		assert.Equal(t, "user-estafette.io", templateData.TriggeredByLabel)
 	})
 
 	t.Run("SetsIncludeTrackLabelToFalseIfParamsTypeIsSimple", func(t *testing.T) {
