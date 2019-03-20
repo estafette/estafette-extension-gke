@@ -1707,7 +1707,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "")
+		templateData := generateTemplateData(params, -1, "", "")
 
 		assert.True(t, templateData.UseHpaScaler)
 	})
@@ -1723,7 +1723,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "")
+		templateData := generateTemplateData(params, -1, "", "")
 
 		assert.Equal(t, "sum(rate(nginx_http_requests_total{app='my-app'}[5m])) by (app)", templateData.HpaScalerPromQuery)
 	})
@@ -1739,7 +1739,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "")
+		templateData := generateTemplateData(params, -1, "", "")
 
 		assert.Equal(t, "0.250", templateData.HpaScalerRequestsPerReplica)
 	})
@@ -1755,7 +1755,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "")
+		templateData := generateTemplateData(params, -1, "", "")
 
 		assert.Equal(t, "-2.758", templateData.HpaScalerDelta)
 	})
@@ -1771,7 +1771,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "")
+		templateData := generateTemplateData(params, -1, "", "")
 
 		assert.Equal(t, "0.200", templateData.HpaScalerScaleDownMaxRatio)
 	})
