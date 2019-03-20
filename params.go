@@ -652,6 +652,8 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 
 func (p *Params) validateSidecar(sidecar SidecarParams, errors []error) []error {
 	switch sidecar.Type {
+	case "none":
+		break
 	case "openresty":
 		break
 	case "cloudsqlproxy":
