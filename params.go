@@ -84,9 +84,19 @@ type MemoryParams struct {
 
 // AutoscaleParams controls autoscaling
 type AutoscaleParams struct {
-	MinReplicas   int `json:"min,omitempty"`
-	MaxReplicas   int `json:"max,omitempty"`
-	CPUPercentage int `json:"cpu,omitempty"`
+	MinReplicas   int                   `json:"min,omitempty"`
+	MaxReplicas   int                   `json:"max,omitempty"`
+	CPUPercentage int                   `json:"cpu,omitempty"`
+	Safety        AutoscaleSafetyParams `json:"safety,omitempty"`
+}
+
+// AutoscaleSafetyParams configures the autoscaler to use estafette-hpa-scaler as a safety net
+type AutoscaleSafetyParams struct {
+	Enabled        bool    `json:"enabled,omitempty"`
+	PromQuery      string  `json:"promquery,omitempty"`
+	Ratio          float64 `json:"ratio,omitempty"`
+	Delta          float64 `json:"delta,omitempty"`
+	ScaleDownRatio float64 `json:"scaledownratio,omitempty"`
 }
 
 // RequestParams controls timeouts, max body size, etc
@@ -275,6 +285,16 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 	}
 	if p.Autoscale.CPUPercentage <= 0 {
 		p.Autoscale.CPUPercentage = 80
+	}
+
+	if p.Autoscale.Safety.PromQuery == "" {
+		p.Autoscale.Safety.PromQuery = fmt.Sprintf("sum(rate(nginx_http_requests_total{app='%v'}[5m])) by (app)", p.App)
+	}
+	if p.Autoscale.Safety.Ratio == 0 {
+		p.Autoscale.Safety.Ratio = 1
+	}
+	if p.Autoscale.Safety.ScaleDownRatio == 0 {
+		p.Autoscale.Safety.ScaleDownRatio = 1
 	}
 
 	// set request defaults

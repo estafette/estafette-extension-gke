@@ -660,6 +660,132 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, 30, params.Autoscale.CPUPercentage)
 	})
 
+	t.Run("DefaultsAutoscaleSafetyEnabledToFalse", func(t *testing.T) {
+
+		params := Params{
+			Autoscale: AutoscaleParams{
+				Safety: AutoscaleSafetyParams{},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.False(t, params.Autoscale.Safety.Enabled)
+	})
+
+	t.Run("KeepsAutoscaleSafetyEnabled", func(t *testing.T) {
+
+		params := Params{
+			Autoscale: AutoscaleParams{
+				Safety: AutoscaleSafetyParams{
+					Enabled: true,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.True(t, params.Autoscale.Safety.Enabled)
+	})
+
+	t.Run("DefaultsAutoscaleSafetyPromQueryToRequestRateForAppLabelOverLast5Minutes", func(t *testing.T) {
+
+		params := Params{
+			App: "my-app",
+			Autoscale: AutoscaleParams{
+				Safety: AutoscaleSafetyParams{},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, "sum(rate(nginx_http_requests_total{app='my-app'}[5m])) by (app)", params.Autoscale.Safety.PromQuery)
+	})
+
+	t.Run("KeepsAutoscaleSafetyPromQuery", func(t *testing.T) {
+
+		params := Params{
+			App: "my-app",
+			Autoscale: AutoscaleParams{
+				Safety: AutoscaleSafetyParams{
+					PromQuery: "sum(rate(nginx_http_requests_total{app='your-app'}[5m])) by (app)",
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, "sum(rate(nginx_http_requests_total{app='your-app'}[5m])) by (app)", params.Autoscale.Safety.PromQuery)
+	})
+
+	t.Run("DefaultsAutoscaleSafetyRatioToOne", func(t *testing.T) {
+
+		params := Params{
+			App: "my-app",
+			Autoscale: AutoscaleParams{
+				Safety: AutoscaleSafetyParams{},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, 1.0, params.Autoscale.Safety.Ratio)
+	})
+
+	t.Run("KeepsAutoscaleSafetyRatio", func(t *testing.T) {
+
+		params := Params{
+			App: "my-app",
+			Autoscale: AutoscaleParams{
+				Safety: AutoscaleSafetyParams{
+					Ratio: 1.5,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, 1.5, params.Autoscale.Safety.Ratio)
+	})
+
+	t.Run("DefaultsAutoscaleSafetyScaleDownRatioToOne", func(t *testing.T) {
+
+		params := Params{
+			App: "my-app",
+			Autoscale: AutoscaleParams{
+				Safety: AutoscaleSafetyParams{},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, 1.0, params.Autoscale.Safety.ScaleDownRatio)
+	})
+
+	t.Run("KeepsAutoscaleSafetyScaleDownRatio", func(t *testing.T) {
+
+		params := Params{
+			App: "my-app",
+			Autoscale: AutoscaleParams{
+				Safety: AutoscaleSafetyParams{
+					ScaleDownRatio: 0.2,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, 0.2, params.Autoscale.Safety.ScaleDownRatio)
+	})
+
 	t.Run("DefaultsRequestTimeoutTo60sIfEmpty", func(t *testing.T) {
 
 		params := Params{
@@ -1187,7 +1313,7 @@ func TestSetDefaults(t *testing.T) {
 
 		falseValue := false
 		params := Params{
-			Kind: "deployment",
+			Kind:                   "deployment",
 			InjectHTTPProxySidecar: &falseValue,
 			Sidecar: SidecarParams{
 				Type: "",
