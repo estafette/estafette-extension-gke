@@ -51,11 +51,13 @@ stages:
   deploy-acceptance-rwd:
     dryrun: true
     image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-    credentials: gke-tooling
+    credentials: gke-development
     namespace: frontend-acceptance
     visibility: private
     app: ${ESTAFETTE_BUILD_VERSION_LABEL}-rwd
     injecthttpproxysidecar: false
+    sidecars:
+    - type: none
     volumemounts:
     - name: ssl-certificate-rwd
       mountpath: /etc/ssl
