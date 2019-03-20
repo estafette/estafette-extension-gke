@@ -8,7 +8,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-func generateTemplateData(params Params, currentReplicas int, releaseID string) TemplateData {
+func generateTemplateData(params Params, currentReplicas int, releaseID, triggeredBy string) TemplateData {
 
 	data := TemplateData{
 		BuildVersion: params.BuildVersion,
@@ -128,6 +128,11 @@ func generateTemplateData(params Params, currentReplicas int, releaseID string) 
 	if releaseID != "" {
 		data.IncludeReleaseIDLabel = true
 		data.ReleaseIDLabel = releaseID
+	}
+
+	if triggeredBy != "" {
+		data.IncludeTriggeredByLabel = true
+		data.TriggeredByLabel = triggeredBy
 	}
 
 	switch params.Action {

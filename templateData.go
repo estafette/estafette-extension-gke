@@ -48,6 +48,8 @@ type TemplateData struct {
 	IncludeTrackLabel                bool
 	IncludeReleaseIDLabel            bool
 	ReleaseIDLabel                   string
+	IncludeTriggeredByLabel          bool
+	TriggeredByLabel                 string
 	TrackLabel                       string
 	AddSafeToEvictAnnotation         bool
 	MountAdditionalVolumes           bool

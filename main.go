@@ -34,6 +34,7 @@ var (
 	releaseName   = kingpin.Flag("release-name", "Name of the release section, which is used by convention to resolve the credentials.").Envar("ESTAFETTE_RELEASE_NAME").String()
 	releaseAction = kingpin.Flag("release-action", "Name of the release action, to control the type of release.").Envar("ESTAFETTE_RELEASE_ACTION").String()
 	releaseID     = kingpin.Flag("release-id", "ID of the release, to use as a label.").Envar("ESTAFETTE_RELEASE_ID").String()
+	triggeredBy   = kingpin.Flag("triggered-by", "The user id of the person triggering the release.").Envar("ESTAFETTE_RELEASE_TRIGGERED_BY").String()
 
 	assistTroubleshootingOnError = false
 	paramsForTroubleshooting     = Params{}
@@ -184,7 +185,7 @@ func main() {
 	currentReplicas := getExistingNumberOfReplicas(params)
 
 	// generate the data required for rendering the templates
-	templateData := generateTemplateData(params, currentReplicas, *releaseID)
+	templateData := generateTemplateData(params, currentReplicas, *releaseID, *triggeredBy)
 
 	// render the template
 	renderedTemplate, err := renderTemplate(tmpl, templateData)

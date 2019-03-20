@@ -27,6 +27,9 @@ spec:
             {{- if .IncludeReleaseIDLabel}}
             release-id: "{{.ReleaseIDLabel}}"
             {{- end}}
+            {{- if .IncludeTriggeredByLabel}}
+            triggered-by: "{{.TriggeredByLabel}}"
+            {{- end}}
           annotations:
             prometheus.io/scrape: "{{.Container.Metrics.Scrape}}"
             prometheus.io/path: "{{.Container.Metrics.Path}}"
