@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -17,8 +18,8 @@ func generateTemplateData(params Params, currentReplicas int, releaseID, trigger
 		NameWithTrack:    params.App,
 		Namespace:        params.Namespace,
 		Schedule:         params.Schedule,
-		Labels:           params.Labels,
-		AppLabelSelector: params.App,
+		Labels:           sanitizeLabels(params.Labels),
+		AppLabelSelector: sanitizeLabel(params.App),
 
 		Hosts:               params.Hosts,
 		HostsJoined:         strings.Join(params.Hosts, ","),
@@ -127,12 +128,12 @@ func generateTemplateData(params Params, currentReplicas int, releaseID, trigger
 
 	if releaseID != "" {
 		data.IncludeReleaseIDLabel = true
-		data.ReleaseIDLabel = releaseID
+		data.ReleaseIDLabel = sanitizeLabel(releaseID)
 	}
 
 	if triggeredBy != "" {
 		data.IncludeTriggeredByLabel = true
-		data.TriggeredByLabel = triggeredBy
+		data.TriggeredByLabel = sanitizeLabel(triggeredBy)
 	}
 
 	switch params.Action {
@@ -282,4 +283,28 @@ func addEnvironmentVariableIfNotSet(environmentVariables map[string]interface{},
 	}
 
 	return environmentVariables
+}
+
+// a valid label must be an empty string or consist of alphanumeric characters, '-', '_' or '.', and must start and end with an alphanumeric character (e.g. 'MyValue',  or 'my_value',  or '12345', regex used for validation is '(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?')
+func sanitizeLabel(value string) (sanitizedValue string) {
+
+	reg := regexp.MustCompile(`[^a-zA-Z0-9-_.]+`)
+	sanitizedValue = reg.ReplaceAllString(value, "-")
+
+	// ensure only alphanumeric characters as first and last
+	trimStartReg := regexp.MustCompile(`^[^a-zA-Z0-9]+`)
+	sanitizedValue = trimStartReg.ReplaceAllString(sanitizedValue, "")
+
+	trimEndReg := regexp.MustCompile(`[^a-zA-Z0-9]+$`)
+	sanitizedValue = trimEndReg.ReplaceAllString(sanitizedValue, "")
+
+	return
+}
+
+func sanitizeLabels(labels map[string]string) (sanitizedLabels map[string]string) {
+	sanitizedLabels = make(map[string]string, len(labels))
+	for k, v := range labels {
+		sanitizedLabels[k] = sanitizeLabel(v)
+	}
+	return
 }
