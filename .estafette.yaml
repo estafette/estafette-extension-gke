@@ -120,6 +120,7 @@ stages:
     sidecars:
     - type: cloudsqlproxy
       dbinstanceconnectionname: my-gcloud-project:europe-west1:my-database
+      serviceaccountkeyfilepath: /secrets/service-account-key.json
       sqlproxyport: 5043
       cpu:
         request: 10m
@@ -149,6 +150,7 @@ stages:
         secret-file-2.yaml: YW5vdGhlciBzZWNyZXQgdmFsdWU=
         bool-file: true
         int-file: 123123
+        service-account-key.json: "abc"
       mountpath: /secrets
     configs:
       # these are local files with golang template style placeholders, replaced with the values specified in the data section;

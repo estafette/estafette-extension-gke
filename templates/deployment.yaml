@@ -219,12 +219,17 @@ spec:
             memory: {{.MemoryLimit}}
         command: ["/cloud_sql_proxy",
                   "-instances={{ index .SidecarSpecificProperties "dbinstanceconnectionname" }}=tcp:{{ index .SidecarSpecificProperties "sqlproxyport" }}",
-                  "-credential_file=/gcp-service-account/service-account-key.json"]
-          {{- if $deployment.MountServiceAccountSecret }}
+                  "-credential_file={{ index .SidecarSpecificProperties "serviceaccountkeyfilepath" }}"]
+        {{- if or .MountServiceAccountSecret .MountAdditionalVolumes }}
         volumeMounts:
-          - name: gcp-service-account
-            mountPath: /gcp-service-account
-          {{- end }}
+        {{- if $deployment.MountServiceAccountSecret }}
+        - name: gcp-service-account
+          mountPath: /gcp-service-account
+        {{- end }}
+        {{- range .AdditionalVolumeMounts}}
+        - name: {{.Name}}
+          mountPath: {{.MountPath}}
+        {{- end }}
         {{- end }}
       {{- end }}
       terminationGracePeriodSeconds: 300

@@ -1313,7 +1313,7 @@ func TestSetDefaults(t *testing.T) {
 
 		falseValue := false
 		params := Params{
-			Kind:                   "deployment",
+			Kind: "deployment",
 			InjectHTTPProxySidecar: &falseValue,
 			Sidecar: SidecarParams{
 				Type: "",
@@ -2937,6 +2937,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Sidecar.Type = "cloudsqlproxy"
 		params.Sidecar.DbInstanceConnectionName = ""
 		params.Sidecar.SQLProxyPort = 8080
+		params.Sidecar.ServiceAccountKeyFilePath = "/service-account.json"
 
 		// act
 		valid, errors, _ := params.ValidateRequiredProperties()
@@ -2951,6 +2952,22 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Sidecar.Type = "cloudsqlproxy"
 		params.Sidecar.DbInstanceConnectionName = "instance"
 		params.Sidecar.SQLProxyPort = 0
+		params.Sidecar.ServiceAccountKeyFilePath = "/service-account.json"
+
+		// act
+		valid, errors, _ := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) == 1)
+	})
+
+	t.Run("ReturnsFalseIfServiceAccountKeyFilePathNotSet", func(t *testing.T) {
+
+		params := validParams
+		params.Sidecar.Type = "cloudsqlproxy"
+		params.Sidecar.DbInstanceConnectionName = "instance"
+		params.Sidecar.SQLProxyPort = 8080
+		params.Sidecar.ServiceAccountKeyFilePath = ""
 
 		// act
 		valid, errors, _ := params.ValidateRequiredProperties()
@@ -2965,6 +2982,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Sidecar.Type = "cloudsqlproxy"
 		params.Sidecar.DbInstanceConnectionName = "instance"
 		params.Sidecar.SQLProxyPort = 8080
+		params.Sidecar.ServiceAccountKeyFilePath = "/service-account.json"
 
 		// act
 		valid, errors, _ := params.ValidateRequiredProperties()

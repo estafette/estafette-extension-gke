@@ -131,14 +131,15 @@ type LifecycleParams struct {
 
 // SidecarParams sets params for sidecar injection
 type SidecarParams struct {
-	Type                     string                 `json:"type,omitempty"`
-	Image                    string                 `json:"image,omitempty"`
-	EnvironmentVariables     map[string]interface{} `json:"env,omitempty"`
-	CPU                      CPUParams              `json:"cpu,omitempty"`
-	Memory                   MemoryParams           `json:"memory,omitempty"`
-	HealthCheckPath          string                 `json:"healthcheckpath,omitempty"`
-	DbInstanceConnectionName string                 `json:"dbinstanceconnectionname,omitempty"`
-	SQLProxyPort             int                    `json:"sqlproxyport,omitempty"`
+	Type                      string                 `json:"type,omitempty"`
+	Image                     string                 `json:"image,omitempty"`
+	EnvironmentVariables      map[string]interface{} `json:"env,omitempty"`
+	CPU                       CPUParams              `json:"cpu,omitempty"`
+	Memory                    MemoryParams           `json:"memory,omitempty"`
+	HealthCheckPath           string                 `json:"healthcheckpath,omitempty"`
+	DbInstanceConnectionName  string                 `json:"dbinstanceconnectionname,omitempty"`
+	SQLProxyPort              int                    `json:"sqlproxyport,omitempty"`
+	ServiceAccountKeyFilePath string                 `json:"serviceaccountkeyfilepath,omitempty"`
 }
 
 // RollingUpdateParams sets params for controlling rolling update speed
@@ -674,6 +675,9 @@ func (p *Params) validateSidecar(sidecar SidecarParams, errors []error) []error 
 		}
 		if sidecar.SQLProxyPort == 0 {
 			errors = append(errors, fmt.Errorf("The port on which the Cloud SQL Proxy listens is required; set it via sidecar.sqlproxyport property on this stage"))
+		}
+		if sidecar.ServiceAccountKeyFilePath == "" {
+			errors = append(errors, fmt.Errorf("The path of the mounted service account key file is required; set it via sidecar.serviceaccountkeyfilepath property on this stage"))
 		}
 	default:
 		errors = append(errors, fmt.Errorf("The sidecar type is incorrect; allowed values are openresty or cloudsqlproxy"))
