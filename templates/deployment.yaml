@@ -228,7 +228,7 @@ spec:
         {{- end }}
         {{- if $deployment.MountApplicationSecrets }}
         - name: app-secrets
-          mountPath: {{.SecretMountPath}}
+          mountPath: {{$deployment.SecretMountPath}}
         {{- end }}
         {{- end }}
         {{- end }}
