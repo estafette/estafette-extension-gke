@@ -220,15 +220,15 @@ spec:
         command: ["/cloud_sql_proxy",
                   "-instances={{ index .SidecarSpecificProperties "dbinstanceconnectionname" }}=tcp:{{ index .SidecarSpecificProperties "sqlproxyport" }}",
                   "-credential_file={{ index .SidecarSpecificProperties "serviceaccountkeyfilepath" }}"]
-        {{- if or $deployment.MountServiceAccountSecret $deployment.MountAdditionalVolumes }}
+        {{- if or $deployment.MountServiceAccountSecret $deployment.MountApplicationSecrets }}
         volumeMounts:
         {{- if $deployment.MountServiceAccountSecret }}
         - name: gcp-service-account
           mountPath: /gcp-service-account
         {{- end }}
-        {{- range $deployment.AdditionalVolumeMounts}}
-        - name: {{.Name}}
-          mountPath: {{.MountPath}}
+        {{- if $deployment.MountApplicationSecrets }}
+        - name: app-secrets
+          mountPath: {{.SecretMountPath}}
         {{- end }}
         {{- end }}
         {{- end }}
