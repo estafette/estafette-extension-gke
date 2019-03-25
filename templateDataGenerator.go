@@ -52,8 +52,9 @@ func generateTemplateData(params Params, currentReplicas int, releaseID, trigger
 		RollingUpdateMaxSurge:       params.RollingUpdate.MaxSurge,
 		RollingUpdateMaxUnavailable: params.RollingUpdate.MaxUnavailable,
 
-		PreferPreemptibles:        params.ChaosProof,
-		MountServiceAccountSecret: params.UseGoogleCloudCredentials,
+		PreferPreemptibles:               params.ChaosProof,
+		MountServiceAccountSecret:        params.UseGoogleCloudCredentials,
+		DisableServiceAccountKeyRotation: params.DisableServiceAccountKeyRotation,
 
 		Container: ContainerData{
 			Repository: params.Container.ImageRepository,
