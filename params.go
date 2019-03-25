@@ -33,8 +33,9 @@ type Params struct {
 	Configs        ConfigsParams       `json:"configs,omitempty"`
 	VolumeMounts   []VolumeMountParams `json:"volumemounts,omitempty"`
 
-	EnablePayloadLogging      bool `json:"enablePayloadLogging,omitempty"`
-	UseGoogleCloudCredentials bool `json:"useGoogleCloudCredentials,omitempty"`
+	EnablePayloadLogging             bool `json:"enablePayloadLogging,omitempty"`
+	UseGoogleCloudCredentials        bool `json:"useGoogleCloudCredentials,omitempty"`
+	DisableServiceAccountKeyRotation bool `json:"disableServiceAccountKeyRotation,omitempty"`
 
 	// container params
 	Container              ContainerParams     `json:"container,omitempty"`

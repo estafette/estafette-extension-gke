@@ -39,6 +39,7 @@ type TemplateData struct {
 	ConfigMountPath                  string
 	MountPayloadLogging              bool
 	MountServiceAccountSecret        bool
+	DisableServiceAccountKeyRotation bool
 	RollingUpdateMaxSurge            string
 	RollingUpdateMaxUnavailable      string
 	BuildVersion                     string
