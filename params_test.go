@@ -1966,6 +1966,19 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "deployment", params.Kind)
 	})
 
+	t.Run("DefaultsToAllowConcurrencyPolicyForCronJobs", func(t *testing.T) {
+
+		params := Params{
+			Kind:              "cronjob",
+			ConcurrencyPolicy: "",
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, "Allow", params.ConcurrencyPolicy)
+	})
+
 	t.Run("KeepsKindIfNotEmpty", func(t *testing.T) {
 
 		params := Params{

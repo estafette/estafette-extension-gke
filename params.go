@@ -440,7 +440,9 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 	}
 
 	if p.Kind == "cronjob" {
-		p.ConcurrencyPolicy = "Allow"
+		if p.ConcurrencyPolicy == "" {
+			p.ConcurrencyPolicy = "Allow"
+		}
 	}
 }
 
