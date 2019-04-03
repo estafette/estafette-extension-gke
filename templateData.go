@@ -6,6 +6,7 @@ type TemplateData struct {
 	NameWithTrack                    string
 	Namespace                        string
 	Schedule                         string
+	ConcurrencyPolicy                string
 	Labels                           map[string]string
 	AppLabelSelector                 string
 	Hosts                            []string

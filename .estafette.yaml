@@ -229,6 +229,7 @@ stages:
     credentials: gke-tooling
     kind: cronjob
     schedule: "*/5 * * * *"
+    concurrencypolicy: Forbid
     container:
       repository: extensions
     dryrun: true

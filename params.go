@@ -18,20 +18,21 @@ type Params struct {
 	TrustedIPRanges []string        `json:"trustedips,omitempty"`
 
 	// app params
-	App            string              `json:"app,omitempty"`
-	Namespace      string              `json:"namespace,omitempty"`
-	Schedule       string              `json:"schedule,omitempty"`
-	Labels         map[string]string   `json:"labels,omitempty"`
-	Visibility     string              `json:"visibility,omitempty"`
-	WhitelistedIPS []string            `json:"whitelist,omitempty"`
-	Hosts          []string            `json:"hosts,omitempty"`
-	InternalHosts  []string            `json:"internalhosts,omitempty"`
-	Basepath       string              `json:"basepath,omitempty"`
-	Autoscale      AutoscaleParams     `json:"autoscale,omitempty"`
-	Request        RequestParams       `json:"request,omitempty"`
-	Secrets        SecretsParams       `json:"secrets,omitempty"`
-	Configs        ConfigsParams       `json:"configs,omitempty"`
-	VolumeMounts   []VolumeMountParams `json:"volumemounts,omitempty"`
+	App               string              `json:"app,omitempty"`
+	Namespace         string              `json:"namespace,omitempty"`
+	Schedule          string              `json:"schedule,omitempty"`
+	ConcurrencyPolicy string              `json:"concurrencypolicy,omitempty"`
+	Labels            map[string]string   `json:"labels,omitempty"`
+	Visibility        string              `json:"visibility,omitempty"`
+	WhitelistedIPS    []string            `json:"whitelist,omitempty"`
+	Hosts             []string            `json:"hosts,omitempty"`
+	InternalHosts     []string            `json:"internalhosts,omitempty"`
+	Basepath          string              `json:"basepath,omitempty"`
+	Autoscale         AutoscaleParams     `json:"autoscale,omitempty"`
+	Request           RequestParams       `json:"request,omitempty"`
+	Secrets           SecretsParams       `json:"secrets,omitempty"`
+	Configs           ConfigsParams       `json:"configs,omitempty"`
+	VolumeMounts      []VolumeMountParams `json:"volumemounts,omitempty"`
 
 	EnablePayloadLogging             bool `json:"enablePayloadLogging,omitempty"`
 	UseGoogleCloudCredentials        bool `json:"useGoogleCloudCredentials,omitempty"`
@@ -437,6 +438,10 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 			"198.41.128.0/17",
 		}
 	}
+
+	if p.Kind == "cronjob" {
+		p.ConcurrencyPolicy = "Allow"
+	}
 }
 
 func (p *Params) initializeSidecarDefaults(sidecar *SidecarParams) {
@@ -541,11 +546,17 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 		errors = append(errors, fmt.Errorf("Rollingupdate max unavailable is required; set it via rollingupdate.maxunavailable property on this stage"))
 	}
 
-	if p.Kind == "cronjob" && p.Schedule == "" {
-		errors = append(errors, fmt.Errorf("Schedule is required for a cronjob; set it via schedule property on this stage"))
-	}
-
 	if p.Kind == "job" || p.Kind == "cronjob" {
+		if p.Kind == "cronjob" {
+			if p.Schedule == "" {
+				errors = append(errors, fmt.Errorf("Schedule is required for a cronjob; set it via schedule property on this stage"))
+			}
+
+			if p.ConcurrencyPolicy != "Allow" && p.ConcurrencyPolicy != "Forbid" && p.ConcurrencyPolicy != "Replace" {
+				errors = append(errors, fmt.Errorf("ConcurrencyPolicy is invalid; allowed values are Allow, Forbid or Replace"))
+			}
+		}
+
 		// the above properties are all you need for a worker
 		return len(errors) == 0, errors, warnings
 	}
