@@ -287,19 +287,32 @@ func addEnvironmentVariableIfNotSet(environmentVariables map[string]interface{},
 }
 
 // a valid label must be an empty string or consist of alphanumeric characters, '-', '_' or '.', and must start and end with an alphanumeric character (e.g. 'MyValue',  or 'my_value',  or '12345', regex used for validation is '(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?')
-func sanitizeLabel(value string) (sanitizedValue string) {
+func sanitizeLabel(value string) string {
 
+	// Valid label values must be 63 characters or less and must be empty or begin and end with an alphanumeric character ([a-z0-9A-Z])
+	// with dashes (-), underscores (_), dots (.), and alphanumerics between.
+
+	// replace all invalid characters with a hyphen
 	reg := regexp.MustCompile(`[^a-zA-Z0-9-_.]+`)
-	sanitizedValue = reg.ReplaceAllString(value, "-")
+	value = reg.ReplaceAllString(value, "-")
 
-	// ensure only alphanumeric characters as first and last
-	trimStartReg := regexp.MustCompile(`^[^a-zA-Z0-9]+`)
-	sanitizedValue = trimStartReg.ReplaceAllString(sanitizedValue, "")
+	// replace double hyphens with a single one
+	value = strings.Replace(value, "--", "-", -1)
 
-	trimEndReg := regexp.MustCompile(`[^a-zA-Z0-9]+$`)
-	sanitizedValue = trimEndReg.ReplaceAllString(sanitizedValue, "")
+	// ensure it starts with an alphanumeric character
+	reg = regexp.MustCompile(`^[-_.]+`)
+	value = reg.ReplaceAllString(value, "")
 
-	return
+	// maximize length at 63 characters
+	if len(value) > 63 {
+		value = value[:63]
+	}
+
+	// ensure it ends with an alphanumeric character
+	reg = regexp.MustCompile(`[-_.]+$`)
+	value = reg.ReplaceAllString(value, "")
+
+	return value
 }
 
 func sanitizeLabels(labels map[string]string) (sanitizedLabels map[string]string) {
