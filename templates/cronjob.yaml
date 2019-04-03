@@ -8,7 +8,7 @@ metadata:
     {{$key}}: {{$value}}
     {{- end}}
 spec:
-  schedule: '*/5 * * * *'
+  schedule: '{{.Schedule}}'
   concurrencyPolicy: Allow
   failedJobsHistoryLimit: 1
   successfulJobsHistoryLimit: 3
