@@ -9,7 +9,7 @@ metadata:
     {{- end}}
 spec:
   schedule: '{{.Schedule}}'
-  concurrencyPolicy: Allow
+  concurrencyPolicy: {{.ConcurrencyPolicy}}
   failedJobsHistoryLimit: 1
   successfulJobsHistoryLimit: 3
   suspend: false  

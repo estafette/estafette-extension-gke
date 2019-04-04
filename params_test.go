@@ -1313,7 +1313,7 @@ func TestSetDefaults(t *testing.T) {
 
 		falseValue := false
 		params := Params{
-			Kind:                   "deployment",
+			Kind: "deployment",
 			InjectHTTPProxySidecar: &falseValue,
 			Sidecar: SidecarParams{
 				Type: "",
@@ -1964,6 +1964,19 @@ func TestSetDefaults(t *testing.T) {
 		params.SetDefaults("", "", "", "", map[string]string{})
 
 		assert.Equal(t, "deployment", params.Kind)
+	})
+
+	t.Run("DefaultsToAllowConcurrencyPolicyForCronJobs", func(t *testing.T) {
+
+		params := Params{
+			Kind:              "cronjob",
+			ConcurrencyPolicy: "",
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", map[string]string{})
+
+		assert.Equal(t, "Allow", params.ConcurrencyPolicy)
 	})
 
 	t.Run("KeepsKindIfNotEmpty", func(t *testing.T) {
@@ -3104,6 +3117,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params := validParams
 		params.Kind = "cronjob"
 		params.Schedule = ""
+		params.ConcurrencyPolicy = "Allow"
 
 		// act
 		valid, errors, _ := params.ValidateRequiredProperties()
@@ -3112,11 +3126,26 @@ func TestValidateRequiredProperties(t *testing.T) {
 		assert.True(t, len(errors) > 0)
 	})
 
-	t.Run("ReturnsTrueIfScheduleIsSetAndKindIsCronjob", func(t *testing.T) {
+	t.Run("ReturnsFalseIfConcurrencyPolicyIsInvalidAndKindIsCronjob", func(t *testing.T) {
 
 		params := validParams
 		params.Kind = "cronjob"
 		params.Schedule = "*/5 * * * *"
+		params.ConcurrencyPolicy = "InvalidPolicy"
+
+		// act
+		valid, errors, _ := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfScheduleIsSetAndConcurrencyPolicyIsValidAndKindIsCronjob", func(t *testing.T) {
+
+		params := validParams
+		params.Kind = "cronjob"
+		params.Schedule = "*/5 * * * *"
+		params.ConcurrencyPolicy = "Allow"
 
 		// act
 		valid, errors, _ := params.ValidateRequiredProperties()

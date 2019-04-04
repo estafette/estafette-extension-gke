@@ -14,12 +14,13 @@ func generateTemplateData(params Params, currentReplicas int, releaseID, trigger
 	data := TemplateData{
 		BuildVersion: params.BuildVersion,
 
-		Name:             params.App,
-		NameWithTrack:    params.App,
-		Namespace:        params.Namespace,
-		Schedule:         params.Schedule,
-		Labels:           sanitizeLabels(params.Labels),
-		AppLabelSelector: sanitizeLabel(params.App),
+		Name:              params.App,
+		NameWithTrack:     params.App,
+		Namespace:         params.Namespace,
+		Schedule:          params.Schedule,
+		ConcurrencyPolicy: params.ConcurrencyPolicy,
+		Labels:            sanitizeLabels(params.Labels),
+		AppLabelSelector:  sanitizeLabel(params.App),
 
 		Hosts:               params.Hosts,
 		HostsJoined:         strings.Join(params.Hosts, ","),
