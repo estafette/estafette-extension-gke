@@ -26,6 +26,8 @@ func generateTemplateData(params Params, currentReplicas int, releaseID, trigger
 		HostsJoined:         strings.Join(params.Hosts, ","),
 		InternalHosts:       params.InternalHosts,
 		InternalHostsJoined: strings.Join(params.InternalHosts, ","),
+		AllHosts:            append(params.Hosts, params.InternalHosts...),
+		AllHostsJoined:      strings.Join(append(params.Hosts, params.InternalHosts...), ","),
 		IngressPath:         params.Basepath,
 		InternalIngressPath: params.Basepath,
 

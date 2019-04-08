@@ -28,6 +28,7 @@ spec:
     {{- range .InternalHosts}}
     - {{.}}
     {{- end}}
+    secretName: {{.Name}}-letsencrypt-certificate
   rules:
   {{- range .InternalHosts}}
   - host: {{.}}

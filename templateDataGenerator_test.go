@@ -1775,4 +1775,98 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		assert.Equal(t, "0.200", templateData.HpaScalerScaleDownMaxRatio)
 	})
+
+	t.Run("SetsAllHostsToHostsAndInternalHostsAppended", func(t *testing.T) {
+
+		params := Params{
+			Hosts: []string{
+				"ci.estafette.io",
+			},
+			InternalHosts: []string{
+				"ci.internal.estafette.io",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "", "")
+
+		assert.Equal(t, 2, len(templateData.AllHosts))
+		assert.Equal(t, "ci.estafette.io", templateData.AllHosts[0])
+		assert.Equal(t, "ci.internal.estafette.io", templateData.AllHosts[1])
+	})
+
+	t.Run("SetsAllHostsJoinedToHostsAndInternalHostsAppendedSeparatedByComma", func(t *testing.T) {
+
+		params := Params{
+			Hosts: []string{
+				"ci.estafette.io",
+			},
+			InternalHosts: []string{
+				"ci.internal.estafette.io",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "", "")
+
+		assert.Equal(t, "ci.estafette.io,ci.internal.estafette.io", templateData.AllHostsJoined)
+	})
+
+	t.Run("SetsAllHostsToHostsAndInternalHostsAppendedWhenOnlyHostsAreSet", func(t *testing.T) {
+
+		params := Params{
+			Hosts: []string{
+				"ci.estafette.io",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "", "")
+
+		assert.Equal(t, 1, len(templateData.AllHosts))
+		assert.Equal(t, "ci.estafette.io", templateData.AllHosts[0])
+	})
+
+	t.Run("SetsAllHostsJoinedToHostsAndInternalHostsAppendedSeparatedByCommaWhenOnlyHostsAreSet", func(t *testing.T) {
+
+		params := Params{
+			Hosts: []string{
+				"ci.estafette.io",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "", "")
+
+		assert.Equal(t, "ci.estafette.io", templateData.AllHostsJoined)
+	})
+
+	t.Run("SetsAllHostsToHostsAndInternalHostsAppendedWhenOnlyInternalHostsAreSet", func(t *testing.T) {
+
+		params := Params{
+			InternalHosts: []string{
+				"ci.internal.estafette.io",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "", "")
+
+		assert.Equal(t, 1, len(templateData.AllHosts))
+		assert.Equal(t, "ci.internal.estafette.io", templateData.AllHosts[0])
+	})
+
+	t.Run("SetsAllHostsJoinedToHostsAndInternalHostsAppendedSeparatedByCommaWhenOnlyInternalHostsAreSet", func(t *testing.T) {
+
+		params := Params{
+			InternalHosts: []string{
+				"ci.internal.estafette.io",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "", "")
+
+		assert.Equal(t, "ci.internal.estafette.io", templateData.AllHostsJoined)
+	})
 }
