@@ -57,6 +57,7 @@ func generateTemplateData(params Params, currentReplicas int, releaseID, trigger
 
 		PreferPreemptibles:               params.ChaosProof,
 		MountServiceAccountSecret:        params.UseGoogleCloudCredentials,
+		GoogleCloudCredentialsAppName:    params.GoogleCloudCredentialsApp,
 		DisableServiceAccountKeyRotation: params.DisableServiceAccountKeyRotation,
 
 		Container: ContainerData{

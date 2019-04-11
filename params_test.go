@@ -103,6 +103,34 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "yourapp", params.App)
 	})
 
+	t.Run("DefaultsGoogleCloudCredentialsAppToAppIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			App:                       "yourapp",
+			GoogleCloudCredentialsApp: "",
+		}
+		appLabel := "myapp"
+
+		// act
+		params.SetDefaults(appLabel, "", "", "", map[string]string{})
+
+		assert.Equal(t, "yourapp", params.GoogleCloudCredentialsApp)
+	})
+
+	t.Run("KeepsGoogleCloudCredentialsAppIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			App:                       "yourapp",
+			GoogleCloudCredentialsApp: "myapp",
+		}
+		appLabel := "someapp"
+
+		// act
+		params.SetDefaults(appLabel, "", "", "", map[string]string{})
+
+		assert.Equal(t, "myapp", params.GoogleCloudCredentialsApp)
+	})
+
 	t.Run("DefaultsImageNameToAppLabelIfEmpty", func(t *testing.T) {
 
 		params := Params{
@@ -1313,7 +1341,7 @@ func TestSetDefaults(t *testing.T) {
 
 		falseValue := false
 		params := Params{
-			Kind: "deployment",
+			Kind:                   "deployment",
 			InjectHTTPProxySidecar: &falseValue,
 			Sidecar: SidecarParams{
 				Type: "",

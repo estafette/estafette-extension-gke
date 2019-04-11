@@ -196,6 +196,8 @@ stages:
     basepath: /
     enablePayloadLogging: true
     useGoogleCloudCredentials: true
+    disableServiceAccountKeyRotation: false
+    googleCloudCredentialsApp: gke
     chaosproof: true
     rollingupdate:
       maxsurge: 25%
