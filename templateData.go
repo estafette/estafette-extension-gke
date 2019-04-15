@@ -63,9 +63,9 @@ type TemplateData struct {
 	OverrideDefaultWhitelist         bool
 	NginxIngressWhitelist            string
 	NginxIngressClientBodyBufferSize string
-	NginxIngressProxyConnectTimeout  string
-	NginxIngressProxySendTimeout     string
-	NginxIngressProxyReadTimeout     string
+	NginxIngressProxyConnectTimeout  int
+	NginxIngressProxySendTimeout     int
+	NginxIngressProxyReadTimeout     int
 	NginxIngressProxyBodySize        string
 	NginxIngressProxyBufferSize      string
 	NginxIngressProxyBuffersNumber   string

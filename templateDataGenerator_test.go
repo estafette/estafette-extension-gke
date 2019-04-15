@@ -1869,4 +1869,103 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		assert.Equal(t, "ci.internal.estafette.io", templateData.AllHostsJoined)
 	})
+
+	t.Run("SetsNginxIngressProxyConnectTimeoutToRequestTimeoutParam", func(t *testing.T) {
+
+		params := Params{
+			Request: RequestParams{
+				Timeout: "75",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "", "")
+
+		assert.Equal(t, 75, templateData.NginxIngressProxyConnectTimeout)
+	})
+
+	t.Run("SetsNginxIngressProxyConnectTimeoutToRequestTimeoutParamWithSecondSuffix", func(t *testing.T) {
+
+		params := Params{
+			Request: RequestParams{
+				Timeout: "75s",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "", "")
+
+		assert.Equal(t, 75, templateData.NginxIngressProxyConnectTimeout)
+	})
+
+	t.Run("SetsNginxIngressProxyConnectTimeoutTo75IfRequestTimeoutParamIsLargerThan75", func(t *testing.T) {
+
+		params := Params{
+			Request: RequestParams{
+				Timeout: "180s",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "", "")
+
+		assert.Equal(t, 75, templateData.NginxIngressProxyConnectTimeout)
+	})
+
+	t.Run("SetsNginxIngressProxySendTimeoutToRequestTimeoutParam", func(t *testing.T) {
+
+		params := Params{
+			Request: RequestParams{
+				Timeout: "300",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "", "")
+
+		assert.Equal(t, 300, templateData.NginxIngressProxySendTimeout)
+	})
+
+	t.Run("SetsNginxIngressProxySendTimeoutToRequestTimeoutParamWithSecondSuffix", func(t *testing.T) {
+
+		params := Params{
+			Request: RequestParams{
+				Timeout: "300s",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "", "")
+
+		assert.Equal(t, 300, templateData.NginxIngressProxySendTimeout)
+	})
+
+	t.Run("SetsNginxIngressProxyReadTimeoutToRequestTimeoutParam", func(t *testing.T) {
+
+		params := Params{
+			Request: RequestParams{
+				Timeout: "300",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "", "")
+
+		assert.Equal(t, 300, templateData.NginxIngressProxyReadTimeout)
+	})
+
+	t.Run("SetsNginxIngressProxyReadTimeoutToRequestTimeoutParamWithSecondSuffix", func(t *testing.T) {
+
+		params := Params{
+			Request: RequestParams{
+				Timeout: "300s",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "", "")
+
+		assert.Equal(t, 300, templateData.NginxIngressProxyReadTimeout)
+	})
+
 }

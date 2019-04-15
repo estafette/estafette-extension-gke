@@ -106,9 +106,23 @@ func generateTemplateData(params Params, currentReplicas int, releaseID, trigger
 	}
 
 	// set request params on the nginx ingress
-	data.NginxIngressProxyConnectTimeout = params.Request.Timeout
-	data.NginxIngressProxySendTimeout = params.Request.Timeout
-	data.NginxIngressProxyReadTimeout = params.Request.Timeout
+	requestTimeout, requestTimeoutConvertError := strconv.Atoi(strings.Trim(params.Request.Timeout, "s"))
+
+	data.NginxIngressProxyConnectTimeout = requestTimeout
+	if requestTimeoutConvertError != nil {
+		data.NginxIngressProxyConnectTimeout = 60
+	}
+	if data.NginxIngressProxyConnectTimeout > 75 {
+		data.NginxIngressProxyConnectTimeout = 75
+	}
+	data.NginxIngressProxySendTimeout = requestTimeout
+	if requestTimeoutConvertError != nil {
+		data.NginxIngressProxySendTimeout = 60
+	}
+	data.NginxIngressProxyReadTimeout = requestTimeout
+	if requestTimeoutConvertError != nil {
+		data.NginxIngressProxyReadTimeout = 60
+	}
 	data.NginxIngressProxyBodySize = params.Request.MaxBodySize
 	data.NginxIngressClientBodyBufferSize = params.Request.ClientBodyBufferSize
 	data.NginxIngressProxyBufferSize = params.Request.ProxyBufferSize
