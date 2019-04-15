@@ -34,9 +34,10 @@ type Params struct {
 	Configs           ConfigsParams       `json:"configs,omitempty"`
 	VolumeMounts      []VolumeMountParams `json:"volumemounts,omitempty"`
 
-	EnablePayloadLogging             bool `json:"enablePayloadLogging,omitempty"`
-	UseGoogleCloudCredentials        bool `json:"useGoogleCloudCredentials,omitempty"`
-	DisableServiceAccountKeyRotation bool `json:"disableServiceAccountKeyRotation,omitempty"`
+	EnablePayloadLogging             bool   `json:"enablePayloadLogging,omitempty"`
+	UseGoogleCloudCredentials        bool   `json:"useGoogleCloudCredentials,omitempty"`
+	DisableServiceAccountKeyRotation bool   `json:"disableServiceAccountKeyRotation,omitempty"`
+	GoogleCloudCredentialsApp        string `json:"googleCloudCredentialsApp,omitempty"`
 
 	// container params
 	Container              ContainerParams     `json:"container,omitempty"`
@@ -198,6 +199,10 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 	// default app to estafette app label if no override in stage params
 	if p.App == "" && appLabel != "" {
 		p.App = appLabel
+	}
+	// default GoogleCloudCredentialsApp to App if empty
+	if p.GoogleCloudCredentialsApp == "" {
+		p.GoogleCloudCredentialsApp = p.App
 	}
 
 	// default image name to estafette app label if no override in stage params

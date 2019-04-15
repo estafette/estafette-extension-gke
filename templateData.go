@@ -43,6 +43,7 @@ type TemplateData struct {
 	MountPayloadLogging              bool
 	MountServiceAccountSecret        bool
 	DisableServiceAccountKeyRotation bool
+	GoogleCloudCredentialsAppName    string
 	RollingUpdateMaxSurge            string
 	RollingUpdateMaxUnavailable      string
 	BuildVersion                     string

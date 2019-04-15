@@ -244,7 +244,7 @@ func main() {
 				deleteResourcesForTypeSwitch(templateData.Name, templateData.Namespace)
 				deleteConfigsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
 				deleteSecretsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
-				deleteServiceAccountSecretForParamsChange(params, templateData.Name, templateData.Namespace)
+				deleteServiceAccountSecretForParamsChange(params, templateData.GoogleCloudCredentialsAppName, templateData.Namespace)
 				deleteIngressForVisibilityChange(templateData, templateData.Name, templateData.Namespace)
 				removeEstafetteCloudflareAnnotations(templateData, templateData.Name, templateData.Namespace)
 				break
@@ -256,7 +256,7 @@ func main() {
 				deleteResourcesForTypeSwitch(fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
 				deleteConfigsForParamsChange(params, templateData.Name, templateData.Namespace)
 				deleteSecretsForParamsChange(params, templateData.Name, templateData.Namespace)
-				deleteServiceAccountSecretForParamsChange(params, templateData.Name, templateData.Namespace)
+				deleteServiceAccountSecretForParamsChange(params, templateData.GoogleCloudCredentialsAppName, templateData.Namespace)
 				deleteIngressForVisibilityChange(templateData, templateData.Name, templateData.Namespace)
 				removeEstafetteCloudflareAnnotations(templateData, templateData.Name, templateData.Namespace)
 				break

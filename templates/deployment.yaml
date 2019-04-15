@@ -245,7 +245,7 @@ spec:
       {{- if .MountServiceAccountSecret }}
       - name: gcp-service-account
         secret:
-          secretName: {{.Name}}-gcp-service-account
+          secretName: {{.GoogleCloudCredentialsAppName}}-gcp-service-account
       {{- end }}
       {{- if .MountPayloadLogging }}
       - name: pod-log
