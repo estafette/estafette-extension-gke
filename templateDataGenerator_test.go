@@ -61,6 +61,39 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "myapp", templateData.AppLabelSelector)
 	})
 
+	t.Run("ReplacesAppLabelValueWithAppParamIfAppLabelExists", func(t *testing.T) {
+
+		params := Params{
+			Labels: map[string]string{
+				"app":  "myapp",
+				"team": "myteam",
+			},
+			App: "yourapp",
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "", "")
+
+		assert.Equal(t, 2, len(templateData.Labels))
+		assert.Equal(t, "yourapp", templateData.Labels["app"])
+	})
+
+	t.Run("AddsAppLabelValueWithAppParamIfAppLabelDoesNotExists", func(t *testing.T) {
+
+		params := Params{
+			Labels: map[string]string{
+				"team": "myteam",
+			},
+			App: "yourapp",
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "", "")
+
+		assert.Equal(t, 2, len(templateData.Labels))
+		assert.Equal(t, "yourapp", templateData.Labels["app"])
+	})
+
 	t.Run("SetsContainerRepositoryToImageRepositoryParam", func(t *testing.T) {
 
 		params := Params{

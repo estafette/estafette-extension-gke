@@ -98,6 +98,11 @@ func generateTemplateData(params Params, currentReplicas int, releaseID, trigger
 		data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "GOOGLE_APPLICATION_CREDENTIALS", "/gcp-service-account/service-account-key.json")
 	}
 
+	// ensure the app label exists and is identical to the app label selector
+	if data.AppLabelSelector != "" {
+		data.Labels["app"] = data.AppLabelSelector
+	}
+
 	mainSidecar := buildSidecar(params.Sidecar, params.Request)
 	data.Sidecars = append(data.Sidecars, mainSidecar)
 
