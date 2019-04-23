@@ -77,6 +77,20 @@ var (
 
 func TestSetDefaults(t *testing.T) {
 
+	t.Run("DefaultsAppToGitNameIfAppParamIsEmptyAndAppLabelIsEmpty", func(t *testing.T) {
+
+		params := Params{
+			App: "",
+		}
+		gitName := "mygitrepo"
+		appLabel := ""
+
+		// act
+		params.SetDefaults(gitName, appLabel, "", "", "", map[string]string{})
+
+		assert.Equal(t, "mygitrepo", params.App)
+	})
+
 	t.Run("DefaultsAppToAppLabelIfEmpty", func(t *testing.T) {
 
 		params := Params{
@@ -85,7 +99,7 @@ func TestSetDefaults(t *testing.T) {
 		appLabel := "myapp"
 
 		// act
-		params.SetDefaults(appLabel, "", "", "", map[string]string{})
+		params.SetDefaults("", appLabel, "", "", "", map[string]string{})
 
 		assert.Equal(t, "myapp", params.App)
 	})
@@ -98,7 +112,7 @@ func TestSetDefaults(t *testing.T) {
 		appLabel := "myapp"
 
 		// act
-		params.SetDefaults(appLabel, "", "", "", map[string]string{})
+		params.SetDefaults("", appLabel, "", "", "", map[string]string{})
 
 		assert.Equal(t, "yourapp", params.App)
 	})
@@ -112,7 +126,7 @@ func TestSetDefaults(t *testing.T) {
 		appLabel := "myapp"
 
 		// act
-		params.SetDefaults(appLabel, "", "", "", map[string]string{})
+		params.SetDefaults("", appLabel, "", "", "", map[string]string{})
 
 		assert.Equal(t, "yourapp", params.GoogleCloudCredentialsApp)
 	})
@@ -126,7 +140,7 @@ func TestSetDefaults(t *testing.T) {
 		appLabel := "someapp"
 
 		// act
-		params.SetDefaults(appLabel, "", "", "", map[string]string{})
+		params.SetDefaults("", appLabel, "", "", "", map[string]string{})
 
 		assert.Equal(t, "myapp", params.GoogleCloudCredentialsApp)
 	})
@@ -141,7 +155,7 @@ func TestSetDefaults(t *testing.T) {
 		appLabel := "myapp"
 
 		// act
-		params.SetDefaults(appLabel, "", "", "", map[string]string{})
+		params.SetDefaults("", appLabel, "", "", "", map[string]string{})
 
 		assert.Equal(t, "myapp", params.Container.ImageName)
 	})
@@ -156,7 +170,7 @@ func TestSetDefaults(t *testing.T) {
 		appLabel := "myapp"
 
 		// act
-		params.SetDefaults(appLabel, "", "", "", map[string]string{})
+		params.SetDefaults("", appLabel, "", "", "", map[string]string{})
 
 		assert.Equal(t, "my-app", params.Container.ImageName)
 	})
@@ -171,7 +185,7 @@ func TestSetDefaults(t *testing.T) {
 		buildVersion := "1.0.0"
 
 		// act
-		params.SetDefaults("", buildVersion, "", "", map[string]string{})
+		params.SetDefaults("", "", buildVersion, "", "", map[string]string{})
 
 		assert.Equal(t, "1.0.0", params.Container.ImageTag)
 	})
@@ -186,7 +200,7 @@ func TestSetDefaults(t *testing.T) {
 		buildVersion := "1.0.0"
 
 		// act
-		params.SetDefaults("", buildVersion, "", "", map[string]string{})
+		params.SetDefaults("", "", buildVersion, "", "", map[string]string{})
 
 		assert.Equal(t, "2.1.3", params.Container.ImageTag)
 	})
@@ -203,7 +217,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", estafetteLabels)
+		params.SetDefaults("", "", "", "", "", estafetteLabels)
 
 		assert.Equal(t, 3, len(params.Labels))
 		assert.Equal(t, "myapp", params.Labels["app"])
@@ -226,7 +240,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", estafetteLabels)
+		params.SetDefaults("", "", "", "", "", estafetteLabels)
 
 		assert.Equal(t, 2, len(params.Labels))
 		assert.Equal(t, "yourapp", params.Labels["app"])
@@ -248,7 +262,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults(appLabel, "", "", "", estafetteLabels)
+		params.SetDefaults("", appLabel, "", "", "", estafetteLabels)
 
 		assert.Equal(t, 2, len(params.Labels))
 		assert.Equal(t, "myapp", params.Labels["app"])
@@ -266,7 +280,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults(appLabel, "", "", "", estafetteLabels)
+		params.SetDefaults("", appLabel, "", "", "", estafetteLabels)
 
 		assert.Equal(t, 3, len(params.Labels))
 		assert.Equal(t, "yourapp", params.Labels["app"])
@@ -281,7 +295,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "private", params.Visibility)
 	})
@@ -293,7 +307,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "public", params.Visibility)
 	})
@@ -310,7 +324,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "100m", params.Container.CPU.Request)
 	})
@@ -327,7 +341,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "300m", params.Container.CPU.Request)
 	})
@@ -344,7 +358,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "250m", params.Container.CPU.Request)
 	})
@@ -361,7 +375,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "125m", params.Container.CPU.Limit)
 	})
@@ -378,7 +392,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "300m", params.Container.CPU.Limit)
 	})
@@ -395,7 +409,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "250m", params.Container.CPU.Limit)
 	})
@@ -412,7 +426,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "128Mi", params.Container.Memory.Request)
 	})
@@ -429,7 +443,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "256Mi", params.Container.Memory.Request)
 	})
@@ -446,7 +460,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "512Mi", params.Container.Memory.Request)
 	})
@@ -463,7 +477,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "128Mi", params.Container.Memory.Limit)
 	})
@@ -480,7 +494,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "768Mi", params.Container.Memory.Limit)
 	})
@@ -497,7 +511,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "1024Mi", params.Container.Memory.Limit)
 	})
@@ -511,7 +525,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 5000, params.Container.Port)
 	})
@@ -525,7 +539,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 3000, params.Container.Port)
 	})
@@ -543,7 +557,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "TCP", params.Container.AdditionalPorts[0].Protocol)
 	})
@@ -561,7 +575,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "UDP", params.Container.AdditionalPorts[0].Protocol)
 	})
@@ -580,7 +594,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "public", params.Container.AdditionalPorts[0].Visibility)
 	})
@@ -599,7 +613,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "private", params.Container.AdditionalPorts[0].Visibility)
 	})
@@ -613,7 +627,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 3, params.Autoscale.MinReplicas)
 	})
@@ -627,7 +641,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 2, params.Autoscale.MinReplicas)
 	})
@@ -641,7 +655,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 100, params.Autoscale.MaxReplicas)
 	})
@@ -655,7 +669,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 50, params.Autoscale.MaxReplicas)
 	})
@@ -669,7 +683,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 80, params.Autoscale.CPUPercentage)
 	})
@@ -683,7 +697,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 30, params.Autoscale.CPUPercentage)
 	})
@@ -697,7 +711,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.False(t, params.Autoscale.Safety.Enabled)
 	})
@@ -713,7 +727,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.True(t, params.Autoscale.Safety.Enabled)
 	})
@@ -728,7 +742,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "sum(rate(nginx_http_requests_total{app='my-app'}[5m])) by (app)", params.Autoscale.Safety.PromQuery)
 	})
@@ -745,7 +759,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "sum(rate(nginx_http_requests_total{app='your-app'}[5m])) by (app)", params.Autoscale.Safety.PromQuery)
 	})
@@ -760,7 +774,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 1.0, params.Autoscale.Safety.Ratio)
 	})
@@ -777,7 +791,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 1.5, params.Autoscale.Safety.Ratio)
 	})
@@ -792,7 +806,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 1.0, params.Autoscale.Safety.ScaleDownRatio)
 	})
@@ -809,7 +823,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 0.2, params.Autoscale.Safety.ScaleDownRatio)
 	})
@@ -823,7 +837,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "60s", params.Request.Timeout)
 	})
@@ -837,7 +851,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "10s", params.Request.Timeout)
 	})
@@ -851,7 +865,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "128m", params.Request.MaxBodySize)
 	})
@@ -865,7 +879,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "16m", params.Request.MaxBodySize)
 	})
@@ -879,7 +893,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "4k", params.Request.ProxyBufferSize)
 	})
@@ -893,7 +907,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "8k", params.Request.ProxyBufferSize)
 	})
@@ -909,7 +923,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 30, params.Container.LivenessProbe.InitialDelaySeconds)
 	})
@@ -925,7 +939,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 120, params.Container.LivenessProbe.InitialDelaySeconds)
 	})
@@ -941,7 +955,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 1, params.Container.LivenessProbe.TimeoutSeconds)
 	})
@@ -957,7 +971,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 5, params.Container.LivenessProbe.TimeoutSeconds)
 	})
@@ -973,7 +987,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "/liveness", params.Container.LivenessProbe.Path)
 	})
@@ -989,7 +1003,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "/healthz", params.Container.LivenessProbe.Path)
 	})
@@ -1006,7 +1020,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 8080, params.Container.LivenessProbe.Port)
 	})
@@ -1023,7 +1037,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 8081, params.Container.LivenessProbe.Port)
 	})
@@ -1039,7 +1053,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 0, params.Container.ReadinessProbe.InitialDelaySeconds)
 	})
@@ -1055,7 +1069,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 120, params.Container.ReadinessProbe.InitialDelaySeconds)
 	})
@@ -1071,7 +1085,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 1, params.Container.ReadinessProbe.TimeoutSeconds)
 	})
@@ -1087,7 +1101,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 5, params.Container.ReadinessProbe.TimeoutSeconds)
 	})
@@ -1103,7 +1117,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "/readiness", params.Container.ReadinessProbe.Path)
 	})
@@ -1119,7 +1133,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "/healthz", params.Container.ReadinessProbe.Path)
 	})
@@ -1136,7 +1150,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 8080, params.Container.ReadinessProbe.Port)
 	})
@@ -1153,7 +1167,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 8082, params.Container.ReadinessProbe.Port)
 	})
@@ -1169,7 +1183,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "/metrics", params.Container.Metrics.Path)
 	})
@@ -1185,7 +1199,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "/mymetrics", params.Container.Metrics.Path)
 	})
@@ -1202,7 +1216,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 5000, params.Container.Metrics.Port)
 	})
@@ -1219,7 +1233,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 5001, params.Container.Metrics.Port)
 	})
@@ -1235,7 +1249,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, true, *params.Container.Metrics.Scrape)
 	})
@@ -1251,7 +1265,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, false, *params.Container.Metrics.Scrape)
 	})
@@ -1267,7 +1281,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, true, *params.Container.Lifecycle.PrestopSleep)
 	})
@@ -1283,7 +1297,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, false, *params.Container.Lifecycle.PrestopSleep)
 	})
@@ -1299,7 +1313,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 15, *params.Container.Lifecycle.PrestopSleepSeconds)
 	})
@@ -1317,7 +1331,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 25, *params.Container.Lifecycle.PrestopSleepSeconds)
 	})
@@ -1332,7 +1346,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "openresty", params.Sidecars[0].Type)
 	})
@@ -1349,7 +1363,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 0, len(params.Sidecars))
 	})
@@ -1364,7 +1378,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 0, len(params.Sidecars))
 		assert.Equal(t, "", params.Sidecar.Type)
@@ -1379,7 +1393,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "istio", params.Sidecar.Type)
 	})
@@ -1393,7 +1407,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "estafette/openresty-sidecar:1.13.6.2-alpine", params.Sidecars[0].Image)
 	})
@@ -1415,7 +1429,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 3, len(params.Sidecars))
 		assert.Equal(t, "prometheus", params.Sidecar.Type)
@@ -1441,7 +1455,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 2, len(params.Sidecars))
 		assert.Equal(t, "openresty", params.Sidecar.Type)
@@ -1466,7 +1480,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 2, len(params.Sidecars))
 		assert.Equal(t, "istio", params.Sidecar.Type)
@@ -1483,7 +1497,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "estafette/openresty-sidecar:latest", params.Sidecar.Image)
 	})
@@ -1503,7 +1517,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "/myreadiness", params.Sidecar.HealthCheckPath)
 	})
@@ -1521,7 +1535,7 @@ func TestSetDefaults(t *testing.T) {
 			},
 		}
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "/nomyreadiness", params.Sidecar.HealthCheckPath)
 	})
@@ -1538,7 +1552,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "50m", params.Sidecar.CPU.Request)
 	})
@@ -1555,7 +1569,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "300m", params.Sidecar.CPU.Request)
 	})
@@ -1572,7 +1586,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "250m", params.Sidecar.CPU.Request)
 	})
@@ -1589,7 +1603,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "75m", params.Sidecar.CPU.Limit)
 	})
@@ -1606,7 +1620,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "300m", params.Sidecar.CPU.Limit)
 	})
@@ -1623,7 +1637,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "250m", params.Sidecar.CPU.Limit)
 	})
@@ -1640,7 +1654,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "30Mi", params.Sidecar.Memory.Request)
 	})
@@ -1657,7 +1671,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "256Mi", params.Sidecar.Memory.Request)
 	})
@@ -1674,7 +1688,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "512Mi", params.Sidecar.Memory.Request)
 	})
@@ -1691,7 +1705,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "50Mi", params.Sidecar.Memory.Limit)
 	})
@@ -1708,7 +1722,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "768Mi", params.Sidecar.Memory.Limit)
 	})
@@ -1725,7 +1739,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "1024Mi", params.Sidecar.Memory.Limit)
 	})
@@ -1737,7 +1751,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "/", params.Basepath)
 	})
@@ -1749,7 +1763,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "/api", params.Basepath)
 	})
@@ -1763,7 +1777,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "25%", params.RollingUpdate.MaxSurge)
 	})
@@ -1777,7 +1791,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "10%", params.RollingUpdate.MaxSurge)
 	})
@@ -1791,7 +1805,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "0", params.RollingUpdate.MaxUnavailable)
 	})
@@ -1805,7 +1819,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "20%", params.RollingUpdate.MaxUnavailable)
 	})
@@ -1819,7 +1833,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "5m", params.RollingUpdate.Timeout)
 	})
@@ -1833,7 +1847,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "10m", params.RollingUpdate.Timeout)
 	})
@@ -1844,7 +1858,7 @@ func TestSetDefaults(t *testing.T) {
 		buildVersion := "1.0.0"
 
 		// act
-		params.SetDefaults("", buildVersion, "", "", map[string]string{})
+		params.SetDefaults("", "", buildVersion, "", "", map[string]string{})
 
 		assert.Equal(t, "1.0.0", params.BuildVersion)
 	})
@@ -1858,7 +1872,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "/configs", params.Configs.MountPath)
 	})
@@ -1872,7 +1886,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "/etc/app-config", params.Configs.MountPath)
 	})
@@ -1886,7 +1900,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "/secrets", params.Secrets.MountPath)
 	})
@@ -1900,7 +1914,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "/etc/app-secret", params.Secrets.MountPath)
 	})
@@ -1912,7 +1926,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 14, len(params.TrustedIPRanges))
 		assert.Equal(t, "103.21.244.0/22", params.TrustedIPRanges[0])
@@ -1928,7 +1942,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 1, len(params.TrustedIPRanges))
 		assert.Equal(t, "0.0.0.0/0", params.TrustedIPRanges[0])
@@ -1941,7 +1955,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "deploy-simple", params.Action)
 	})
@@ -1953,7 +1967,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "deploy-canary", params.Action)
 	})
@@ -1965,7 +1979,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "rollback-canary", map[string]string{})
+		params.SetDefaults("", "", "", "", "rollback-canary", map[string]string{})
 
 		assert.Equal(t, "rollback-canary", params.Action)
 	})
@@ -1977,7 +1991,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "rollback-canary", map[string]string{})
+		params.SetDefaults("", "", "", "", "rollback-canary", map[string]string{})
 
 		assert.Equal(t, "rollback-canary", params.Action)
 	})
@@ -1989,7 +2003,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "deployment", params.Kind)
 	})
@@ -2002,7 +2016,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "Allow", params.ConcurrencyPolicy)
 	})
@@ -2014,7 +2028,7 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", map[string]string{})
+		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "job", params.Kind)
 	})

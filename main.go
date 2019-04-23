@@ -29,6 +29,7 @@ var (
 	credentialsJSON = kingpin.Flag("credentials", "GKE credentials configured at service level, passed in to this trusted extension.").Envar("ESTAFETTE_CREDENTIALS_KUBERNETES_ENGINE").Required().String()
 
 	// optional flags
+	gitName       = kingpin.Flag("git-name", "Repository name, used as application name if not passed explicitly and app label not being set.").Envar("ESTAFETTE_GIT_NAME").String()
 	appLabel      = kingpin.Flag("app-name", "App label, used as application name if not passed explicitly.").Envar("ESTAFETTE_LABEL_APP").String()
 	buildVersion  = kingpin.Flag("build-version", "Version number, used if not passed explicitly.").Envar("ESTAFETTE_BUILD_VERSION").String()
 	releaseName   = kingpin.Flag("release-name", "Name of the release section, which is used by convention to resolve the credentials.").Envar("ESTAFETTE_RELEASE_NAME").String()
@@ -117,7 +118,7 @@ func main() {
 	}
 
 	logInfo("Setting defaults for parameters that are not set in the manifest...")
-	params.SetDefaults(*appLabel, *buildVersion, *releaseName, *releaseAction, estafetteLabels)
+	params.SetDefaults(*gitName, *appLabel, *buildVersion, *releaseName, *releaseAction, estafetteLabels)
 
 	logInfo("Validating required parameters...")
 	valid, errors, warnings := params.ValidateRequiredProperties()

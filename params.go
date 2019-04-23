@@ -180,7 +180,7 @@ type VolumeMountParams struct {
 }
 
 // SetDefaults fills in empty fields with convention-based defaults
-func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction string, estafetteLabels map[string]string) {
+func (p *Params) SetDefaults(gitName, appLabel, buildVersion, releaseName, releaseAction string, estafetteLabels map[string]string) {
 
 	p.BuildVersion = buildVersion
 
@@ -197,6 +197,9 @@ func (p *Params) SetDefaults(appLabel, buildVersion, releaseName, releaseAction 
 	}
 
 	// default app to estafette app label if no override in stage params
+	if p.App == "" && appLabel == "" && gitName != "" {
+		p.App = gitName
+	}
 	if p.App == "" && appLabel != "" {
 		p.App = appLabel
 	}
