@@ -2,7 +2,6 @@ builder:
   track: dev
 
 labels:
-  app: estafette-extension-gke
   app-group: estafette-ci-extensions
   team: estafette-team
   language: golang
