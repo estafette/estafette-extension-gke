@@ -248,6 +248,8 @@ func main() {
 				deleteServiceAccountSecretForParamsChange(params, templateData.GoogleCloudCredentialsAppName, templateData.Namespace)
 				deleteIngressForVisibilityChange(templateData, templateData.Name, templateData.Namespace)
 				removeEstafetteCloudflareAnnotations(templateData, templateData.Name, templateData.Namespace)
+				removeBackendConfigAnnotation(templateData, templateData.Name, templateData.Namespace)
+				deleteBackendConfigAndIAPOauthSecret(templateData, templateData.Name, templateData.Namespace)
 				break
 			case "rollback-canary":
 				scaleCanaryDeployment(templateData.Name, templateData.Namespace, 0)
@@ -260,6 +262,8 @@ func main() {
 				deleteServiceAccountSecretForParamsChange(params, templateData.GoogleCloudCredentialsAppName, templateData.Namespace)
 				deleteIngressForVisibilityChange(templateData, templateData.Name, templateData.Namespace)
 				removeEstafetteCloudflareAnnotations(templateData, templateData.Name, templateData.Namespace)
+				removeBackendConfigAnnotation(templateData, templateData.Name, templateData.Namespace)
+				deleteBackendConfigAndIAPOauthSecret(templateData, templateData.Name, templateData.Namespace)
 				break
 			}
 			break
@@ -342,6 +346,15 @@ func deleteIngressForVisibilityChange(templateData TemplateData, name, namespace
 		// public uses service of type loadbalancer and doesn't need ingress
 		logInfo("Deleting ingress if it exists, which is used for visibility private, iap or public-whitelist...")
 		runCommand("kubectl", []string{"delete", "ingress", name, "-n", namespace, "--ignore-not-found=true"})
+	}
+}
+
+func deleteBackendConfigAndIAPOauthSecret(templateData TemplateData, name, namespace string) {
+	if !templateData.UseBackendConfigAnnotationOnService {
+		logInfo("Deleting iap oauth secret if it exists, because visibility is not set to iap...")
+		runCommand("kubectl", []string{"delete", "secret", fmt.Sprintf("%v--iap-oauth-credentials", name), "-n", namespace, "--ignore-not-found=true"})
+		logInfo("Deleting iap backend config if it exists, because visibility is not set to iap...")
+		runCommand("kubectl", []string{"delete", "backendconfig", name, "-n", namespace, "--ignore-not-found=true"})
 	}
 }
 
@@ -501,6 +514,14 @@ func removeEstafetteCloudflareAnnotations(templateData TemplateData, name, names
 		runCommand("kubectl", []string{"annotate", "svc", name, "-n", namespace, "estafette.io/cloudflare-proxy-"})
 		runCommand("kubectl", []string{"annotate", "svc", name, "-n", namespace, "estafette.io/cloudflare-hostnames-"})
 		runCommand("kubectl", []string{"annotate", "svc", name, "-n", namespace, "estafette.io/cloudflare-state-"})
+	}
+}
+
+func removeBackendConfigAnnotation(templateData TemplateData, name, namespace string) {
+	if !templateData.UseBackendConfigAnnotationOnService {
+		// iap is not used, so the beta.cloud.google.com/backend-config annotations should be removed from the service
+		logInfo("Removing beta.cloud.google.com/backend-config annotations on the service if they exists, since visibility is not set to iap...")
+		runCommand("kubectl", []string{"annotate", "svc", name, "-n", namespace, "beta.cloud.google.com/backend-config-"})
 	}
 }
 

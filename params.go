@@ -18,21 +18,23 @@ type Params struct {
 	TrustedIPRanges []string        `json:"trustedips,omitempty"`
 
 	// app params
-	App               string              `json:"app,omitempty"`
-	Namespace         string              `json:"namespace,omitempty"`
-	Schedule          string              `json:"schedule,omitempty"`
-	ConcurrencyPolicy string              `json:"concurrencypolicy,omitempty"`
-	Labels            map[string]string   `json:"labels,omitempty"`
-	Visibility        string              `json:"visibility,omitempty"`
-	WhitelistedIPS    []string            `json:"whitelist,omitempty"`
-	Hosts             []string            `json:"hosts,omitempty"`
-	InternalHosts     []string            `json:"internalhosts,omitempty"`
-	Basepath          string              `json:"basepath,omitempty"`
-	Autoscale         AutoscaleParams     `json:"autoscale,omitempty"`
-	Request           RequestParams       `json:"request,omitempty"`
-	Secrets           SecretsParams       `json:"secrets,omitempty"`
-	Configs           ConfigsParams       `json:"configs,omitempty"`
-	VolumeMounts      []VolumeMountParams `json:"volumemounts,omitempty"`
+	App                             string              `json:"app,omitempty"`
+	Namespace                       string              `json:"namespace,omitempty"`
+	Schedule                        string              `json:"schedule,omitempty"`
+	ConcurrencyPolicy               string              `json:"concurrencypolicy,omitempty"`
+	Labels                          map[string]string   `json:"labels,omitempty"`
+	Visibility                      string              `json:"visibility,omitempty"`
+	IapOauthCredentialsClientID     string              `json:"iapOauthClientID,omitempty"`
+	IapOauthCredentialsClientSecret string              `json:"iapOauthClientSecret,omitempty"`
+	WhitelistedIPS                  []string            `json:"whitelist,omitempty"`
+	Hosts                           []string            `json:"hosts,omitempty"`
+	InternalHosts                   []string            `json:"internalhosts,omitempty"`
+	Basepath                        string              `json:"basepath,omitempty"`
+	Autoscale                       AutoscaleParams     `json:"autoscale,omitempty"`
+	Request                         RequestParams       `json:"request,omitempty"`
+	Secrets                         SecretsParams       `json:"secrets,omitempty"`
+	Configs                         ConfigsParams       `json:"configs,omitempty"`
+	VolumeMounts                    []VolumeMountParams `json:"volumemounts,omitempty"`
 
 	EnablePayloadLogging             bool   `json:"enablePayloadLogging,omitempty"`
 	UseGoogleCloudCredentials        bool   `json:"useGoogleCloudCredentials,omitempty"`
@@ -575,6 +577,13 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 	if p.Visibility == "" || (p.Visibility != "private" && p.Visibility != "public" && p.Visibility != "iap" && p.Visibility != "public-whitelist") {
 		errors = append(errors, fmt.Errorf("Visibility property is required; set it via visibility property on this stage; allowed values are private, iap, public-whitelist or public"))
 	}
+	if p.Visibility == "iap" && p.IapOauthCredentialsClientID == "" {
+		errors = append(errors, fmt.Errorf("With visibility 'iap' property iapOauthClientID is required; set it via iapOauthClientID property on this stage"))
+	}
+	if p.Visibility == "iap" && p.IapOauthCredentialsClientSecret == "" {
+		errors = append(errors, fmt.Errorf("With visibility 'iap' property iapOauthClientSecret is required; set it via iapOauthClientSecret property on this stage"))
+	}
+
 	if len(p.Hosts) == 0 {
 		errors = append(errors, fmt.Errorf("At least one host is required; set it via hosts array property on this stage"))
 	}

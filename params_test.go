@@ -2208,6 +2208,8 @@ func TestValidateRequiredProperties(t *testing.T) {
 
 		params := validParams
 		params.Visibility = "iap"
+		params.IapOauthCredentialsClientID = "123123"
+		params.IapOauthCredentialsClientSecret = "somesecret"
 
 		// act
 		valid, errors, _ := params.ValidateRequiredProperties()
