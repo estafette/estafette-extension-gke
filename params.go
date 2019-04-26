@@ -466,7 +466,7 @@ func (p *Params) initializeSidecarDefaults(sidecar *SidecarParams) {
 				sidecar.HealthCheckPath = p.Container.ReadinessProbe.Path
 			}
 		case "cloudsqlproxy":
-			sidecar.Image = "gcr.io/cloudsql-docker/gce-proxy:1.13"
+			sidecar.Image = "gcr.io/cloudsql-docker/gce-proxy:1.14"
 		}
 	}
 
