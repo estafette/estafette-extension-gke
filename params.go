@@ -136,14 +136,15 @@ type LifecycleParams struct {
 
 // SidecarParams sets params for sidecar injection
 type SidecarParams struct {
-	Type                     string                 `json:"type,omitempty"`
-	Image                    string                 `json:"image,omitempty"`
-	EnvironmentVariables     map[string]interface{} `json:"env,omitempty"`
-	CPU                      CPUParams              `json:"cpu,omitempty"`
-	Memory                   MemoryParams           `json:"memory,omitempty"`
-	HealthCheckPath          string                 `json:"healthcheckpath,omitempty"`
-	DbInstanceConnectionName string                 `json:"dbinstanceconnectionname,omitempty"`
-	SQLProxyPort             int                    `json:"sqlproxyport,omitempty"`
+	Type                              string                 `json:"type,omitempty"`
+	Image                             string                 `json:"image,omitempty"`
+	EnvironmentVariables              map[string]interface{} `json:"env,omitempty"`
+	CPU                               CPUParams              `json:"cpu,omitempty"`
+	Memory                            MemoryParams           `json:"memory,omitempty"`
+	HealthCheckPath                   string                 `json:"healthcheckpath,omitempty"`
+	DbInstanceConnectionName          string                 `json:"dbinstanceconnectionname,omitempty"`
+	SQLProxyPort                      int                    `json:"sqlproxyport,omitempty"`
+	SQLProxyTerminationTimeoutSeconds int                    `json:"sqlproxyterminationtimeoutseconds,omitempty"`
 }
 
 // RollingUpdateParams sets params for controlling rolling update speed
