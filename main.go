@@ -63,7 +63,7 @@ func main() {
 			envvarName := kvPair[0]
 			envvarValue := kvPair[1]
 
-			if strings.HasPrefix(envvarName, "ESTAFETTE_LABEL_") {
+			if strings.HasPrefix(envvarName, "ESTAFETTE_LABEL_") && !strings.HasSuffix(envvarName, "_DNS_SAFE") {
 				// strip prefix and convert to lowercase
 				key := strings.ToLower(strings.Replace(envvarName, "ESTAFETTE_LABEL_", "", 1))
 				estafetteLabels[key] = envvarValue
