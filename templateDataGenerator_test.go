@@ -890,6 +890,27 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "value2", templateData.Sidecars[0].EnvironmentVariables["MY_OTHER_CUSTOM_ENV"])
 	})
 
+	t.Run("SetsCloudSQLProxySpecificArgsToSidecarSpecificProperties", func(t *testing.T) {
+
+		params := Params{
+			Sidecar: SidecarParams{
+				HealthCheckPath:                   "testHealthCheckPath",
+				DbInstanceConnectionName:          "testDbInstanceConnectionName",
+				SQLProxyPort:                      15,
+				SQLProxyTerminationTimeoutSeconds: 16,
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "", "")
+
+		assert.Equal(t, 4, len(templateData.Sidecars[0].SidecarSpecificProperties))
+		assert.Equal(t, "testHealthCheckPath", templateData.Sidecars[0].SidecarSpecificProperties["healthcheckpath"])
+		assert.Equal(t, "testDbInstanceConnectionName", templateData.Sidecars[0].SidecarSpecificProperties["dbinstanceconnectionname"])
+		assert.Equal(t, 15, templateData.Sidecars[0].SidecarSpecificProperties["sqlproxyport"])
+		assert.Equal(t, 16, templateData.Sidecars[0].SidecarSpecificProperties["sqlproxyterminationtimeoutseconds"])
+	})
+
 	t.Run("SetsSecretsToSecretsParam", func(t *testing.T) {
 
 		params := Params{

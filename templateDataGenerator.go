@@ -279,9 +279,10 @@ func buildSidecar(sidecar SidecarParams, request RequestParams) SidecarData {
 		MemoryLimit:          sidecar.Memory.Limit,
 		EnvironmentVariables: sidecar.EnvironmentVariables,
 		SidecarSpecificProperties: map[string]interface{}{
-			"healthcheckpath":          sidecar.HealthCheckPath,
-			"dbinstanceconnectionname": sidecar.DbInstanceConnectionName,
-			"sqlproxyport":             sidecar.SQLProxyPort,
+			"healthcheckpath":                   sidecar.HealthCheckPath,
+			"dbinstanceconnectionname":          sidecar.DbInstanceConnectionName,
+			"sqlproxyport":                      sidecar.SQLProxyPort,
+			"sqlproxyterminationtimeoutseconds": sidecar.SQLProxyTerminationTimeoutSeconds,
 		},
 	}
 
