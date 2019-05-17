@@ -86,12 +86,14 @@ spec:
       - name: {{.Name}}
         image: {{.Container.Repository}}/{{.Container.Name}}:{{.Container.Tag}}
         imagePullPolicy: IfNotPresent
-        {{- if .Container.EnvironmentVariables }}
         env:
+        - name: "JAEGER_AGENT_HOST"
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
         {{- range $key, $value := .Container.EnvironmentVariables }}
         - name: "{{ $key }}"
           value: "{{ $value }}"
-        {{- end }}
         {{- end }}
         resources:
           requests:
