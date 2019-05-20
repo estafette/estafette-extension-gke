@@ -180,6 +180,10 @@ spec:
         - name: nginx-prom
           containerPort: 9101
         env:
+        - name: "JAEGER_AGENT_HOST"
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
         - name: "OFFLOAD_TO_HOST"
           value: "localhost"
         - name: "OFFLOAD_TO_PORT"
