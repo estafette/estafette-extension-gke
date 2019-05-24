@@ -120,7 +120,7 @@ func TestSetDefaults(t *testing.T) {
 	t.Run("DefaultsGoogleCloudCredentialsAppToAppIfEmpty", func(t *testing.T) {
 
 		params := Params{
-			App:                       "yourapp",
+			App: "yourapp",
 			GoogleCloudCredentialsApp: "",
 		}
 		appLabel := "myapp"
@@ -134,7 +134,7 @@ func TestSetDefaults(t *testing.T) {
 	t.Run("KeepsGoogleCloudCredentialsAppIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
-			App:                       "yourapp",
+			App: "yourapp",
 			GoogleCloudCredentialsApp: "myapp",
 		}
 		appLabel := "someapp"
@@ -1355,7 +1355,7 @@ func TestSetDefaults(t *testing.T) {
 
 		falseValue := false
 		params := Params{
-			Kind:                   "deployment",
+			Kind: "deployment",
 			InjectHTTPProxySidecar: &falseValue,
 			Sidecar: SidecarParams{
 				Type: "",
@@ -1742,6 +1742,45 @@ func TestSetDefaults(t *testing.T) {
 		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, "1024Mi", params.Sidecar.Memory.Limit)
+	})
+
+	t.Run("SetsHealthCheckPathDefault", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				ReadinessProbe: ProbeParams{
+					Path: "testReadinessPath",
+				},
+			},
+			Sidecar: SidecarParams{
+				Type: "openresty",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, "testReadinessPath", params.Sidecar.HealthCheckPath)
+	})
+
+	t.Run("SetsHealthCheckPathDefaultEvenIfImageIsCustomized", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				ReadinessProbe: ProbeParams{
+					Path: "testReadinessPath",
+				},
+			},
+			Sidecar: SidecarParams{
+				Type:  "openresty",
+				Image: "testImage",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, "testReadinessPath", params.Sidecar.HealthCheckPath)
 	})
 
 	t.Run("DefaultsBasePathToSlashIfEmpty", func(t *testing.T) {
