@@ -103,6 +103,10 @@ func generateTemplateData(params Params, currentReplicas int, releaseID, trigger
 		data.Labels["app"] = data.AppLabelSelector
 	}
 
+	// set tracing service name
+	data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_SERVICE_NAME", params.App)
+
+	// add sidecars
 	mainSidecar := buildSidecar(params.Sidecar, params.Request)
 	data.Sidecars = append(data.Sidecars, mainSidecar)
 

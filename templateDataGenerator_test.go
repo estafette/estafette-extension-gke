@@ -664,9 +664,25 @@ func TestGenerateTemplateData(t *testing.T) {
 		// act
 		templateData := generateTemplateData(params, -1, "", "")
 
-		assert.Equal(t, 2, len(templateData.Container.EnvironmentVariables))
+		assert.Equal(t, 3, len(templateData.Container.EnvironmentVariables))
 		assert.Equal(t, "value1", templateData.Container.EnvironmentVariables["MY_CUSTOM_ENV"])
 		assert.Equal(t, "value2", templateData.Container.EnvironmentVariables["MY_OTHER_CUSTOM_ENV"])
+	})
+
+	t.Run("AddsJaegerServiceNameToEnvironmentVariables", func(t *testing.T) {
+
+		params := Params{
+			App: "my-app",
+			Container: ContainerParams{
+				EnvironmentVariables: map[string]interface{}{},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "", "")
+
+		assert.Equal(t, 1, len(templateData.Container.EnvironmentVariables))
+		assert.Equal(t, "my-app", templateData.Container.EnvironmentVariables["JAEGER_SERVICE_NAME"])
 	})
 
 	t.Run("SetsMetricsPathToMetricsProbePathParam", func(t *testing.T) {
