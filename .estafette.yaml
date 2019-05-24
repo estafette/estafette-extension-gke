@@ -103,7 +103,7 @@ stages:
     sidecar:
       type: openresty
       image: estafette/openresty-sidecar:1.13.6.1-alpine
-      healthcheckpath: /readiness
+      healthcheckpath: /foo
       env:
         CORS_ALLOWED_ORIGINS: "*"
         CORS_MAX_AGE: "86400"
