@@ -458,14 +458,16 @@ func (p *Params) SetDefaults(gitName, appLabel, buildVersion, releaseName, relea
 }
 
 func (p *Params) initializeSidecarDefaults(sidecar *SidecarParams) {
-	if sidecar.Image == "" {
-		switch sidecar.Type {
-		case "openresty":
+	switch sidecar.Type {
+	case "openresty":
+		if sidecar.Image == "" {
 			sidecar.Image = "estafette/openresty-sidecar:1.13.6.2-alpine"
-			if sidecar.HealthCheckPath == "" {
-				sidecar.HealthCheckPath = p.Container.ReadinessProbe.Path
-			}
-		case "cloudsqlproxy":
+		}
+		if sidecar.HealthCheckPath == "" {
+			sidecar.HealthCheckPath = p.Container.ReadinessProbe.Path
+		}
+	case "cloudsqlproxy":
+		if sidecar.Image == "" {
 			sidecar.Image = "gcr.io/cloudsql-docker/gce-proxy:1.14"
 		}
 	}
