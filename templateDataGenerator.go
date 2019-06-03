@@ -105,10 +105,6 @@ func generateTemplateData(params Params, currentReplicas int, releaseID, trigger
 
 	// set tracing service name
 	data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_SERVICE_NAME", params.App)
-	data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "OPENTRACING_JAEGER_SERVICE_NAME", params.App)
-
-	// set other tracing envars specifally for https://github.com/opentracing-contrib/java-spring-jaeger
-	data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "OPENTRACING_JAEGER_LOG_SPANS", "false")
 
 	// add sidecars
 	mainSidecar := buildSidecar(params.Sidecar, params.Request)

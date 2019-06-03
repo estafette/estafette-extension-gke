@@ -91,10 +91,6 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: status.hostIP
-        - name: "OPENTRACING_JAEGER_UDP_SENDER_HOST"
-          valueFrom:
-            fieldRef:
-              fieldPath: status.hostIP
         {{- range $key, $value := .Container.EnvironmentVariables }}
         - name: "{{ $key }}"
           value: "{{ $value }}"

@@ -683,36 +683,6 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "my-app", templateData.Container.EnvironmentVariables["JAEGER_SERVICE_NAME"])
 	})
 
-	t.Run("AddsOpentracingJaegerServiceNameToEnvironmentVariables", func(t *testing.T) {
-
-		params := Params{
-			App: "my-app",
-			Container: ContainerParams{
-				EnvironmentVariables: map[string]interface{}{},
-			},
-		}
-
-		// act
-		templateData := generateTemplateData(params, -1, "", "")
-
-		assert.Equal(t, "my-app", templateData.Container.EnvironmentVariables["OPENTRACING_JAEGER_SERVICE_NAME"])
-	})
-
-	t.Run("AddsOpentracingJaegerLogSpansToEnvironmentVariables", func(t *testing.T) {
-
-		params := Params{
-			App: "my-app",
-			Container: ContainerParams{
-				EnvironmentVariables: map[string]interface{}{},
-			},
-		}
-
-		// act
-		templateData := generateTemplateData(params, -1, "", "")
-
-		assert.Equal(t, "false", templateData.Container.EnvironmentVariables["OPENTRACING_JAEGER_LOG_SPANS"])
-	})
-
 	t.Run("SetsMetricsPathToMetricsProbePathParam", func(t *testing.T) {
 
 		params := Params{
