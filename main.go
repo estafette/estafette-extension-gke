@@ -188,6 +188,9 @@ func main() {
 	// checking number of replicas for existing deployment to make switching deployment type safe
 	currentReplicas := getExistingNumberOfReplicas(params)
 
+	// replacing openresty image tag with digest
+	params.ReplaceOpenrestyTagWithDigest()
+
 	// generate the data required for rendering the templates
 	templateData := generateTemplateData(params, currentReplicas, *releaseID, *triggeredBy)
 

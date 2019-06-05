@@ -744,6 +744,8 @@ func (p *Params) ReplaceOpenrestyTagWithDigest() {
 	for _, s := range p.Sidecars {
 		if s.Type == "openresty" {
 
+			logInfo("Replacing openresty sidecar image tag with digest...")
+
 			if s.Image == "" {
 				return
 			}
@@ -789,6 +791,10 @@ func (p *Params) ReplaceOpenrestyTagWithDigest() {
 			}
 
 			s.Image = fmt.Sprintf("%v:%v", repository, digest)
+
+			logInfo("Successfully replaced tag %v with digest %v...", tag, digest)
+
+			return
 		}
 	}
 }
