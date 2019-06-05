@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"strings"
@@ -45,7 +46,7 @@ type Params struct {
 	Container              ContainerParams     `json:"container,omitempty"`
 	InjectHTTPProxySidecar *bool               `json:"injecthttpproxysidecar,omitempty"`
 	Sidecar                SidecarParams       `json:"sidecar,omitempty"`
-	Sidecars               []SidecarParams     `json:"sidecars,omitempty"`
+	Sidecars               []*SidecarParams    `json:"sidecars,omitempty"`
 	RollingUpdate          RollingUpdateParams `json:"rollingupdate,omitempty"`
 }
 
@@ -397,13 +398,13 @@ func (p *Params) SetDefaults(gitName, appLabel, buildVersion, releaseName, relea
 
 		p.initializeSidecarDefaults(&openrestySidecar)
 
-		p.Sidecars = append(p.Sidecars, openrestySidecar)
+		p.Sidecars = append(p.Sidecars, &openrestySidecar)
 	}
 
 	p.initializeSidecarDefaults(&p.Sidecar)
 
 	for i := range p.Sidecars {
-		p.initializeSidecarDefaults(&p.Sidecars[i])
+		p.initializeSidecarDefaults(p.Sidecars[i])
 	}
 
 	// default basepath to /
@@ -686,7 +687,7 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 
 	// The "sidecar" field is deprecated, so it can be empty. But if it's specified, then we validate it.
 	if p.Sidecar.Type != "" && p.Sidecar.Type != "none" {
-		errors = p.validateSidecar(p.Sidecar, errors)
+		errors = p.validateSidecar(&p.Sidecar, errors)
 		warnings = append(warnings, "The sidecar field is deprecated, the sidecars list should be used instead.")
 	}
 
@@ -698,7 +699,7 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 	return len(errors) == 0, errors, warnings
 }
 
-func (p *Params) validateSidecar(sidecar SidecarParams, errors []error) []error {
+func (p *Params) validateSidecar(sidecar *SidecarParams, errors []error) []error {
 	switch sidecar.Type {
 	case "openresty":
 		break
@@ -734,4 +735,60 @@ func (p *Params) validateSidecar(sidecar SidecarParams, errors []error) []error 
 	}
 
 	return errors
+}
+
+// ReplaceOpenrestyTagWithDigest looks for a sidecar of type openresty and replaces the image tag with a digest
+func (p *Params) ReplaceOpenrestyTagWithDigest() {
+
+	// see if there's a sidecar of type openresty
+	for _, s := range p.Sidecars {
+		if s.Type == "openresty" {
+
+			if s.Image == "" {
+				return
+			}
+
+			imageParts := strings.Split(s.Image, ":")
+			repository := imageParts[0]
+			tag := "latest"
+			if len(imageParts) > 1 {
+				tag = imageParts[1]
+			}
+
+			if strings.HasPrefix(tag, "sha256:") {
+				// already uses a digest, skip replacement
+				return
+			}
+
+			// get docker hub api token
+			tokenJSON := httpRequestBody("GET", fmt.Sprintf("https://auth.docker.io/token?scope=repository:%v:pull&service=registry.docker.io", repository), map[string]string{})
+			if tokenJSON == "" {
+				return
+			}
+
+			type TokenObject struct {
+				Token string `json:"token"`
+			}
+
+			tokenObject := TokenObject{}
+			err := json.Unmarshal([]byte(tokenJSON), &tokenObject)
+			if err != nil {
+				return
+			}
+			if tokenObject.Token == "" {
+				return
+			}
+
+			digest := httpRequestHeader("HEAD", fmt.Sprintf("https://index.docker.io/v2/%v/manifests/%v", repository, tag), map[string]string{
+				"Accept":        "application/vnd.docker.distribution.manifest.v2+json",
+				"Authorization": fmt.Sprintf("Bearer %v", tokenObject.Token),
+			}, "Docker-Content-Digest")
+
+			if len(digest) == 0 {
+				return
+			}
+
+			s.Image = fmt.Sprintf("%v:%v", repository, digest)
+		}
+	}
 }

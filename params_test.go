@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -69,6 +70,20 @@ var (
 				Limit:   "50Mi",
 			},
 		},
+		Sidecars: []*SidecarParams{
+			&SidecarParams{
+				Type:  "openresty",
+				Image: "estafette/openresty-sidecar:1.13.6.2-alpine",
+				CPU: CPUParams{
+					Request: "10m",
+					Limit:   "50m",
+				},
+				Memory: MemoryParams{
+					Request: "10Mi",
+					Limit:   "50Mi",
+				},
+			},
+		},
 	}
 	validCredential = GKECredentials{
 		Name: "gke-production",
@@ -120,7 +135,7 @@ func TestSetDefaults(t *testing.T) {
 	t.Run("DefaultsGoogleCloudCredentialsAppToAppIfEmpty", func(t *testing.T) {
 
 		params := Params{
-			App: "yourapp",
+			App:                       "yourapp",
 			GoogleCloudCredentialsApp: "",
 		}
 		appLabel := "myapp"
@@ -134,7 +149,7 @@ func TestSetDefaults(t *testing.T) {
 	t.Run("KeepsGoogleCloudCredentialsAppIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
-			App: "yourapp",
+			App:                       "yourapp",
 			GoogleCloudCredentialsApp: "myapp",
 		}
 		appLabel := "someapp"
@@ -1355,7 +1370,7 @@ func TestSetDefaults(t *testing.T) {
 
 		falseValue := false
 		params := Params{
-			Kind: "deployment",
+			Kind:                   "deployment",
 			InjectHTTPProxySidecar: &falseValue,
 			Sidecar: SidecarParams{
 				Type: "",
@@ -1418,11 +1433,11 @@ func TestSetDefaults(t *testing.T) {
 			Sidecar: SidecarParams{
 				Type: "prometheus",
 			},
-			Sidecars: []SidecarParams{
-				SidecarParams{
+			Sidecars: []*SidecarParams{
+				&SidecarParams{
 					Type: "istio",
 				},
-				SidecarParams{
+				&SidecarParams{
 					Type: "logger",
 				},
 			},
@@ -1444,11 +1459,11 @@ func TestSetDefaults(t *testing.T) {
 			Sidecar: SidecarParams{
 				Type: "openresty",
 			},
-			Sidecars: []SidecarParams{
-				SidecarParams{
+			Sidecars: []*SidecarParams{
+				&SidecarParams{
 					Type: "istio",
 				},
-				SidecarParams{
+				&SidecarParams{
 					Type: "prometheus",
 				},
 			},
@@ -1469,11 +1484,11 @@ func TestSetDefaults(t *testing.T) {
 			Sidecar: SidecarParams{
 				Type: "istio",
 			},
-			Sidecars: []SidecarParams{
-				SidecarParams{
+			Sidecars: []*SidecarParams{
+				&SidecarParams{
 					Type: "openresty",
 				},
-				SidecarParams{
+				&SidecarParams{
 					Type: "prometheus",
 				},
 			},
@@ -3100,8 +3115,8 @@ func TestValidateRequiredProperties(t *testing.T) {
 			Type: "",
 		}
 
-		params.Sidecars = []SidecarParams{
-			SidecarParams{
+		params.Sidecars = []*SidecarParams{
+			&SidecarParams{
 				Type:  "openresty",
 				Image: "estafette/openresty-sidecar:1.13.6.2-alpine",
 				CPU: CPUParams{
@@ -3235,5 +3250,19 @@ func TestValidateRequiredProperties(t *testing.T) {
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
+	})
+}
+
+func TestReplaceOpenrestyTagWithDigest(t *testing.T) {
+
+	t.Run("ReplacesOpenrestySidecarImageTagWithDigest", func(t *testing.T) {
+
+		params := validParams
+
+		// act
+		params.ReplaceOpenrestyTagWithDigest()
+
+		assert.Equal(t, "openresty", params.Sidecars[0].Type)
+		assert.True(t, strings.HasPrefix(params.Sidecars[0].Image, "estafette/openresty-sidecar:sha256:"))
 	})
 }

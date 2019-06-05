@@ -160,7 +160,7 @@ spec:
         {{- if eq .Type "openresty" }}
       - name: {{$deployment.Name}}-openresty
         image: {{.Image}}
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         resources:
           requests:
             cpu: {{.CPURequest}}

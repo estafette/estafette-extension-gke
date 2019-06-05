@@ -107,7 +107,7 @@ func generateTemplateData(params Params, currentReplicas int, releaseID, trigger
 	data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_SERVICE_NAME", params.App)
 
 	// add sidecars
-	mainSidecar := buildSidecar(params.Sidecar, params.Request)
+	mainSidecar := buildSidecar(&params.Sidecar, params.Request)
 	data.Sidecars = append(data.Sidecars, mainSidecar)
 
 	for _, sidecarParams := range params.Sidecars {
@@ -273,7 +273,7 @@ func generateTemplateData(params Params, currentReplicas int, releaseID, trigger
 	return data
 }
 
-func buildSidecar(sidecar SidecarParams, request RequestParams) SidecarData {
+func buildSidecar(sidecar *SidecarParams, request RequestParams) SidecarData {
 	builtSidecar := SidecarData{
 		Type:                 sidecar.Type,
 		Image:                sidecar.Image,

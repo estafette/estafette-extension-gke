@@ -5,13 +5,16 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"runtime"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/alecthomas/kingpin"
+	"github.com/sethgrid/pester"
 )
 
 var (
@@ -558,4 +561,69 @@ func getCommandOutput(command string, args []string) (string, error) {
 func logInfo(message string, args ...interface{}) {
 	formattedMessage := fmt.Sprintf(message, args...)
 	log.Printf("%v\n\n", formattedMessage)
+}
+
+func httpRequestBody(method, url string, headers map[string]string) string {
+	client := pester.New()
+	client.MaxRetries = 3
+	client.Backoff = pester.ExponentialJitterBackoff
+	client.KeepLog = true
+	client.Timeout = time.Second * 5
+	request, err := http.NewRequest(method, url, nil)
+	if err != nil {
+		return ""
+	}
+
+	for k, v := range headers {
+		request.Header.Add(k, v)
+	}
+
+	// perform actual request
+	response, err := client.Do(request)
+	if err != nil {
+		return ""
+	}
+
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		return ""
+	}
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return ""
+	}
+
+	return string(body)
+}
+
+func httpRequestHeader(method, url string, headers map[string]string, responseHeader string) string {
+	client := pester.New()
+	client.MaxRetries = 3
+	client.Backoff = pester.ExponentialJitterBackoff
+	client.KeepLog = true
+	client.Timeout = time.Second * 5
+	request, err := http.NewRequest(method, url, nil)
+	if err != nil {
+		return ""
+	}
+
+	for k, v := range headers {
+		request.Header.Add(k, v)
+	}
+
+	// perform actual request
+	response, err := client.Do(request)
+	if err != nil {
+		return ""
+	}
+
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		return ""
+	}
+
+	return response.Header.Get(responseHeader)
 }
