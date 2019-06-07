@@ -3263,6 +3263,6 @@ func TestReplaceOpenrestyTagWithDigest(t *testing.T) {
 		params.ReplaceOpenrestyTagWithDigest()
 
 		assert.Equal(t, "openresty", params.Sidecars[0].Type)
-		assert.True(t, strings.HasPrefix(params.Sidecars[0].Image, "estafette/openresty-sidecar:sha256:"))
+		assert.True(t, strings.HasPrefix(params.Sidecars[0].Image, "estafette/openresty-sidecar@sha256:"))
 	})
 }

@@ -790,7 +790,7 @@ func (p *Params) ReplaceOpenrestyTagWithDigest() {
 				return
 			}
 
-			s.Image = fmt.Sprintf("%v:%v", repository, digest)
+			s.Image = fmt.Sprintf("%v@%v", repository, digest)
 
 			logInfo("Successfully replaced tag %v with digest %v...", tag, digest)
 
