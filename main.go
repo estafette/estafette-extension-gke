@@ -134,7 +134,7 @@ func main() {
 	}
 
 	// replacing openresty image tag with digest
-	params.ReplaceOpenrestyTagWithDigest()
+	// params.ReplaceOpenrestyTagWithDigest()
 
 	logInfo("Retrieving service account email from credentials...")
 	var keyFileMap map[string]interface{}
