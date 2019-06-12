@@ -462,7 +462,7 @@ func (p *Params) initializeSidecarDefaults(sidecar *SidecarParams) {
 	switch sidecar.Type {
 	case "openresty":
 		if sidecar.Image == "" {
-			sidecar.Image = "estafette/openresty-sidecar:1.13.6.2-alpine"
+			sidecar.Image = "estafette/openresty-sidecar@sha256:4300dc7d45600c428f4196009ee842c1c3bdd51aaa4f55361479f6fa60e78faf"
 		}
 		if sidecar.HealthCheckPath == "" {
 			sidecar.HealthCheckPath = p.Container.ReadinessProbe.Path
@@ -750,16 +750,17 @@ func (p *Params) ReplaceOpenrestyTagWithDigest() {
 				return
 			}
 
+			imageDigestParts := strings.Split(s.Image, "@")
+			if len(imageDigestParts) > 1 {
+				// already uses a digest, skip replacement
+				return
+			}
+
 			imageParts := strings.Split(s.Image, ":")
 			repository := imageParts[0]
 			tag := "latest"
 			if len(imageParts) > 1 {
 				tag = imageParts[1]
-			}
-
-			if strings.HasPrefix(tag, "sha256:") {
-				// already uses a digest, skip replacement
-				return
 			}
 
 			// get docker hub api token
