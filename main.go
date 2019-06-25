@@ -11,6 +11,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"text/template"
 	"time"
 
 	"github.com/alecthomas/kingpin"
@@ -179,6 +180,23 @@ func main() {
 	}
 	runCommand("gcloud", clustersGetCredentialsArsgs)
 
+	if params.Action == "deploy-babysit" {
+		paramsCopy := params
+		paramsCopy.Action = "deploy-canary"
+		templateDataDeployCanary, tmplDeployCanary := generateKubernetesYaml(paramsCopy)
+		applyKubernetesYaml(paramsCopy, templateDataDeployCanary, tmplDeployCanary)
+		// TODO check if canary is OK
+		// deploy-stable
+		paramsCopy.Action = "rollback-canary"
+		templateDataRollbackCanary, tmplRollbackCanary := generateKubernetesYaml(paramsCopy)
+		applyKubernetesYaml(paramsCopy, templateDataRollbackCanary, tmplRollbackCanary)
+	} else {
+		templateData, tmpl := generateKubernetesYaml(params)
+		applyKubernetesYaml(params, templateData, tmpl)
+	}
+}
+
+func generateKubernetesYaml(params Params) (TemplateData, *template.Template) {
 	// combine templates
 	tmpl, err := buildTemplates(params)
 	if err != nil {
@@ -208,6 +226,11 @@ func main() {
 		}
 	}
 
+	return templateData, tmpl
+}
+
+func applyKubernetesYaml(params Params, templateData TemplateData, tmpl *template.Template) {
+
 	kubectlApplyArgs := []string{"apply", "-f", "/kubernetes.yaml", "-n", templateData.Namespace}
 	if tmpl != nil {
 		// always perform a dryrun to ensure we're not ending up in a semi broken state where half of the templates is successfully applied and others not
@@ -215,70 +238,71 @@ func main() {
 		runCommand("kubectl", append(kubectlApplyArgs, "--dry-run"))
 	}
 
-	if !params.DryRun {
-
-		// ensure that from now on any error runs the troubleshooting assistant
-		assistTroubleshootingOnError = true
-		paramsForTroubleshooting = params
-
-		if tmpl != nil {
-			patchServiceIfRequired(params, templateData, templateData.Name, templateData.Namespace)
-			patchDeploymentIfRequired(params, templateData.Name, templateData.Namespace)
-			removePoddisruptionBudgetIfRequired(params, templateData.NameWithTrack, templateData.Namespace)
-			removeIngressIfRequired(params, templateData, templateData.Name, templateData.Namespace)
-			cleanupJobIfRequired(params, templateData, templateData.Name, templateData.Namespace)
-
-			logInfo("Applying the manifests for real...")
-			runCommand("kubectl", kubectlApplyArgs)
-
-			if params.Kind == "deployment" {
-				logInfo("Waiting for the deployment to finish...")
-				runCommand("kubectl", []string{"rollout", "status", "deployment", templateData.NameWithTrack, "-n", templateData.Namespace})
-			}
-		}
-
-		// clean up old stuff
-		switch params.Kind {
-		case "deployment":
-			switch params.Action {
-			case "deploy-canary":
-				scaleCanaryDeployment(templateData.Name, templateData.Namespace, 1)
-				deleteConfigsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
-				deleteSecretsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
-				break
-			case "deploy-stable":
-				scaleCanaryDeployment(templateData.Name, templateData.Namespace, 0)
-				deleteResourcesForTypeSwitch(templateData.Name, templateData.Namespace)
-				deleteConfigsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
-				deleteSecretsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
-				deleteServiceAccountSecretForParamsChange(params, templateData.GoogleCloudCredentialsAppName, templateData.Namespace)
-				deleteIngressForVisibilityChange(templateData, templateData.Name, templateData.Namespace)
-				removeEstafetteCloudflareAnnotations(templateData, templateData.Name, templateData.Namespace)
-				removeBackendConfigAnnotation(templateData, templateData.Name, templateData.Namespace)
-				deleteBackendConfigAndIAPOauthSecret(templateData, templateData.Name, templateData.Namespace)
-				break
-			case "rollback-canary":
-				scaleCanaryDeployment(templateData.Name, templateData.Namespace, 0)
-				break
-			case "deploy-simple":
-				deleteResourcesForTypeSwitch(fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
-				deleteResourcesForTypeSwitch(fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
-				deleteConfigsForParamsChange(params, templateData.Name, templateData.Namespace)
-				deleteSecretsForParamsChange(params, templateData.Name, templateData.Namespace)
-				deleteServiceAccountSecretForParamsChange(params, templateData.GoogleCloudCredentialsAppName, templateData.Namespace)
-				deleteIngressForVisibilityChange(templateData, templateData.Name, templateData.Namespace)
-				removeEstafetteCloudflareAnnotations(templateData, templateData.Name, templateData.Namespace)
-				removeBackendConfigAnnotation(templateData, templateData.Name, templateData.Namespace)
-				deleteBackendConfigAndIAPOauthSecret(templateData, templateData.Name, templateData.Namespace)
-				break
-			}
-			break
-		case "job":
-			break
-		}
-
-		assistTroubleshooting()
+	if params.DryRun {
+		return
 	}
+
+	// ensure that from now on any error runs the troubleshooting assistant
+	assistTroubleshootingOnError = true
+	paramsForTroubleshooting = params
+
+	if tmpl != nil {
+		patchServiceIfRequired(params, templateData, templateData.Name, templateData.Namespace)
+		patchDeploymentIfRequired(params, templateData.Name, templateData.Namespace)
+		removePoddisruptionBudgetIfRequired(params, templateData.NameWithTrack, templateData.Namespace)
+		removeIngressIfRequired(params, templateData, templateData.Name, templateData.Namespace)
+		cleanupJobIfRequired(params, templateData, templateData.Name, templateData.Namespace)
+
+		logInfo("Applying the manifests for real...")
+		runCommand("kubectl", kubectlApplyArgs)
+
+		if params.Kind == "deployment" {
+			logInfo("Waiting for the deployment to finish...")
+			runCommand("kubectl", []string{"rollout", "status", "deployment", templateData.NameWithTrack, "-n", templateData.Namespace})
+		}
+	}
+
+	// clean up old stuff
+	switch params.Kind {
+	case "deployment":
+		switch params.Action {
+		case "deploy-canary":
+			scaleCanaryDeployment(templateData.Name, templateData.Namespace, 1)
+			deleteConfigsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
+			deleteSecretsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
+			break
+		case "deploy-stable":
+			scaleCanaryDeployment(templateData.Name, templateData.Namespace, 0)
+			deleteResourcesForTypeSwitch(templateData.Name, templateData.Namespace)
+			deleteConfigsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
+			deleteSecretsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
+			deleteServiceAccountSecretForParamsChange(params, templateData.GoogleCloudCredentialsAppName, templateData.Namespace)
+			deleteIngressForVisibilityChange(templateData, templateData.Name, templateData.Namespace)
+			removeEstafetteCloudflareAnnotations(templateData, templateData.Name, templateData.Namespace)
+			removeBackendConfigAnnotation(templateData, templateData.Name, templateData.Namespace)
+			deleteBackendConfigAndIAPOauthSecret(templateData, templateData.Name, templateData.Namespace)
+			break
+		case "rollback-canary":
+			scaleCanaryDeployment(templateData.Name, templateData.Namespace, 0)
+			break
+		case "deploy-simple":
+			deleteResourcesForTypeSwitch(fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
+			deleteResourcesForTypeSwitch(fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
+			deleteConfigsForParamsChange(params, templateData.Name, templateData.Namespace)
+			deleteSecretsForParamsChange(params, templateData.Name, templateData.Namespace)
+			deleteServiceAccountSecretForParamsChange(params, templateData.GoogleCloudCredentialsAppName, templateData.Namespace)
+			deleteIngressForVisibilityChange(templateData, templateData.Name, templateData.Namespace)
+			removeEstafetteCloudflareAnnotations(templateData, templateData.Name, templateData.Namespace)
+			removeBackendConfigAnnotation(templateData, templateData.Name, templateData.Namespace)
+			deleteBackendConfigAndIAPOauthSecret(templateData, templateData.Name, templateData.Namespace)
+			break
+		}
+		break
+	case "job":
+		break
+	}
+
+	assistTroubleshooting()
 }
 
 func assistTroubleshooting() {
