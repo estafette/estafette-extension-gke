@@ -242,23 +242,21 @@ func main() {
 		case "deployment":
 			switch params.Action {
 			case "deploy-canary":
-				scaleCanaryDeployment(templateData.Name, templateData.Namespace, 1)
-				deleteConfigsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
-				deleteSecretsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
+				deploymentDeployCanary(templateData, params)
 				break
 			case "deploy-stable":
-				scaleCanaryDeployment(templateData.Name, templateData.Namespace, 0)
-				deleteResourcesForTypeSwitch(templateData.Name, templateData.Namespace)
-				deleteConfigsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
-				deleteSecretsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
-				deleteServiceAccountSecretForParamsChange(params, templateData.GoogleCloudCredentialsAppName, templateData.Namespace)
-				deleteIngressForVisibilityChange(templateData, templateData.Name, templateData.Namespace)
-				removeEstafetteCloudflareAnnotations(templateData, templateData.Name, templateData.Namespace)
-				removeBackendConfigAnnotation(templateData, templateData.Name, templateData.Namespace)
-				deleteBackendConfigAndIAPOauthSecret(templateData, templateData.Name, templateData.Namespace)
+				deploymentDeployStable(templateData, params)
+				break
+			case "deploy-babysit":
+				deploymentDeployCanary(templateData, params)
+				//get status
+				//if status is OK
+				//deploymentDeployStable(templateData, params)
+				//else
+				deploymentRollbackCanary(templateData)
 				break
 			case "rollback-canary":
-				scaleCanaryDeployment(templateData.Name, templateData.Namespace, 0)
+				deploymentRollbackCanary(templateData)
 				break
 			case "deploy-simple":
 				deleteResourcesForTypeSwitch(fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
@@ -279,6 +277,30 @@ func main() {
 
 		assistTroubleshooting()
 	}
+}
+
+func deploymentDeployCanary(templateData TemplateData, params Params)
+{
+	scaleCanaryDeployment(templateData.Name, templateData.Namespace, 1)
+	deleteConfigsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
+	deleteSecretsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
+}
+
+func deploymentDeployStable(templateData TemplateData, params Params)
+{
+	scaleCanaryDeployment(templateData.Name, templateData.Namespace, 0)
+	deleteResourcesForTypeSwitch(templateData.Name, templateData.Namespace)
+	deleteConfigsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
+	deleteSecretsForParamsChange(params, templateData.NameWithTrack, templateData.Namespace)
+	deleteServiceAccountSecretForParamsChange(params, templateData.GoogleCloudCredentialsAppName, templateData.Namespace)
+	deleteIngressForVisibilityChange(templateData, templateData.Name, templateData.Namespace)
+	removeEstafetteCloudflareAnnotations(templateData, templateData.Name, templateData.Namespace)
+	removeBackendConfigAnnotation(templateData, templateData.Name, templateData.Namespace)
+	deleteBackendConfigAndIAPOauthSecret(templateData, templateData.Name, templateData.Namespace)
+}
+
+func deploymentRollbackCanary(templateData TemplateData) {
+	scaleCanaryDeployment(templateData.Name, templateData.Namespace, 0)
 }
 
 func assistTroubleshooting() {
