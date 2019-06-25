@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	AlertsURL = "https://prometheus-staging.travix.com/api/v1/alerts"
+	alertsURL = "https://prometheus-staging.travix.com/api/v1/alerts"
 )
 
 var myClient = &http.Client{Timeout: 10 * time.Second}
@@ -19,12 +19,9 @@ func checkAlerts(params BabysitterParams) (bool, error) {
 	for {
 		alerted, err := wasAlerted(params.PrometheusAlerts)
 
-		if err != nil {
+		if alerted || err != nil {
+			//TODO: slack message
 			return false, err
-		}
-
-		if alerted {
-			return false, nil
 		}
 
 		if start.After(endgame) {
@@ -39,7 +36,7 @@ func wasAlerted(alertTypes []string) (bool, error) {
 
 	alerts := new(alertsResponse)
 
-	err := getJSON(AlertsURL, alerts)
+	err := getJSON(alertsURL, alerts)
 
 	if err != nil {
 		return false, err
@@ -63,7 +60,7 @@ func wasAlerted(alertTypes []string) (bool, error) {
 func getJSON(url string, target interface{}) error {
 
 	req, _ := http.NewRequest("GET", url, nil)
-	req.Header.Set("Authorization", AUTH_TOKEN)
+	req.Header.Set("Authorization", authToken)
 
 	r, err := myClient.Do(req)
 	if err != nil {
