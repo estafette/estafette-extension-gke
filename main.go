@@ -587,7 +587,7 @@ func removeBackendConfigAnnotation(templateData TemplateData, name, namespace st
 
 func getCurrentDeploymentVersion(params Params, name, namespace string) string {
 	if params.Kind == "deployment" && params.Action == "deploy-stable" {
-		version, err := getCommandOutput("kubectl", []string{"get", "deployment", name, "-n", namespace, "-o=jsonpath={.spec.template.metadata.labels.version}")
+		version, err := getCommandOutput("kubectl", []string{"get", "deployment", name, "-n", namespace, "-o=jsonpath={.spec.template.metadata.labels.version}"})
 		if err != nil {
 			logInfo("Failed retrieving deployment version: %v", err)
 		}
