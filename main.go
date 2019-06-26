@@ -193,8 +193,10 @@ func main() {
 		}
 		// deploy-stable
 
+		// rollback stable
+		//previousVersion := getCurrentDeploymentVersion(params, templateData.Name, templateData.Namespace)
+		//
 		sendNotifications("succeeded")
-
 		paramsCopy.Action = "rollback-canary"
 		templateDataRollbackCanary, tmplRollbackCanary := generateKubernetesYaml(paramsCopy)
 		applyKubernetesYaml(paramsCopy, templateDataRollbackCanary, tmplRollbackCanary)
@@ -582,6 +584,18 @@ func removeBackendConfigAnnotation(templateData TemplateData, name, namespace st
 		runCommand("kubectl", []string{"annotate", "svc", name, "-n", namespace, "beta.cloud.google.com/backend-config-"})
 	}
 }
+
+func getCurrentDeploymentVersion(params Params, name, namespace string) string {
+	if params.Kind == "deployment" && params.Action == "deploy-stable" {
+		version, err := getCommandOutput("kubectl", []string{"get", "deployment", name, "-n", namespace, "-o=jsonpath={.spec.template.metadata.labels.version}")
+		if err != nil {
+			logInfo("Failed retrieving deployment version: %v", err)
+		}
+		return version
+	}
+	return ""
+}
+
 
 func handleError(err error) {
 	if err != nil {
