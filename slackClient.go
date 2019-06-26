@@ -57,7 +57,7 @@ func sendSlackNotification(title, message, status string) (err error) {
 
 	data, err := json.Marshal(slackMessageBody)
 	if err != nil {
-		logInfo("Failed marshalling SlackMessageBody: %v. Error: %v", data, err)
+		logInfo("Failed marshalling SlackMessageBody: %v. Error: %v", slackMessageBody, err)
 		return
 	}
 	requestBody = bytes.NewReader(data)
