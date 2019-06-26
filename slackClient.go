@@ -14,7 +14,7 @@ var (
 	webhookURL = "https://hooks.slack.com/services/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"
 )
 
-func sendNotifications(status string, stage string, params *Params) {
+func sendNotifications(status string, stage string, params Params) {
 	var message = ""
 	switch status {
 	case "succeeded":

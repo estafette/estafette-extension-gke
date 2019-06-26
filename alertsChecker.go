@@ -17,7 +17,7 @@ func getAlertURL(namespace string) string {
 	}
 }
 
-func checkAlerts(params *Params) (bool, error) {
+func checkAlerts(params Params) (bool, error) {
 	alertsURL := getAlertURL(params.Namespace)
 	endgame := time.Now().Add(time.Second * time.Duration(params.Babysitter.WatchTimeSec))
 
