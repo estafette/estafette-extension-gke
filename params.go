@@ -48,6 +48,7 @@ type Params struct {
 	Sidecar                SidecarParams       `json:"sidecar,omitempty"`
 	Sidecars               []*SidecarParams    `json:"sidecars,omitempty"`
 	RollingUpdate          RollingUpdateParams `json:"rollingupdate,omitempty"`
+	Babysitter             BabysitterParams    `json:"babysitter,omitempty"`
 }
 
 // ContainerParams defines the container image to deploy
@@ -181,6 +182,13 @@ type VolumeMountParams struct {
 	Name      string                 `json:"name,omitempty"`
 	MountPath string                 `json:"mountpath,omitempty"`
 	Volume    map[string]interface{} `json:"volume,omitempty"`
+}
+
+// BabysitterParams monitor the canary release and does rollout or rollback
+type BabysitterParams struct {
+	PrometheusAlerts []string `json:"prometheusalerts,omitempty"`
+	SlackChannels    []string `json:"slackchannels,omitempty"`
+	WatchTimeSec     int      `json:"watchtimesec,omitempty"`
 }
 
 // SetDefaults fills in empty fields with convention-based defaults

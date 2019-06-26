@@ -23,8 +23,9 @@ func TestInjectSteps(t *testing.T) {
 		err = tmpl.Execute(&renderedTemplate, data)
 
 		assert.Nil(t, err)
-		assert.Equal(t, "apiVersion: v1\nkind: Namespace\nmetadata:\n  name: mynamespace", renderedTemplate.String())
-		assert.True(t, strings.Contains(renderedTemplate.String(), "mynamespace"))
+		renderedTemplateStr := strings.Replace(renderedTemplate.String(), "\r\n", "\n", -1)
+		assert.Equal(t, "apiVersion: v1\nkind: Namespace\nmetadata:\n  name: mynamespace", renderedTemplateStr)
+		assert.True(t, strings.Contains(renderedTemplateStr, "mynamespace"))
 	})
 
 	t.Run("RenderServiceAccount", func(t *testing.T) {
@@ -44,8 +45,9 @@ func TestInjectSteps(t *testing.T) {
 		err = tmpl.Execute(&renderedTemplate, data)
 
 		assert.Nil(t, err)
-		assert.Equal(t, "apiVersion: v1\nkind: ServiceAccount\nmetadata:\n  name: myapp\n  namespace: mynamespace\n  labels:\n    app: myapp\n    team: myteam", renderedTemplate.String())
-		assert.True(t, strings.Contains(renderedTemplate.String(), "mynamespace"))
+		renderedTemplateStr := strings.Replace(renderedTemplate.String(), "\r\n", "\n", -1)
+		assert.Equal(t, "apiVersion: v1\nkind: ServiceAccount\nmetadata:\n  name: myapp\n  namespace: mynamespace\n  labels:\n    app: myapp\n    team: myteam", renderedTemplateStr)
+		assert.True(t, strings.Contains(renderedTemplateStr, "mynamespace"))
 	})
 
 	t.Run("RenderHorizontalPodAutoscaler", func(t *testing.T) {
@@ -69,7 +71,8 @@ func TestInjectSteps(t *testing.T) {
 		err = tmpl.Execute(&renderedTemplate, data)
 
 		assert.Nil(t, err)
-		assert.Equal(t, "apiVersion: autoscaling/v1\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: myapp-canary\n  namespace: mynamespace\n  labels:\n    app: myapp\n    team: myteam\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: myapp-canary\n  minReplicas: 3\n  maxReplicas: 19\n  targetCPUUtilizationPercentage: 65", renderedTemplate.String())
-		assert.True(t, strings.Contains(renderedTemplate.String(), "mynamespace"))
+		renderedTemplateStr := strings.Replace(renderedTemplate.String(), "\r\n", "\n", -1)
+		assert.Equal(t, "apiVersion: autoscaling/v1\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: myapp-canary\n  namespace: mynamespace\n  labels:\n    app: myapp\n    team: myteam\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: myapp-canary\n  minReplicas: 3\n  maxReplicas: 19\n  targetCPUUtilizationPercentage: 65", renderedTemplateStr)
+		assert.True(t, strings.Contains(renderedTemplateStr, "mynamespace"))
 	})
 }
