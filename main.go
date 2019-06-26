@@ -183,23 +183,38 @@ func main() {
 	runCommand("gcloud", clustersGetCredentialsArsgs)
 
 	if params.Action == "deploy-babysit" {
+		logInfo("Run deployment with babysitter...")
 		paramsCopy := params
 		paramsCopy.Action = "deploy-canary"
 		templateDataDeployCanary, tmplDeployCanary := generateKubernetesYaml(paramsCopy)
 		applyKubernetesYaml(paramsCopy, templateDataDeployCanary, tmplDeployCanary)
 		deployed, err := checkAlerts(&paramsCopy)
 		if !deployed || err != nil {
-			//rollback canary
+			logInfo("Canary deployment is failed, rollback it...")
+			paramsCopy.Action = "rollback-canary"
+			templateDataRollbackCanary, tmplRollbackCanary := generateKubernetesYaml(paramsCopy)
+			applyKubernetesYaml(paramsCopy, templateDataRollbackCanary, tmplRollbackCanary)
+			sendNotifications("rollback canary")
+			return
 		}
-		// deploy-stable
-
+		sendNotifications("canary succeeded")
+		logInfo("Canary deployment is successfull, rollout stable...")
+		paramsCopy.Action = "deploy-stable"
+		templateDataDeployStable, tmplDeployStable := generateKubernetesYaml(paramsCopy)
+		previousVersion := getCurrentDeploymentVersion(params, templateDataDeployStable.Name, templateDataDeployStable.Namespace)
+		applyKubernetesYaml(paramsCopy, templateDataDeployStable, tmplDeployStable)
+		deployed, err = checkAlerts(&paramsCopy)
 		// rollback stable
-		//previousVersion := getCurrentDeploymentVersion(params, templateData.Name, templateData.Namespace)
-		//
-		sendNotifications("succeeded")
-		paramsCopy.Action = "rollback-canary"
-		templateDataRollbackCanary, tmplRollbackCanary := generateKubernetesYaml(paramsCopy)
-		applyKubernetesYaml(paramsCopy, templateDataRollbackCanary, tmplRollbackCanary)
+		if !deployed || err != nil {
+			logInfo("Stable deployment is failed, rollback to version " + previousVersion)
+			paramsCopy.Action = "deploy-stable"
+			paramsCopy.BuildVersion = previousVersion
+			templateDataDeployStable, tmplDeployStable := generateKubernetesYaml(paramsCopy)
+			applyKubernetesYaml(paramsCopy, templateDataDeployStable, tmplDeployStable)
+			sendNotifications("rollback stable")
+			return
+		}
+		sendNotifications("stable succeeded")
 	} else {
 		templateData, tmpl := generateKubernetesYaml(params)
 		applyKubernetesYaml(params, templateData, tmpl)
@@ -595,7 +610,6 @@ func getCurrentDeploymentVersion(params Params, name, namespace string) string {
 	}
 	return ""
 }
-
 
 func handleError(err error) {
 	if err != nil {
