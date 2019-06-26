@@ -14,23 +14,23 @@ var (
 	webhookURL = "https://hooks.slack.com/services/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"
 )
 
-// func sendNotifications(status string) {
-// 	var message = ""
-// 	switch status {
-// 	case "succeeded":
-// 		message = "good"
-// 	case "failed":
-// 		message = "Your last deployment generate too many errors... rolling back"
-// 	}
+func sendNotifications(status string) {
+	var message = ""
+	switch status {
+	case "succeeded":
+		message = "good"
+	case "failed":
+		message = "Your last deployment generate too many errors... rolling back"
+	}
 
-// 	//send slack notification
-// 	var channels [1]string
+	//send slack notification
+	var channels [1]string
 
-// 	for i := range channels {
-// 		err := sendSlackNotification(channels[i], "To many errors!", message, status)
-// 		log.Fatal(err)
-// 	}
-// }
+	for i := range channels {
+		err := sendSlackNotification(channels[i], "To many errors!", message, status)
+		log.Fatal(err)
+	}
+}
 
 func sendSlackNotification(channel, title, message, status string) (err error) {
 
