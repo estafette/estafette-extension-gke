@@ -25,7 +25,7 @@ func sendNotifications(status string, stage string, params Params) {
 		title = "Too many errors!"
 	}
 
-	err := sendSlackNotification(title, message, status)
+	sendSlackNotification(title, message, status)
 }
 
 func sendSlackNotification(title, message, status string) (err error) {
