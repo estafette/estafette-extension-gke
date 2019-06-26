@@ -14,25 +14,24 @@ var (
 	webhookURL = "https://hooks.slack.com/services/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"
 )
 
-func sendNotifications(status string) {
+func sendNotifications(status string, stage string, params Params) {
 	var message = ""
+	var title = ""
 	switch status {
 	case "succeeded":
 		message = "good"
+		title = "Successful deployment"
 	case "failed":
-		message = "Your last deployment generate too many errors... rolling back"
+		message = "Your last deployment of" + params.App + stage + "generate too many errors... rolling back"
+		title = "Too many errors!"
 	}
 
-	//send slack notification
-	var channels [1]string
+	err := sendSlackNotification(title, message, status)
+	logInfo(err)
 
-	for i := range channels {
-		err := sendSlackNotification(channels[i], "To many errors!", message, status)
-		log.Fatal(err)
-	}
 }
 
-func sendSlackNotification(channel, title, message, status string) (err error) {
+func sendSlackNotification(title, message, status string) (err error) {
 
 	var requestBody io.Reader
 
@@ -45,7 +44,6 @@ func sendSlackNotification(channel, title, message, status string) (err error) {
 	}
 
 	slackMessageBody := SlackMessageBody{
-		Channel:  channel,
 		Username: "Mary Poppins",
 		Attachments: []SlackMessageAttachment{
 			SlackMessageAttachment{
@@ -60,7 +58,7 @@ func sendSlackNotification(channel, title, message, status string) (err error) {
 
 	data, err := json.Marshal(slackMessageBody)
 	if err != nil {
-		log.Printf("Failed marshalling SlackMessageBody: %v. Error: %v", slackMessageBody, err)
+		logInfo("Failed marshalling SlackMessageBody: %v. Error: %v", slackMessageBody, err)
 		return
 	}
 	requestBody = bytes.NewReader(data)
@@ -71,7 +69,7 @@ func sendSlackNotification(channel, title, message, status string) (err error) {
 	client.KeepLog = true
 	request, err := http.NewRequest("POST", webhookURL, requestBody)
 	if err != nil {
-		log.Printf("Failed creating http client: %v", err)
+		logInfo("Failed creating http client: %v", err)
 		return
 	}
 
@@ -81,7 +79,7 @@ func sendSlackNotification(channel, title, message, status string) (err error) {
 	// perform actual request
 	response, err := client.Do(request)
 	if err != nil {
-		log.Printf("Failed performing http request to Slack: %v", err)
+		logInfo("Failed performing http request to Slack: %v", err)
 		return
 	}
 

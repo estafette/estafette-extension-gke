@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -17,7 +18,7 @@ func getAlertURL(namespace string) string {
 	}
 }
 
-func checkAlerts(params *Params) (bool, error) {
+func checkAlerts(params Params) (bool, error) {
 	alertsURL := getAlertURL(params.Namespace)
 	endgame := time.Now().Add(time.Second * time.Duration(params.Babysitter.WatchTimeSec))
 
@@ -25,11 +26,14 @@ func checkAlerts(params *Params) (bool, error) {
 		alerted, err := wasAlerted(params.Babysitter.PrometheusAlerts, alertsURL)
 
 		if alerted || err != nil {
-			//TODO: slack message
+			alertedStr := strconv.FormatBool(alerted)
+			logInfo("Checking alerts failed. Alerted: "+alertedStr+" With errors: ", err)
+
 			return false, err
 		}
 
 		if time.Now().After(endgame) {
+			logInfo("Checking alerts passed, no errors found")
 			return true, nil
 		}
 
