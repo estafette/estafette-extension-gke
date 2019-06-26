@@ -3,8 +3,8 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
-	"log"
 	"net/http"
 
 	"github.com/sethgrid/pester"
@@ -27,8 +27,7 @@ func sendNotifications(status string, stage string, params Params) {
 	}
 
 	err := sendSlackNotification(title, message, status)
-	logInfo(err)
-
+	logInfo(fmt.Sprintln(err))
 }
 
 func sendSlackNotification(title, message, status string) (err error) {
