@@ -19,10 +19,10 @@ func sendNotifications(status string, stage string, params Params) {
 	var title = ""
 	switch status {
 	case "succeeded":
-		message = "good"
-		title = "Successful deployment"
+		message = "Successful deployment of " + params.App + " " + stage
+		title = params.App + " " + stage + " deployed"
 	case "failed":
-		message = "Your last deployment of" + params.App + stage + "generate too many errors... rolling back"
+		message = "Your last deployment of " + params.App + " " + stage + " generate too many errors... rolling back"
 		title = "Too many errors!"
 	}
 
