@@ -23,7 +23,7 @@ func checkAlerts(params Params) (bool, error) {
 	endgame := time.Now().Add(time.Second * time.Duration(params.Babysitter.WatchTimeSec))
 
 	for {
-		alerted, err := wasAlerted(params.Babysitter.PrometheusAlerts, alertsURL)
+		alerted, err := wasAlerted(params.Babysitter.PrometheusAlerts, alertsURL, params.Babysitter.PrometheusToken)
 
 		if alerted || err != nil {
 			alertedStr := strconv.FormatBool(alerted)
@@ -41,10 +41,10 @@ func checkAlerts(params Params) (bool, error) {
 	}
 }
 
-func wasAlerted(alertTypes []string, alertsURL string) (bool, error) {
+func wasAlerted(alertTypes []string, alertsURL string, authToken string) (bool, error) {
 
 	alerts := new(alertsResponse)
-	err := getJSON(alertsURL, alerts)
+	err := getJSON(alertsURL, alerts, authToken)
 
 	if err != nil {
 		return false, err
@@ -65,7 +65,7 @@ func wasAlerted(alertTypes []string, alertsURL string) (bool, error) {
 	return false, nil
 }
 
-func getJSON(url string, target interface{}) error {
+func getJSON(url string, target interface{}, authToken string) error {
 
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("Authorization", authToken)

@@ -187,8 +187,8 @@ type VolumeMountParams struct {
 // BabysitterParams monitor the canary release and does rollout or rollback
 type BabysitterParams struct {
 	PrometheusAlerts []string `json:"prometheusalerts,omitempty"`
-	SlackChannels    []string `json:"slackchannels,omitempty"`
 	WatchTimeSec     int      `json:"watchtimesec,omitempty"`
+	PrometheusToken  string   `json:"prometheustoken,omitempty"`
 }
 
 // SetDefaults fills in empty fields with convention-based defaults
