@@ -16,18 +16,21 @@ var (
 
 func sendNotifications(status string, stage string, params *Params) {
 	var message = ""
+	var title = ""
 	switch status {
 	case "succeeded":
 		message = "good"
+		title = "Successful deployment"
 	case "failed":
 		message = "Your last deployment of" + params.App + stage + "generate too many errors... rolling back"
+		title = "To many errors!"
 	}
 
 	//send slack notification
 	channels := params.Babysitter.SlackChannels
 
 	for i := range channels {
-		err := sendSlackNotification(channels[i], "To many errors!", message, status)
+		err := sendSlackNotification(channels[i], title, message, status)
 		log.Fatal(err)
 	}
 }
