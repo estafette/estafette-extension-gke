@@ -26,16 +26,12 @@ func sendNotifications(status string, stage string, params Params) {
 		title = "Too many errors!"
 	}
 
-	//send slack notification
-	channels := params.Babysitter.SlackChannels
+	err := sendSlackNotification(title, message, status)
+	log.Fatal(err)
 
-	for i := range channels {
-		err := sendSlackNotification(channels[i], title, message, status)
-		log.Fatal(err)
-	}
 }
 
-func sendSlackNotification(channel, title, message, status string) (err error) {
+func sendSlackNotification(title, message, status string) (err error) {
 
 	var requestBody io.Reader
 
@@ -48,7 +44,6 @@ func sendSlackNotification(channel, title, message, status string) (err error) {
 	}
 
 	slackMessageBody := SlackMessageBody{
-		Channel:  channel,
 		Username: "Mary Poppins",
 		Attachments: []SlackMessageAttachment{
 			SlackMessageAttachment{
