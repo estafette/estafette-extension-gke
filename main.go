@@ -200,11 +200,15 @@ func main() {
 		logInfo("Canary deployment is successfull, rollout stable...")
 		params.Action = "deploy-stable"
 		templateDataDeployStable, tmplDeployStable := generateKubernetesYaml(params)
-		previousVersion := getCurrentDeploymentVersion(params, templateDataDeployStable.Name, templateDataDeployStable.Namespace)
+		previousVersion := getCurrentDeploymentVersion(params, templateDataDeployStable.NameWithTrack, templateDataDeployStable.Namespace)
 		applyKubernetesYaml(params, templateDataDeployStable, tmplDeployStable)
 		deployed, err = checkAlerts(params)
 		// rollback stable
 		if !deployed || err != nil {
+			if len(previousVersion) == 0 {
+				logInfo("Previous version is empty, ingore rollback")
+				return
+			}
 			logInfo("Stable deployment is failed, rollback to version " + previousVersion)
 			params.Action = "deploy-stable"
 			params.BuildVersion = previousVersion
@@ -579,9 +583,9 @@ func removeBackendConfigAnnotation(templateData TemplateData, name, namespace st
 	}
 }
 
-func getCurrentDeploymentVersion(params Params, name, namespace string) string {
-	if params.Kind == "deployment" && params.Action == "deploy-stable" {
-		version, err := getCommandOutput("kubectl", []string{"get", "deployment", name, "-n", namespace, "-o=jsonpath={.spec.template.metadata.labels.version}"})
+func getCurrentDeploymentVersion(params Params, nameWithTrack, namespace string) string {
+	if params.Kind == "deployment"{
+		version, err := getCommandOutput("kubectl", []string{"get", "deployment", nameWithTrack, "-n", namespace, "-o=jsonpath={.spec.template.metadata.labels.version}"})
 		if err != nil {
 			logInfo("Failed retrieving deployment version: %v", err)
 		}

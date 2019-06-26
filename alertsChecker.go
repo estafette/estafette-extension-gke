@@ -21,9 +21,8 @@ func getAlertURL(namespace string) string {
 func checkAlerts(params Params) (bool, error) {
 	alertsURL := getAlertURL(params.Namespace)
 	endgame := time.Now().Add(time.Second * time.Duration(params.Babysitter.WatchTimeSec))
-	logInfo("Starting monitoring for alerts...")
+	logInfo("Starting monitoring for alerts for %d sec ...", params.Babysitter.WatchTimeSec)
 	for {
-		logInfo("Monitoring...")
 		alerted, err := wasAlerted(params.Babysitter.PrometheusAlerts, alertsURL, params.Babysitter.PrometheusToken)
 
 		if alerted || err != nil {
