@@ -27,8 +27,6 @@ func sendNotifications(status string, stage string, params Params) {
 	}
 
 	err := sendSlackNotification(title, message, status)
-	logInfo(err)
-
 }
 
 func sendSlackNotification(title, message, status string) (err error) {
@@ -58,7 +56,7 @@ func sendSlackNotification(title, message, status string) (err error) {
 
 	data, err := json.Marshal(slackMessageBody)
 	if err != nil {
-		logInfo("Failed marshalling SlackMessageBody: %v. Error: %v", slackMessageBody, err)
+		logInfo("Failed marshalling SlackMessageBody: %v. Error: %v")
 		return
 	}
 	requestBody = bytes.NewReader(data)
@@ -69,7 +67,7 @@ func sendSlackNotification(title, message, status string) (err error) {
 	client.KeepLog = true
 	request, err := http.NewRequest("POST", webhookURL, requestBody)
 	if err != nil {
-		logInfo("Failed creating http client: %v", err)
+		logInfo("Failed creating http client: %v")
 		return
 	}
 
@@ -79,7 +77,7 @@ func sendSlackNotification(title, message, status string) (err error) {
 	// perform actual request
 	response, err := client.Do(request)
 	if err != nil {
-		logInfo("Failed performing http request to Slack: %v", err)
+		logInfo("Failed performing http request to Slack: %v")
 		return
 	}
 
