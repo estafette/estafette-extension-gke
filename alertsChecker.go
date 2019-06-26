@@ -25,7 +25,6 @@ func checkAlerts(params *Params) (bool, error) {
 		alerted, err := wasAlerted(params.Babysitter.PrometheusAlerts, alertsURL)
 
 		if alerted || err != nil {
-			//TODO: slack message
 			return false, err
 		}
 

@@ -194,10 +194,10 @@ func main() {
 			paramsCopy.Action = "rollback-canary"
 			templateDataRollbackCanary, tmplRollbackCanary := generateKubernetesYaml(paramsCopy)
 			applyKubernetesYaml(paramsCopy, templateDataRollbackCanary, tmplRollbackCanary)
-			sendNotifications("rollback canary")
+			sendNotifications("failed", "canary", &paramsCopy)
 			return
 		}
-		sendNotifications("canary succeeded")
+		sendNotifications("succeeded", "canary", &paramsCopy)
 		logInfo("Canary deployment is successfull, rollout stable...")
 		paramsCopy.Action = "deploy-stable"
 		templateDataDeployStable, tmplDeployStable := generateKubernetesYaml(paramsCopy)
@@ -211,10 +211,10 @@ func main() {
 			paramsCopy.BuildVersion = previousVersion
 			templateDataDeployStable, tmplDeployStable := generateKubernetesYaml(paramsCopy)
 			applyKubernetesYaml(paramsCopy, templateDataDeployStable, tmplDeployStable)
-			sendNotifications("rollback stable")
+			sendNotifications("failed", "stable", &paramsCopy)
 			return
 		}
-		sendNotifications("stable succeeded")
+		sendNotifications("succeeded", "stable", &paramsCopy)
 	} else {
 		templateData, tmpl := generateKubernetesYaml(params)
 		applyKubernetesYaml(params, templateData, tmpl)

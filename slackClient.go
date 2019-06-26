@@ -14,17 +14,17 @@ var (
 	webhookURL = "https://hooks.slack.com/services/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"
 )
 
-func sendNotifications(status string) {
+func sendNotifications(status string, stage string, params *Params) {
 	var message = ""
 	switch status {
 	case "succeeded":
 		message = "good"
 	case "failed":
-		message = "Your last deployment generate too many errors... rolling back"
+		message = "Your last deployment of" + params.App + stage + "generate too many errors... rolling back"
 	}
 
 	//send slack notification
-	var channels [1]string
+	channels := params.Babysitter.SlackChannels
 
 	for i := range channels {
 		err := sendSlackNotification(channels[i], "To many errors!", message, status)
