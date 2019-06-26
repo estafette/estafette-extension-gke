@@ -185,7 +185,7 @@ func main() {
 		paramsCopy.Action = "deploy-canary"
 		templateDataDeployCanary, tmplDeployCanary := generateKubernetesYaml(paramsCopy)
 		applyKubernetesYaml(paramsCopy, templateDataDeployCanary, tmplDeployCanary)
-		deployed, err := checkAlerts(paramsCopy.Babysitter)
+		deployed, err := checkAlerts(&paramsCopy)
 		if !deployed || err != nil {
 			//rollback canary
 		}

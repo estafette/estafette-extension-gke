@@ -6,18 +6,24 @@ import (
 	"time"
 )
 
-var (
-	alertsURL = "https://prometheus-staging.travix.com/api/v1/alerts"
-)
-
 var myClient = &http.Client{Timeout: 10 * time.Second}
 
-func checkAlerts(params BabysitterParams) (bool, error) {
+func getAlertURL(namespace string) string {
+	switch namespace {
+	case "production":
+		return "https://prometheus-production.travix.com/api/v1/alerts"
+	default:
+		return "https://prometheus-staging.travix.com/api/v1/alerts"
+	}
+}
+
+func checkAlerts(params *Params) (bool, error) {
 	start := time.Now()
-	endgame := start.Add(time.Second * time.Duration(params.WatchTimeSec))
+	alertsURL := getAlertURL(params.Namespace)
+	endgame := start.Add(time.Second * time.Duration(params.Babysitter.WatchTimeSec))
 
 	for {
-		alerted, err := wasAlerted(params.PrometheusAlerts)
+		alerted, err := wasAlerted(params.Babysitter.PrometheusAlerts, alertsURL)
 
 		if alerted || err != nil {
 			//TODO: slack message
@@ -32,10 +38,9 @@ func checkAlerts(params BabysitterParams) (bool, error) {
 	}
 }
 
-func wasAlerted(alertTypes []string) (bool, error) {
+func wasAlerted(alertTypes []string, alertsURL string) (bool, error) {
 
 	alerts := new(alertsResponse)
-
 	err := getJSON(alertsURL, alerts)
 
 	if err != nil {
