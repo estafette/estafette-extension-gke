@@ -184,37 +184,36 @@ func main() {
 
 	if params.Action == "deploy-babysit" {
 		logInfo("Run deployment with babysitter...")
-		paramsCopy := params
-		paramsCopy.Action = "deploy-canary"
-		templateDataDeployCanary, tmplDeployCanary := generateKubernetesYaml(paramsCopy)
-		applyKubernetesYaml(paramsCopy, templateDataDeployCanary, tmplDeployCanary)
-		deployed, err := checkAlerts(paramsCopy)
+		params.Action = "deploy-canary"
+		templateDataDeployCanary, tmplDeployCanary := generateKubernetesYaml(params)
+		applyKubernetesYaml(params, templateDataDeployCanary, tmplDeployCanary)
+		deployed, err := checkAlerts(params)
 		if !deployed || err != nil {
 			logInfo("Canary deployment is failed, rollback it...")
-			paramsCopy.Action = "rollback-canary"
-			templateDataRollbackCanary, tmplRollbackCanary := generateKubernetesYaml(paramsCopy)
-			applyKubernetesYaml(paramsCopy, templateDataRollbackCanary, tmplRollbackCanary)
-			sendNotifications("failed", "canary", paramsCopy)
+			params.Action = "rollback-canary"
+			templateDataRollbackCanary, tmplRollbackCanary := generateKubernetesYaml(params)
+			applyKubernetesYaml(params, templateDataRollbackCanary, tmplRollbackCanary)
+			sendNotifications("failed", "canary", params)
 			return
 		}
-		sendNotifications("succeeded", "canary", paramsCopy)
+		sendNotifications("succeeded", "canary", params)
 		logInfo("Canary deployment is successfull, rollout stable...")
-		paramsCopy.Action = "deploy-stable"
-		templateDataDeployStable, tmplDeployStable := generateKubernetesYaml(paramsCopy)
+		params.Action = "deploy-stable"
+		templateDataDeployStable, tmplDeployStable := generateKubernetesYaml(params)
 		previousVersion := getCurrentDeploymentVersion(params, templateDataDeployStable.Name, templateDataDeployStable.Namespace)
-		applyKubernetesYaml(paramsCopy, templateDataDeployStable, tmplDeployStable)
-		deployed, err = checkAlerts(paramsCopy)
+		applyKubernetesYaml(params, templateDataDeployStable, tmplDeployStable)
+		deployed, err = checkAlerts(params)
 		// rollback stable
 		if !deployed || err != nil {
 			logInfo("Stable deployment is failed, rollback to version " + previousVersion)
-			paramsCopy.Action = "deploy-stable"
-			paramsCopy.BuildVersion = previousVersion
-			templateDataDeployStable, tmplDeployStable := generateKubernetesYaml(paramsCopy)
-			applyKubernetesYaml(paramsCopy, templateDataDeployStable, tmplDeployStable)
-			sendNotifications("failed", "stable", paramsCopy)
+			params.Action = "deploy-stable"
+			params.BuildVersion = previousVersion
+			templateDataDeployStable, tmplDeployStable := generateKubernetesYaml(params)
+			applyKubernetesYaml(params, templateDataDeployStable, tmplDeployStable)
+			sendNotifications("failed", "stable", params)
 			return
 		}
-		sendNotifications("succeeded", "stable", paramsCopy)
+		sendNotifications("succeeded", "stable", params)
 	} else {
 		templateData, tmpl := generateKubernetesYaml(params)
 		applyKubernetesYaml(params, templateData, tmpl)
