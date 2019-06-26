@@ -280,6 +280,26 @@ stages:
       status == 'failed'
 
 releases:
+  babysitter:
+    stages:
+      tag-container-image:
+        image: extensions/docker:stable
+        action: tag
+        container: gke
+        repositories:
+        - extensions
+        tags:
+        - babysitter
+
+      slack-notify:
+        image: extensions/slack-build-status:dev
+        workspace: estafette
+        channels:
+        - '#release-status'
+        when:
+          status == 'succeeded' ||
+          status == 'failed'
+
   beta:
     stages:
       tag-container-image:
