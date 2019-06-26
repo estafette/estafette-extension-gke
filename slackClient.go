@@ -23,7 +23,7 @@ func sendNotifications(status string, stage string, params *Params) {
 		title = "Successful deployment"
 	case "failed":
 		message = "Your last deployment of" + params.App + stage + "generate too many errors... rolling back"
-		title = "To many errors!"
+		title = "Too many errors!"
 	}
 
 	//send slack notification
