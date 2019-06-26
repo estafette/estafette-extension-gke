@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -25,10 +26,14 @@ func checkAlerts(params Params) (bool, error) {
 		alerted, err := wasAlerted(params.Babysitter.PrometheusAlerts, alertsURL)
 
 		if alerted || err != nil {
+			alertedStr := strconv.FormatBool(alerted)
+			logInfo("Checking alerts failed. Alerted: "+alertedStr+" With errors: ", err)
+
 			return false, err
 		}
 
 		if time.Now().After(endgame) {
+			logInfo("Checking alerts passed, no errors found")
 			return true, nil
 		}
 
