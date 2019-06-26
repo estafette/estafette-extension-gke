@@ -18,9 +18,8 @@ func getAlertURL(namespace string) string {
 }
 
 func checkAlerts(params *Params) (bool, error) {
-	start := time.Now()
 	alertsURL := getAlertURL(params.Namespace)
-	endgame := start.Add(time.Second * time.Duration(params.Babysitter.WatchTimeSec))
+	endgame := time.Now().Add(time.Second * time.Duration(params.Babysitter.WatchTimeSec))
 
 	for {
 		alerted, err := wasAlerted(params.Babysitter.PrometheusAlerts, alertsURL)
@@ -30,7 +29,7 @@ func checkAlerts(params *Params) (bool, error) {
 			return false, err
 		}
 
-		if start.After(endgame) {
+		if time.Now().After(endgame) {
 			return true, nil
 		}
 
