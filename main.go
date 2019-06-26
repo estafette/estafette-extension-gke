@@ -190,6 +190,8 @@ func main() {
 		deployed, err := checkAlerts(&paramsCopy)
 		if !deployed || err != nil {
 			//rollback canary
+			sendNotifications("failed")
+
 		}
 		// deploy-stable
 
@@ -197,6 +199,7 @@ func main() {
 		//previousVersion := getCurrentDeploymentVersion(params, templateData.Name, templateData.Namespace)
 		//
 		sendNotifications("succeeded")
+
 		paramsCopy.Action = "rollback-canary"
 		templateDataRollbackCanary, tmplRollbackCanary := generateKubernetesYaml(paramsCopy)
 		applyKubernetesYaml(paramsCopy, templateDataRollbackCanary, tmplRollbackCanary)
@@ -595,7 +598,6 @@ func getCurrentDeploymentVersion(params Params, name, namespace string) string {
 	}
 	return ""
 }
-
 
 func handleError(err error) {
 	if err != nil {
