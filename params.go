@@ -711,6 +711,8 @@ func (p *Params) validateSidecar(sidecar *SidecarParams, errors []error) []error
 		if sidecar.SQLProxyPort == 0 {
 			errors = append(errors, fmt.Errorf("The port on which the Cloud SQL Proxy listens is required; set it via sidecar.sqlproxyport property on this stage"))
 		}
+	case "":
+		errors = append(errors, fmt.Errorf("The sidecar type is empty; set a type"))
 	}
 
 	if sidecar.Image == "" {

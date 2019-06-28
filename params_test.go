@@ -2899,16 +2899,30 @@ func TestValidateRequiredProperties(t *testing.T) {
 		assert.True(t, len(errors) == 0)
 	})
 
-	t.Run("ReturnsTrueForAnySidecar", func(t *testing.T) {
+	t.Run("ReturnsFalseSidecarTypeIsEmpty", func(t *testing.T) {
 
 		params := validParams
-		params.Sidecar.Type = "unknownsidecar"
+
+		params.Sidecars = []*SidecarParams{
+			&SidecarParams{
+				Type:  "",
+				Image: "docker",
+				CPU: CPUParams{
+					Request: "10m",
+					Limit:   "50m",
+				},
+				Memory: MemoryParams{
+					Request: "10Mi",
+					Limit:   "50Mi",
+				},
+			},
+		}
 
 		// act
 		valid, errors, _ := params.ValidateRequiredProperties()
 
-		assert.True(t, valid)
-		assert.True(t, len(errors) == 0)
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
 	})
 
 	t.Run("ReturnsTrueIfSidecarTypeIsSet", func(t *testing.T) {
