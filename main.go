@@ -15,6 +15,7 @@ import (
 
 	"github.com/alecthomas/kingpin"
 	"github.com/sethgrid/pester"
+	"gopkg.in/yaml.v2"
 )
 
 var (
@@ -29,6 +30,7 @@ var (
 var (
 	// flags
 	paramsJSON      = kingpin.Flag("params", "Extension parameters, created from custom properties.").Envar("ESTAFETTE_EXTENSION_CUSTOM_PROPERTIES").Required().String()
+	paramsYAML      = kingpin.Flag("params", "Extension parameters, created from custom properties.").Envar("ESTAFETTE_EXTENSION_CUSTOM_PROPERTIES_YAML").Required().String()
 	credentialsJSON = kingpin.Flag("credentials", "GKE credentials configured at service level, passed in to this trusted extension.").Envar("ESTAFETTE_CREDENTIALS_KUBERNETES_ENGINE").Required().String()
 
 	// optional flags
@@ -115,7 +117,7 @@ func main() {
 	}
 
 	logInfo("Unmarshalling parameters / custom properties...")
-	err = json.Unmarshal([]byte(*paramsJSON), &params)
+	err = yaml.Unmarshal([]byte(*paramsYAML), &params)
 	if err != nil {
 		log.Fatal("Failed unmarshalling parameters: ", err)
 	}

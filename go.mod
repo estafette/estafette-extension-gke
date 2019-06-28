@@ -17,5 +17,5 @@ require (
 	github.com/sethgrid/pester v0.0.0-20190127155807-68a33a018ad0
 	github.com/stretchr/testify v1.1.4
 	golang.org/x/crypto v0.0.0-20181030102418-4d3f4d9ffa16 // indirect
-	gopkg.in/yaml.v2 v2.2.1
+	gopkg.in/yaml.v2 v2.2.2
 )

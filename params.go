@@ -10,177 +10,178 @@ import (
 // Params is used to parameterize the deployment, set from custom properties in the manifest
 type Params struct {
 	// control params
-	Action          string          `json:"action,omitempty"`
-	Kind            string          `json:"kind,omitempty"`
-	DryRun          bool            `json:"dryrun,omitempty"`
-	BuildVersion    string          `json:"-"`
-	ChaosProof      bool            `json:"chaosproof,omitempty"`
-	Manifests       ManifestsParams `json:"manifests,omitempty"`
-	TrustedIPRanges []string        `json:"trustedips,omitempty"`
+	Action          string          `json:"action,omitempty" yaml:"action,omitempty"`
+	Kind            string          `json:"kind,omitempty" yaml:"kind,omitempty"`
+	DryRun          bool            `json:"dryrun,omitempty" yaml:"dryrun,omitempty"`
+	BuildVersion    string          `json:"-" yaml:"-"`
+	ChaosProof      bool            `json:"chaosproof,omitempty" yaml:"chaosproof,omitempty"`
+	Manifests       ManifestsParams `json:"manifests,omitempty" yaml:"manifests,omitempty"`
+	TrustedIPRanges []string        `json:"trustedips,omitempty" yaml:"trustedips,omitempty"`
 
 	// app params
-	App                             string              `json:"app,omitempty"`
-	Namespace                       string              `json:"namespace,omitempty"`
-	Schedule                        string              `json:"schedule,omitempty"`
-	ConcurrencyPolicy               string              `json:"concurrencypolicy,omitempty"`
-	Labels                          map[string]string   `json:"labels,omitempty"`
-	Visibility                      string              `json:"visibility,omitempty"`
-	IapOauthCredentialsClientID     string              `json:"iapOauthClientID,omitempty"`
-	IapOauthCredentialsClientSecret string              `json:"iapOauthClientSecret,omitempty"`
-	WhitelistedIPS                  []string            `json:"whitelist,omitempty"`
-	Hosts                           []string            `json:"hosts,omitempty"`
-	InternalHosts                   []string            `json:"internalhosts,omitempty"`
-	Basepath                        string              `json:"basepath,omitempty"`
-	Autoscale                       AutoscaleParams     `json:"autoscale,omitempty"`
-	Request                         RequestParams       `json:"request,omitempty"`
-	Secrets                         SecretsParams       `json:"secrets,omitempty"`
-	Configs                         ConfigsParams       `json:"configs,omitempty"`
-	VolumeMounts                    []VolumeMountParams `json:"volumemounts,omitempty"`
+	App                             string              `json:"app,omitempty" yaml:"app,omitempty"`
+	Namespace                       string              `json:"namespace,omitempty" yaml:"namespace,omitempty"`
+	Schedule                        string              `json:"schedule,omitempty" yaml:"schedule,omitempty"`
+	ConcurrencyPolicy               string              `json:"concurrencypolicy,omitempty" yaml:"concurrencypolicy,omitempty"`
+	Labels                          map[string]string   `json:"labels,omitempty" yaml:"labels,omitempty"`
+	Visibility                      string              `json:"visibility,omitempty" yaml:"visibility,omitempty"`
+	IapOauthCredentialsClientID     string              `json:"iapOauthClientID,omitempty" yaml:"iapOauthClientID,omitempty"`
+	IapOauthCredentialsClientSecret string              `json:"iapOauthClientSecret,omitempty" yaml:"iapOauthClientSecret,omitempty"`
+	WhitelistedIPS                  []string            `json:"whitelist,omitempty" yaml:"whitelist,omitempty"`
+	Hosts                           []string            `json:"hosts,omitempty" yaml:"hosts,omitempty"`
+	InternalHosts                   []string            `json:"internalhosts,omitempty" yaml:"internalhosts,omitempty"`
+	Basepath                        string              `json:"basepath,omitempty" yaml:"basepath,omitempty"`
+	Autoscale                       AutoscaleParams     `json:"autoscale,omitempty" yaml:"autoscale,omitempty"`
+	Request                         RequestParams       `json:"request,omitempty" yaml:"request,omitempty"`
+	Secrets                         SecretsParams       `json:"secrets,omitempty" yaml:"secrets,omitempty"`
+	Configs                         ConfigsParams       `json:"configs,omitempty" yaml:"configs,omitempty"`
+	VolumeMounts                    []VolumeMountParams `json:"volumemounts,omitempty" yaml:"volumemounts,omitempty"`
 
-	EnablePayloadLogging             bool   `json:"enablePayloadLogging,omitempty"`
-	UseGoogleCloudCredentials        bool   `json:"useGoogleCloudCredentials,omitempty"`
-	DisableServiceAccountKeyRotation bool   `json:"disableServiceAccountKeyRotation,omitempty"`
-	GoogleCloudCredentialsApp        string `json:"googleCloudCredentialsApp,omitempty"`
+	EnablePayloadLogging             bool   `json:"enablePayloadLogging,omitempty" yaml:"enablePayloadLogging,omitempty"`
+	UseGoogleCloudCredentials        bool   `json:"useGoogleCloudCredentials,omitempty" yaml:"useGoogleCloudCredentials,omitempty"`
+	DisableServiceAccountKeyRotation bool   `json:"disableServiceAccountKeyRotation,omitempty" yaml:"disableServiceAccountKeyRotation,omitempty"`
+	GoogleCloudCredentialsApp        string `json:"googleCloudCredentialsApp,omitempty" yaml:"googleCloudCredentialsApp,omitempty"`
 
 	// container params
-	Container              ContainerParams     `json:"container,omitempty"`
-	InjectHTTPProxySidecar *bool               `json:"injecthttpproxysidecar,omitempty"`
-	Sidecar                SidecarParams       `json:"sidecar,omitempty"`
-	Sidecars               []*SidecarParams    `json:"sidecars,omitempty"`
-	RollingUpdate          RollingUpdateParams `json:"rollingupdate,omitempty"`
+	Container              ContainerParams     `json:"container,omitempty" yaml:"container,omitempty"`
+	InjectHTTPProxySidecar *bool               `json:"injecthttpproxysidecar,omitempty" yaml:"injecthttpproxysidecar,omitempty"`
+	Sidecar                SidecarParams       `json:"sidecar,omitempty" yaml:"sidecar,omitempty"`
+	Sidecars               []*SidecarParams    `json:"sidecars,omitempty" yaml:"sidecars,omitempty"`
+	RollingUpdate          RollingUpdateParams `json:"rollingupdate,omitempty" yaml:"rollingupdate,omitempty"`
 }
 
 // ContainerParams defines the container image to deploy
 type ContainerParams struct {
-	ImageRepository      string                 `json:"repository,omitempty"`
-	ImageName            string                 `json:"name,omitempty"`
-	ImageTag             string                 `json:"tag,omitempty"`
-	Port                 int                    `json:"port,omitempty"`
-	EnvironmentVariables map[string]interface{} `json:"env,omitempty"`
+	ImageRepository      string                 `json:"repository,omitempty" yaml:"repository,omitempty"`
+	ImageName            string                 `json:"name,omitempty" yaml:"name,omitempty"`
+	ImageTag             string                 `json:"tag,omitempty" yaml:"tag,omitempty"`
+	Port                 int                    `json:"port,omitempty" yaml:"port,omitempty"`
+	EnvironmentVariables map[string]interface{} `json:"env,omitempty" yaml:"env,omitempty"`
 
-	CPU            CPUParams       `json:"cpu,omitempty"`
-	Memory         MemoryParams    `json:"memory,omitempty"`
-	LivenessProbe  ProbeParams     `json:"liveness,omitempty"`
-	ReadinessProbe ProbeParams     `json:"readiness,omitempty"`
-	Metrics        MetricsParams   `json:"metrics,omitempty"`
-	Lifecycle      LifecycleParams `json:"lifecycle,omitempty"`
+	CPU            CPUParams       `json:"cpu,omitempty" yaml:"cpu,omitempty"`
+	Memory         MemoryParams    `json:"memory,omitempty" yaml:"memory,omitempty"`
+	LivenessProbe  ProbeParams     `json:"liveness,omitempty" yaml:"liveness,omitempty"`
+	ReadinessProbe ProbeParams     `json:"readiness,omitempty" yaml:"readiness,omitempty"`
+	Metrics        MetricsParams   `json:"metrics,omitempty" yaml:"metrics,omitempty"`
+	Lifecycle      LifecycleParams `json:"lifecycle,omitempty" yaml:"lifecycle,omitempty"`
 
-	AdditionalPorts []*AdditionalPortParams `json:"additionalports,omitempty"`
+	AdditionalPorts []*AdditionalPortParams `json:"additionalports,omitempty" yaml:"additionalports,omitempty"`
 }
 
 // AdditionalPortParams provides information about any additional ports exposed and accessible via a service
 type AdditionalPortParams struct {
-	Name       string `json:"name,omitempty"`
-	Port       int    `json:"port,omitempty"`
-	Protocol   string `json:"protocol,omitempty"`
-	Visibility string `json:"visibility,omitempty"`
+	Name       string `json:"name,omitempty" yaml:"name,omitempty"`
+	Port       int    `json:"port,omitempty" yaml:"port,omitempty"`
+	Protocol   string `json:"protocol,omitempty" yaml:"protocol,omitempty"`
+	Visibility string `json:"visibility,omitempty" yaml:"visibility,omitempty"`
 }
 
 // CPUParams sets cpu request and limit values
 type CPUParams struct {
-	Request string `json:"request,omitempty"`
-	Limit   string `json:"limit,omitempty"`
+	Request string `json:"request,omitempty" yaml:"request,omitempty"`
+	Limit   string `json:"limit,omitempty" yaml:"limit,omitempty"`
 }
 
 // MemoryParams sets memory request and limit values
 type MemoryParams struct {
-	Request string `json:"request,omitempty"`
-	Limit   string `json:"limit,omitempty"`
+	Request string `json:"request,omitempty" yaml:"request,omitempty"`
+	Limit   string `json:"limit,omitempty" yaml:"limit,omitempty"`
 }
 
 // AutoscaleParams controls autoscaling
 type AutoscaleParams struct {
-	MinReplicas   int                   `json:"min,omitempty"`
-	MaxReplicas   int                   `json:"max,omitempty"`
-	CPUPercentage int                   `json:"cpu,omitempty"`
-	Safety        AutoscaleSafetyParams `json:"safety,omitempty"`
+	MinReplicas   int                   `json:"min,omitempty" yaml:"min,omitempty"`
+	MaxReplicas   int                   `json:"max,omitempty" yaml:"max,omitempty"`
+	CPUPercentage int                   `json:"cpu,omitempty" yaml:"cpu,omitempty"`
+	Safety        AutoscaleSafetyParams `json:"safety,omitempty" yaml:"safety,omitempty"`
 }
 
 // AutoscaleSafetyParams configures the autoscaler to use estafette-hpa-scaler as a safety net
 type AutoscaleSafetyParams struct {
-	Enabled        bool    `json:"enabled,omitempty"`
-	PromQuery      string  `json:"promquery,omitempty"`
-	Ratio          float64 `json:"ratio,string,omitempty"`
-	Delta          float64 `json:"delta,string,omitempty"`
-	ScaleDownRatio float64 `json:"scaledownratio,string,omitempty"`
+	Enabled        bool    `json:"enabled,omitempty" yaml:"enabled,omitempty"`
+	PromQuery      string  `json:"promquery,omitempty" yaml:"promquery,omitempty"`
+	Ratio          float64 `json:"ratio,string,omitempty" yaml:"ratio,omitempty"`
+	Delta          float64 `json:"delta,string,omitempty" yaml:"delta,omitempty"`
+	ScaleDownRatio float64 `json:"scaledownratio,string,omitempty" yaml:"scaledownratio,omitempty"`
 }
 
 // RequestParams controls timeouts, max body size, etc
 type RequestParams struct {
-	Timeout              string `json:"timeout,omitempty"`
-	MaxBodySize          string `json:"maxbodysize,omitempty"`
-	ProxyBufferSize      string `json:"proxybuffersize,omitempty"`
-	ProxyBuffersNumber   int    `json:"proxybuffersnumber,omitempty"`
-	ClientBodyBufferSize string `json:"clientbodybuffersize,omitempty"`
+	Timeout              string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	MaxBodySize          string `json:"maxbodysize,omitempty" yaml:"maxbodysize,omitempty"`
+	ProxyBufferSize      string `json:"proxybuffersize,omitempty" yaml:"proxybuffersize,omitempty"`
+	ProxyBuffersNumber   int    `json:"proxybuffersnumber,omitempty" yaml:"proxybuffersnumber,omitempty"`
+	ClientBodyBufferSize string `json:"clientbodybuffersize,omitempty" yaml:"clientbodybuffersize,omitempty"`
 }
 
 // ProbeParams sets params for liveness or readiness probe
 type ProbeParams struct {
-	Path                string `json:"path,omitempty"`
-	Port                int    `json:"port,omitempty"`
-	InitialDelaySeconds int    `json:"delay,omitempty"`
-	TimeoutSeconds      int    `json:"timeout,omitempty"`
+	Path                string `json:"path,omitempty" yaml:"path,omitempty"`
+	Port                int    `json:"port,omitempty" yaml:"port,omitempty"`
+	InitialDelaySeconds int    `json:"delay,omitempty" yaml:"delay,omitempty"`
+	TimeoutSeconds      int    `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 }
 
 // MetricsParams sets params for scraping prometheus metrics
 type MetricsParams struct {
-	Scrape *bool  `json:"scrape,omitempty"`
-	Path   string `json:"path,omitempty"`
-	Port   int    `json:"port,omitempty"`
+	Scrape *bool  `json:"scrape,omitempty" yaml:"scrape,omitempty"`
+	Path   string `json:"path,omitempty" yaml:"path,omitempty"`
+	Port   int    `json:"port,omitempty" yaml:"port,omitempty"`
 }
 
 // LifecycleParams sets params for lifecycle commands
 type LifecycleParams struct {
-	PrestopSleep        *bool `json:"prestopsleep,omitempty"`
-	PrestopSleepSeconds *int  `json:"prestopsleepseconds,omitempty"`
+	PrestopSleep        *bool `json:"prestopsleep,omitempty" yaml:"prestopsleep,omitempty"`
+	PrestopSleepSeconds *int  `json:"prestopsleepseconds,omitempty" yaml:"prestopsleepseconds,omitempty"`
 }
 
 // SidecarParams sets params for sidecar injection
 type SidecarParams struct {
-	Type                              string                 `json:"type,omitempty"`
-	Image                             string                 `json:"image,omitempty"`
-	EnvironmentVariables              map[string]interface{} `json:"env,omitempty"`
-	CPU                               CPUParams              `json:"cpu,omitempty"`
-	Memory                            MemoryParams           `json:"memory,omitempty"`
-	HealthCheckPath                   string                 `json:"healthcheckpath,omitempty"`
-	DbInstanceConnectionName          string                 `json:"dbinstanceconnectionname,omitempty"`
-	SQLProxyPort                      int                    `json:"sqlproxyport,omitempty"`
-	SQLProxyTerminationTimeoutSeconds int                    `json:"sqlproxyterminationtimeoutseconds,omitempty"`
+	Type                              string                 `json:"type,omitempty" yaml:"type,omitempty"`
+	Image                             string                 `json:"image,omitempty" yaml:"image,omitempty"`
+	EnvironmentVariables              map[string]interface{} `json:"env,omitempty" yaml:"env,omitempty"`
+	CPU                               CPUParams              `json:"cpu,omitempty" yaml:"cpu,omitempty"`
+	Memory                            MemoryParams           `json:"memory,omitempty" yaml:"memory,omitempty"`
+	HealthCheckPath                   string                 `json:"healthcheckpath,omitempty" yaml:"healthcheckpath,omitempty"`
+	DbInstanceConnectionName          string                 `json:"dbinstanceconnectionname,omitempty" yaml:"dbinstanceconnectionname,omitempty"`
+	SQLProxyPort                      int                    `json:"sqlproxyport,omitempty" yaml:"sqlproxyport,omitempty"`
+	SQLProxyTerminationTimeoutSeconds int                    `json:"sqlproxyterminationtimeoutseconds,omitempty" yaml:"sqlproxyterminationtimeoutseconds,omitempty"`
+	CustomProperties                  map[string]interface{} `yaml:",inline"`
 }
 
 // RollingUpdateParams sets params for controlling rolling update speed
 type RollingUpdateParams struct {
-	MaxSurge       string `json:"maxsurge,omitempty"`
-	MaxUnavailable string `json:"maxunavailable,omitempty"`
-	Timeout        string `json:"timeout,omitempty"`
+	MaxSurge       string `json:"maxsurge,omitempty" yaml:"maxsurge,omitempty"`
+	MaxUnavailable string `json:"maxunavailable,omitempty" yaml:"maxunavailable,omitempty"`
+	Timeout        string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 }
 
 // ManifestsParams can be used to override or add additional manifests located in the application repository
 type ManifestsParams struct {
-	Files []string               `json:"files,omitempty"`
-	Data  map[string]interface{} `json:"data,omitempty"`
+	Files []string               `json:"files,omitempty" yaml:"files,omitempty"`
+	Data  map[string]interface{} `json:"data,omitempty" yaml:"data,omitempty"`
 }
 
 // SecretsParams allows secrets to be set dynamically for the application
 type SecretsParams struct {
-	Keys      map[string]interface{} `json:"keys,omitempty"`
-	MountPath string                 `json:"mountpath,omitempty"`
+	Keys      map[string]interface{} `json:"keys,omitempty" yaml:"keys,omitempty"`
+	MountPath string                 `json:"mountpath,omitempty" yaml:"mountpath,omitempty"`
 }
 
 // ConfigsParams allows configs to be set dynamically for the application
 type ConfigsParams struct {
-	Files               []string               `json:"files,omitempty"`
-	Data                map[string]interface{} `json:"data,omitempty"`
-	InlineFiles         map[string]string      `json:"inline,omitempty"`
-	MountPath           string                 `json:"mountpath,omitempty"`
-	RenderedFileContent map[string]string      `json:"-"`
+	Files               []string               `json:"files,omitempty" yaml:"files,omitempty"`
+	Data                map[string]interface{} `json:"data,omitempty" yaml:"data,omitempty"`
+	InlineFiles         map[string]string      `json:"inline,omitempty" yaml:"inline,omitempty"`
+	MountPath           string                 `json:"mountpath,omitempty" yaml:"mountpath,omitempty"`
+	RenderedFileContent map[string]string      `json:"-" yaml:"-"`
 }
 
 // VolumeMountParams allows additional mounts for already existing volumes, secrets, etc
 type VolumeMountParams struct {
-	Name      string                 `json:"name,omitempty"`
-	MountPath string                 `json:"mountpath,omitempty"`
-	Volume    map[string]interface{} `json:"volume,omitempty"`
+	Name      string                 `json:"name,omitempty" yaml:"name,omitempty"`
+	MountPath string                 `json:"mountpath,omitempty" yaml:"mountpath,omitempty"`
+	Volume    map[string]interface{} `json:"volume,omitempty" yaml:"volume,omitempty"`
 }
 
 // SetDefaults fills in empty fields with convention-based defaults
