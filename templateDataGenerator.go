@@ -304,6 +304,14 @@ func buildSidecar(sidecar *SidecarParams, request RequestParams) SidecarData {
 		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "PROXY_BUFFERS_NUMBER", strconv.Itoa(request.ProxyBuffersNumber))
 	}
 
+	if sidecar.CustomProperties != nil {
+		yamlBytes, err := yaml.Marshal(sidecar.CustomProperties)
+		if err == nil {
+			builtSidecar.CustomPropertiesYAML = string(yamlBytes)
+			builtSidecar.HasCustomProperties = true
+		}
+	}
+
 	return builtSidecar
 }
 

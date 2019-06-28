@@ -126,6 +126,18 @@ stages:
       memory:
         request: 10Mi
         limit: 50Mi
+    - type: custom
+      image: estafette/estafette-docker-cache-heater:dev
+      imagePullPolicy: IfNotPresent
+      env:
+        MY_BOOL_ENV: true
+        MY_INT_ENV: 123123
+      cpu:
+        request: 10m
+        limit: 50m
+      memory:
+        request: 10Mi
+        limit: 50Mi
     autoscale:
       min: 3
       max: 50

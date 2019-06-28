@@ -121,6 +121,8 @@ type SidecarData struct {
 	CPULimit                  string
 	MemoryLimit               string
 	SidecarSpecificProperties map[string]interface{}
+	HasCustomProperties       bool
+	CustomPropertiesYAML      string
 }
 
 // VolumeMountData configures additional volume mounts for shared secrets, existing volumes, etc
