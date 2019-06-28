@@ -1801,7 +1801,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		params := Params{
 			Autoscale: AutoscaleParams{
 				Safety: AutoscaleSafetyParams{
-					Ratio: 0.25,
+					Ratio: "0.25",
 				},
 			},
 		}
@@ -1809,7 +1809,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		// act
 		templateData := generateTemplateData(params, -1, "", "")
 
-		assert.Equal(t, "0.250", templateData.HpaScalerRequestsPerReplica)
+		assert.Equal(t, "0.25", templateData.HpaScalerRequestsPerReplica)
 	})
 
 	t.Run("SetsHpaScalerRequestsPerReplicaToAutoscalerSafetyPromQueryParam", func(t *testing.T) {
@@ -1817,7 +1817,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		params := Params{
 			Autoscale: AutoscaleParams{
 				Safety: AutoscaleSafetyParams{
-					Delta: -2.7584,
+					Delta: "-2.7584",
 				},
 			},
 		}
@@ -1825,7 +1825,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		// act
 		templateData := generateTemplateData(params, -1, "", "")
 
-		assert.Equal(t, "-2.758", templateData.HpaScalerDelta)
+		assert.Equal(t, "-2.7584", templateData.HpaScalerDelta)
 	})
 
 	t.Run("SetsHpaScalerRequestsPerReplicaToAutoscalerSafetyPromQueryParam", func(t *testing.T) {
@@ -1833,7 +1833,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		params := Params{
 			Autoscale: AutoscaleParams{
 				Safety: AutoscaleSafetyParams{
-					ScaleDownRatio: 0.2,
+					ScaleDownRatio: "0.2",
 				},
 			},
 		}
@@ -1841,7 +1841,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		// act
 		templateData := generateTemplateData(params, -1, "", "")
 
-		assert.Equal(t, "0.200", templateData.HpaScalerScaleDownMaxRatio)
+		assert.Equal(t, "0.2", templateData.HpaScalerScaleDownMaxRatio)
 	})
 
 	t.Run("SetsAllHostsToHostsAndInternalHostsAppended", func(t *testing.T) {

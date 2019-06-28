@@ -98,11 +98,11 @@ type AutoscaleParams struct {
 
 // AutoscaleSafetyParams configures the autoscaler to use estafette-hpa-scaler as a safety net
 type AutoscaleSafetyParams struct {
-	Enabled        bool    `json:"enabled,omitempty" yaml:"enabled,omitempty"`
-	PromQuery      string  `json:"promquery,omitempty" yaml:"promquery,omitempty"`
-	Ratio          float64 `json:"ratio,string,omitempty" yaml:"ratio,string,omitempty"`
-	Delta          float64 `json:"delta,string,omitempty" yaml:"delta,string,omitempty"`
-	ScaleDownRatio float64 `json:"scaledownratio,string,omitempty" yaml:"scaledownratio,string,omitempty"`
+	Enabled        bool   `json:"enabled,omitempty" yaml:"enabled,omitempty"`
+	PromQuery      string `json:"promquery,omitempty" yaml:"promquery,omitempty"`
+	Ratio          string `json:"ratio,omitempty" yaml:"ratio,omitempty"`
+	Delta          string `json:"delta,omitempty" yaml:"delta,omitempty"`
+	ScaleDownRatio string `json:"scaledownratio,omitempty" yaml:"scaledownratio,omitempty"`
 }
 
 // RequestParams controls timeouts, max body size, etc
@@ -305,11 +305,11 @@ func (p *Params) SetDefaults(gitName, appLabel, buildVersion, releaseName, relea
 	if p.Autoscale.Safety.PromQuery == "" {
 		p.Autoscale.Safety.PromQuery = fmt.Sprintf("sum(rate(nginx_http_requests_total{app='%v'}[5m])) by (app)", p.App)
 	}
-	if p.Autoscale.Safety.Ratio == 0 {
-		p.Autoscale.Safety.Ratio = 1
+	if p.Autoscale.Safety.Ratio == "" {
+		p.Autoscale.Safety.Ratio = "1"
 	}
-	if p.Autoscale.Safety.ScaleDownRatio == 0 {
-		p.Autoscale.Safety.ScaleDownRatio = 1
+	if p.Autoscale.Safety.ScaleDownRatio == "" {
+		p.Autoscale.Safety.ScaleDownRatio = "1"
 	}
 
 	// set request defaults

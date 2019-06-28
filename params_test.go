@@ -791,7 +791,7 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", "", map[string]string{})
 
-		assert.Equal(t, 1.0, params.Autoscale.Safety.Ratio)
+		assert.Equal(t, "1", params.Autoscale.Safety.Ratio)
 	})
 
 	t.Run("KeepsAutoscaleSafetyRatio", func(t *testing.T) {
@@ -800,7 +800,7 @@ func TestSetDefaults(t *testing.T) {
 			App: "my-app",
 			Autoscale: AutoscaleParams{
 				Safety: AutoscaleSafetyParams{
-					Ratio: 1.5,
+					Ratio: "1.5",
 				},
 			},
 		}
@@ -808,7 +808,7 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", "", map[string]string{})
 
-		assert.Equal(t, 1.5, params.Autoscale.Safety.Ratio)
+		assert.Equal(t, "1.5", params.Autoscale.Safety.Ratio)
 	})
 
 	t.Run("DefaultsAutoscaleSafetyScaleDownRatioToOne", func(t *testing.T) {
@@ -823,7 +823,7 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", "", map[string]string{})
 
-		assert.Equal(t, 1.0, params.Autoscale.Safety.ScaleDownRatio)
+		assert.Equal(t, "1", params.Autoscale.Safety.ScaleDownRatio)
 	})
 
 	t.Run("KeepsAutoscaleSafetyScaleDownRatio", func(t *testing.T) {
@@ -832,7 +832,7 @@ func TestSetDefaults(t *testing.T) {
 			App: "my-app",
 			Autoscale: AutoscaleParams{
 				Safety: AutoscaleSafetyParams{
-					ScaleDownRatio: 0.2,
+					ScaleDownRatio: "0.2",
 				},
 			},
 		}
@@ -840,7 +840,7 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", "", map[string]string{})
 
-		assert.Equal(t, 0.2, params.Autoscale.Safety.ScaleDownRatio)
+		assert.Equal(t, "0.2", params.Autoscale.Safety.ScaleDownRatio)
 	})
 
 	t.Run("DefaultsRequestTimeoutTo60sIfEmpty", func(t *testing.T) {
