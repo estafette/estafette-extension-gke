@@ -2899,7 +2899,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 		assert.True(t, len(errors) == 0)
 	})
 
-	t.Run("ReturnsFalseIfSidecarTypeIsIncorrect", func(t *testing.T) {
+	t.Run("ReturnsTrueForAnySidecar", func(t *testing.T) {
 
 		params := validParams
 		params.Sidecar.Type = "unknownsidecar"
@@ -2907,8 +2907,8 @@ func TestValidateRequiredProperties(t *testing.T) {
 		// act
 		valid, errors, _ := params.ValidateRequiredProperties()
 
-		assert.False(t, valid)
-		assert.True(t, len(errors) > 0)
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
 	})
 
 	t.Run("ReturnsTrueIfSidecarTypeIsSet", func(t *testing.T) {

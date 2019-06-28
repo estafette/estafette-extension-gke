@@ -711,8 +711,6 @@ func (p *Params) validateSidecar(sidecar *SidecarParams, errors []error) []error
 		if sidecar.SQLProxyPort == 0 {
 			errors = append(errors, fmt.Errorf("The port on which the Cloud SQL Proxy listens is required; set it via sidecar.sqlproxyport property on this stage"))
 		}
-	default:
-		errors = append(errors, fmt.Errorf("The sidecar type is incorrect; allowed values are openresty or cloudsqlproxy"))
 	}
 
 	if sidecar.Image == "" {
