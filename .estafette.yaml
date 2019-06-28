@@ -116,6 +116,13 @@ stages:
         request: 10Mi
         limit: 50Mi
     sidecars:
+    - type: openresty
+      cpu:
+        request: 10m
+        limit: 50m
+      memory:
+        request: 10Mi
+        limit: 50Mi
     - type: cloudsqlproxy
       dbinstanceconnectionname: my-gcloud-project:europe-west1:my-database
       sqlproxyport: 5043
