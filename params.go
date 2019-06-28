@@ -100,9 +100,9 @@ type AutoscaleParams struct {
 type AutoscaleSafetyParams struct {
 	Enabled        bool    `json:"enabled,omitempty" yaml:"enabled,omitempty"`
 	PromQuery      string  `json:"promquery,omitempty" yaml:"promquery,omitempty"`
-	Ratio          float64 `json:"ratio,string,omitempty" yaml:"ratio,omitempty"`
-	Delta          float64 `json:"delta,string,omitempty" yaml:"delta,omitempty"`
-	ScaleDownRatio float64 `json:"scaledownratio,string,omitempty" yaml:"scaledownratio,omitempty"`
+	Ratio          float64 `json:"ratio,string,omitempty" yaml:"ratio,string,omitempty"`
+	Delta          float64 `json:"delta,string,omitempty" yaml:"delta,string,omitempty"`
+	ScaleDownRatio float64 `json:"scaledownratio,string,omitempty" yaml:"scaledownratio,string,omitempty"`
 }
 
 // RequestParams controls timeouts, max body size, etc
