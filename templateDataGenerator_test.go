@@ -765,11 +765,13 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, 25, templateData.Container.PreStopSleepSeconds)
 	})
 
-	t.Run("SidcarAddedToSidecarsCollection", func(t *testing.T) {
+	t.Run("SidecarAddedToSidecarsCollection", func(t *testing.T) {
 
 		params := Params{
-			Sidecar: SidecarParams{
-				Type: "openresty",
+			Sidecars: []*SidecarParams{
+				&SidecarParams{
+					Type: "openresty",
+				},
 			},
 		}
 
@@ -782,8 +784,10 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsSidecarTypeToSidecarType", func(t *testing.T) {
 
 		params := Params{
-			Sidecar: SidecarParams{
-				Type: "openresty",
+			Sidecars: []*SidecarParams{
+				&SidecarParams{
+					Type: "openresty",
+				},
 			},
 		}
 
@@ -796,8 +800,10 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsSidecarImageToSidecarImageParam", func(t *testing.T) {
 
 		params := Params{
-			Sidecar: SidecarParams{
-				Image: "estafette/openresty-sidecar:1.13.6.1-alpine",
+			Sidecars: []*SidecarParams{
+				&SidecarParams{
+					Image: "estafette/openresty-sidecar:1.13.6.1-alpine",
+				},
 			},
 		}
 
@@ -810,8 +816,10 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsSidecarHealthCheckPathToSidecarHealthCheckPathParam", func(t *testing.T) {
 
 		params := Params{
-			Sidecar: SidecarParams{
-				HealthCheckPath: "/readiness",
+			Sidecars: []*SidecarParams{
+				&SidecarParams{
+					HealthCheckPath: "/readiness",
+				},
 			},
 		}
 
@@ -824,9 +832,11 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsSidecarCPURequestToSidecarCPURequestParam", func(t *testing.T) {
 
 		params := Params{
-			Sidecar: SidecarParams{
-				CPU: CPUParams{
-					Request: "1200m",
+			Sidecars: []*SidecarParams{
+				&SidecarParams{
+					CPU: CPUParams{
+						Request: "1200m",
+					},
 				},
 			},
 		}
@@ -840,9 +850,11 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsSidecarCPULimitToSidecarCPULimitParam", func(t *testing.T) {
 
 		params := Params{
-			Sidecar: SidecarParams{
-				CPU: CPUParams{
-					Limit: "1500m",
+			Sidecars: []*SidecarParams{
+				&SidecarParams{
+					CPU: CPUParams{
+						Limit: "1500m",
+					},
 				},
 			},
 		}
@@ -856,9 +868,11 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsSidecarMemoryRequestToSidecarMemoryRequestParam", func(t *testing.T) {
 
 		params := Params{
-			Sidecar: SidecarParams{
-				Memory: MemoryParams{
-					Request: "1024Mi",
+			Sidecars: []*SidecarParams{
+				&SidecarParams{
+					Memory: MemoryParams{
+						Request: "1024Mi",
+					},
 				},
 			},
 		}
@@ -872,9 +886,11 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsSidecarMemoryLimitToSidecarMemoryLimitParam", func(t *testing.T) {
 
 		params := Params{
-			Sidecar: SidecarParams{
-				Memory: MemoryParams{
-					Limit: "2048Mi",
+			Sidecars: []*SidecarParams{
+				&SidecarParams{
+					Memory: MemoryParams{
+						Limit: "2048Mi",
+					},
 				},
 			},
 		}
@@ -888,10 +904,12 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsSidecarEnvironmentVariablesToSidecarEnvironmentVariablesParam", func(t *testing.T) {
 
 		params := Params{
-			Sidecar: SidecarParams{
-				EnvironmentVariables: map[string]interface{}{
-					"MY_CUSTOM_ENV":       "value1",
-					"MY_OTHER_CUSTOM_ENV": "value2",
+			Sidecars: []*SidecarParams{
+				&SidecarParams{
+					EnvironmentVariables: map[string]interface{}{
+						"MY_CUSTOM_ENV":       "value1",
+						"MY_OTHER_CUSTOM_ENV": "value2",
+					},
 				},
 			},
 		}
@@ -907,11 +925,13 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsCloudSQLProxySpecificArgsToSidecarSpecificProperties", func(t *testing.T) {
 
 		params := Params{
-			Sidecar: SidecarParams{
-				HealthCheckPath:                   "testHealthCheckPath",
-				DbInstanceConnectionName:          "testDbInstanceConnectionName",
-				SQLProxyPort:                      15,
-				SQLProxyTerminationTimeoutSeconds: 16,
+			Sidecars: []*SidecarParams{
+				&SidecarParams{
+					HealthCheckPath:                   "testHealthCheckPath",
+					DbInstanceConnectionName:          "testDbInstanceConnectionName",
+					SQLProxyPort:                      15,
+					SQLProxyTerminationTimeoutSeconds: 16,
+				},
 			},
 		}
 

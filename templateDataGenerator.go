@@ -105,17 +105,11 @@ func generateTemplateData(params Params, currentReplicas int, releaseID, trigger
 	// set tracing service name
 	data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_SERVICE_NAME", params.App)
 
-	// add sidecars
-	mainSidecar := buildSidecar(&params.Sidecar, params.Request)
-	data.Sidecars = append(data.Sidecars, mainSidecar)
-
-	logInfo("Added main sidecar of type %v to data.Sidecars of length %v", params.Sidecar.Type, len(data.Sidecars))
-
 	for _, sidecarParams := range params.Sidecars {
 		sidecar := buildSidecar(sidecarParams, params.Request)
 		data.Sidecars = append(data.Sidecars, sidecar)
 
-		logInfo("Added additional sidecar of type %v to data.Sidecars of length %v", sidecarParams.Type, len(data.Sidecars))
+		logInfo("Added sidecar of type %v to data.Sidecars of length %v", sidecarParams.Type, len(data.Sidecars))
 	}
 
 	// set request params on the nginx ingress

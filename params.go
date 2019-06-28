@@ -382,10 +382,12 @@ func (p *Params) SetDefaults(gitName, appLabel, buildVersion, releaseName, relea
 		p.InjectHTTPProxySidecar = &trueValue
 	}
 
-	// Code for backwards-compatibility: in the parameters the sidecar can be specified both in the "sidecar" field, and also as an element in the "sidecars" collection.
-	// The "sidecar" field is kept around for backwards compatibility, but due to this we need some extra checks to cover all cases.
-	legacyOpenrestySidecarSpecified := p.Sidecar.Type == "openresty"
+	// if deprecated sidecar is still used add it to the sidecars list for backwards compatibility
+	if p.Sidecar.Type != "" && p.Sidecar.Type != "none" {
+		p.Sidecars = append([]*SidecarParams{&p.Sidecar}, p.Sidecars...)
+	}
 
+	// check if an openresty sidecar is in the list
 	openrestySidecarSpecifiedInList := false
 	for _, sidecar := range p.Sidecars {
 		if sidecar.Type == "openresty" {
@@ -393,16 +395,13 @@ func (p *Params) SetDefaults(gitName, appLabel, buildVersion, releaseName, relea
 		}
 	}
 
-	// If the openresty sidecar is not specified either in the "sidecar" field, nor in the "sidecars" collection (and this is not a Job), and injecting the proxy is not explicitly disabled, we inject one by default.
-	if *p.InjectHTTPProxySidecar && !legacyOpenrestySidecarSpecified && !openrestySidecarSpecifiedInList && p.Kind != "job" {
+	// inject an openresty sidecar in the sidecars list if it isn't there yet for deployments
+	if *p.InjectHTTPProxySidecar && !openrestySidecarSpecifiedInList && p.Kind == "deployment" {
 		openrestySidecar := SidecarParams{Type: "openresty"}
-
 		p.initializeSidecarDefaults(&openrestySidecar)
 
 		p.Sidecars = append(p.Sidecars, &openrestySidecar)
 	}
-
-	p.initializeSidecarDefaults(&p.Sidecar)
 
 	for i := range p.Sidecars {
 		p.initializeSidecarDefaults(p.Sidecars[i])
