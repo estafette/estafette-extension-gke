@@ -745,13 +745,13 @@ func (p *Params) ReplaceSidecarTagsWithDigest() {
 		logInfo("Replacing sidecar %v image tag with digest...", s.Type)
 
 		if s.Image == "" {
-			return
+			continue
 		}
 
 		imageDigestParts := strings.Split(s.Image, "@")
 		if len(imageDigestParts) > 1 {
 			// already uses a digest, skip replacement
-			return
+			continue
 		}
 
 		imageParts := strings.Split(s.Image, ":")
@@ -764,7 +764,7 @@ func (p *Params) ReplaceSidecarTagsWithDigest() {
 		// get docker hub api token
 		tokenJSON := httpRequestBody("GET", fmt.Sprintf("https://auth.docker.io/token?scope=repository:%v:pull&service=registry.docker.io", repository), map[string]string{})
 		if tokenJSON == "" {
-			return
+			continue
 		}
 
 		type TokenObject struct {
@@ -774,10 +774,10 @@ func (p *Params) ReplaceSidecarTagsWithDigest() {
 		tokenObject := TokenObject{}
 		err := json.Unmarshal([]byte(tokenJSON), &tokenObject)
 		if err != nil {
-			return
+			continue
 		}
 		if tokenObject.Token == "" {
-			return
+			continue
 		}
 
 		digest := httpRequestHeader("HEAD", fmt.Sprintf("https://index.docker.io/v2/%v/manifests/%v", repository, tag), map[string]string{
@@ -786,14 +786,11 @@ func (p *Params) ReplaceSidecarTagsWithDigest() {
 		}, "Docker-Content-Digest")
 
 		if len(digest) == 0 {
-			return
+			continue
 		}
 
 		s.Image = fmt.Sprintf("%v@%v", repository, digest)
 
 		logInfo("Successfully replaced tag %v with digest %v...", tag, digest)
-
-		return
-
 	}
 }

@@ -83,6 +83,18 @@ var (
 					Limit:   "50Mi",
 				},
 			},
+			&SidecarParams{
+				Type:  "heater",
+				Image: "estafette/estafette-docker-cache-heater:dev",
+				CPU: CPUParams{
+					Request: "10m",
+					Limit:   "50m",
+				},
+				Memory: MemoryParams{
+					Request: "10Mi",
+					Limit:   "50Mi",
+				},
+			},
 		},
 	}
 	validCredential = GKECredentials{
@@ -3268,9 +3280,9 @@ func TestValidateRequiredProperties(t *testing.T) {
 	})
 }
 
-func TestReplaceOpenrestyTagWithDigest(t *testing.T) {
+func TestReplaceSidecarTagsWithDigest(t *testing.T) {
 
-	t.Run("ReplacesOpenrestySidecarImageTagWithDigest", func(t *testing.T) {
+	t.Run("ReplacesFirstSidecarImageTagWithDigest", func(t *testing.T) {
 
 		params := validParams
 
@@ -3281,7 +3293,7 @@ func TestReplaceOpenrestyTagWithDigest(t *testing.T) {
 		assert.True(t, strings.HasPrefix(params.Sidecars[0].Image, "estafette/openresty-sidecar@sha256:"))
 	})
 
-	t.Run("KeepsOpenrestySidecarImageTagWithDigest", func(t *testing.T) {
+	t.Run("KeepsFirstSidecarImageTagWithDigest", func(t *testing.T) {
 
 		params := validParams
 		params.Sidecars[0].Image = "estafette/openresty-sidecar@sha256:4300dc7d45600c428f4196009ee842c1c3bdd51aaa4f55361479f6fa60e78faf"
@@ -3291,5 +3303,28 @@ func TestReplaceOpenrestyTagWithDigest(t *testing.T) {
 
 		assert.Equal(t, "openresty", params.Sidecars[0].Type)
 		assert.True(t, strings.HasPrefix(params.Sidecars[0].Image, "estafette/openresty-sidecar@sha256:"))
+	})
+
+	t.Run("ReplacesLastSidecarImageTagWithDigest", func(t *testing.T) {
+
+		params := validParams
+
+		// act
+		params.ReplaceSidecarTagsWithDigest()
+
+		assert.Equal(t, "heater", params.Sidecars[1].Type)
+		assert.True(t, strings.HasPrefix(params.Sidecars[1].Image, "estafette/estafette-docker-cache-heater@sha256:"))
+	})
+
+	t.Run("KeepsLastSidecarImageTagWithDigest", func(t *testing.T) {
+
+		params := validParams
+		params.Sidecars[1].Image = "estafette/estafette-docker-cache-heater@sha256:4300dc7d45600c428f4196009ee842c1c3bdd51aaa4f55361479f6fa60e78faf"
+
+		// act
+		params.ReplaceSidecarTagsWithDigest()
+
+		assert.Equal(t, "heater", params.Sidecars[1].Type)
+		assert.True(t, strings.HasPrefix(params.Sidecars[1].Image, "estafette/estafette-docker-cache-heater@sha256:"))
 	})
 }
