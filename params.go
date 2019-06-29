@@ -737,65 +737,63 @@ func (p *Params) validateSidecar(sidecar *SidecarParams, errors []error) []error
 	return errors
 }
 
-// ReplaceOpenrestyTagWithDigest looks for a sidecar of type openresty and replaces the image tag with a digest
-func (p *Params) ReplaceOpenrestyTagWithDigest() {
+// ReplaceSidecarTagsWithDigest replaces image tags for sidecars with a digest
+func (p *Params) ReplaceSidecarTagsWithDigest() {
 
 	// see if there's a sidecar of type openresty
 	for _, s := range p.Sidecars {
-		if s.Type == "openresty" {
+		logInfo("Replacing sidecar %v image tag with digest...", s.Type)
 
-			logInfo("Replacing openresty sidecar image tag with digest...")
-
-			if s.Image == "" {
-				return
-			}
-
-			imageDigestParts := strings.Split(s.Image, "@")
-			if len(imageDigestParts) > 1 {
-				// already uses a digest, skip replacement
-				return
-			}
-
-			imageParts := strings.Split(s.Image, ":")
-			repository := imageParts[0]
-			tag := "latest"
-			if len(imageParts) > 1 {
-				tag = imageParts[1]
-			}
-
-			// get docker hub api token
-			tokenJSON := httpRequestBody("GET", fmt.Sprintf("https://auth.docker.io/token?scope=repository:%v:pull&service=registry.docker.io", repository), map[string]string{})
-			if tokenJSON == "" {
-				return
-			}
-
-			type TokenObject struct {
-				Token string `json:"token"`
-			}
-
-			tokenObject := TokenObject{}
-			err := json.Unmarshal([]byte(tokenJSON), &tokenObject)
-			if err != nil {
-				return
-			}
-			if tokenObject.Token == "" {
-				return
-			}
-
-			digest := httpRequestHeader("HEAD", fmt.Sprintf("https://index.docker.io/v2/%v/manifests/%v", repository, tag), map[string]string{
-				"Accept":        "application/vnd.docker.distribution.manifest.v2+json",
-				"Authorization": fmt.Sprintf("Bearer %v", tokenObject.Token),
-			}, "Docker-Content-Digest")
-
-			if len(digest) == 0 {
-				return
-			}
-
-			s.Image = fmt.Sprintf("%v@%v", repository, digest)
-
-			logInfo("Successfully replaced tag %v with digest %v...", tag, digest)
-
+		if s.Image == "" {
 			return
 		}
+
+		imageDigestParts := strings.Split(s.Image, "@")
+		if len(imageDigestParts) > 1 {
+			// already uses a digest, skip replacement
+			return
+		}
+
+		imageParts := strings.Split(s.Image, ":")
+		repository := imageParts[0]
+		tag := "latest"
+		if len(imageParts) > 1 {
+			tag = imageParts[1]
+		}
+
+		// get docker hub api token
+		tokenJSON := httpRequestBody("GET", fmt.Sprintf("https://auth.docker.io/token?scope=repository:%v:pull&service=registry.docker.io", repository), map[string]string{})
+		if tokenJSON == "" {
+			return
+		}
+
+		type TokenObject struct {
+			Token string `json:"token"`
+		}
+
+		tokenObject := TokenObject{}
+		err := json.Unmarshal([]byte(tokenJSON), &tokenObject)
+		if err != nil {
+			return
+		}
+		if tokenObject.Token == "" {
+			return
+		}
+
+		digest := httpRequestHeader("HEAD", fmt.Sprintf("https://index.docker.io/v2/%v/manifests/%v", repository, tag), map[string]string{
+			"Accept":        "application/vnd.docker.distribution.manifest.v2+json",
+			"Authorization": fmt.Sprintf("Bearer %v", tokenObject.Token),
+		}, "Docker-Content-Digest")
+
+		if len(digest) == 0 {
+			return
+		}
+
+		s.Image = fmt.Sprintf("%v@%v", repository, digest)
+
+		logInfo("Successfully replaced tag %v with digest %v...", tag, digest)
+
+		return
+
 	}
 }

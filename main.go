@@ -135,8 +135,8 @@ func main() {
 		log.Printf("Warning: %s", warning)
 	}
 
-	// replacing openresty image tag with digest
-	params.ReplaceOpenrestyTagWithDigest()
+	// replacing sidecar image tags with digest
+	params.ReplaceSidecarTagsWithDigest()
 
 	logInfo("Retrieving service account email from credentials...")
 	var keyFileMap map[string]interface{}

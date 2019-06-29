@@ -3275,7 +3275,7 @@ func TestReplaceOpenrestyTagWithDigest(t *testing.T) {
 		params := validParams
 
 		// act
-		params.ReplaceOpenrestyTagWithDigest()
+		params.ReplaceSidecarTagsWithDigest()
 
 		assert.Equal(t, "openresty", params.Sidecars[0].Type)
 		assert.True(t, strings.HasPrefix(params.Sidecars[0].Image, "estafette/openresty-sidecar@sha256:"))
@@ -3287,7 +3287,7 @@ func TestReplaceOpenrestyTagWithDigest(t *testing.T) {
 		params.Sidecars[0].Image = "estafette/openresty-sidecar@sha256:4300dc7d45600c428f4196009ee842c1c3bdd51aaa4f55361479f6fa60e78faf"
 
 		// act
-		params.ReplaceOpenrestyTagWithDigest()
+		params.ReplaceSidecarTagsWithDigest()
 
 		assert.Equal(t, "openresty", params.Sidecars[0].Type)
 		assert.True(t, strings.HasPrefix(params.Sidecars[0].Image, "estafette/openresty-sidecar@sha256:"))
