@@ -116,6 +116,7 @@ type SidecarData struct {
 	Type                      string
 	Image                     string
 	EnvironmentVariables      map[string]interface{}
+	HasEnvironmentVariables   bool
 	CPURequest                string
 	MemoryRequest             string
 	CPULimit                  string

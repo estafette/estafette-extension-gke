@@ -272,13 +272,14 @@ func generateTemplateData(params Params, currentReplicas int, releaseID, trigger
 
 func buildSidecar(sidecar *SidecarParams, request RequestParams) SidecarData {
 	builtSidecar := SidecarData{
-		Type:                 sidecar.Type,
-		Image:                sidecar.Image,
-		CPURequest:           sidecar.CPU.Request,
-		CPULimit:             sidecar.CPU.Limit,
-		MemoryRequest:        sidecar.Memory.Request,
-		MemoryLimit:          sidecar.Memory.Limit,
-		EnvironmentVariables: sidecar.EnvironmentVariables,
+		Type:                    sidecar.Type,
+		Image:                   sidecar.Image,
+		CPURequest:              sidecar.CPU.Request,
+		CPULimit:                sidecar.CPU.Limit,
+		MemoryRequest:           sidecar.Memory.Request,
+		MemoryLimit:             sidecar.Memory.Limit,
+		EnvironmentVariables:    sidecar.EnvironmentVariables,
+		HasEnvironmentVariables: len(sidecar.EnvironmentVariables) > 0,
 		SidecarSpecificProperties: map[string]interface{}{
 			"healthcheckpath":                   sidecar.HealthCheckPath,
 			"dbinstanceconnectionname":          sidecar.DbInstanceConnectionName,

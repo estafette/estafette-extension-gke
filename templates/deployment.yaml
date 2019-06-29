@@ -213,9 +213,19 @@ spec:
             scheme: HTTPS
           initialDelaySeconds: {{$deployment.Container.Readiness.InitialDelaySeconds}}
           timeoutSeconds: {{$deployment.Container.Readiness.TimeoutSeconds}}
+        {{- if .HasCustomProperties }}
+{{.CustomPropertiesYAML | indent 8}}
+        {{- end }}
         {{- else if eq .Type "cloudsqlproxy" }}
       - name: {{$deployment.Name}}-cloudsql-proxy
         image: {{.Image}}
+        {{- if .HasEnvironmentVariables }}
+        env:
+        {{- range $key, $value := .EnvironmentVariables }}
+        - name: "{{ $key }}"
+          value: "{{ $value }}"
+        {{- end }}
+        {{- end }}
         resources:
           requests:
             cpu: {{.CPURequest}}
@@ -232,9 +242,19 @@ spec:
           - name: gcp-service-account
             mountPath: /gcp-service-account
           {{- end }}
+        {{- if .HasCustomProperties }}
+{{.CustomPropertiesYAML | indent 8}}
+        {{- end }}
         {{- else  }}
       - name: {{$deployment.Name}}-{{.Type}}
         image: {{.Image}}
+        {{- if .HasEnvironmentVariables }}
+        env:
+        {{- range $key, $value := .EnvironmentVariables }}
+        - name: "{{ $key }}"
+          value: "{{ $value }}"
+        {{- end }}
+        {{- end }}
         resources:
           requests:
             cpu: {{.CPURequest}}
