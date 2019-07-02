@@ -256,6 +256,54 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.False(t, templateData.UseDNSAnnotationsOnService)
 	})
 
+	t.Run("SetsUseCloudflareProxyToTrueIfVisibilityParamIsPrivate", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "private",
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "", "")
+
+		assert.True(t, templateData.UseCloudflareProxy)
+	})
+
+	t.Run("SetsUseCloudflareProxyToTrueIfVisibilityParamIsPublicWhitelist", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "public-whitelist",
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "", "")
+
+		assert.True(t, templateData.UseCloudflareProxy)
+	})
+
+	t.Run("SetsUseCloudflareProxyToTrueIfVisibilityParamIsPublic", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "public",
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "", "")
+
+		assert.True(t, templateData.UseCloudflareProxy)
+	})
+
+	t.Run("SetsUseCloudflareProxyToFalseIfVisibilityParamIsIAP", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "iap",
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "", "")
+
+		assert.False(t, templateData.UseCloudflareProxy)
+	})
+
 	t.Run("SetsContainerCPURequestToCPURequestParam", func(t *testing.T) {
 
 		params := Params{

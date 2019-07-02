@@ -188,6 +188,7 @@ func generateTemplateData(params Params, currentReplicas int, releaseID, trigger
 		data.UseGCEIngress = false
 		data.UseDNSAnnotationsOnIngress = true
 		data.UseDNSAnnotationsOnService = false
+		data.UseCloudflareProxy = true
 		data.UseBackendConfigAnnotationOnService = false
 		data.LimitTrustedIPRanges = false
 		data.OverrideDefaultWhitelist = false
@@ -198,6 +199,7 @@ func generateTemplateData(params Params, currentReplicas int, releaseID, trigger
 		data.UseGCEIngress = true
 		data.UseDNSAnnotationsOnIngress = true
 		data.UseDNSAnnotationsOnService = false
+		data.UseCloudflareProxy = false
 		data.UseBackendConfigAnnotationOnService = true
 		data.LimitTrustedIPRanges = false
 		data.OverrideDefaultWhitelist = false
@@ -210,6 +212,7 @@ func generateTemplateData(params Params, currentReplicas int, releaseID, trigger
 		data.UseGCEIngress = false
 		data.UseDNSAnnotationsOnIngress = true
 		data.UseDNSAnnotationsOnService = false
+		data.UseCloudflareProxy = true
 		data.UseBackendConfigAnnotationOnService = false
 		data.LimitTrustedIPRanges = false
 		data.OverrideDefaultWhitelist = len(params.WhitelistedIPS) > 0
@@ -221,6 +224,7 @@ func generateTemplateData(params Params, currentReplicas int, releaseID, trigger
 		data.UseGCEIngress = false
 		data.UseDNSAnnotationsOnIngress = false
 		data.UseDNSAnnotationsOnService = true
+		data.UseCloudflareProxy = true
 		data.LimitTrustedIPRanges = true
 		data.OverrideDefaultWhitelist = false
 	}
