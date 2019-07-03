@@ -96,20 +96,8 @@ func generateTemplateData(params Params, currentReplicas int, releaseID, trigger
 		},
 
 		// IsSimpleEnvvarValue returns true if a value should be wrapped in 'value: ""', otherwise the interface should be outputted as yaml
-		IsSimpleEnvvarValue: func(i interface{}) bool {
-			switch i.(type) {
-			case int:
-				return true
-			case float64:
-				return true
-			case string:
-				return true
-			case bool:
-				return true
-			}
-
-			return false
-		},
+		IsSimpleEnvvarValue: isSimpleEnvvarValue,
+		ToYAML:              toYAML,
 	}
 
 	if params.UseGoogleCloudCredentials {
@@ -387,4 +375,29 @@ func sanitizeLabels(labels map[string]string) (sanitizedLabels map[string]string
 		sanitizedLabels[k] = sanitizeLabel(v)
 	}
 	return
+}
+
+func isSimpleEnvvarValue(i interface{}) bool {
+	switch i.(type) {
+	case int:
+		return true
+	case float64:
+		return true
+	case string:
+		return true
+	case bool:
+		return true
+	}
+
+	return false
+}
+
+func toYaml(value map[interface{}]interface{}) string {
+
+	yamlBytes, err := yaml.Marshal(value)
+	if err == nil {
+		return string(yamlBytes)
+	}
+
+	return ""
 }
