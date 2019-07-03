@@ -13,6 +13,9 @@ spec:
   serviceName: {{.Name}}-node
   replicas: {{.Replicas}}
   podManagementPolicy: {{.PodManagementPolicy}}
+  selector:
+    matchLabels:
+      app: {{.Name}}
   revisionHistoryLimit: 10
   template:
     metadata:
