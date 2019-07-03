@@ -42,7 +42,11 @@ spec:
               fieldPath: status.hostIP
         {{- range $key, $value := .Container.EnvironmentVariables }}
         - name: "{{ $key }}"
+          {{- if IsSimpleEnvvarValue $value }}
           value: "{{ $value }}"
+          {{- else }}
+{{$value | indent 10}}
+          {{- end }}
         {{- end }}
         resources:
           requests:

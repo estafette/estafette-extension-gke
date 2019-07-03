@@ -77,6 +77,11 @@ stages:
         MY_OTHER_CUSTOM_ENV: value2
         MY_BOOL_ENV: true
         MY_INT_ENV: 123123
+        KUBERNETES_LABELS_APP:
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.labels['app']
       cpu:
         request: 100m
         limit: 100m
@@ -109,6 +114,11 @@ stages:
         CORS_MAX_AGE: "86400"
         MY_BOOL_ENV: true
         MY_INT_ENV: 123123
+        KUBERNETES_LABELS_APP:
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.labels['app']
       cpu:
         request: 10m
         limit: 50m
@@ -120,6 +130,14 @@ stages:
       dbinstanceconnectionname: my-gcloud-project:europe-west1:my-database
       sqlproxyport: 5043
       sqlproxyterminationtimeoutseconds: 30
+      env:
+        MY_BOOL_ENV: true
+        MY_INT_ENV: 123123
+        KUBERNETES_LABELS_APP:
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.labels['app']
       cpu:
         request: 10m
         limit: 50m
@@ -132,6 +150,11 @@ stages:
       env:
         MY_BOOL_ENV: true
         MY_INT_ENV: 123123
+        KUBERNETES_LABELS_APP:
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.labels['app']
       cpu:
         request: 10m
         limit: 50m
@@ -235,6 +258,16 @@ stages:
     kind: job
     container:
       repository: extensions
+      env:
+        MY_CUSTOM_ENV: value1
+        MY_OTHER_CUSTOM_ENV: value2
+        MY_BOOL_ENV: true
+        MY_INT_ENV: 123123
+        KUBERNETES_LABELS_APP:
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.labels['app']
     dryrun: true
 
   test-alpha-version-cronjob:
@@ -245,6 +278,16 @@ stages:
     concurrencypolicy: Forbid
     container:
       repository: extensions
+      env:
+        MY_CUSTOM_ENV: value1
+        MY_OTHER_CUSTOM_ENV: value2
+        MY_BOOL_ENV: true
+        MY_INT_ENV: 123123
+        KUBERNETES_LABELS_APP:
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.labels['app']
     dryrun: true
 
   test-alpha-version-statefulset:
@@ -256,6 +299,16 @@ stages:
     storagesize: 10Gi
     container:
       repository: extensions
+      env:
+        MY_CUSTOM_ENV: value1
+        MY_OTHER_CUSTOM_ENV: value2
+        MY_BOOL_ENV: true
+        MY_INT_ENV: 123123
+        KUBERNETES_LABELS_APP:
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.labels['app']
     hosts:
     - gke.estafette.io
     dryrun: true

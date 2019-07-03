@@ -93,7 +93,11 @@ spec:
               fieldPath: status.hostIP
         {{- range $key, $value := .Container.EnvironmentVariables }}
         - name: "{{ $key }}"
+          {{- if IsSimpleEnvvarValue $value }}
           value: "{{ $value }}"
+          {{- else }}
+{{$value | indent 10}}
+          {{- end }}
         {{- end }}
         resources:
           requests:
@@ -196,7 +200,11 @@ spec:
           value: "{{index .SidecarSpecificProperties "healthcheckpath"}}"
         {{- range $key, $value := .EnvironmentVariables }}
         - name: "{{ $key }}"
+          {{- if IsSimpleEnvvarValue $value }}
           value: "{{ $value }}"
+          {{- else }}
+{{$value | indent 10}}
+          {{- end }}
         {{- end }}
         volumeMounts:
         - name: ssl-certificate
@@ -223,7 +231,11 @@ spec:
         env:
         {{- range $key, $value := .EnvironmentVariables }}
         - name: "{{ $key }}"
+          {{- if IsSimpleEnvvarValue $value }}
           value: "{{ $value }}"
+          {{- else }}
+{{$value | indent 10}}
+          {{- end }}
         {{- end }}
         {{- end }}
         resources:
@@ -252,7 +264,11 @@ spec:
         env:
         {{- range $key, $value := .EnvironmentVariables }}
         - name: "{{ $key }}"
+          {{- if IsSimpleEnvvarValue $value }}
           value: "{{ $value }}"
+          {{- else }}
+{{$value | indent 10}}
+          {{- end }}
         {{- end }}
         {{- end }}
         resources:
