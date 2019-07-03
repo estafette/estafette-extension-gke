@@ -392,7 +392,7 @@ func isSimpleEnvvarValue(i interface{}) bool {
 	return false
 }
 
-func toYaml(value map[interface{}]interface{}) string {
+func toYAML(value map[interface{}]interface{}) string {
 
 	yamlBytes, err := yaml.Marshal(value)
 	if err == nil {
