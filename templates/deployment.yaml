@@ -93,7 +93,7 @@ spec:
               fieldPath: status.hostIP
         {{- range $key, $value := .Container.EnvironmentVariables }}
         - name: "{{ $key }}"
-          {{- if $.IsSimpleEnvvarValue $value }}
+          {{- if (call $.IsSimpleEnvvarValue $value) }}
           value: "{{ $value }}"
           {{- else }}
 {{$value | indent 10}}
@@ -200,7 +200,7 @@ spec:
           value: "{{index .SidecarSpecificProperties "healthcheckpath"}}"
         {{- range $key, $value := .EnvironmentVariables }}
         - name: "{{ $key }}"
-          {{- if $.IsSimpleEnvvarValue $value }}
+          {{- if (call $.IsSimpleEnvvarValue $value) }}
           value: "{{ $value }}"
           {{- else }}
 {{$value | indent 10}}
@@ -231,7 +231,7 @@ spec:
         env:
         {{- range $key, $value := .EnvironmentVariables }}
         - name: "{{ $key }}"
-          {{- if $.IsSimpleEnvvarValue $value }}
+          {{- if (call $.IsSimpleEnvvarValue $value) }}
           value: "{{ $value }}"
           {{- else }}
 {{$value | indent 10}}
@@ -264,7 +264,7 @@ spec:
         env:
         {{- range $key, $value := .EnvironmentVariables }}
         - name: "{{ $key }}"
-          {{- if $.IsSimpleEnvvarValue $value }}
+          {{- if (call $.IsSimpleEnvvarValue $value) }}
           value: "{{ $value }}"
           {{- else }}
 {{$value | indent 10}}
