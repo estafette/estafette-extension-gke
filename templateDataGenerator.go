@@ -94,6 +94,22 @@ func generateTemplateData(params Params, currentReplicas int, releaseID, trigger
 				Port: params.Container.Metrics.Port,
 			},
 		},
+
+		// IsSimpleEnvvarValue returns true if a value should be wrapped in 'value: ""', otherwise the interface should be outputted as yaml
+		IsSimpleEnvvarValue: func(i interface{}) bool {
+			switch i.(type) {
+			case int:
+				return true
+			case float64:
+				return true
+			case string:
+				return true
+			case bool:
+				return true
+			}
+
+			return false
+		},
 	}
 
 	if params.UseGoogleCloudCredentials {

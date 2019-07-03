@@ -80,6 +80,7 @@ type TemplateData struct {
 	StorageSize                         string
 	IapOauthCredentialsClientID         string
 	IapOauthCredentialsClientSecret     string
+	IsSimpleEnvvarValue                 func(interface{}) bool
 }
 
 // ContainerData has data specific to the application container
@@ -143,21 +144,4 @@ type AdditionalPortData struct {
 	Name     string
 	Port     int
 	Protocol string
-}
-
-// IsSimpleEnvvarValue returns true if a value should be wrapped in 'value: ""', otherwise the interface should be outputted as yaml
-func IsSimpleEnvvarValue(i interface{}) bool {
-
-	switch i.(type) {
-	case int:
-		return true
-	case float64:
-		return true
-	case string:
-		return true
-	case bool:
-		return true
-	}
-
-	return false
 }
