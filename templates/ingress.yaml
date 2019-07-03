@@ -48,7 +48,7 @@ spec:
       - path: {{$.IngressPath}}
         backend:
           serviceName: {{$.Name}}
-          {{- if .HasOpenrestySidecar }}
+          {{- if $.HasOpenrestySidecar }}
           servicePort: https
           {{- else }}
           servicePort: web
