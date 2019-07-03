@@ -48,6 +48,8 @@ stages:
 
   test-alpha-version:
     image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+    env:
+      KUBECTL_EXTERNAL_DIFF: meld
     credentials: gke-tooling
     action: deploy-simple
     kind: deployment
