@@ -256,6 +256,8 @@ stages:
     storagesize: 10Gi
     container:
       repository: extensions
+    hosts:
+    - gke.estafette.io
     dryrun: true
 
   test-alpha-version-canary:
