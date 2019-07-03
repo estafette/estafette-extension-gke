@@ -210,13 +210,6 @@ func main() {
 		}
 	}
 
-	kubectlDiffArgs := []string{"diff", "-f", "/kubernetes.yaml", "-n", templateData.Namespace}
-	if tmpl != nil {
-		// always perform a diff to see what changes will be applied
-		logInfo("Performing a diff to see what will be changed...")
-		runCommand("kubectl", kubectlDiffArgs)
-	}
-
 	kubectlApplyArgs := []string{"apply", "-f", "/kubernetes.yaml", "-n", templateData.Namespace}
 	if tmpl != nil {
 		// always perform a dryrun to ensure we're not ending up in a semi broken state where half of the templates is successfully applied and others not
