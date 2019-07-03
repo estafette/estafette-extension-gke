@@ -247,6 +247,17 @@ stages:
       repository: extensions
     dryrun: true
 
+  test-alpha-version-statefulset:
+    image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+    credentials: gke-tooling
+    kind: statefulset
+    podManagementpolicy: OrderedReady
+    storageclass: fast
+    storagesize: 10Gi
+    container:
+      repository: extensions
+    dryrun: true
+
   test-alpha-version-canary:
     image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
     credentials: gke-tooling

@@ -9,7 +9,9 @@ metadata:
     {{- end}}
   annotations:
     kubernetes.io/ingress.class: "nginx-internal"
+    {{- if .HasOpenrestySidecar }}
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    {{- end }}
     nginx.ingress.kubernetes.io/client-body-buffer-size: "{{.NginxIngressClientBodyBufferSize}}"
     nginx.ingress.kubernetes.io/proxy-buffers-number: "{{.NginxIngressProxyBuffersNumber}}"
     nginx.ingress.kubernetes.io/proxy-body-size: "{{.NginxIngressProxyBodySize}}"
@@ -37,5 +39,9 @@ spec:
       - path: {{$.InternalIngressPath}}
         backend:
           serviceName: {{$.Name}}
+          {{- if .HasOpenrestySidecar }}
           servicePort: https
+          {{- else }}
+          servicePort: web
+          {{- end }}
   {{- end}}

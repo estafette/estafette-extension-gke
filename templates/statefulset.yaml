@@ -1,0 +1,282 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{.Name}}
+  namespace: {{.Namespace}}
+  labels:
+    {{- range $key, $value := .Labels}}
+    {{$key}}: {{$value}}
+    {{- end}}
+spec:
+  updateStrategy:
+    type: RollingUpdate
+  serviceName: {{.Name}}-node
+  replicas: {{.Replicas}}
+  podManagementPolicy: {{.PodManagementPolicy}}
+  revisionHistoryLimit: 10
+  template:
+    metadata:
+      labels:
+        {{- range $key, $value := .Labels}}
+        {{$key}}: {{$value}}
+        {{- end}}
+      annotations:
+        prometheus.io/scrape: "{{.Container.Metrics.Scrape}}"
+        prometheus.io/path: "{{.Container.Metrics.Path}}"
+        prometheus.io/port: "{{.Container.Metrics.Port}}"
+        prometheus.io/scrape-nginx-sidecar: "true"
+        {{- if .AddSafeToEvictAnnotation }}
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+        {{- end}}
+    spec:
+      serviceAccount: {{.Name}}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - {{.Name}}
+              topologyKey: kubernetes.io/hostname
+        {{- if .PreferPreemptibles}}
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 10
+            preference:
+              matchExpressions:
+              - key: cloud.google.com/gke-preemptible
+                operator: In
+                values:
+                - "true"
+        {{- end}}
+      {{- if .MountPayloadLogging }}
+      initContainers:
+      - name: init-myservice
+        image: busybox:1.27.2
+        imagePullPolicy: IfNotPresent
+        command: ['sh', '-c', 'mkdir -p /var/log/fluentd-payload-logger/{{.Name}}']
+        volumeMounts:
+        - name: var-log
+          mountPath: /var/log
+      {{- end}}
+      containers:
+      - name: {{.Name}}
+        image: {{.Container.Repository}}/{{.Container.Name}}:{{.Container.Tag}}
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: "JAEGER_AGENT_HOST"
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        {{- range $key, $value := .Container.EnvironmentVariables }}
+        - name: "{{ $key }}"
+          value: "{{ $value }}"
+        {{- end }}
+        resources:
+          requests:
+            cpu: {{.Container.CPURequest}}
+            memory: {{.Container.MemoryRequest}}
+          limits:
+            cpu: {{.Container.CPULimit}}
+            memory: {{.Container.MemoryLimit}}
+        ports:
+        - name: web
+          containerPort: {{.Container.Port}}
+        {{- range .AdditionalContainerPorts}}
+        - name: {{.Name}}
+          containerPort: {{.Port}}
+          protocol: {{.Protocol}}
+        {{- end}}
+        livenessProbe:
+          httpGet:
+            path: {{.Container.Liveness.Path}}
+            port: {{.Container.Liveness.Port}}
+          initialDelaySeconds: {{.Container.Liveness.InitialDelaySeconds}}
+          timeoutSeconds: {{.Container.Liveness.TimeoutSeconds}}
+        {{- if .Container.Readiness.IncludeOnContainer }}
+        readinessProbe:
+          httpGet:
+            path: {{.Container.Readiness.Path}}
+            port: {{.Container.Readiness.Port}}
+          initialDelaySeconds: {{.Container.Readiness.InitialDelaySeconds}}
+          timeoutSeconds: {{.Container.Readiness.TimeoutSeconds}}
+        {{- end }}
+        {{- if or .MountApplicationSecrets .MountConfigmap .MountServiceAccountSecret .MountPayloadLogging .MountAdditionalVolumes }}
+        volumeMounts:
+        {{- if .MountApplicationSecrets }}
+        - name: app-secrets
+          mountPath: {{.SecretMountPath}}
+        {{- end }}
+        {{- if .MountConfigmap }}
+        - name: app-configs
+          mountPath: {{.ConfigMountPath}}
+        {{- end }}
+        {{- if .MountServiceAccountSecret }}
+        - name: gcp-service-account
+          mountPath: /gcp-service-account
+        {{- end }}
+        {{- if .MountPayloadLogging }}
+        - name: pod-log
+          mountPath: /var/log/travix
+        {{- end }}
+        {{- range .AdditionalVolumeMounts}}
+        - name: {{.Name}}
+          mountPath: {{.MountPath}}
+        {{- end}}
+        {{- end }}
+        {{- if .Container.UseLifecyclePreStopSleepCommand }}
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sleep
+              - {{.Container.PreStopSleepSeconds}}s
+        {{- end}}
+      {{ $deployment := . }}
+      {{- range .Sidecars}}
+        {{- if eq .Type "openresty" }}
+      - name: {{$deployment.Name}}-openresty
+        image: {{.Image}}
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: {{.CPURequest}}
+            memory: {{.MemoryRequest}}
+          limits:
+            cpu: {{.CPULimit}}
+            memory: {{.MemoryLimit}}
+        ports:
+        - name: http
+          containerPort: 80
+        - name: https
+          containerPort: 443
+        - name: nginx-liveness
+          containerPort: 82
+        - name: nginx-readiness
+          containerPort: 81
+        - name: nginx-prom
+          containerPort: 9101
+        env:
+        - name: "JAEGER_AGENT_HOST"
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: "OFFLOAD_TO_HOST"
+          value: "localhost"
+        - name: "OFFLOAD_TO_PORT"
+          value: "{{$deployment.Container.Port}}"
+        - name: "SERVICE_NAME"
+          value: "{{$deployment.Name}}"
+        - name: "NAMESPACE"
+          value: "{{$deployment.Namespace}}"
+        - name: "HEALT_CHECK_PATH"
+          value: "{{index .SidecarSpecificProperties "healthcheckpath"}}"
+        {{- range $key, $value := .EnvironmentVariables }}
+        - name: "{{ $key }}"
+          value: "{{ $value }}"
+        {{- end }}
+        volumeMounts:
+        - name: ssl-certificate
+          mountPath: /etc/ssl/private
+        livenessProbe:
+          httpGet:
+            path: /liveness
+            port: nginx-liveness
+          initialDelaySeconds: 15
+        readinessProbe:
+          httpGet:
+            path: {{$deployment.Container.Readiness.Path}}
+            port: https
+            scheme: HTTPS
+          initialDelaySeconds: {{$deployment.Container.Readiness.InitialDelaySeconds}}
+          timeoutSeconds: {{$deployment.Container.Readiness.TimeoutSeconds}}
+        {{- if .HasCustomProperties }}
+{{.CustomPropertiesYAML | indent 8}}
+        {{- end }}
+        {{- else }}      
+      - name: {{$deployment.Name}}-{{.Type}}
+        image: {{.Image}}
+        {{- if .HasEnvironmentVariables }}
+        env:
+        {{- range $key, $value := .EnvironmentVariables }}
+        - name: "{{ $key }}"
+          value: "{{ $value }}"
+        {{- end }}
+        {{- end }}
+        resources:
+          requests:
+            cpu: {{.CPURequest}}
+            memory: {{.MemoryRequest}}
+          limits:
+            cpu: {{.CPULimit}}
+            memory: {{.MemoryLimit}}
+        {{- if or $deployment.MountApplicationSecrets $deployment.MountConfigmap $deployment.MountServiceAccountSecret $deployment.MountAdditionalVolumes }}
+        volumeMounts:
+        {{- if $deployment.MountApplicationSecrets }}
+        - name: app-secrets
+          mountPath: {{$deployment.SecretMountPath}}
+        {{- end }}
+        {{- if $deployment.MountConfigmap }}
+        - name: app-configs
+          mountPath: {{$deployment.ConfigMountPath}}
+        {{- end }}
+        {{- if $deployment.MountServiceAccountSecret }}
+        - name: gcp-service-account
+          mountPath: /gcp-service-account
+        {{- end }}
+        {{- range $deployment.AdditionalVolumeMounts}}
+        - name: {{.Name}}
+          mountPath: {{.MountPath}}
+        {{- end}}
+        {{- end}}
+        {{- if .HasCustomProperties }}
+{{.CustomPropertiesYAML | indent 8}}
+        {{- end }}
+        {{- end }}
+      {{- end }}
+      terminationGracePeriodSeconds: 300
+      {{- if or .MountApplicationSecrets .MountConfigmap .MountServiceAccountSecret .MountPayloadLogging .MountAdditionalVolumes }}
+      volumes:
+      {{- if .MountApplicationSecrets }}
+      - name: app-secrets
+        secret:
+          secretName: {{.NameWithTrack}}-secrets
+      {{- end }}
+      {{- if .MountConfigmap }}
+      - name: app-configs
+        configMap:
+          name: {{.NameWithTrack}}-configs
+      {{- end }}
+      {{- if .MountServiceAccountSecret }}
+      - name: gcp-service-account
+        secret:
+          secretName: {{.GoogleCloudCredentialsAppName}}-gcp-service-account
+      {{- end }}
+      {{- if .MountPayloadLogging }}
+      - name: pod-log
+        hostPath:
+          path: /var/log/fluentd-payload-logger/{{.Name}}
+      - name: var-log
+        hostPath:
+          path: /var/log
+      {{- end }}
+      {{- range .AdditionalVolumeMounts}}
+      - name: {{.Name}}
+{{.VolumeYAML | indent 8}}
+      {{- end}}
+      {{- end }}
+  volumeClaimTemplates:
+  - metadata:
+      name: {{.Name}}-data
+      namespace: {{.Namespace}}
+      annotations:
+        volume.beta.kubernetes.io/storage-class: "{{.StorageClass}}"
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: {{.StorageSize}}

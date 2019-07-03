@@ -36,6 +36,7 @@ type TemplateData struct {
 	PreferPreemptibles                  bool
 	Container                           ContainerData
 	Sidecars                            []SidecarData
+	HasOpenrestySidecar                 bool
 	MountApplicationSecrets             bool
 	Secrets                             map[string]interface{}
 	SecretMountPath                     string
@@ -74,6 +75,9 @@ type TemplateData struct {
 	NginxIngressProxyBuffersNumber      string
 	IncludeReplicas                     bool
 	Replicas                            int
+	PodManagementPolicy                 string
+	StorageClass                        string
+	StorageSize                         string
 	IapOauthCredentialsClientID         string
 	IapOauthCredentialsClientSecret     string
 }

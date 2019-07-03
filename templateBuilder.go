@@ -61,7 +61,17 @@ func getTemplates(params Params) []string {
 			"cronjob.yaml",
 		}...)
 
-	default:
+	case "statefulset":
+		templatesToMerge = append(templatesToMerge, []string{
+			"namespace.yaml",
+			"service.yaml",
+			"service-headless.yaml",
+			"serviceaccount.yaml",
+			"certificate-secret.yaml",
+			"statefulset.yaml",
+		}...)
+
+	case "deployment":
 		templatesToMerge = append(templatesToMerge, []string{
 			"namespace.yaml",
 			"service.yaml",
@@ -69,23 +79,21 @@ func getTemplates(params Params) []string {
 			"certificate-secret.yaml",
 			"deployment.yaml",
 		}...)
-
 	}
 
+	if (params.Kind == "deployment" || params.Kind == "statefulset") && (params.Action == "deploy-simple" || params.Action == "deploy-stable") {
+		templatesToMerge = append(templatesToMerge, "poddisruptionbudget.yaml")
+	}
 	if params.Kind == "deployment" && (params.Action == "deploy-simple" || params.Action == "deploy-stable") {
-		templatesToMerge = append(templatesToMerge, []string{
-			"poddisruptionbudget.yaml",
-			"horizontalpodautoscaler.yaml",
-		}...)
+		templatesToMerge = append(templatesToMerge, "horizontalpodautoscaler.yaml")
 	}
-
-	if params.Kind == "deployment" && (params.Visibility == "private" || params.Visibility == "iap" || params.Visibility == "public-whitelist") {
+	if (params.Kind == "deployment" || params.Kind == "statefulset") && (params.Visibility == "private" || params.Visibility == "iap" || params.Visibility == "public-whitelist") {
 		templatesToMerge = append(templatesToMerge, "ingress.yaml")
 	}
-	if params.Kind == "deployment" && params.Visibility == "iap" {
+	if (params.Kind == "deployment" || params.Kind == "statefulset") && params.Visibility == "iap" {
 		templatesToMerge = append(templatesToMerge, "backend-config.yaml", "iap-oauth-credentials-secret.yaml")
 	}
-	if params.Kind == "deployment" && len(params.InternalHosts) > 0 {
+	if (params.Kind == "deployment" || params.Kind == "statefulset") && len(params.InternalHosts) > 0 {
 		templatesToMerge = append(templatesToMerge, "ingress-internal.yaml")
 	}
 	if len(params.Secrets.Keys) > 0 {

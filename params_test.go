@@ -96,6 +96,9 @@ var (
 				},
 			},
 		},
+		StorageClass:        "standard",
+		StorageSize:         "1Gi",
+		PodManagementPolicy: "Parallel",
 	}
 	validCredential = GKECredentials{
 		Name: "gke-production",
@@ -2099,6 +2102,45 @@ func TestSetDefaults(t *testing.T) {
 
 		assert.Equal(t, "job", params.Kind)
 	})
+
+	t.Run("DefaultsToParallelPodManagementPolicyForStatefulsets", func(t *testing.T) {
+
+		params := Params{
+			Kind:                "statefulset",
+			PodManagementPolicy: "",
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, "Parallel", params.PodManagementPolicy)
+	})
+
+	t.Run("DefaultsToStandardStorageClassForStatefulsets", func(t *testing.T) {
+
+		params := Params{
+			Kind:         "statefulset",
+			StorageClass: "",
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, "standard", params.StorageClass)
+	})
+
+	t.Run("DefaultsTo1GiStorageSizeForStatefulsets", func(t *testing.T) {
+
+		params := Params{
+			Kind:        "statefulset",
+			StorageSize: "",
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, "1Gi", params.StorageSize)
+	})
 }
 
 func TestValidateRequiredProperties(t *testing.T) {
@@ -3271,6 +3313,84 @@ func TestValidateRequiredProperties(t *testing.T) {
 		params.Kind = "cronjob"
 		params.Schedule = "*/5 * * * *"
 		params.ConcurrencyPolicy = "Allow"
+
+		// act
+		valid, errors, _ := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfPodManagementPolicyIsInvalidAndKindIsStatefulset", func(t *testing.T) {
+
+		params := validParams
+		params.Kind = "statefulset"
+		params.PodManagementPolicy = "InvalidPolicy"
+
+		// act
+		valid, errors, _ := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfPodManagementPolicyIsValidAndKindIsStatefulset", func(t *testing.T) {
+
+		params := validParams
+		params.Kind = "statefulset"
+		params.PodManagementPolicy = "Parallel"
+
+		// act
+		valid, errors, _ := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfStorageClassIsEmptyAndKindIsStatefulset", func(t *testing.T) {
+
+		params := validParams
+		params.Kind = "statefulset"
+		params.StorageClass = ""
+
+		// act
+		valid, errors, _ := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsFalseIfStorageClassIsSetAndKindIsStatefulset", func(t *testing.T) {
+
+		params := validParams
+		params.Kind = "statefulset"
+		params.StorageClass = "standard"
+
+		// act
+		valid, errors, _ := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfStorageSizeIsEmptyAndKindIsStatefulset", func(t *testing.T) {
+
+		params := validParams
+		params.Kind = "statefulset"
+		params.StorageSize = ""
+
+		// act
+		valid, errors, _ := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsFalseIfStorageSizeIsSetAndKindIsStatefulset", func(t *testing.T) {
+
+		params := validParams
+		params.Kind = "statefulset"
+		params.StorageSize = "1Gi"
 
 		// act
 		valid, errors, _ := params.ValidateRequiredProperties()

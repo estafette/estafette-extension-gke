@@ -275,7 +275,14 @@ func main() {
 				break
 			}
 			break
-		case "job":
+		case "statefulset":
+			deleteConfigsForParamsChange(params, templateData.Name, templateData.Namespace)
+			deleteSecretsForParamsChange(params, templateData.Name, templateData.Namespace)
+			deleteServiceAccountSecretForParamsChange(params, templateData.GoogleCloudCredentialsAppName, templateData.Namespace)
+			deleteIngressForVisibilityChange(templateData, templateData.Name, templateData.Namespace)
+			removeEstafetteCloudflareAnnotations(templateData, templateData.Name, templateData.Namespace)
+			removeBackendConfigAnnotation(templateData, templateData.Name, templateData.Namespace)
+			deleteBackendConfigAndIAPOauthSecret(templateData, templateData.Name, templateData.Namespace)
 			break
 		}
 
@@ -286,7 +293,7 @@ func main() {
 func assistTroubleshooting() {
 	if assistTroubleshootingOnError {
 		logInfo("Showing current ingresses, services, configmaps, secrets, deployments, jobs, cronjobs, poddisruptionbudgets, horizontalpodautoscalers, pods, endpoints for app=%v...", paramsForTroubleshooting.App)
-		runCommandExtended("kubectl", []string{"get", "ing,svc,cm,secret,deploy,job,cronjob,pdb,hpa,po,ep", "-l", fmt.Sprintf("app=%v", paramsForTroubleshooting.App), "-n", paramsForTroubleshooting.Namespace})
+		runCommandExtended("kubectl", []string{"get", "ing,svc,cm,secret,deploy,job,cronjob,sts,pdb,hpa,po,ep", "-l", fmt.Sprintf("app=%v", paramsForTroubleshooting.App), "-n", paramsForTroubleshooting.Namespace})
 
 		if paramsForTroubleshooting.Action == "deploy-canary" {
 			logInfo("Showing logs for canary deployment...")

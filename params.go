@@ -23,6 +23,9 @@ type Params struct {
 	Namespace                       string              `json:"namespace,omitempty" yaml:"namespace,omitempty"`
 	Schedule                        string              `json:"schedule,omitempty" yaml:"schedule,omitempty"`
 	ConcurrencyPolicy               string              `json:"concurrencypolicy,omitempty" yaml:"concurrencypolicy,omitempty"`
+	PodManagementPolicy             string              `json:"podManagementpolicy,omitempty" yaml:"podManagementpolicy,omitempty"`
+	StorageClass                    string              `json:"storageclass,omitempty" yaml:"storageclass,omitempty"`
+	StorageSize                     string              `json:"storagesize,omitempty" yaml:"storagesize,omitempty"`
 	Labels                          map[string]string   `json:"labels,omitempty" yaml:"labels,omitempty"`
 	Visibility                      string              `json:"visibility,omitempty" yaml:"visibility,omitempty"`
 	IapOauthCredentialsClientID     string              `json:"iapOauthClientID,omitempty" yaml:"iapOauthClientID,omitempty"`
@@ -456,6 +459,18 @@ func (p *Params) SetDefaults(gitName, appLabel, buildVersion, releaseName, relea
 			p.ConcurrencyPolicy = "Allow"
 		}
 	}
+
+	if p.Kind == "statefulset" {
+		if p.PodManagementPolicy == "" {
+			p.PodManagementPolicy = "Parallel"
+		}
+		if p.StorageClass == "" {
+			p.StorageClass = "standard"
+		}
+		if p.StorageSize == "" {
+			p.StorageSize = "1Gi"
+		}
+	}
 }
 
 func (p *Params) initializeSidecarDefaults(sidecar *SidecarParams) {
@@ -569,12 +584,24 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 			}
 
 			if p.ConcurrencyPolicy != "Allow" && p.ConcurrencyPolicy != "Forbid" && p.ConcurrencyPolicy != "Replace" {
-				errors = append(errors, fmt.Errorf("ConcurrencyPolicy is invalid; allowed values are Allow, Forbid or Replace"))
+				errors = append(errors, fmt.Errorf("ConcurrencyPolicy is invalid; allowed values for concurrencypolicy property are Allow, Forbid or Replace"))
 			}
 		}
 
 		// the above properties are all you need for a worker
 		return len(errors) == 0, errors, warnings
+	}
+
+	if p.Kind == "statefulset" {
+		if p.PodManagementPolicy != "OrderedReady" && p.PodManagementPolicy != "Parallel" {
+			errors = append(errors, fmt.Errorf("PodManagementPolicy is required for a statefulset; allowed values for podmanagementpolicy property are OrderedReady or Parallel"))
+		}
+		if p.StorageClass == "" {
+			errors = append(errors, fmt.Errorf("StorageClass is required for a statefulset; set it via storageclass property on this stage"))
+		}
+		if p.StorageSize == "" {
+			errors = append(errors, fmt.Errorf("StorageSize is required for a statefulset; set it via storagesize property on this stage"))
+		}
 	}
 
 	// validate params with respect to incoming requests

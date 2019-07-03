@@ -59,6 +59,10 @@ func generateTemplateData(params Params, currentReplicas int, releaseID, trigger
 		GoogleCloudCredentialsAppName:    params.GoogleCloudCredentialsApp,
 		DisableServiceAccountKeyRotation: params.DisableServiceAccountKeyRotation,
 
+		PodManagementPolicy: params.PodManagementPolicy,
+		StorageClass:        params.StorageClass,
+		StorageSize:         params.StorageSize,
+
 		Container: ContainerData{
 			Repository: params.Container.ImageRepository,
 			Name:       params.Container.ImageName,
@@ -84,7 +88,6 @@ func generateTemplateData(params Params, currentReplicas int, releaseID, trigger
 				Port:                params.Container.ReadinessProbe.Port,
 				InitialDelaySeconds: params.Container.ReadinessProbe.InitialDelaySeconds,
 				TimeoutSeconds:      params.Container.ReadinessProbe.TimeoutSeconds,
-				IncludeOnContainer:  params.Sidecar.Type != "openresty" || params.Container.ReadinessProbe.Port != params.Container.Port || params.Container.ReadinessProbe.Path != params.Sidecar.HealthCheckPath,
 			},
 			Metrics: MetricsData{
 				Path: params.Container.Metrics.Path,
@@ -105,12 +108,16 @@ func generateTemplateData(params Params, currentReplicas int, releaseID, trigger
 	// set tracing service name
 	data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_SERVICE_NAME", params.App)
 
+	data.HasOpenrestySidecar = false
 	for _, sidecarParams := range params.Sidecars {
 		sidecar := buildSidecar(sidecarParams, params.Request)
 		data.Sidecars = append(data.Sidecars, sidecar)
-
-		logInfo("Added sidecar of type %v to data.Sidecars of length %v", sidecarParams.Type, len(data.Sidecars))
+		if sidecar.Type == "openresty" {
+			data.HasOpenrestySidecar = true
+		}
 	}
+
+	data.Container.Readiness.IncludeOnContainer = !data.HasOpenrestySidecar || params.Container.ReadinessProbe.Port != params.Container.Port || params.Container.ReadinessProbe.Path != params.Sidecar.HealthCheckPath
 
 	// set request params on the nginx ingress
 	requestTimeout, requestTimeoutConvertError := strconv.Atoi(strings.Trim(params.Request.Timeout, "s"))

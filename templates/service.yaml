@@ -28,6 +28,7 @@ spec:
   {{- end}}
   {{- end}}
   ports:
+  {{- if .HasOpenrestySidecar }}
   - name: http
     port: 80
     targetPort: http
@@ -36,6 +37,12 @@ spec:
     port: 443
     targetPort: https
     protocol: TCP
+  {{- else }}
+  - name: web
+    port: {{.Container.Port}}
+    targetPort: web
+    protocol: TCP
+  {{- end}}
   {{- range .AdditionalServicePorts}}
   - name: {{.Name}}
     port: {{.Port}}
