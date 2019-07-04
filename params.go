@@ -95,6 +95,7 @@ type MemoryParams struct {
 
 // AutoscaleParams controls autoscaling
 type AutoscaleParams struct {
+	Enable        *bool                 `json:"enable,omitempty" yaml:"enable,omitempty"`
 	MinReplicas   int                   `json:"min,omitempty" yaml:"min,omitempty"`
 	MaxReplicas   int                   `json:"max,omitempty" yaml:"max,omitempty"`
 	CPUPercentage int                   `json:"cpu,omitempty" yaml:"cpu,omitempty"`
@@ -297,6 +298,10 @@ func (p *Params) SetDefaults(gitName, appLabel, buildVersion, releaseName, relea
 	}
 
 	// set autoscale defaults
+	if p.Autoscale.Enable == nil {
+		trueValue := true
+		p.Autoscale.Enable = &trueValue
+	}
 	if p.Autoscale.MinReplicas <= 0 {
 		p.Autoscale.MinReplicas = 3
 	}
