@@ -98,6 +98,7 @@ var (
 		},
 		StorageClass:        "standard",
 		StorageSize:         "1Gi",
+		StorageMountPath:    "/data",
 		PodManagementPolicy: "Parallel",
 	}
 	validCredential = GKECredentials{
