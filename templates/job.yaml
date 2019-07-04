@@ -14,7 +14,7 @@ spec:
     metadata:
       labels:
         {{- range $key, $value := .PodLabels}}
-        {{$key}}: {{$value}}
+        {{$key}}: "{{$value}}"
         {{- end}}
       annotations:
         prometheus.io/scrape: "{{.Container.Metrics.Scrape}}"

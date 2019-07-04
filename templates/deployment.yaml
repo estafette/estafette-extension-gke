@@ -27,7 +27,7 @@ spec:
     metadata:
       labels:
         {{- range $key, $value := .PodLabels}}
-        {{$key}}: {{$value}}
+        {{$key}}: "{{$value}}"
         {{- end}}
         {{- if .IncludeTrackLabel}}
         track: {{.TrackLabel}}
