@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -8,7 +9,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-func generateTemplateData(params Params, currentReplicas int, releaseID, triggeredBy string) TemplateData {
+func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwner, gitName, gitBranch, gitRevision, releaseID, triggeredBy string) TemplateData {
 
 	data := TemplateData{
 		BuildVersion: params.BuildVersion,
@@ -19,6 +20,7 @@ func generateTemplateData(params Params, currentReplicas int, releaseID, trigger
 		Schedule:          params.Schedule,
 		ConcurrencyPolicy: params.ConcurrencyPolicy,
 		Labels:            sanitizeLabels(params.Labels),
+		PodLabels:         sanitizeLabels(params.Labels),
 		AppLabelSelector:  sanitizeLabel(params.App),
 
 		Hosts:               params.Hosts,
@@ -163,13 +165,19 @@ func generateTemplateData(params Params, currentReplicas int, releaseID, trigger
 	}
 
 	if releaseID != "" {
-		data.IncludeReleaseIDLabel = true
-		data.ReleaseIDLabel = sanitizeLabel(releaseID)
+		data.PodLabels["estafette.io/release-id"] = sanitizeLabel(releaseID)
 	}
-
 	if triggeredBy != "" {
-		data.IncludeTriggeredByLabel = true
-		data.TriggeredByLabel = sanitizeLabel(triggeredBy)
+		data.PodLabels["estafette.io/triggered-by"] = sanitizeLabel(triggeredBy)
+	}
+	if gitSource != "" && gitOwner != "" && gitName != "" {
+		data.PodLabels["estafette.io/git-repository"] = sanitizeLabel(fmt.Sprintf("%v/%v/%v", gitSource, gitOwner, gitName))
+	}
+	if gitBranch != "" {
+		data.PodLabels["estafette.io/git-branch"] = sanitizeLabel(gitBranch)
+	}
+	if gitRevision != "" {
+		data.PodLabels["estafette.io/git-revision"] = sanitizeLabel(gitRevision)
 	}
 
 	switch params.Action {
@@ -346,15 +354,19 @@ func sanitizeLabel(value string) string {
 	// Valid label values must be 63 characters or less and must be empty or begin and end with an alphanumeric character ([a-z0-9A-Z])
 	// with dashes (-), underscores (_), dots (.), and alphanumerics between.
 
+	// replace @ with -at-
+	reg := regexp.MustCompile(`@+`)
+	value = reg.ReplaceAllString(value, "-at-")
+
 	// replace all invalid characters with a hyphen
-	reg := regexp.MustCompile(`[^a-zA-Z0-9-_.]+`)
+	reg = regexp.MustCompile(`[^a-zA-Z0-9-_.]+`)
 	value = reg.ReplaceAllString(value, "-")
 
 	// replace double hyphens with a single one
 	value = strings.Replace(value, "--", "-", -1)
 
 	// ensure it starts with an alphanumeric character
-	reg = regexp.MustCompile(`^[-_.]+`)
+	reg = regexp.MustCompile(`^[^a-zA-Z0-9]+`)
 	value = reg.ReplaceAllString(value, "")
 
 	// maximize length at 63 characters
@@ -363,7 +375,7 @@ func sanitizeLabel(value string) string {
 	}
 
 	// ensure it ends with an alphanumeric character
-	reg = regexp.MustCompile(`[-_.]+$`)
+	reg = regexp.MustCompile(`[^a-zA-Z0-9]+$`)
 	value = reg.ReplaceAllString(value, "")
 
 	return value

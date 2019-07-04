@@ -8,6 +8,7 @@ type TemplateData struct {
 	Schedule                            string
 	ConcurrencyPolicy                   string
 	Labels                              map[string]string
+	PodLabels                           map[string]string
 	AppLabelSelector                    string
 	Hosts                               []string
 	HostsJoined                         string
@@ -54,10 +55,6 @@ type TemplateData struct {
 	TrustedIPRanges                     []string
 	ManifestData                        map[string]interface{}
 	IncludeTrackLabel                   bool
-	IncludeReleaseIDLabel               bool
-	ReleaseIDLabel                      string
-	IncludeTriggeredByLabel             bool
-	TriggeredByLabel                    string
 	TrackLabel                          string
 	AddSafeToEvictAnnotation            bool
 	MountAdditionalVolumes              bool

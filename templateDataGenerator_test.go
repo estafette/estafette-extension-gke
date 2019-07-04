@@ -15,7 +15,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "myapp", templateData.Name)
 	})
@@ -27,7 +27,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "mynamespace", templateData.Namespace)
 	})
@@ -42,7 +42,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 2, len(templateData.Labels))
 		assert.Equal(t, "myapp", templateData.Labels["app"])
@@ -56,7 +56,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "myapp", templateData.AppLabelSelector)
 	})
@@ -72,7 +72,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 2, len(templateData.Labels))
 		assert.Equal(t, "yourapp", templateData.Labels["app"])
@@ -88,7 +88,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 2, len(templateData.Labels))
 		assert.Equal(t, "yourapp", templateData.Labels["app"])
@@ -103,7 +103,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "myproject", templateData.Container.Repository)
 	})
@@ -117,7 +117,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "my-app", templateData.Container.Name)
 	})
@@ -131,7 +131,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "1.0.0", templateData.Container.Tag)
 	})
@@ -143,7 +143,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "ClusterIP", templateData.ServiceType)
 	})
@@ -155,7 +155,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "ClusterIP", templateData.ServiceType)
 	})
@@ -167,7 +167,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "NodePort", templateData.ServiceType)
 	})
@@ -179,7 +179,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "LoadBalancer", templateData.ServiceType)
 	})
@@ -191,7 +191,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.UseDNSAnnotationsOnIngress)
 	})
@@ -203,7 +203,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.UseDNSAnnotationsOnIngress)
 	})
@@ -215,7 +215,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.UseDNSAnnotationsOnIngress)
 	})
@@ -227,7 +227,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.UseDNSAnnotationsOnService)
 	})
@@ -239,7 +239,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.UseDNSAnnotationsOnService)
 	})
@@ -251,7 +251,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.UseDNSAnnotationsOnService)
 	})
@@ -263,7 +263,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.UseCloudflareProxy)
 	})
@@ -275,7 +275,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.UseCloudflareProxy)
 	})
@@ -287,7 +287,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.UseCloudflareProxy)
 	})
@@ -299,7 +299,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.UseCloudflareProxy)
 	})
@@ -315,7 +315,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "1200m", templateData.Container.CPURequest)
 	})
@@ -331,7 +331,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "1500m", templateData.Container.CPULimit)
 	})
@@ -347,7 +347,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "1024Mi", templateData.Container.MemoryRequest)
 	})
@@ -363,7 +363,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "2048Mi", templateData.Container.MemoryLimit)
 	})
@@ -377,7 +377,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 3080, templateData.Container.Port)
 	})
@@ -392,7 +392,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 2, len(templateData.Hosts))
 		assert.Equal(t, "gke.estafette.io", templateData.Hosts[0])
@@ -409,7 +409,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "gke.estafette.io,gke-deploy.estafette.io", templateData.HostsJoined)
 	})
@@ -424,7 +424,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 2, len(templateData.InternalHosts))
 		assert.Equal(t, "gke.estafette.io", templateData.InternalHosts[0])
@@ -441,7 +441,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "gke.estafette.io,gke-deploy.estafette.io", templateData.InternalHostsJoined)
 	})
@@ -455,7 +455,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 5, templateData.MinReplicas)
 	})
@@ -469,7 +469,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 16, templateData.MaxReplicas)
 	})
@@ -481,7 +481,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.UseNginxIngress)
 	})
@@ -493,7 +493,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.UseNginxIngress)
 	})
@@ -505,7 +505,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.UseNginxIngress)
 	})
@@ -517,7 +517,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.UseNginxIngress)
 	})
@@ -529,7 +529,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.UseGCEIngress)
 	})
@@ -541,7 +541,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.UseGCEIngress)
 	})
@@ -553,7 +553,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.UseGCEIngress)
 	})
@@ -565,7 +565,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.UseGCEIngress)
 	})
@@ -581,7 +581,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "/liveness", templateData.Container.Liveness.Path)
 	})
@@ -597,7 +597,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 5001, templateData.Container.Liveness.Port)
 	})
@@ -613,7 +613,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 30, templateData.Container.Liveness.InitialDelaySeconds)
 	})
@@ -629,7 +629,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 1, templateData.Container.Liveness.TimeoutSeconds)
 	})
@@ -645,7 +645,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "/readiness", templateData.Container.Readiness.Path)
 	})
@@ -661,7 +661,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 5002, templateData.Container.Readiness.Port)
 	})
@@ -677,7 +677,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 30, templateData.Container.Readiness.InitialDelaySeconds)
 	})
@@ -693,7 +693,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 1, templateData.Container.Readiness.TimeoutSeconds)
 	})
@@ -710,7 +710,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "value1", templateData.Container.EnvironmentVariables["MY_CUSTOM_ENV"])
 		assert.Equal(t, "value2", templateData.Container.EnvironmentVariables["MY_OTHER_CUSTOM_ENV"])
@@ -726,7 +726,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "my-app", templateData.Container.EnvironmentVariables["JAEGER_SERVICE_NAME"])
 	})
@@ -742,7 +742,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "/readiness", templateData.Container.Metrics.Path)
 	})
@@ -758,7 +758,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 3080, templateData.Container.Metrics.Port)
 	})
@@ -774,7 +774,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, true, templateData.Container.Metrics.Scrape)
 	})
@@ -790,7 +790,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, true, templateData.Container.UseLifecyclePreStopSleepCommand)
 	})
@@ -808,7 +808,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 25, templateData.Container.PreStopSleepSeconds)
 	})
@@ -824,7 +824,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 1, len(templateData.Sidecars))
 	})
@@ -840,7 +840,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "openresty", templateData.Sidecars[0].Type)
 	})
@@ -856,7 +856,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "estafette/openresty-sidecar:1.13.6.1-alpine", templateData.Sidecars[0].Image)
 	})
@@ -872,7 +872,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "/readiness", templateData.Sidecars[0].SidecarSpecificProperties["healthcheckpath"])
 	})
@@ -890,7 +890,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "1200m", templateData.Sidecars[0].CPURequest)
 	})
@@ -908,7 +908,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "1500m", templateData.Sidecars[0].CPULimit)
 	})
@@ -926,7 +926,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "1024Mi", templateData.Sidecars[0].MemoryRequest)
 	})
@@ -944,7 +944,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "2048Mi", templateData.Sidecars[0].MemoryLimit)
 	})
@@ -963,7 +963,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		// assert.Equal(t, 2, len(templateData.Sidecar.EnvironmentVariables))
 		assert.Equal(t, "value1", templateData.Sidecars[0].EnvironmentVariables["MY_CUSTOM_ENV"])
@@ -984,7 +984,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 4, len(templateData.Sidecars[0].SidecarSpecificProperties))
 		assert.Equal(t, "testHealthCheckPath", templateData.Sidecars[0].SidecarSpecificProperties["healthcheckpath"])
@@ -1005,7 +1005,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 2, len(templateData.Secrets))
 		assert.Equal(t, "c29tZSBzZWNyZXQgdmFsdWU=", templateData.Secrets["secret-file-1.json"])
@@ -1024,7 +1024,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.MountApplicationSecrets)
 	})
@@ -1038,7 +1038,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.MountApplicationSecrets)
 	})
@@ -1050,7 +1050,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "/", templateData.IngressPath)
 	})
@@ -1062,7 +1062,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "/api/", templateData.IngressPath)
 	})
@@ -1075,7 +1075,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "/api/*", templateData.IngressPath)
 	})
@@ -1087,7 +1087,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "/", templateData.InternalIngressPath)
 	})
@@ -1099,7 +1099,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "/api/", templateData.InternalIngressPath)
 	})
@@ -1112,7 +1112,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "/api/", templateData.InternalIngressPath)
 	})
@@ -1124,7 +1124,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.MountPayloadLogging)
 	})
@@ -1136,7 +1136,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.MountPayloadLogging)
 	})
@@ -1148,7 +1148,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.AddSafeToEvictAnnotation)
 	})
@@ -1160,7 +1160,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.AddSafeToEvictAnnotation)
 	})
@@ -1174,7 +1174,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "25%", templateData.RollingUpdateMaxSurge)
 	})
@@ -1188,7 +1188,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "15%", templateData.RollingUpdateMaxUnavailable)
 	})
@@ -1200,7 +1200,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "1.2.3", templateData.BuildVersion)
 	})
@@ -1212,7 +1212,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.PreferPreemptibles)
 	})
@@ -1224,7 +1224,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.PreferPreemptibles)
 	})
@@ -1240,7 +1240,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.MountConfigmap)
 	})
@@ -1256,7 +1256,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.MountConfigmap)
 	})
@@ -1271,7 +1271,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.MountConfigmap)
 	})
@@ -1285,7 +1285,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "/configs", templateData.ConfigMountPath)
 	})
@@ -1299,7 +1299,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "/secrets", templateData.SecretMountPath)
 	})
@@ -1311,7 +1311,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.LimitTrustedIPRanges)
 	})
@@ -1323,7 +1323,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.LimitTrustedIPRanges)
 	})
@@ -1335,7 +1335,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.LimitTrustedIPRanges)
 	})
@@ -1347,7 +1347,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.LimitTrustedIPRanges)
 	})
@@ -1374,7 +1374,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 14, len(templateData.TrustedIPRanges))
 	})
@@ -1396,7 +1396,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 3, len(templateData.ManifestData))
 		assert.Equal(t, "value 1", templateData.ManifestData["property1"])
@@ -1412,7 +1412,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "myapp-canary", templateData.NameWithTrack)
 	})
@@ -1425,7 +1425,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "myapp-stable", templateData.NameWithTrack)
 	})
@@ -1438,12 +1438,12 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "myapp", templateData.NameWithTrack)
 	})
 
-	t.Run("SetsIncludeReleaseIDLabelToFalseIfReleaseIDIsEmpty", func(t *testing.T) {
+	t.Run("DoesNotAddReleaseIDLabelToPodLabelsIfReleaseIDIsEmpty", func(t *testing.T) {
 
 		params := Params{
 			App:    "myapp",
@@ -1452,12 +1452,12 @@ func TestGenerateTemplateData(t *testing.T) {
 		releaseID := ""
 
 		// act
-		templateData := generateTemplateData(params, -1, releaseID, "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", releaseID, "")
 
-		assert.False(t, templateData.IncludeReleaseIDLabel)
+		assert.Equal(t, "", templateData.PodLabels["estafette.io/release-id"])
 	})
 
-	t.Run("SetsIncludeReleaseIDLabelToTrueIfReleaseIDIsNotEmpty", func(t *testing.T) {
+	t.Run("AddsReleaseIDLabelToPodLabelsIfReleaseIDIsNotEmpty", func(t *testing.T) {
 
 		params := Params{
 			App:    "myapp",
@@ -1466,23 +1466,9 @@ func TestGenerateTemplateData(t *testing.T) {
 		releaseID := "1"
 
 		// act
-		templateData := generateTemplateData(params, -1, releaseID, "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", releaseID, "")
 
-		assert.True(t, templateData.IncludeReleaseIDLabel)
-	})
-
-	t.Run("SetsReleaseIDLabelToReleaseID", func(t *testing.T) {
-
-		params := Params{
-			App:    "myapp",
-			Action: "deploy-simple",
-		}
-		releaseID := "1"
-
-		// act
-		templateData := generateTemplateData(params, -1, releaseID, "")
-
-		assert.Equal(t, "1", templateData.ReleaseIDLabel)
+		assert.Equal(t, "1", templateData.PodLabels["estafette.io/release-id"])
 	})
 
 	t.Run("SetsIncludeTriggeredByLabelToFalseIfTriggeredByIsEmpty", func(t *testing.T) {
@@ -1494,9 +1480,9 @@ func TestGenerateTemplateData(t *testing.T) {
 		triggeredBy := ""
 
 		// act
-		templateData := generateTemplateData(params, -1, "", triggeredBy)
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", triggeredBy)
 
-		assert.False(t, templateData.IncludeTriggeredByLabel)
+		assert.Equal(t, "", templateData.PodLabels["estafette.io/triggered-by"])
 	})
 
 	t.Run("SetsIncludeTriggeredByLabelToTrueIfTriggeredByIsNotEmpty", func(t *testing.T) {
@@ -1508,23 +1494,9 @@ func TestGenerateTemplateData(t *testing.T) {
 		triggeredBy := "user@estafette.io"
 
 		// act
-		templateData := generateTemplateData(params, -1, "", triggeredBy)
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", triggeredBy)
 
-		assert.True(t, templateData.IncludeTriggeredByLabel)
-	})
-
-	t.Run("SetsTriggeredByLabelToTriggeredBySanitizedAsLabel", func(t *testing.T) {
-
-		params := Params{
-			App:    "myapp",
-			Action: "deploy-simple",
-		}
-		triggeredBy := "user@estafette.io"
-
-		// act
-		templateData := generateTemplateData(params, -1, "", triggeredBy)
-
-		assert.Equal(t, "user-estafette.io", templateData.TriggeredByLabel)
+		assert.Equal(t, "user-at-estafette.io", templateData.PodLabels["estafette.io/triggered-by"])
 	})
 
 	t.Run("SetsIncludeTrackLabelToFalseIfParamsTypeIsSimple", func(t *testing.T) {
@@ -1535,7 +1507,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.IncludeTrackLabel)
 	})
@@ -1548,7 +1520,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.IncludeTrackLabel)
 	})
@@ -1561,7 +1533,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.IncludeTrackLabel)
 	})
@@ -1574,7 +1546,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "canary", templateData.TrackLabel)
 	})
@@ -1587,7 +1559,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "stable", templateData.TrackLabel)
 	})
@@ -1620,7 +1592,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 1, len(templateData.AdditionalVolumeMounts))
 		assert.Equal(t, "client-certs", templateData.AdditionalVolumeMounts[0].Name)
@@ -1650,7 +1622,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 2, len(templateData.AdditionalContainerPorts))
 	})
@@ -1678,7 +1650,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 1, len(templateData.AdditionalServicePorts))
 		assert.Equal(t, "grpc", templateData.AdditionalServicePorts[0].Name)
@@ -1696,7 +1668,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.OverrideDefaultWhitelist)
 	})
@@ -1709,7 +1681,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.OverrideDefaultWhitelist)
 	})
@@ -1724,7 +1696,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.OverrideDefaultWhitelist)
 	})
@@ -1739,7 +1711,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.OverrideDefaultWhitelist)
 	})
@@ -1754,7 +1726,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.OverrideDefaultWhitelist)
 	})
@@ -1771,7 +1743,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16", templateData.NginxIngressWhitelist)
 	})
@@ -1781,7 +1753,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		params := Params{}
 
 		// act
-		templateData := generateTemplateData(params, 1, "", "")
+		templateData := generateTemplateData(params, 1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.IncludeReplicas)
 	})
@@ -1791,7 +1763,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		params := Params{}
 
 		// act
-		templateData := generateTemplateData(params, 0, "", "")
+		templateData := generateTemplateData(params, 0, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.IncludeReplicas)
 	})
@@ -1801,7 +1773,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		params := Params{}
 
 		// act
-		templateData := generateTemplateData(params, 15, "", "")
+		templateData := generateTemplateData(params, 15, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 15, templateData.Replicas)
 	})
@@ -1815,7 +1787,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, 0, "", "")
+		templateData := generateTemplateData(params, 0, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 3, templateData.Replicas)
 	})
@@ -1827,7 +1799,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "*/5 * * * *", templateData.Schedule)
 	})
@@ -1843,7 +1815,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.UseHpaScaler)
 	})
@@ -1859,7 +1831,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "sum(rate(nginx_http_requests_total{app='my-app'}[5m])) by (app)", templateData.HpaScalerPromQuery)
 	})
@@ -1875,7 +1847,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "0.25", templateData.HpaScalerRequestsPerReplica)
 	})
@@ -1891,7 +1863,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "-2.7584", templateData.HpaScalerDelta)
 	})
@@ -1907,7 +1879,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "0.2", templateData.HpaScalerScaleDownMaxRatio)
 	})
@@ -1924,7 +1896,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 2, len(templateData.AllHosts))
 		assert.Equal(t, "ci.estafette.io", templateData.AllHosts[0])
@@ -1943,7 +1915,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "ci.estafette.io,ci.internal.estafette.io", templateData.AllHostsJoined)
 	})
@@ -1957,7 +1929,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 1, len(templateData.AllHosts))
 		assert.Equal(t, "ci.estafette.io", templateData.AllHosts[0])
@@ -1972,7 +1944,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "ci.estafette.io", templateData.AllHostsJoined)
 	})
@@ -1986,7 +1958,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 1, len(templateData.AllHosts))
 		assert.Equal(t, "ci.internal.estafette.io", templateData.AllHosts[0])
@@ -2001,7 +1973,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "ci.internal.estafette.io", templateData.AllHostsJoined)
 	})
@@ -2015,7 +1987,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 75, templateData.NginxIngressProxyConnectTimeout)
 	})
@@ -2029,7 +2001,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 75, templateData.NginxIngressProxyConnectTimeout)
 	})
@@ -2043,7 +2015,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 75, templateData.NginxIngressProxyConnectTimeout)
 	})
@@ -2057,7 +2029,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 300, templateData.NginxIngressProxySendTimeout)
 	})
@@ -2071,7 +2043,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 300, templateData.NginxIngressProxySendTimeout)
 	})
@@ -2085,7 +2057,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 300, templateData.NginxIngressProxyReadTimeout)
 	})
@@ -2099,7 +2071,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "", "")
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 300, templateData.NginxIngressProxyReadTimeout)
 	})

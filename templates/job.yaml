@@ -13,15 +13,8 @@ spec:
   template:
     metadata:
       labels:
-        {{- range $key, $value := .Labels}}
+        {{- range $key, $value := .PodLabels}}
         {{$key}}: {{$value}}
-        {{- end}}
-        version: {{.BuildVersion}}
-        {{- if .IncludeReleaseIDLabel}}
-        release-id: "{{.ReleaseIDLabel}}"
-        {{- end}}
-        {{- if .IncludeTriggeredByLabel}}
-        triggered-by: "{{.TriggeredByLabel}}"
         {{- end}}
       annotations:
         prometheus.io/scrape: "{{.Container.Metrics.Scrape}}"
