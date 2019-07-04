@@ -112,8 +112,9 @@ spec:
           initialDelaySeconds: {{.Container.Readiness.InitialDelaySeconds}}
           timeoutSeconds: {{.Container.Readiness.TimeoutSeconds}}
         {{- end }}
-        {{- if or .MountApplicationSecrets .MountConfigmap .MountServiceAccountSecret .MountPayloadLogging .MountAdditionalVolumes }}
         volumeMounts:
+        - name: {{.Name}}-data
+          mountPath: /data
         {{- if .MountApplicationSecrets }}
         - name: app-secrets
           mountPath: {{.SecretMountPath}}
@@ -254,8 +255,11 @@ spec:
         {{- end }}
       {{- end }}
       terminationGracePeriodSeconds: 300
-      {{- if or .MountApplicationSecrets .MountConfigmap .MountServiceAccountSecret .MountPayloadLogging .MountAdditionalVolumes }}
       volumes:
+      volumes:
+      - name: {{.Name}}-data
+        persistentVolumeClaim:
+          claimName: {{.Name}}-data
       {{- if .MountApplicationSecrets }}
       - name: app-secrets
         secret:
@@ -283,15 +287,17 @@ spec:
       - name: {{.Name}}
 {{.VolumeYAML | indent 8}}
       {{- end}}
-      {{- end }}
   volumeClaimTemplates:
   - metadata:
       name: {{.Name}}-data
       namespace: {{.Namespace}}
-      annotations:
-        volume.beta.kubernetes.io/storage-class: "{{.StorageClass}}"
+      labels:
+        {{- range $key, $value := .Labels}}
+        {{$key}}: {{$value}}
+        {{- end}}
     spec:
       accessModes: [ "ReadWriteOnce" ]
+      storageClassName: {{.StorageClass}}
       resources:
         requests:
           storage: {{.StorageSize}}

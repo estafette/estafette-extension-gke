@@ -75,6 +75,7 @@ type TemplateData struct {
 	PodManagementPolicy                 string
 	StorageClass                        string
 	StorageSize                         string
+	StorageMountPath                    string
 	IapOauthCredentialsClientID         string
 	IapOauthCredentialsClientSecret     string
 	IsSimpleEnvvarValue                 func(interface{}) bool

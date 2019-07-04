@@ -64,6 +64,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		PodManagementPolicy: params.PodManagementPolicy,
 		StorageClass:        params.StorageClass,
 		StorageSize:         params.StorageSize,
+		StorageMountPath:    params.StorageMountPath,
 
 		Container: ContainerData{
 			Repository: params.Container.ImageRepository,

@@ -26,6 +26,7 @@ type Params struct {
 	PodManagementPolicy             string              `json:"podManagementpolicy,omitempty" yaml:"podManagementpolicy,omitempty"`
 	StorageClass                    string              `json:"storageclass,omitempty" yaml:"storageclass,omitempty"`
 	StorageSize                     string              `json:"storagesize,omitempty" yaml:"storagesize,omitempty"`
+	StorageMountPath                string              `json:"storagemountpath,omitempty" yaml:"storagemountpath,omitempty"`
 	Labels                          map[string]string   `json:"labels,omitempty" yaml:"labels,omitempty"`
 	Visibility                      string              `json:"visibility,omitempty" yaml:"visibility,omitempty"`
 	IapOauthCredentialsClientID     string              `json:"iapOauthClientID,omitempty" yaml:"iapOauthClientID,omitempty"`
@@ -470,6 +471,9 @@ func (p *Params) SetDefaults(gitName, appLabel, buildVersion, releaseName, relea
 		if p.StorageSize == "" {
 			p.StorageSize = "1Gi"
 		}
+		if p.StorageMountPath == "" {
+			p.StorageMountPath = "/data"
+		}
 	}
 }
 
@@ -601,6 +605,9 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 		}
 		if p.StorageSize == "" {
 			errors = append(errors, fmt.Errorf("StorageSize is required for a statefulset; set it via storagesize property on this stage"))
+		}
+		if p.StorageMountPath == "" {
+			errors = append(errors, fmt.Errorf("StorageMountPath is required for a statefulset; set it via storagemountpath property on this stage"))
 		}
 	}
 
