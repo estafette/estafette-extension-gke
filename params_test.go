@@ -15,10 +15,12 @@ var (
 		App:       "myapp",
 		Namespace: "mynamespace",
 		Autoscale: AutoscaleParams{
+			Enable:        &trueValue,
 			MinReplicas:   3,
 			MaxReplicas:   100,
 			CPUPercentage: 80,
 		},
+		StrategyType: "RollingUpdate",
 		RollingUpdate: RollingUpdateParams{
 			MaxSurge:       "25%",
 			MaxUnavailable: "25%",
