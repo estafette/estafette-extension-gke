@@ -24,6 +24,7 @@ type Params struct {
 	Schedule                        string              `json:"schedule,omitempty" yaml:"schedule,omitempty"`
 	ConcurrencyPolicy               string              `json:"concurrencypolicy,omitempty" yaml:"concurrencypolicy,omitempty"`
 	PodManagementPolicy             string              `json:"podManagementpolicy,omitempty" yaml:"podManagementpolicy,omitempty"`
+	Replicas                        int                 `json:"replicas,omitempty" yaml:"replicas,omitempty"`
 	StorageClass                    string              `json:"storageclass,omitempty" yaml:"storageclass,omitempty"`
 	StorageSize                     string              `json:"storagesize,omitempty" yaml:"storagesize,omitempty"`
 	StorageMountPath                string              `json:"storagemountpath,omitempty" yaml:"storagemountpath,omitempty"`

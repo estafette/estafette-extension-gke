@@ -195,7 +195,10 @@ func main() {
 	params.Configs.RenderedFileContent = renderConfig(params)
 
 	// checking number of replicas for existing deployment to make switching deployment type safe
-	currentReplicas := getExistingNumberOfReplicas(params)
+	currentReplicas := params.Replicas
+	if params.Kind == "deployment" {
+		currentReplicas = getExistingNumberOfReplicas(params)
+	}
 
 	// generate the data required for rendering the templates
 	templateData := generateTemplateData(params, currentReplicas, *gitSource, *gitOwner, *gitName, *gitBranch, *gitRevision, *releaseID, *triggeredBy)
