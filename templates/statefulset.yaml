@@ -135,7 +135,6 @@ spec:
         - name: {{.Name}}
           mountPath: {{.MountPath}}
         {{- end}}
-        {{- end }}
         {{- if .Container.UseLifecyclePreStopSleepCommand }}
         lifecycle:
           preStop:
