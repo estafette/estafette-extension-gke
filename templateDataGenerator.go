@@ -53,6 +53,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		MountPayloadLogging:      params.EnablePayloadLogging,
 		AddSafeToEvictAnnotation: params.EnablePayloadLogging,
 
+		StrategyType:                params.StrategyType,
 		RollingUpdateMaxSurge:       params.RollingUpdate.MaxSurge,
 		RollingUpdateMaxUnavailable: params.RollingUpdate.MaxUnavailable,
 

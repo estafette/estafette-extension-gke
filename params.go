@@ -52,6 +52,7 @@ type Params struct {
 	InjectHTTPProxySidecar *bool               `json:"injecthttpproxysidecar,omitempty" yaml:"injecthttpproxysidecar,omitempty"`
 	Sidecar                SidecarParams       `json:"sidecar,omitempty" yaml:"sidecar,omitempty"`
 	Sidecars               []*SidecarParams    `json:"sidecars,omitempty" yaml:"sidecars,omitempty"`
+	StrategyType           string              `json:"strategytype,omitempty" yaml:"strategytype,omitempty"`
 	RollingUpdate          RollingUpdateParams `json:"rollingupdate,omitempty" yaml:"rollingupdate,omitempty"`
 }
 
@@ -423,6 +424,9 @@ func (p *Params) SetDefaults(gitName, appLabel, buildVersion, releaseName, relea
 	}
 
 	// defaults for rollingupdate
+	if p.StrategyType == "" {
+		p.StrategyType = "RollingUpdate"
+	}
 	if p.RollingUpdate.MaxSurge == "" {
 		p.RollingUpdate.MaxSurge = "25%"
 	}
@@ -580,6 +584,12 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 	}
 
 	// defaults for rollingupdate
+	if p.StrategyType == "" {
+		errors = append(errors, fmt.Errorf("StrategyType is required; set it via strategytype property on this stage; valid values are RollingUpdate or Recreate"))
+	}
+	if p.RollingUpdate.MaxSurge == "" {
+		errors = append(errors, fmt.Errorf("Rollingupdate max surge is required; set it via rollingupdate.maxsurge property on this stage"))
+	}
 	if p.RollingUpdate.MaxSurge == "" {
 		errors = append(errors, fmt.Errorf("Rollingupdate max surge is required; set it via rollingupdate.maxsurge property on this stage"))
 	}

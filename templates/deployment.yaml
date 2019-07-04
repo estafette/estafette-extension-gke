@@ -12,10 +12,12 @@ spec:
   replicas: {{.Replicas}}
   {{- end}}
   strategy:
-    type: RollingUpdate
+    type: {{.StrategyType}}
+    {{- if eq .StrategyType "RollingUpdate" }}
     rollingUpdate:
       maxSurge: {{.RollingUpdateMaxSurge}}
       maxUnavailable: {{.RollingUpdateMaxUnavailable}}
+    {{- end}}
   revisionHistoryLimit: 10
   selector:
     matchLabels:
