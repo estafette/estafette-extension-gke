@@ -255,7 +255,9 @@ spec:
       {{- end }}
       terminationGracePeriodSeconds: 300
       volumes:
-      volumes:
+      - name: ssl-certificate
+        secret:
+          secretName: {{.Name}}-letsencrypt-certificate
       - name: {{.Name}}-data
         persistentVolumeClaim:
           claimName: {{.Name}}-data
