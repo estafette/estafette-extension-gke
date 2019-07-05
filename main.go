@@ -244,6 +244,10 @@ func main() {
 				logInfo("Waiting for the deployment to finish...")
 				runCommand("kubectl", []string{"rollout", "status", "deployment", templateData.NameWithTrack, "-n", templateData.Namespace})
 			}
+			if params.Kind == "statefulset" {
+				logInfo("Waiting for the statefulset to finish...")
+				runCommand("kubectl", []string{"rollout", "status", "statefulset", templateData.Name, "-n", templateData.Namespace})
+			}
 		}
 
 		// clean up old stuff
