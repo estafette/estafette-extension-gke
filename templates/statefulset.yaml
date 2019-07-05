@@ -20,8 +20,8 @@ spec:
   template:
     metadata:
       labels:
-        {{- range $key, $value := .Labels}}
-        {{$key}}: {{$value}}
+        {{- range $key, $value := .PodLabels}}
+        {{$key}}: "{{$value}}"
         {{- end}}
       annotations:
         prometheus.io/scrape: "{{.Container.Metrics.Scrape}}"
