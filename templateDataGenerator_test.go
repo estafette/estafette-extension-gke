@@ -1193,7 +1193,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "15%", templateData.RollingUpdateMaxUnavailable)
 	})
 
-	t.Run("SetsBuildVersionToBuildVersionParam", func(t *testing.T) {
+	t.Run("AddsBuildVersionLabelSetToBuildVersionParam", func(t *testing.T) {
 
 		params := Params{
 			BuildVersion: "1.2.3",
@@ -1202,7 +1202,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		// act
 		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
-		assert.Equal(t, "1.2.3", templateData.BuildVersion)
+		assert.Equal(t, "1.2.3", templateData.PodLabels["version"])
 	})
 
 	t.Run("SetsPreferPreemptiblesgToTrueIfChaosProofParamIsTrue", func(t *testing.T) {

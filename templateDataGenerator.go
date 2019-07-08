@@ -12,8 +12,6 @@ import (
 func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwner, gitName, gitBranch, gitRevision, releaseID, triggeredBy string) TemplateData {
 
 	data := TemplateData{
-		BuildVersion: params.BuildVersion,
-
 		Name:              params.App,
 		NameWithTrack:     params.App,
 		Namespace:         params.Namespace,
@@ -166,6 +164,9 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		data.Replicas = data.MinReplicas
 	}
 
+	if params.BuildVersion != "" {
+		data.PodLabels["version"] = sanitizeLabel(params.BuildVersion)
+	}
 	if releaseID != "" {
 		data.PodLabels["estafette.io/release-id"] = sanitizeLabel(releaseID)
 	}

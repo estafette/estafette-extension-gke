@@ -51,7 +51,6 @@ type TemplateData struct {
 	StrategyType                        string
 	RollingUpdateMaxSurge               string
 	RollingUpdateMaxUnavailable         string
-	BuildVersion                        string
 	LimitTrustedIPRanges                bool
 	TrustedIPRanges                     []string
 	ManifestData                        map[string]interface{}
