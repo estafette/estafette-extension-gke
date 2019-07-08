@@ -123,6 +123,11 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		}
 	}
 
+	if params.InitContainers != nil {
+		data.HasAdditionalInitContainers = true
+		data.InitContainers = params.InitContainers
+	}
+
 	data.Container.Readiness.IncludeOnContainer = !data.HasOpenrestySidecar || params.Container.ReadinessProbe.Port != params.Container.Port || params.Container.ReadinessProbe.Path != params.Sidecar.HealthCheckPath
 
 	// set request params on the nginx ingress

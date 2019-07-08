@@ -48,12 +48,13 @@ type Params struct {
 	GoogleCloudCredentialsApp        string `json:"googleCloudCredentialsApp,omitempty" yaml:"googleCloudCredentialsApp,omitempty"`
 
 	// container params
-	Container              ContainerParams     `json:"container,omitempty" yaml:"container,omitempty"`
-	InjectHTTPProxySidecar *bool               `json:"injecthttpproxysidecar,omitempty" yaml:"injecthttpproxysidecar,omitempty"`
-	Sidecar                SidecarParams       `json:"sidecar,omitempty" yaml:"sidecar,omitempty"`
-	Sidecars               []*SidecarParams    `json:"sidecars,omitempty" yaml:"sidecars,omitempty"`
-	StrategyType           string              `json:"strategytype,omitempty" yaml:"strategytype,omitempty"`
-	RollingUpdate          RollingUpdateParams `json:"rollingupdate,omitempty" yaml:"rollingupdate,omitempty"`
+	Container              ContainerParams        `json:"container,omitempty" yaml:"container,omitempty"`
+	InjectHTTPProxySidecar *bool                  `json:"injecthttpproxysidecar,omitempty" yaml:"injecthttpproxysidecar,omitempty"`
+	InitContainers         map[string]interface{} `json:"initcontainers,omitempty" yaml:"initcontainers,omitempty"`
+	Sidecar                SidecarParams          `json:"sidecar,omitempty" yaml:"sidecar,omitempty"`
+	Sidecars               []*SidecarParams       `json:"sidecars,omitempty" yaml:"sidecars,omitempty"`
+	StrategyType           string                 `json:"strategytype,omitempty" yaml:"strategytype,omitempty"`
+	RollingUpdate          RollingUpdateParams    `json:"rollingupdate,omitempty" yaml:"rollingupdate,omitempty"`
 }
 
 // ContainerParams defines the container image to deploy

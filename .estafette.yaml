@@ -18,6 +18,7 @@ stages:
       CGO_ENABLED: 0
       GOOS: linux
       GOFLAGS: -mod=vendor
+      GOGC: off
     commands:
     - go test ./...
     - go build -a -installsuffix cgo -ldflags "-X main.app=${ESTAFETTE_GIT_NAME} -X main.version=${ESTAFETTE_BUILD_VERSION} -X main.revision=${ESTAFETTE_GIT_REVISION} -X main.branch=${ESTAFETTE_GIT_BRANCH} -X main.buildDate=${ESTAFETTE_BUILD_DATETIME}" -o ./publish/${ESTAFETTE_GIT_NAME} .
@@ -125,6 +126,16 @@ stages:
       memory:
         request: 10Mi
         limit: 50Mi
+    initcontainers:
+    - command:
+      - sh
+      - -c
+      - sysctl -w net.core.somaxconn=32768; sysctl -w net.ipv4.ip_local_port_range="1024 65535"
+      image: alpine:3.6
+      imagePullPolicy: IfNotPresent
+      name: sysctl
+      securityContext:
+        privileged: true
     sidecars:
     - type: cloudsqlproxy
       dbinstanceconnectionname: my-gcloud-project:europe-west1:my-database
