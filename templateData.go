@@ -38,7 +38,7 @@ type TemplateData struct {
 	Container                           ContainerData
 	Sidecars                            []SidecarData
 	HasAdditionalInitContainers         bool
-	InitContainers                      map[string]interface{}
+	InitContainers                      []*map[string]interface{}
 	HasOpenrestySidecar                 bool
 	MountApplicationSecrets             bool
 	Secrets                             map[string]interface{}
