@@ -67,11 +67,11 @@ spec:
                 values:
                 - "true"
         {{- end}}
-      {{- if .MountPayloadLogging .HasAdditionalInitContainers }}
+      {{- if or .MountPayloadLogging .HasAdditionalInitContainers }}
       initContainers:
       {{- if .MountPayloadLogging }}
       - name: init-myservice
-        image: busybox:1.27.2
+        image: busybox:1.31.0
         imagePullPolicy: IfNotPresent
         command: ['sh', '-c', 'mkdir -p /var/log/fluentd-payload-logger/{{.Name}}']
         volumeMounts:
