@@ -412,12 +412,11 @@ func isSimpleEnvvarValue(i interface{}) bool {
 	return false
 }
 
-func toYAML(value map[interface{}]interface{}) string {
-
-	yamlBytes, err := yaml.Marshal(value)
-	if err == nil {
-		return string(yamlBytes)
+func toYAML(v interface{}) string {
+	data, err := yaml.Marshal(v)
+	if err != nil {
+		// Swallow errors inside of a template.
+		return ""
 	}
-
-	return ""
+	return string(data)
 }
