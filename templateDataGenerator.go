@@ -116,7 +116,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 
 	data.HasOpenrestySidecar = false
 	for _, sidecarParams := range params.Sidecars {
-		sidecar := buildSidecar(sidecarParams, params.Request)
+		sidecar := buildSidecar(sidecarParams, params.Request, params.Container.Lifecycle)
 		data.Sidecars = append(data.Sidecars, sidecar)
 		if sidecar.Type == "openresty" {
 			data.HasOpenrestySidecar = true
@@ -301,7 +301,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 	return data
 }
 
-func buildSidecar(sidecar *SidecarParams, request RequestParams) SidecarData {
+func buildSidecar(sidecar *SidecarParams, request RequestParams, lifecycle LifecycleParams) SidecarData {
 	builtSidecar := SidecarData{
 		Type:                    sidecar.Type,
 		Image:                   sidecar.Image,
@@ -331,6 +331,10 @@ func buildSidecar(sidecar *SidecarParams, request RequestParams) SidecarData {
 		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "PROXY_BUFFER_SIZE", request.ProxyBufferSize)
 		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "PROXY_BUFFERS_SIZE", request.ProxyBufferSize)
 		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "PROXY_BUFFERS_NUMBER", strconv.Itoa(request.ProxyBuffersNumber))
+
+		if lifecycle.PrestopSleep != nil && *lifecycle.PrestopSleep && lifecycle.PrestopSleepSeconds != nil {
+			builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "GRACEFUL_SHUTDOWN_DELAY_SECONDS", strconv.Itoa(*lifecycle.PrestopSleepSeconds))
+		}
 	}
 
 	if sidecar.CustomProperties != nil {
