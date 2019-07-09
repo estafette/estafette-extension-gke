@@ -1443,7 +1443,7 @@ func TestSetDefaults(t *testing.T) {
 		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		// digest for estafette/openresty-sidecar:0.8.0-opentracing
-		assert.Equal(t, "estafette/openresty-sidecar@sha256:5330842975a4d982c60fcca5b672dc5552997efad26a408788e76432a7c8dcf7", params.Sidecars[0].Image)
+		assert.Equal(t, "estafette/openresty-sidecar@sha256:468cbc09af9b180a81e2ebf6fd80890028c7cee3ae26137f023ae9a248394841", params.Sidecars[0].Image)
 	})
 
 	t.Run("IfNoOpenrestSidecarPresentThenCustomSidecarsKeptAndOpenrestySidecarAdded", func(t *testing.T) {
