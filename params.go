@@ -668,6 +668,10 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 		errors = append(errors, fmt.Errorf("With visibility 'esp' property disableServiceAccountKeyRotation is required; set disableServiceAccountKeyRotation: true on this stage"))
 	}
 
+	if p.Visibility == "esp" && len(p.Hosts) != 1 {
+		errors = append(errors, fmt.Errorf("With visibility 'esp' property exactly one host is required. Set it via hosts array property on this stage"))
+	}
+
 	if len(p.Hosts) == 0 {
 		errors = append(errors, fmt.Errorf("At least one host is required; set it via hosts array property on this stage"))
 	}
