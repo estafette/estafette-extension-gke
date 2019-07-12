@@ -188,6 +188,7 @@ stages:
       proxybuffersize: 4k
       proxybuffersnumber: 4
       clientbodybuffersize: 8k
+      loadbalance: round_robin
     secrets:
       keys:
         secret-file-1.json: c29tZSBzZWNyZXQgdmFsdWU=

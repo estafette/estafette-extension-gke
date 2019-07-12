@@ -3401,6 +3401,54 @@ func TestValidateRequiredProperties(t *testing.T) {
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
 	})
+
+	t.Run("ReturnsFalseIfLoadBalanceAlgorithmIsNonValidValue", func(t *testing.T) {
+
+		params := validParams
+		params.Request.LoadBalanceAlgorithm = "leastconn"
+
+		// act
+		valid, errors, _ := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
+	})
+
+	t.Run("ReturnsTrueIfLoadBalanceAlgorithmIsEmpty", func(t *testing.T) {
+
+		params := validParams
+		params.Request.LoadBalanceAlgorithm = ""
+
+		// act
+		valid, errors, _ := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsTrueIfLoadBalanceAlgorithmIsEwma", func(t *testing.T) {
+
+		params := validParams
+		params.Request.LoadBalanceAlgorithm = "ewma"
+
+		// act
+		valid, errors, _ := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsTrueIfLoadBalanceAlgorithmIsRoundRobin", func(t *testing.T) {
+
+		params := validParams
+		params.Request.LoadBalanceAlgorithm = "round_robin"
+
+		// act
+		valid, errors, _ := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
 }
 
 func TestReplaceSidecarTagsWithDigest(t *testing.T) {

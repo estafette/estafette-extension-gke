@@ -152,6 +152,8 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 	data.NginxIngressClientBodyBufferSize = params.Request.ClientBodyBufferSize
 	data.NginxIngressProxyBufferSize = params.Request.ProxyBufferSize
 	data.NginxIngressProxyBuffersNumber = strconv.Itoa(params.Request.ProxyBuffersNumber)
+	data.SetsNginxIngressLoadBalanceAlgorithm = params.Request.LoadBalanceAlgorithm != ""
+	data.NginxIngressLoadBalanceAlgorithm = params.Request.LoadBalanceAlgorithm
 
 	if params.Container.Metrics.Scrape != nil {
 		data.Container.Metrics.Scrape = *params.Container.Metrics.Scrape

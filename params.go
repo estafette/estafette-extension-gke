@@ -120,6 +120,7 @@ type RequestParams struct {
 	ProxyBufferSize      string `json:"proxybuffersize,omitempty" yaml:"proxybuffersize,omitempty"`
 	ProxyBuffersNumber   int    `json:"proxybuffersnumber,omitempty" yaml:"proxybuffersnumber,omitempty"`
 	ClientBodyBufferSize string `json:"clientbodybuffersize,omitempty" yaml:"clientbodybuffersize,omitempty"`
+	LoadBalanceAlgorithm string `json:"loadbalance,omitempty" yaml:"loadbalance,omitempty"`
 }
 
 // ProbeParams sets params for liveness or readiness probe
@@ -745,6 +746,11 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 	// validate sidecars params
 	for _, sidecar := range p.Sidecars {
 		errors = p.validateSidecar(sidecar, errors)
+	}
+
+	// validate load balance algorithm
+	if p.Request.LoadBalanceAlgorithm != "" && p.Request.LoadBalanceAlgorithm != "ewma" && p.Request.LoadBalanceAlgorithm != "round_robin" {
+		errors = append(errors, fmt.Errorf("Load balance algorithm is invalid; leave it empty or set request.loadbalance property on this stage to 'ewma' or 'round_robin'"))
 	}
 
 	return len(errors) == 0, errors, warnings

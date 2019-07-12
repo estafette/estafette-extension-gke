@@ -23,6 +23,9 @@ metadata:
     {{- if .OverrideDefaultWhitelist}}
     nginx.ingress.kubernetes.io/whitelist-source-range: "{{.NginxIngressWhitelist}}"
     {{- end}}
+    {{- if .SetsNginxIngressLoadBalanceAlgorithm }}
+    nginx.ingress.kubernetes.io/load-balance: "{{.NginxIngressLoadBalanceAlgorithm}}"
+    {{- end }}
     {{- end}}
     {{- if .UseGCEIngress}}
     kubernetes.io/ingress.class: "gce"
