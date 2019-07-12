@@ -122,6 +122,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 			data.HasOpenrestySidecar = true
 		}
 	}
+	data.UseESP = params.Visibility == "esp"
 
 	if params.InitContainers != nil {
 		data.HasAdditionalInitContainers = true
@@ -246,6 +247,16 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		data.LimitTrustedIPRanges = false
 		data.OverrideDefaultWhitelist = len(params.WhitelistedIPS) > 0
 		data.NginxIngressWhitelist = strings.Join(params.WhitelistedIPS, ",")
+
+	case "esp":
+		data.ServiceType = "LoadBalancer"
+		data.UseNginxIngress = false
+		data.UseGCEIngress = false
+		data.UseDNSAnnotationsOnIngress = false
+		data.UseDNSAnnotationsOnService = true
+		data.UseCloudflareProxy = true
+		data.LimitTrustedIPRanges = true
+		data.OverrideDefaultWhitelist = false
 
 	case "public":
 		data.ServiceType = "LoadBalancer"

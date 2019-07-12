@@ -175,8 +175,10 @@ spec:
         ports:
         - name: http
           containerPort: 80
+        {{- if not $deployment.UseESP }}
         - name: https
           containerPort: 443
+        {{- end}}
         - name: nginx-liveness
           containerPort: 82
         - name: nginx-readiness
@@ -221,6 +223,35 @@ spec:
             scheme: HTTPS
           initialDelaySeconds: {{$deployment.Container.Readiness.InitialDelaySeconds}}
           timeoutSeconds: {{$deployment.Container.Readiness.TimeoutSeconds}}
+        {{- if .HasCustomProperties }}
+{{.CustomPropertiesYAML | indent 8}}
+        {{- end }}
+        {{- else if eq .Type "esp" }}
+      - name: {{$deployment.Name}}-esp
+        image: {{.Image}}
+        imagePullPolicy: IfNotPresent
+        args: [
+          "--ssl_port", "443",
+          "--backend", "127.0.0.1:{{.Container.Port}}",
+          "--service", "{{.HostsJoined}}",
+          "--rollout_strategy", "managed",
+          "--service_account_key", "/gcp-service-account/service-account-key.json"
+        ]
+        resources:
+          requests:
+            cpu: {{.CPURequest}}
+            memory: {{.MemoryRequest}}
+          limits:
+            cpu: {{.CPULimit}}
+            memory: {{.MemoryLimit}}
+        ports:
+        - name: https
+          containerPort: 443
+        volumeMounts:
+        - name: ssl-certificate-esp
+          mountPath: /etc/nginx/ssl
+        - name: gcp-service-account
+          mountPath: /gcp-service-account
         {{- if .HasCustomProperties }}
 {{.CustomPropertiesYAML | indent 8}}
         {{- end }}
@@ -307,6 +338,16 @@ spec:
       - name: ssl-certificate
         secret:
           secretName: {{.Name}}-letsencrypt-certificate
+      {{- if .UseESP }}
+      - name: ssl-certificate-esp
+        secret:
+          secretName: {{.Name}}-letsencrypt-certificate
+          items:
+          - key: ssl.crt
+            path: nginx.crt
+          - key: ssl.key
+            path: nginx.key
+      {{- end }}
       {{- if .MountApplicationSecrets }}
       - name: app-secrets
         secret:

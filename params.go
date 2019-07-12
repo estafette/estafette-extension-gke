@@ -416,6 +416,24 @@ func (p *Params) SetDefaults(gitName, appLabel, buildVersion, releaseName, relea
 		p.Sidecars = append(p.Sidecars, &openrestySidecar)
 	}
 
+	if p.Visibility == "esp" {
+		// check if an esp sidecar is in the list
+		espSidecarSpecifiedInList := false
+		for _, sidecar := range p.Sidecars {
+			if sidecar.Type == "esp" {
+				espSidecarSpecifiedInList = true
+			}
+		}
+
+		// inject an esp sidecar in the sidecars list if it isn't there yet for deployments
+		if *p.InjectHTTPProxySidecar && !espSidecarSpecifiedInList && p.Kind == "deployment" {
+			espSidecar := SidecarParams{Type: "esp"}
+			p.initializeSidecarDefaults(&espSidecar)
+
+			p.Sidecars = append(p.Sidecars, &espSidecar)
+		}
+	}
+
 	for i := range p.Sidecars {
 		p.initializeSidecarDefaults(p.Sidecars[i])
 	}
@@ -497,6 +515,10 @@ func (p *Params) initializeSidecarDefaults(sidecar *SidecarParams) {
 		}
 		if sidecar.HealthCheckPath == "" {
 			sidecar.HealthCheckPath = p.Container.ReadinessProbe.Path
+		}
+	case "esp":
+		if sidecar.Image == "" {
+			sidecar.Image = "gcr.io/endpoints-release/endpoints-runtime:1.35.0"
 		}
 	case "cloudsqlproxy":
 		if sidecar.Image == "" {
@@ -630,14 +652,20 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 	}
 
 	// validate params with respect to incoming requests
-	if p.Visibility == "" || (p.Visibility != "private" && p.Visibility != "public" && p.Visibility != "iap" && p.Visibility != "public-whitelist") {
-		errors = append(errors, fmt.Errorf("Visibility property is required; set it via visibility property on this stage; allowed values are private, iap, public-whitelist or public"))
+	if p.Visibility == "" || (p.Visibility != "private" && p.Visibility != "public" && p.Visibility != "iap" && p.Visibility != "esp" && p.Visibility != "public-whitelist") {
+		errors = append(errors, fmt.Errorf("Visibility property is required; set it via visibility property on this stage; allowed values are private, iap, esp, public-whitelist or public"))
 	}
 	if p.Visibility == "iap" && p.IapOauthCredentialsClientID == "" {
 		errors = append(errors, fmt.Errorf("With visibility 'iap' property iapOauthClientID is required; set it via iapOauthClientID property on this stage"))
 	}
 	if p.Visibility == "iap" && p.IapOauthCredentialsClientSecret == "" {
 		errors = append(errors, fmt.Errorf("With visibility 'iap' property iapOauthClientSecret is required; set it via iapOauthClientSecret property on this stage"))
+	}
+	if p.Visibility == "esp" && !p.UseGoogleCloudCredentials {
+		errors = append(errors, fmt.Errorf("With visibility 'esp' property useGoogleCloudCredentials is required; set useGoogleCloudCredentials: true on this stage"))
+	}
+	if p.Visibility == "esp" && !p.DisableServiceAccountKeyRotation {
+		errors = append(errors, fmt.Errorf("With visibility 'esp' property disableServiceAccountKeyRotation is required; set disableServiceAccountKeyRotation: true on this stage"))
 	}
 
 	if len(p.Hosts) == 0 {
