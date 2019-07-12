@@ -32,6 +32,7 @@ type Params struct {
 	Visibility                      string              `json:"visibility,omitempty" yaml:"visibility,omitempty"`
 	IapOauthCredentialsClientID     string              `json:"iapOauthClientID,omitempty" yaml:"iapOauthClientID,omitempty"`
 	IapOauthCredentialsClientSecret string              `json:"iapOauthClientSecret,omitempty" yaml:"iapOauthClientSecret,omitempty"`
+	EspConfigID                     string              `json:"espConfigID,omitempty" yaml:"espConfigID,omitempty"`
 	WhitelistedIPS                  []string            `json:"whitelist,omitempty" yaml:"whitelist,omitempty"`
 	Hosts                           []string            `json:"hosts,omitempty" yaml:"hosts,omitempty"`
 	InternalHosts                   []string            `json:"internalhosts,omitempty" yaml:"internalhosts,omitempty"`

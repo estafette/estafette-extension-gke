@@ -234,8 +234,12 @@ spec:
           "--ssl_port", "443",
           "--backend", "127.0.0.1:{{$deployment.Container.Port}}",
           "--service", "{{$deployment.HostsJoined}}",
-          "--rollout_strategy", "managed",
-          "--service_account_key", "/gcp-service-account/service-account-key.json"
+          "--service_account_key", "/gcp-service-account/service-account-key.json",
+          {{- if $deployment.HasEspConfigID }}
+          "--version","{{$deployment.EspConfigID}}"
+          {{- else }}
+          "--rollout_strategy", "managed"
+          {{- end }}
         ]
         resources:
           requests:

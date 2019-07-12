@@ -41,6 +41,8 @@ type TemplateData struct {
 	InitContainers                       []*map[string]interface{}
 	HasOpenrestySidecar                  bool
 	UseESP                               bool
+	HasEspConfigID                       bool
+	EspConfigID                          string
 	MountApplicationSecrets              bool
 	Secrets                              map[string]interface{}
 	SecretMountPath                      string
