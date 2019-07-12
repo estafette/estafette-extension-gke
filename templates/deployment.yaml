@@ -251,11 +251,18 @@ spec:
         ports:
         - name: https
           containerPort: 443
+        - name: esp-status
+          containerPort: 8090
         volumeMounts:
         - name: ssl-certificate-esp
           mountPath: /etc/nginx/ssl
         - name: gcp-service-account
           mountPath: /gcp-service-account
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: esp-status
+          initialDelaySeconds: 15
         {{- if .HasCustomProperties }}
 {{.CustomPropertiesYAML | indent 8}}
         {{- end }}
