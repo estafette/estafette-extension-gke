@@ -191,7 +191,7 @@ spec:
             fieldRef:
               fieldPath: status.hostIP
         - name: "OFFLOAD_TO_HOST"
-          value: "localhost"
+          value: "127.0.0.1"
         - name: "OFFLOAD_TO_PORT"
           value: "{{$deployment.Container.Port}}"
         - name: "SERVICE_NAME"
