@@ -219,8 +219,12 @@ spec:
         readinessProbe:
           httpGet:
             path: {{$deployment.Container.Readiness.Path}}
+            {{- if not $deployment.UseESP }}
             port: https
             scheme: HTTPS
+            {{- else }}
+            port: http
+            {{- end}}
           initialDelaySeconds: {{$deployment.Container.Readiness.InitialDelaySeconds}}
           timeoutSeconds: {{$deployment.Container.Readiness.TimeoutSeconds}}
         {{- if .HasCustomProperties }}
