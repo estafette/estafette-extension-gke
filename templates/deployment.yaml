@@ -120,6 +120,7 @@ spec:
             port: {{.Container.Liveness.Port}}
           initialDelaySeconds: {{.Container.Liveness.InitialDelaySeconds}}
           timeoutSeconds: {{.Container.Liveness.TimeoutSeconds}}
+          periodSeconds: {{.Container.Liveness.PeriodSeconds}}
         {{- if .Container.Readiness.IncludeOnContainer }}
         readinessProbe:
           httpGet:
@@ -127,6 +128,7 @@ spec:
             port: {{.Container.Readiness.Port}}
           initialDelaySeconds: {{.Container.Readiness.InitialDelaySeconds}}
           timeoutSeconds: {{.Container.Readiness.TimeoutSeconds}}
+          periodSeconds: {{.Container.Readiness.PeriodSeconds}}
         {{- end }}
         {{- if or .MountApplicationSecrets .MountConfigmap .MountServiceAccountSecret .MountPayloadLogging .MountAdditionalVolumes }}
         volumeMounts:
@@ -227,6 +229,7 @@ spec:
             {{- end}}
           initialDelaySeconds: {{$deployment.Container.Readiness.InitialDelaySeconds}}
           timeoutSeconds: {{$deployment.Container.Readiness.TimeoutSeconds}}
+          periodSeconds: {{$deployment.Container.Readiness.PeriodSeconds}}
         {{- if .HasCustomProperties }}
 {{.CustomPropertiesYAML | indent 8}}
         {{- end }}

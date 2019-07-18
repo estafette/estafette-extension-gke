@@ -131,6 +131,7 @@ type ProbeParams struct {
 	Port                int    `json:"port,omitempty" yaml:"port,omitempty"`
 	InitialDelaySeconds int    `json:"delay,omitempty" yaml:"delay,omitempty"`
 	TimeoutSeconds      int    `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	PeriodSeconds       int    `json:"period,omitempty" yaml:"period,omitempty"`
 }
 
 // MetricsParams sets params for scraping prometheus metrics
@@ -358,6 +359,9 @@ func (p *Params) SetDefaults(gitName, appLabel, buildVersion, releaseName, relea
 	if p.Container.LivenessProbe.TimeoutSeconds <= 0 {
 		p.Container.LivenessProbe.TimeoutSeconds = 1
 	}
+	if p.Container.LivenessProbe.PeriodSeconds <= 0 {
+		p.Container.LivenessProbe.PeriodSeconds = 10
+	}
 
 	// set readiness probe defaults
 	if p.Container.ReadinessProbe.Path == "" {
@@ -368,6 +372,9 @@ func (p *Params) SetDefaults(gitName, appLabel, buildVersion, releaseName, relea
 	}
 	if p.Container.ReadinessProbe.TimeoutSeconds <= 0 {
 		p.Container.ReadinessProbe.TimeoutSeconds = 1
+	}
+	if p.Container.ReadinessProbe.PeriodSeconds <= 0 {
+		p.Container.ReadinessProbe.PeriodSeconds = 10
 	}
 
 	// set metrics defaults
@@ -753,6 +760,9 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 	if p.Container.LivenessProbe.TimeoutSeconds <= 0 {
 		errors = append(errors, fmt.Errorf("Liveness timeout must be larger than zero; set it via container.liveness.timeout property on this stage"))
 	}
+	if p.Container.LivenessProbe.PeriodSeconds <= 0 {
+		errors = append(errors, fmt.Errorf("Liveness period must be larger than zero; set it via container.liveness.period property on this stage"))
+	}
 
 	// validate readiness params
 	if p.Container.ReadinessProbe.Path == "" {
@@ -763,6 +773,9 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 	}
 	if p.Container.ReadinessProbe.TimeoutSeconds <= 0 {
 		errors = append(errors, fmt.Errorf("Readiness timeout must be larger than zero; set it via container.readiness.timeout property on this stage"))
+	}
+	if p.Container.ReadinessProbe.PeriodSeconds <= 0 {
+		errors = append(errors, fmt.Errorf("Readiness period must be larger than zero; set it via container.liveness.period property on this stage"))
 	}
 
 	// validate metrics params

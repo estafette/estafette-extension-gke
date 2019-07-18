@@ -114,6 +114,7 @@ type ProbeData struct {
 	Port                int
 	InitialDelaySeconds int
 	TimeoutSeconds      int
+	PeriodSeconds       int
 	IncludeOnContainer  bool
 }
 

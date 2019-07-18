@@ -94,11 +94,13 @@ stages:
         port: 5001
         delay: 30
         timeout: 1
+        period: 10
       readiness:
         path: /readiness
         port: 5002
         delay: 30
         timeout: 1
+        period: 10
       metrics:
         scrape: true
         path: /metrics

@@ -83,6 +83,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 				Port:                params.Container.LivenessProbe.Port,
 				InitialDelaySeconds: params.Container.LivenessProbe.InitialDelaySeconds,
 				TimeoutSeconds:      params.Container.LivenessProbe.TimeoutSeconds,
+				PeriodSeconds:       params.Container.LivenessProbe.PeriodSeconds,
 				IncludeOnContainer:  true,
 			},
 			Readiness: ProbeData{
@@ -90,6 +91,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 				Port:                params.Container.ReadinessProbe.Port,
 				InitialDelaySeconds: params.Container.ReadinessProbe.InitialDelaySeconds,
 				TimeoutSeconds:      params.Container.ReadinessProbe.TimeoutSeconds,
+				PeriodSeconds:       params.Container.ReadinessProbe.PeriodSeconds,
 			},
 			Metrics: MetricsData{
 				Path: params.Container.Metrics.Path,

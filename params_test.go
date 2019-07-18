@@ -44,12 +44,14 @@ var (
 				Port:                5000,
 				InitialDelaySeconds: 30,
 				TimeoutSeconds:      1,
+				PeriodSeconds:       10,
 			},
 			ReadinessProbe: ProbeParams{
 				Path:                "/readiness",
 				Port:                5000,
 				InitialDelaySeconds: 0,
 				TimeoutSeconds:      1,
+				PeriodSeconds:       10,
 			},
 			Metrics: MetricsParams{
 				Scrape: &trueValue,
