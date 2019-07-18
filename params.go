@@ -33,6 +33,7 @@ type Params struct {
 	IapOauthCredentialsClientID     string              `json:"iapOauthClientID,omitempty" yaml:"iapOauthClientID,omitempty"`
 	IapOauthCredentialsClientSecret string              `json:"iapOauthClientSecret,omitempty" yaml:"iapOauthClientSecret,omitempty"`
 	EspConfigID                     string              `json:"espConfigID,omitempty" yaml:"espConfigID,omitempty"`
+	EspOpenAPIYamlPath              string              `json:"espOpenapiYamlPath,omitempty" yaml:"espOpenapiYamlPath,omitempty"`
 	WhitelistedIPS                  []string            `json:"whitelist,omitempty" yaml:"whitelist,omitempty"`
 	Hosts                           []string            `json:"hosts,omitempty" yaml:"hosts,omitempty"`
 	InternalHosts                   []string            `json:"internalhosts,omitempty" yaml:"internalhosts,omitempty"`
@@ -418,6 +419,10 @@ func (p *Params) SetDefaults(gitName, appLabel, buildVersion, releaseName, relea
 	}
 
 	if p.Visibility == "esp" {
+		if p.EspOpenAPIYamlPath == "" {
+			p.EspOpenAPIYamlPath = "openapi.yaml"
+		}
+
 		// check if an esp sidecar is in the list
 		espSidecarSpecifiedInList := false
 		for _, sidecar := range p.Sidecars {
@@ -667,6 +672,9 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 	}
 	if p.Visibility == "esp" && !p.DisableServiceAccountKeyRotation {
 		errors = append(errors, fmt.Errorf("With visibility 'esp' property disableServiceAccountKeyRotation is required; set disableServiceAccountKeyRotation: true on this stage"))
+	}
+	if p.Visibility == "esp" && p.EspOpenAPIYamlPath == "" {
+		errors = append(errors, fmt.Errorf("With visibility 'esp' property espOpenapiYamlPath is required; set espOpenapiYamlPath to the path towards openapi.yaml"))
 	}
 
 	if p.Visibility == "esp" && len(p.Hosts) != 1 {

@@ -140,7 +140,7 @@ func main() {
 	}
 
 	// check for visibility esp if openapi.yaml exists
-	if _, err := os.Stat("./openapi.yaml"); params.Visibility == "esp" && os.IsNotExist(err) {
+	if _, err := os.Stat(params.EspOpenAPIYamlPath); params.Visibility == "esp" && os.IsNotExist(err) {
 		log.Fatal("When using visibility: esp make sure to set clone: true and have openapi.yaml available in the working directory")
 	}
 
@@ -455,7 +455,7 @@ func removeIngressIfRequired(params Params, templateData TemplateData, name, nam
 
 func deployGoogleEndpointsServiceIfRequired(params Params) {
 	if params.Kind == "deployment" && params.Visibility == "esp" && (params.Action == "deploy-simple" || params.Action == "deploy-canary") {
-		runCommand("gcloud", []string{"endpoints", "services", "deploy", "./openapi.yaml"})
+		runCommand("gcloud", []string{"endpoints", "services", "deploy", params.EspOpenAPIYamlPath})
 	}
 }
 
