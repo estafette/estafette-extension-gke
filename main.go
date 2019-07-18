@@ -139,6 +139,11 @@ func main() {
 		log.Printf("Warning: %s", warning)
 	}
 
+	// check for visibility esp if openapi.yaml exists
+	if _, err := os.Stat("./openapi.yaml"); params.Visibility == "esp" && os.IsNotExist(err) {
+		log.Fatal("When using visibility: esp make sure to set clone: true and have openapi.yaml available in the working directory")
+	}
+
 	// replacing sidecar image tags with digest
 	params.ReplaceSidecarTagsWithDigest()
 
@@ -231,6 +236,7 @@ func main() {
 		paramsForTroubleshooting = params
 
 		if tmpl != nil {
+			deployGoogleEndpointsServiceIfRequired(params)
 			patchServiceIfRequired(params, templateData, templateData.Name, templateData.Namespace)
 			patchDeploymentIfRequired(params, templateData.Name, templateData.Namespace)
 			removePoddisruptionBudgetIfRequired(params, templateData.NameWithTrack, templateData.Namespace)
@@ -444,6 +450,12 @@ func removeIngressIfRequired(params Params, templateData TemplateData, name, nam
 				logInfo("Ingress %v or kubernetes.io/ingress.class annotation doesn't exist, no need to delete the ingress: %v", name, err)
 			}
 		}
+	}
+}
+
+func deployGoogleEndpointsServiceIfRequired(params Params) {
+	if params.Kind == "deployment" && params.Visibility == "esp" && (params.Action == "deploy-simple" || params.Action == "deploy-canary") {
+		runCommand("gcloud", []string{"endpoints", "services", "deploy", "./openapi.yaml"})
 	}
 }
 

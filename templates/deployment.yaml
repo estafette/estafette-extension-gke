@@ -232,7 +232,7 @@ spec:
         imagePullPolicy: IfNotPresent
         args: [
           "--ssl_port", "443",
-          "--backend", "127.0.0.1:{{$deployment.Container.Port}}",
+          "--backend", "127.0.0.1:80",
           "--service", "{{$deployment.HostsJoined}}",
           "--service_account_key", "/gcp-service-account/service-account-key.json",
           {{- if $deployment.HasEspConfigID }}
