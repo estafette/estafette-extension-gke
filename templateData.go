@@ -25,6 +25,7 @@ type TemplateData struct {
 	UseCloudflareProxy                   bool
 	UseDNSAnnotationsOnService           bool
 	UseBackendConfigAnnotationOnService  bool
+	UsePrometheusProbe                   bool
 	ServiceType                          string
 	MinReplicas                          int
 	MaxReplicas                          int

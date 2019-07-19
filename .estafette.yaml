@@ -245,6 +245,7 @@ stages:
     enablePayloadLogging: true
     useGoogleCloudCredentials: true
     disableServiceAccountKeyRotation: false
+    probeService: true
     googleCloudCredentialsApp: gke
     chaosproof: true
     rollingupdate:

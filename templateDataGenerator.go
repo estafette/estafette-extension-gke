@@ -160,6 +160,9 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 	data.SetsNginxIngressLoadBalanceAlgorithm = params.Request.LoadBalanceAlgorithm != ""
 	data.NginxIngressLoadBalanceAlgorithm = params.Request.LoadBalanceAlgorithm
 
+	if params.ProbeService != nil {
+		data.UsePrometheusProbe = *params.ProbeService
+	}
 	if params.Container.Metrics.Scrape != nil {
 		data.Container.Metrics.Scrape = *params.Container.Metrics.Scrape
 	}

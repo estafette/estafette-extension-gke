@@ -48,6 +48,7 @@ type Params struct {
 	UseGoogleCloudCredentials        bool   `json:"useGoogleCloudCredentials,omitempty" yaml:"useGoogleCloudCredentials,omitempty"`
 	DisableServiceAccountKeyRotation bool   `json:"disableServiceAccountKeyRotation,omitempty" yaml:"disableServiceAccountKeyRotation,omitempty"`
 	GoogleCloudCredentialsApp        string `json:"googleCloudCredentialsApp,omitempty" yaml:"googleCloudCredentialsApp,omitempty"`
+	ProbeService                     *bool  `json:"probeService,omitempty" yaml:"probeService,omitempty"`
 
 	// container params
 	Container              ContainerParams           `json:"container,omitempty" yaml:"container,omitempty"`
@@ -375,6 +376,9 @@ func (p *Params) SetDefaults(gitName, appLabel, buildVersion, releaseName, relea
 	}
 	if p.Container.ReadinessProbe.PeriodSeconds <= 0 {
 		p.Container.ReadinessProbe.PeriodSeconds = 10
+	}
+	if p.ProbeService == nil {
+		p.ProbeService = &trueValue
 	}
 
 	// set metrics defaults

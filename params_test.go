@@ -104,6 +104,7 @@ var (
 		StorageSize:         "1Gi",
 		StorageMountPath:    "/data",
 		PodManagementPolicy: "Parallel",
+		ProbeService:        &trueValue,
 	}
 	validCredential = GKECredentials{
 		Name: "gke-production",
@@ -1205,6 +1206,30 @@ func TestSetDefaults(t *testing.T) {
 		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 8082, params.Container.ReadinessProbe.Port)
+	})
+
+	t.Run("DefaultsProbeServiceToTrueIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			ProbeService: nil,
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, true, *params.ProbeService)
+	})
+
+	t.Run("KeepsProbeServiceIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			ProbeService: &falseValue,
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, false, *params.ProbeService)
 	})
 
 	t.Run("DefaultsMetricsPathToMetricsIfEmpty", func(t *testing.T) {
