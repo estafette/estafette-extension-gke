@@ -378,6 +378,7 @@ func (p *Params) SetDefaults(gitName, appLabel, buildVersion, releaseName, relea
 		p.Container.ReadinessProbe.PeriodSeconds = 10
 	}
 	if p.ProbeService == nil {
+		trueValue := true
 		p.ProbeService = &trueValue
 	}
 
