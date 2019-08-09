@@ -388,7 +388,7 @@ releases:
   dev:
     triggers:
     - pipeline:
-        name: github.com/estafette/estafette-extension-gke
+        name: self
         branch: .+
     stages:
       tag-container-image:
