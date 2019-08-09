@@ -374,8 +374,6 @@ stages:
     container: gke
     repositories:
     - extensions
-    tags:
-    - dev
 
   slack-notify:
     image: extensions/slack-build-status:dev
@@ -387,6 +385,21 @@ stages:
       status == 'failed'
 
 releases:
+  dev:
+    triggers:
+    - pipeline:
+        name: github.com/estafette/estafette-extension-gke
+        branch: .+
+    stages:
+      tag-container-image:
+        image: extensions/docker:stable
+        action: tag
+        container: gke
+        repositories:
+        - extensions
+        tags:
+        - dev
+
   beta:
     stages:
       tag-container-image:
