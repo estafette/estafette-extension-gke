@@ -91,6 +91,8 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: status.hostIP
+        - name: "JAEGER_SAMPLER_MANAGER_HOST_PORT"
+          value: "$(JAEGER_AGENT_HOST):5778"
         {{- range $key, $value := .Container.EnvironmentVariables }}
         - name: "{{ $key }}"
           {{- if (call $.IsSimpleEnvvarValue $value) }}
@@ -192,6 +194,8 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: status.hostIP
+        - name: "JAEGER_SAMPLER_MANAGER_HOST_PORT"
+          value: "$(JAEGER_AGENT_HOST):5778"
         - name: "OFFLOAD_TO_HOST"
           value: "127.0.0.1"
         - name: "OFFLOAD_TO_PORT"
