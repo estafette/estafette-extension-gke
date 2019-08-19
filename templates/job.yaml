@@ -34,7 +34,7 @@ spec:
             fieldRef:
               fieldPath: status.hostIP
         - name: "JAEGER_SAMPLER_MANAGER_HOST_PORT"
-          value: "$(JAEGER_AGENT_HOST):5778"
+          value: "http://$(JAEGER_AGENT_HOST):5778/sampling"
         {{- range $key, $value := .Container.EnvironmentVariables }}
         - name: "{{ $key }}"
           {{- if (call $.IsSimpleEnvvarValue $value) }}
