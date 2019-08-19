@@ -115,6 +115,8 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 
 	// set tracing service name
 	data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_SERVICE_NAME", params.App)
+	data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_SAMPLER_TYPE", "remote")
+	data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_SAMPLER_PARAM", "0.001")
 
 	data.HasOpenrestySidecar = false
 	for _, sidecarParams := range params.Sidecars {
