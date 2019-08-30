@@ -32,7 +32,7 @@ stages:
       LABEL maintainer="estafette.io" \
             description="The ${ESTAFETTE_GIT_NAME} component is an Estafette extension to deploy applications to a Kubernetes Engine cluster"
 
-      RUN curl https://storage.googleapis.com/kubernetes-release/release/v1.14.1/bin/linux/amd64/kubectl --output /google-cloud-sdk/bin/kubectl \
+      RUN curl https://storage.googleapis.com/kubernetes-release/release/v1.15.2/bin/linux/amd64/kubectl --output /google-cloud-sdk/bin/kubectl \
           && chmod +x /google-cloud-sdk/bin/kubectl \
           && kubectl version --client
 
