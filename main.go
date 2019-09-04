@@ -275,6 +275,7 @@ func main() {
 				removeEstafetteCloudflareAnnotations(templateData, templateData.Name, templateData.Namespace)
 				removeBackendConfigAnnotation(templateData, templateData.Name, templateData.Namespace)
 				deleteBackendConfigAndIAPOauthSecret(templateData, templateData.Name, templateData.Namespace)
+				deleteHorizontalPodAutoscaler(params, templateData.NameWithTrack, templateData.Namespace)
 				break
 			case "rollback-canary":
 				scaleCanaryDeployment(templateData.Name, templateData.Namespace, 0)
@@ -289,6 +290,7 @@ func main() {
 				removeEstafetteCloudflareAnnotations(templateData, templateData.Name, templateData.Namespace)
 				removeBackendConfigAnnotation(templateData, templateData.Name, templateData.Namespace)
 				deleteBackendConfigAndIAPOauthSecret(templateData, templateData.Name, templateData.Namespace)
+				deleteHorizontalPodAutoscaler(params, templateData.Name, templateData.Namespace)
 				break
 			}
 			break
@@ -560,6 +562,13 @@ func removeBackendConfigAnnotation(templateData TemplateData, name, namespace st
 		// iap is not used, so the beta.cloud.google.com/backend-config annotations should be removed from the service
 		logInfo("Removing beta.cloud.google.com/backend-config annotations on the service if they exists, since visibility is not set to iap...")
 		runCommand("kubectl", []string{"annotate", "svc", name, "-n", namespace, "beta.cloud.google.com/backend-config-"})
+	}
+}
+
+func deleteHorizontalPodAutoscaler(params Params, name, namespace string) {
+	if params.Kind == "deployment" && (params.Autoscale.Enable == nil || !*params.Autoscale.Enable) && (params.Action == "deploy-simple" || params.Action == "deploy-stable") {
+		logInfo("Deleting HorizontalPodAutoscaler %v, since autoscaling is disabled...", name)
+		runCommand("kubectl", []string{"delete", "hpa", name, "-n", namespace, "--ignore-not-found=true"})
 	}
 }
 
