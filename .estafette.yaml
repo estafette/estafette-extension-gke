@@ -13,11 +13,10 @@ version:
 
 stages:
   build:
-    image: golang:1.12.9-alpine3.10
+    image: golang:1.13.0-alpine3.10
     env:
       CGO_ENABLED: 0
       GOOS: linux
-      GOFLAGS: -mod=vendor
       GOGC: off
     commands:
     - go test ./...
