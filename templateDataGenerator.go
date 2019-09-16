@@ -138,7 +138,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 	data.EspConfigID = params.EspConfigID
 
 	if params.InitContainers != nil {
-		data.HasAdditionalInitContainers = true
+		data.HasInitContainers = true
 		data.InitContainers = params.InitContainers
 	}
 

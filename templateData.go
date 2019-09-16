@@ -38,7 +38,7 @@ type TemplateData struct {
 	PreferPreemptibles                   bool
 	Container                            ContainerData
 	Sidecars                             []SidecarData
-	HasAdditionalInitContainers          bool
+	HasInitContainers                    bool
 	InitContainers                       []*map[string]interface{}
 	HasOpenrestySidecar                  bool
 	UseESP                               bool
