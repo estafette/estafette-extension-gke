@@ -56,16 +56,6 @@ spec:
                 values:
                 - "true"
         {{- end}}
-      {{- if .MountPayloadLogging }}
-      initContainers:
-      - name: init-myservice
-        image: busybox:1.27.2
-        imagePullPolicy: IfNotPresent
-        command: ['sh', '-c', 'mkdir -p /var/log/fluentd-payload-logger/{{.Name}}']
-        volumeMounts:
-        - name: var-log
-          mountPath: /var/log
-      {{- end}}
       containers:
       - name: {{.Name}}
         image: {{.Container.Repository}}/{{.Container.Name}}:{{.Container.Tag}}
@@ -287,6 +277,7 @@ spec:
       - name: pod-log
         hostPath:
           path: /var/log/fluentd-payload-logger/{{.Name}}
+          type: DirectoryOrCreate
       - name: var-log
         hostPath:
           path: /var/log
