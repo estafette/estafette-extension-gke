@@ -46,326 +46,328 @@ stages:
     copy:
     - templates
 
-  test-alpha-version:
-    image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-    credentials: gke-tooling
-    action: deploy-simple
-    kind: deployment
-    app: gke
-    namespace: estafette
-    visibility: public-whitelist
-    whitelist:
-    - 10.0.0.0/8
-    - 172.16.0.0/12
-    - 192.168.0.0/16
-    container:
-      repository: extensions
-      name: gke
-      tag: alpha
-      port: 5000
-      additionalports:
-      - name: grpc
-        port: 8085
-        protocol: TCP
-        visibility: private
-      - name: snmp
-        port: 8086
-        protocol: UDP
-        visibility: public
-      env:
-        MY_CUSTOM_ENV: value1
-        MY_OTHER_CUSTOM_ENV: value2
-        MY_BOOL_ENV: true
-        MY_INT_ENV: 123123
-        KUBERNETES_LABELS_APP:
-          valueFrom:
-            fieldRef:
-              apiVersion: v1
-              fieldPath: metadata.labels['app']
-      cpu:
-        request: 100m
-        limit: 100m
-      memory:
-        request: 256Mi
-        limit: 256Mi
-      liveness:
-        path: /liveness
-        port: 5001
-        delay: 30
-        timeout: 1
-        period: 10
-      readiness:
-        path: /readiness
-        port: 5002
-        delay: 30
-        timeout: 1
-        period: 10
-      metrics:
-        scrape: true
-        path: /metrics
-        port: 5003
-      lifecycle:
-        prestopsleep: true
-        prestopsleepseconds: 15
-    sidecar:
-      type: openresty
-      image: estafette/openresty-sidecar:1.13.6.1-alpine
-      healthcheckpath: /readiness
-      env:
-        CORS_ALLOWED_ORIGINS: "*"
-        CORS_MAX_AGE: "86400"
-        MY_BOOL_ENV: true
-        MY_INT_ENV: 123123
-        KUBERNETES_LABELS_APP:
-          valueFrom:
-            fieldRef:
-              apiVersion: v1
-              fieldPath: metadata.labels['app']
-      cpu:
-        request: 10m
-        limit: 50m
-      memory:
-        request: 10Mi
-        limit: 50Mi
-    initcontainers:
-    - name: sysctl
-      image: busybox:1.31.0
-      imagePullPolicy: IfNotPresent
-      command:
-      - sh
-      - -c
-      - sysctl -w net.core.somaxconn=32768; sysctl -w net.ipv4.ip_local_port_range="1024 65535"
-      securityContext:
-        privileged: true
-    sidecars:
-    - type: cloudsqlproxy
-      dbinstanceconnectionname: my-gcloud-project:europe-west1:my-database
-      sqlproxyport: 5043
-      sqlproxyterminationtimeoutseconds: 30
-      env:
-        MY_BOOL_ENV: true
-        MY_INT_ENV: 123123
-        KUBERNETES_LABELS_APP:
-          valueFrom:
-            fieldRef:
-              apiVersion: v1
-              fieldPath: metadata.labels['app']
-      cpu:
-        request: 10m
-        limit: 50m
-      memory:
-        request: 10Mi
-        limit: 50Mi
-    - type: custom
-      image: estafette/estafette-docker-cache-heater:dev
-      imagePullPolicy: IfNotPresent
-      env:
-        MY_BOOL_ENV: true
-        MY_INT_ENV: 123123
-        KUBERNETES_LABELS_APP:
-          valueFrom:
-            fieldRef:
-              apiVersion: v1
-              fieldPath: metadata.labels['app']
-      cpu:
-        request: 10m
-        limit: 50m
-      memory:
-        request: 10Mi
-        limit: 50Mi
-    autoscale:
-      min: 3
-      max: 50
-      cpu: 80
-      safety:
-        enabled: true
-        promquery: "sum(rate(nginx_http_requests_total{app='my-app'}[5m])) by (app)"
-        ratio: 2.5
-        delta: -0.5
-        scaledownratio: 0.2
-    request:
-      timeout: 60s
-      maxbodysize: 128m
-      proxybuffersize: 4k
-      proxybuffersnumber: 4
-      clientbodybuffersize: 8k
-      loadbalance: round_robin
-    secrets:
-      keys:
-        secret-file-1.json: c29tZSBzZWNyZXQgdmFsdWU=
-        secret-file-2.yaml: YW5vdGhlciBzZWNyZXQgdmFsdWU=
-        bool-file: true
-        int-file: 123123
-      mountpath: /secrets
-    configs:
-      # these are local files with golang template style placeholders, replaced with the values specified in the data section;
-      # set clone: true on the release target to ensure you have access to these files stored in your repository
-      files:
-      - config/config.json
-      - config/anotherconfig.yaml
-      # these are the values for the placeholders specified as {{.property1}} to be replaced in the config files
-      data:
-        property1: value 1
-        property2: value 2
-        property4: true
-        property5: 123123
-      # if you want to avoid cloning your repository and just need to pass a very short config you can inline full files here
-      inline:
-        inline-config.properties: |
-          enemies=aliens
-          lives=3
-      mountpath: /configs
-    volumemounts:
-    - name: client-certs
-      mountpath: /cockroach-certs
-      volume:
-        secret:
-          secretName: estafette.client.estafette
-          items:
-          - key: key
-            path: key
-            mode: 0600
-          - key: cert
-            path: cert
-    manifests:
-      files:
-      - override/service.yaml
-      data:
-        property3: value 3
-        property6: true
-        property7: 123123
-    hosts:
-    - gke.estafette.io
-    - gke-deploy.estafette.io
-    internalhosts:
-    - gke.estafette.internal
-    - gke-deploy.estafette.local
-    basepath: /
-    enablePayloadLogging: true
-    useGoogleCloudCredentials: true
-    disableServiceAccountKeyRotation: false
-    probeService: true
-    googleCloudCredentialsApp: gke
-    chaosproof: true
-    rollingupdate:
-      maxsurge: 25%
-      maxunavailable: 25%
-      timeout: 2m
-    trustedips:
-    - 103.21.244.0/22
-    - 103.22.200.0/22
-    - 103.31.4.0/22
-    dryrun: true
+  integration-tests:
+    parallelStages:
+      test-alpha-version:
+        image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+        credentials: gke-tooling
+        action: deploy-simple
+        kind: deployment
+        app: gke
+        namespace: estafette
+        visibility: public-whitelist
+        whitelist:
+        - 10.0.0.0/8
+        - 172.16.0.0/12
+        - 192.168.0.0/16
+        container:
+          repository: extensions
+          name: gke
+          tag: alpha
+          port: 5000
+          additionalports:
+          - name: grpc
+            port: 8085
+            protocol: TCP
+            visibility: private
+          - name: snmp
+            port: 8086
+            protocol: UDP
+            visibility: public
+          env:
+            MY_CUSTOM_ENV: value1
+            MY_OTHER_CUSTOM_ENV: value2
+            MY_BOOL_ENV: true
+            MY_INT_ENV: 123123
+            KUBERNETES_LABELS_APP:
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.labels['app']
+          cpu:
+            request: 100m
+            limit: 100m
+          memory:
+            request: 256Mi
+            limit: 256Mi
+          liveness:
+            path: /liveness
+            port: 5001
+            delay: 30
+            timeout: 1
+            period: 10
+          readiness:
+            path: /readiness
+            port: 5002
+            delay: 30
+            timeout: 1
+            period: 10
+          metrics:
+            scrape: true
+            path: /metrics
+            port: 5003
+          lifecycle:
+            prestopsleep: true
+            prestopsleepseconds: 15
+        sidecar:
+          type: openresty
+          image: estafette/openresty-sidecar:1.13.6.1-alpine
+          healthcheckpath: /readiness
+          env:
+            CORS_ALLOWED_ORIGINS: "*"
+            CORS_MAX_AGE: "86400"
+            MY_BOOL_ENV: true
+            MY_INT_ENV: 123123
+            KUBERNETES_LABELS_APP:
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.labels['app']
+          cpu:
+            request: 10m
+            limit: 50m
+          memory:
+            request: 10Mi
+            limit: 50Mi
+        initcontainers:
+        - name: sysctl
+          image: busybox:1.31.0
+          imagePullPolicy: IfNotPresent
+          command:
+          - sh
+          - -c
+          - sysctl -w net.core.somaxconn=32768; sysctl -w net.ipv4.ip_local_port_range="1024 65535"
+          securityContext:
+            privileged: true
+        sidecars:
+        - type: cloudsqlproxy
+          dbinstanceconnectionname: my-gcloud-project:europe-west1:my-database
+          sqlproxyport: 5043
+          sqlproxyterminationtimeoutseconds: 30
+          env:
+            MY_BOOL_ENV: true
+            MY_INT_ENV: 123123
+            KUBERNETES_LABELS_APP:
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.labels['app']
+          cpu:
+            request: 10m
+            limit: 50m
+          memory:
+            request: 10Mi
+            limit: 50Mi
+        - type: custom
+          image: estafette/estafette-docker-cache-heater:dev
+          imagePullPolicy: IfNotPresent
+          env:
+            MY_BOOL_ENV: true
+            MY_INT_ENV: 123123
+            KUBERNETES_LABELS_APP:
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.labels['app']
+          cpu:
+            request: 10m
+            limit: 50m
+          memory:
+            request: 10Mi
+            limit: 50Mi
+        autoscale:
+          min: 3
+          max: 50
+          cpu: 80
+          safety:
+            enabled: true
+            promquery: "sum(rate(nginx_http_requests_total{app='my-app'}[5m])) by (app)"
+            ratio: 2.5
+            delta: -0.5
+            scaledownratio: 0.2
+        request:
+          timeout: 60s
+          maxbodysize: 128m
+          proxybuffersize: 4k
+          proxybuffersnumber: 4
+          clientbodybuffersize: 8k
+          loadbalance: round_robin
+        secrets:
+          keys:
+            secret-file-1.json: c29tZSBzZWNyZXQgdmFsdWU=
+            secret-file-2.yaml: YW5vdGhlciBzZWNyZXQgdmFsdWU=
+            bool-file: true
+            int-file: 123123
+          mountpath: /secrets
+        configs:
+          # these are local files with golang template style placeholders, replaced with the values specified in the data section;
+          # set clone: true on the release target to ensure you have access to these files stored in your repository
+          files:
+          - config/config.json
+          - config/anotherconfig.yaml
+          # these are the values for the placeholders specified as {{.property1}} to be replaced in the config files
+          data:
+            property1: value 1
+            property2: value 2
+            property4: true
+            property5: 123123
+          # if you want to avoid cloning your repository and just need to pass a very short config you can inline full files here
+          inline:
+            inline-config.properties: |
+              enemies=aliens
+              lives=3
+          mountpath: /configs
+        volumemounts:
+        - name: client-certs
+          mountpath: /cockroach-certs
+          volume:
+            secret:
+              secretName: estafette.client.estafette
+              items:
+              - key: key
+                path: key
+                mode: 0600
+              - key: cert
+                path: cert
+        manifests:
+          files:
+          - override/service.yaml
+          data:
+            property3: value 3
+            property6: true
+            property7: 123123
+        hosts:
+        - gke.estafette.io
+        - gke-deploy.estafette.io
+        internalhosts:
+        - gke.estafette.internal
+        - gke-deploy.estafette.local
+        basepath: /
+        enablePayloadLogging: true
+        useGoogleCloudCredentials: true
+        disableServiceAccountKeyRotation: false
+        probeService: true
+        googleCloudCredentialsApp: gke
+        chaosproof: true
+        rollingupdate:
+          maxsurge: 25%
+          maxunavailable: 25%
+          timeout: 2m
+        trustedips:
+        - 103.21.244.0/22
+        - 103.22.200.0/22
+        - 103.31.4.0/22
+        dryrun: true
 
-  test-minimal-alpha-version:
-    image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-    credentials: gke-tooling
-    container:
-      repository: extensions
-    hosts:
-    - gke.estafette.io
-    dryrun: true
+      test-minimal-alpha-version:
+        image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+        credentials: gke-tooling
+        container:
+          repository: extensions
+        hosts:
+        - gke.estafette.io
+        dryrun: true
 
-  test-alpha-version-esp:
-    image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-    credentials: gke-tooling
-    visibility: esp
-    espConfigID: 2019-04-24r0
-    espOpenapiYamlPath: test/openapi.yaml
-    container:
-      repository: extensions
-    useGoogleCloudCredentials: true
-    disableServiceAccountKeyRotation: true
-    hosts:
-    - gke.estafette.io
-    dryrun: true
+      test-alpha-version-esp:
+        image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+        credentials: gke-tooling
+        visibility: esp
+        espConfigID: 2019-04-24r0
+        espOpenapiYamlPath: test/openapi.yaml
+        container:
+          repository: extensions
+        useGoogleCloudCredentials: true
+        disableServiceAccountKeyRotation: true
+        hosts:
+        - gke.estafette.io
+        dryrun: true
 
-  test-alpha-version-job:
-    image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-    credentials: gke-tooling
-    kind: job
-    container:
-      repository: extensions
-      env:
-        MY_CUSTOM_ENV: value1
-        MY_OTHER_CUSTOM_ENV: value2
-        MY_BOOL_ENV: true
-        MY_INT_ENV: 123123
-        KUBERNETES_LABELS_APP:
-          valueFrom:
-            fieldRef:
-              apiVersion: v1
-              fieldPath: metadata.labels['app']
-    dryrun: true
+      test-alpha-version-job:
+        image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+        credentials: gke-tooling
+        kind: job
+        container:
+          repository: extensions
+          env:
+            MY_CUSTOM_ENV: value1
+            MY_OTHER_CUSTOM_ENV: value2
+            MY_BOOL_ENV: true
+            MY_INT_ENV: 123123
+            KUBERNETES_LABELS_APP:
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.labels['app']
+        dryrun: true
 
-  test-alpha-version-cronjob:
-    image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-    credentials: gke-tooling
-    kind: cronjob
-    schedule: "*/5 * * * *"
-    concurrencypolicy: Forbid
-    container:
-      repository: extensions
-      env:
-        MY_CUSTOM_ENV: value1
-        MY_OTHER_CUSTOM_ENV: value2
-        MY_BOOL_ENV: true
-        MY_INT_ENV: 123123
-        KUBERNETES_LABELS_APP:
-          valueFrom:
-            fieldRef:
-              apiVersion: v1
-              fieldPath: metadata.labels['app']
-    dryrun: true
+      test-alpha-version-cronjob:
+        image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+        credentials: gke-tooling
+        kind: cronjob
+        schedule: "*/5 * * * *"
+        concurrencypolicy: Forbid
+        container:
+          repository: extensions
+          env:
+            MY_CUSTOM_ENV: value1
+            MY_OTHER_CUSTOM_ENV: value2
+            MY_BOOL_ENV: true
+            MY_INT_ENV: 123123
+            KUBERNETES_LABELS_APP:
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.labels['app']
+        dryrun: true
 
-  test-alpha-version-statefulset:
-    image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-    credentials: gke-tooling
-    kind: statefulset
-    podManagementpolicy: OrderedReady
-    storageclass: fast
-    storagesize: 10Gi
-    container:
-      repository: extensions
-      env:
-        MY_CUSTOM_ENV: value1
-        MY_OTHER_CUSTOM_ENV: value2
-        MY_BOOL_ENV: true
-        MY_INT_ENV: 123123
-        KUBERNETES_LABELS_APP:
-          valueFrom:
-            fieldRef:
-              apiVersion: v1
-              fieldPath: metadata.labels['app']
-    hosts:
-    - gke.estafette.io
-    dryrun: true
+      test-alpha-version-statefulset:
+        image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+        credentials: gke-tooling
+        kind: statefulset
+        podManagementpolicy: OrderedReady
+        storageclass: fast
+        storagesize: 10Gi
+        container:
+          repository: extensions
+          env:
+            MY_CUSTOM_ENV: value1
+            MY_OTHER_CUSTOM_ENV: value2
+            MY_BOOL_ENV: true
+            MY_INT_ENV: 123123
+            KUBERNETES_LABELS_APP:
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.labels['app']
+        hosts:
+        - gke.estafette.io
+        dryrun: true
 
-  test-alpha-version-canary:
-    image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-    credentials: gke-tooling
-    action: deploy-canary
-    container:
-      repository: extensions
-    hosts:
-    - gke.estafette.io
-    dryrun: true
+      test-alpha-version-canary:
+        image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+        credentials: gke-tooling
+        action: deploy-canary
+        container:
+          repository: extensions
+        hosts:
+        - gke.estafette.io
+        dryrun: true
 
-  test-alpha-version-rollforward:
-    image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-    credentials: gke-tooling
-    action: deploy-stable
-    container:
-      repository: extensions
-    hosts:
-    - gke.estafette.io
-    dryrun: true
+      test-alpha-version-rollforward:
+        image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+        credentials: gke-tooling
+        action: deploy-stable
+        container:
+          repository: extensions
+        hosts:
+        - gke.estafette.io
+        dryrun: true
 
-  test-alpha-version-rollback:
-    image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-    credentials: gke-tooling
-    action: rollback-canary
-    dryrun: true
+      test-alpha-version-rollback:
+        image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+        credentials: gke-tooling
+        action: rollback-canary
+        dryrun: true
 
   push-to-docker-hub:
     image: extensions/docker:dev
