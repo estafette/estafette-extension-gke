@@ -173,7 +173,7 @@ func main() {
 	logInfo("Authenticating to google cloud")
 	runCommand("gcloud", []string{"auth", "activate-service-account", saClientEmail, "--key-file", "/key-file.json"})
 
-	logInfo("Setting gcloud account")
+	logInfo("Setting gcloud account to %v", saClientEmail)
 	runCommand("gcloud", []string{"config", "set", "account", saClientEmail})
 
 	logInfo("Setting gcloud project")
