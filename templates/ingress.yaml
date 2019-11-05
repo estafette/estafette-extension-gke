@@ -9,7 +9,7 @@ metadata:
     {{- end}}
   annotations:
     {{- if .UseNginxIngress}}
-    kubernetes.io/ingress.class: "nginx"
+    kubernetes.io/ingress.class: "nginx-office"
     {{- if .HasOpenrestySidecar }}
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     {{- end }}
