@@ -2076,4 +2076,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, 300, templateData.NginxIngressProxyReadTimeout)
 	})
 
+	t.Run("SetsCertificateSecret", func(t *testing.T) {
+
+		params := Params{
+			CertificateSecret: "shared-wildcard-letsencrypt-certificate",
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.True(t, templateData.UseCertificateSecret)
+	})
+
 }

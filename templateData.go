@@ -89,6 +89,8 @@ type TemplateData struct {
 	IapOauthCredentialsClientSecret string
 	IsSimpleEnvvarValue             func(interface{}) bool
 	ToYAML                          func(interface{}) string
+	UseCertificateSecret            bool
+	CertificateSecretName           string
 }
 
 // ContainerData has data specific to the application container

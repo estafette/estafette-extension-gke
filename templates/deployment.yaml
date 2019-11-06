@@ -348,7 +348,11 @@ spec:
       volumes:
       - name: ssl-certificate
         secret:
+          {{- if .UseCertificateSecret }}
+          secretName: {{.CertificateSecretName}}
+          {{- else }}
           secretName: {{.Name}}-letsencrypt-certificate
+          {{- end }}
       {{- if .UseESP }}
       - name: ssl-certificate-esp
         secret:

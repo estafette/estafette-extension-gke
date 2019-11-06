@@ -168,6 +168,31 @@ func TestGetTemplates(t *testing.T) {
 		assert.False(t, stringArrayContains(templates, "/templates/horizontalpodautoscaler.yaml"))
 		assert.False(t, stringArrayContains(templates, "/templates/poddisruptionbudget.yaml"))
 	})
+
+	t.Run("DoesNotIncludeCertificateSecretIfCertificateSecretIsSet", func(t *testing.T) {
+
+		params := Params{
+			Kind:              "deployment",
+			CertificateSecret: "shared-wildcard-letsencrypt-certificate",
+		}
+
+		// act
+		templates := getTemplates(params)
+
+		assert.False(t, stringArrayContains(templates, "/templates/certificate-secret.yaml"))
+	})
+
+	t.Run("IncludesCertificateSecretIfCertificateSecretIsNotSet", func(t *testing.T) {
+
+		params := Params{
+			Kind: "deployment",
+		}
+
+		// act
+		templates := getTemplates(params)
+
+		assert.True(t, stringArrayContains(templates, "/templates/certificate-secret.yaml"))
+	})
 }
 
 func stringArrayContains(array []string, search string) bool {
