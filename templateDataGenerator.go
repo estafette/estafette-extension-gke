@@ -327,6 +327,12 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		}
 	}
 
+	// Use certificate secret if it's specified
+	if params.CertificateSecret != "" {
+		data.UseCertificateSecret = true
+		data.CertificateSecretName = params.CertificateSecret
+	}
+
 	return data
 }
 

@@ -67,18 +67,22 @@ func getTemplates(params Params) []string {
 			"service.yaml",
 			"service-headless.yaml",
 			"serviceaccount.yaml",
-			"certificate-secret.yaml",
 			"statefulset.yaml",
 		}...)
+		if params.CertificateSecret == "" {
+			templatesToMerge = append(templatesToMerge, "certificate-secret.yaml")
+		}
 
 	case "deployment":
 		templatesToMerge = append(templatesToMerge, []string{
 			"namespace.yaml",
 			"service.yaml",
 			"serviceaccount.yaml",
-			"certificate-secret.yaml",
 			"deployment.yaml",
 		}...)
+		if params.CertificateSecret == "" {
+			templatesToMerge = append(templatesToMerge, "certificate-secret.yaml")
+		}
 	}
 
 	if (params.Kind == "deployment" || params.Kind == "statefulset") && (params.Action == "deploy-simple" || params.Action == "deploy-stable") {

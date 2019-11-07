@@ -43,6 +43,7 @@ type Params struct {
 	Secrets                         SecretsParams       `json:"secrets,omitempty" yaml:"secrets,omitempty"`
 	Configs                         ConfigsParams       `json:"configs,omitempty" yaml:"configs,omitempty"`
 	VolumeMounts                    []VolumeMountParams `json:"volumemounts,omitempty" yaml:"volumemounts,omitempty"`
+	CertificateSecret               string              `json:"certificatesecret,omitempty" yaml:"certificatesecret,omitempty"`
 
 	EnablePayloadLogging             bool   `json:"enablePayloadLogging,omitempty" yaml:"enablePayloadLogging,omitempty"`
 	UseGoogleCloudCredentials        bool   `json:"useGoogleCloudCredentials,omitempty" yaml:"useGoogleCloudCredentials,omitempty"`
