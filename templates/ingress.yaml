@@ -42,7 +42,11 @@ spec:
     {{- range .Hosts}}
     - {{.}}
     {{- end}}
+    {{- if .UseCertificateSecret }}
+    secretName: {{.CertificateSecretName}}
+    {{- else }}
     secretName: {{.Name}}-letsencrypt-certificate
+    {{- end }}
   rules:
   {{- range .Hosts}}
   - host: {{.}}
