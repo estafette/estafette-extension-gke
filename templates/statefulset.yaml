@@ -254,7 +254,11 @@ spec:
       volumes:
       - name: ssl-certificate
         secret:
+          {{- if .UseCertificateSecret }}
+          secretName: {{.CertificateSecretName}}
+          {{- else }}
           secretName: {{.Name}}-letsencrypt-certificate
+          {{- end }}
       - name: {{.Name}}-data
         persistentVolumeClaim:
           claimName: {{.Name}}-data
