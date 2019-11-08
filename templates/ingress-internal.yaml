@@ -33,7 +33,11 @@ spec:
     {{- range .InternalHosts}}
     - {{.}}
     {{- end}}
+    {{- if .UseCertificateSecret }}
+    secretName: {{.CertificateSecretName}}
+    {{- else }}
     secretName: {{.Name}}-letsencrypt-certificate
+    {{- end }}
   rules:
   {{- range .InternalHosts}}
   - host: {{.}}
