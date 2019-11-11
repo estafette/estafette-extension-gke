@@ -134,6 +134,8 @@ type ProbeParams struct {
 	InitialDelaySeconds int    `json:"delay,omitempty" yaml:"delay,omitempty"`
 	TimeoutSeconds      int    `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	PeriodSeconds       int    `json:"period,omitempty" yaml:"period,omitempty"`
+	FailureThreshold    int    `json:"failureThreshold,omitempty" yaml:"failureThreshold,omitempty"`
+	SuccessThreshold    int    `json:"successThreshold,omitempty" yaml:"successThreshold,omitempty"`
 }
 
 // MetricsParams sets params for scraping prometheus metrics
@@ -364,6 +366,12 @@ func (p *Params) SetDefaults(gitName, appLabel, buildVersion, releaseName, relea
 	if p.Container.LivenessProbe.PeriodSeconds <= 0 {
 		p.Container.LivenessProbe.PeriodSeconds = 10
 	}
+	if p.Container.LivenessProbe.FailureThreshold <= 0 {
+		p.Container.LivenessProbe.FailureThreshold = 3
+	}
+	if p.Container.LivenessProbe.SuccessThreshold <= 0 {
+		p.Container.LivenessProbe.SuccessThreshold = 1
+	}
 
 	// set readiness probe defaults
 	if p.Container.ReadinessProbe.Path == "" {
@@ -377,6 +385,12 @@ func (p *Params) SetDefaults(gitName, appLabel, buildVersion, releaseName, relea
 	}
 	if p.Container.ReadinessProbe.PeriodSeconds <= 0 {
 		p.Container.ReadinessProbe.PeriodSeconds = 10
+	}
+	if p.Container.ReadinessProbe.FailureThreshold <= 0 {
+		p.Container.ReadinessProbe.FailureThreshold = 3
+	}
+	if p.Container.ReadinessProbe.SuccessThreshold <= 0 {
+		p.Container.ReadinessProbe.SuccessThreshold = 1
 	}
 	if p.ProbeService == nil {
 		trueValue := true

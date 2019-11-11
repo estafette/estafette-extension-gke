@@ -84,6 +84,8 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 				InitialDelaySeconds: params.Container.LivenessProbe.InitialDelaySeconds,
 				TimeoutSeconds:      params.Container.LivenessProbe.TimeoutSeconds,
 				PeriodSeconds:       params.Container.LivenessProbe.PeriodSeconds,
+				FailureThreshold:    params.Container.LivenessProbe.FailureThreshold,
+				SuccessThreshold:    params.Container.LivenessProbe.SuccessThreshold,
 				IncludeOnContainer:  true,
 			},
 			Readiness: ProbeData{
@@ -92,6 +94,8 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 				InitialDelaySeconds: params.Container.ReadinessProbe.InitialDelaySeconds,
 				TimeoutSeconds:      params.Container.ReadinessProbe.TimeoutSeconds,
 				PeriodSeconds:       params.Container.ReadinessProbe.PeriodSeconds,
+				FailureThreshold:    params.Container.ReadinessProbe.FailureThreshold,
+				SuccessThreshold:    params.Container.ReadinessProbe.SuccessThreshold,
 			},
 			Metrics: MetricsData{
 				Path: params.Container.Metrics.Path,

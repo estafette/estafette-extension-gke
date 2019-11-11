@@ -119,6 +119,8 @@ type ProbeData struct {
 	TimeoutSeconds      int
 	PeriodSeconds       int
 	IncludeOnContainer  bool
+	FailureThreshold    int
+	SuccessThreshold    int
 }
 
 // MetricsData has data to configure prometheus metrics scraping
