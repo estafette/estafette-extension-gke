@@ -112,6 +112,8 @@ spec:
           initialDelaySeconds: {{.Container.Liveness.InitialDelaySeconds}}
           timeoutSeconds: {{.Container.Liveness.TimeoutSeconds}}
           periodSeconds: {{.Container.Liveness.PeriodSeconds}}
+          failureThreshold: {{.Container.Liveness.FailureThreshold}}
+          successThreshold: {{.Container.Liveness.SuccessThreshold}}
         {{- if .Container.Readiness.IncludeOnContainer }}
         readinessProbe:
           httpGet:
@@ -120,6 +122,8 @@ spec:
           initialDelaySeconds: {{.Container.Readiness.InitialDelaySeconds}}
           timeoutSeconds: {{.Container.Readiness.TimeoutSeconds}}
           periodSeconds: {{.Container.Readiness.PeriodSeconds}}
+          failureThreshold: {{.Container.Readiness.FailureThreshold}}
+          successThreshold: {{.Container.Readiness.SuccessThreshold}}
         {{- end }}
         {{- if or .MountApplicationSecrets .MountConfigmap .MountServiceAccountSecret .MountPayloadLogging .MountAdditionalVolumes }}
         volumeMounts:
@@ -223,6 +227,8 @@ spec:
           initialDelaySeconds: {{$deployment.Container.Readiness.InitialDelaySeconds}}
           timeoutSeconds: {{$deployment.Container.Readiness.TimeoutSeconds}}
           periodSeconds: {{$deployment.Container.Readiness.PeriodSeconds}}
+          failureThreshold: {{$deployment.Container.Readiness.FailureThreshold}}
+          successThreshold: {{$deployment.Container.Readiness.SuccessThreshold}}
         {{- if .HasCustomProperties }}
 {{.CustomPropertiesYAML | indent 8}}
         {{- end }}

@@ -634,6 +634,38 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, 1, templateData.Container.Liveness.TimeoutSeconds)
 	})
 
+	t.Run("SetsLivenessFailureThresholdToLivenessProbeFailureThresholdParam", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				LivenessProbe: ProbeParams{
+					FailureThreshold: 2,
+				},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.Equal(t, 2, templateData.Container.Liveness.FailureThreshold)
+	})
+
+	t.Run("SetsLivenessSuccessThresholdToLivenessProbeSuccessThresholdParam", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				LivenessProbe: ProbeParams{
+					SuccessThreshold: 7,
+				},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.Equal(t, 7, templateData.Container.Liveness.SuccessThreshold)
+	})
+
 	t.Run("SetsReadinessPathToReadinessProbePathParam", func(t *testing.T) {
 
 		params := Params{
@@ -696,6 +728,38 @@ func TestGenerateTemplateData(t *testing.T) {
 		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 1, templateData.Container.Readiness.TimeoutSeconds)
+	})
+
+	t.Run("SetsReadinessFailureThresholdToReadinessProbeFailureThresholdParam", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				ReadinessProbe: ProbeParams{
+					FailureThreshold: 6,
+				},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.Equal(t, 6, templateData.Container.Readiness.FailureThreshold)
+	})
+
+	t.Run("SetsReadinessSuccessThresholdToReadinessProbeSuccessThresholdParam", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				ReadinessProbe: ProbeParams{
+					SuccessThreshold: 3,
+				},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.Equal(t, 3, templateData.Container.Readiness.SuccessThreshold)
 	})
 
 	t.Run("SetsEnvironmentVariablesToContainerEnvironmentVariablesParam", func(t *testing.T) {

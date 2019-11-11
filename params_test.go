@@ -45,6 +45,8 @@ var (
 				InitialDelaySeconds: 30,
 				TimeoutSeconds:      1,
 				PeriodSeconds:       10,
+				FailureThreshold:    3,
+				SuccessThreshold:    1,
 			},
 			ReadinessProbe: ProbeParams{
 				Path:                "/readiness",
@@ -52,6 +54,8 @@ var (
 				InitialDelaySeconds: 0,
 				TimeoutSeconds:      1,
 				PeriodSeconds:       10,
+				FailureThreshold:    3,
+				SuccessThreshold:    1,
 			},
 			Metrics: MetricsParams{
 				Scrape: &trueValue,
@@ -1012,6 +1016,70 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, 5, params.Container.LivenessProbe.TimeoutSeconds)
 	})
 
+	t.Run("DefaultsLivenessFailureThresholdTo3IfZero", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				LivenessProbe: ProbeParams{
+					FailureThreshold: 0,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, 3, params.Container.LivenessProbe.FailureThreshold)
+	})
+
+	t.Run("KeepsLivenessFailureThresholdIfLargerThanZero", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				LivenessProbe: ProbeParams{
+					FailureThreshold: 5,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, 5, params.Container.LivenessProbe.FailureThreshold)
+	})
+
+	t.Run("DefaultsLivenessSuccessThresholdTo1IfZero", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				LivenessProbe: ProbeParams{
+					SuccessThreshold: 0,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, 1, params.Container.LivenessProbe.SuccessThreshold)
+	})
+
+	t.Run("KeepsLivenessSuccessThresholdIfLargerThanZero", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				LivenessProbe: ProbeParams{
+					SuccessThreshold: 5,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, 5, params.Container.LivenessProbe.SuccessThreshold)
+	})
+
 	t.Run("DefaultsLivenessPathToLivenessIfEmpty", func(t *testing.T) {
 
 		params := Params{
@@ -1140,6 +1208,70 @@ func TestSetDefaults(t *testing.T) {
 		params.SetDefaults("", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 5, params.Container.ReadinessProbe.TimeoutSeconds)
+	})
+
+	t.Run("DefaultsReadinessFailureThresholdTo3IfZero", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				ReadinessProbe: ProbeParams{
+					FailureThreshold: 0,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, 3, params.Container.ReadinessProbe.FailureThreshold)
+	})
+
+	t.Run("KeepsReadinessFailureThresholdIfLargerThanZero", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				ReadinessProbe: ProbeParams{
+					FailureThreshold: 5,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, 5, params.Container.ReadinessProbe.FailureThreshold)
+	})
+
+	t.Run("DefaultsReadinessSuccessThresholdTo1IfZero", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				ReadinessProbe: ProbeParams{
+					SuccessThreshold: 0,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, 1, params.Container.ReadinessProbe.SuccessThreshold)
+	})
+
+	t.Run("KeepsReadinessSuccessThresholdIfLargerThanZero", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				ReadinessProbe: ProbeParams{
+					SuccessThreshold: 5,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, 5, params.Container.ReadinessProbe.SuccessThreshold)
 	})
 
 	t.Run("DefaultsReadinessPathToReadinessIfEmpty", func(t *testing.T) {
