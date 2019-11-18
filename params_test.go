@@ -2253,6 +2253,30 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "Allow", params.ConcurrencyPolicy)
 	})
 
+	t.Run("DefaultsRestartPolicyToOnFailure", func(t *testing.T) {
+
+		params := Params{
+			RestartPolicy: "",
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, "OnFailure", params.RestartPolicy)
+	})
+
+	t.Run("KeepsRestartPolicyIfSet", func(t *testing.T) {
+
+		params := Params{
+			RestartPolicy: "Never",
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, "Never", params.RestartPolicy)
+	})
+
 	t.Run("KeepsKindIfNotEmpty", func(t *testing.T) {
 
 		params := Params{

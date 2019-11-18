@@ -17,6 +17,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		Namespace:         params.Namespace,
 		Schedule:          params.Schedule,
 		ConcurrencyPolicy: params.ConcurrencyPolicy,
+		RestartPolicy:     params.RestartPolicy,
 		Labels:            sanitizeLabels(params.Labels),
 		PodLabels:         sanitizeLabels(params.Labels),
 		AppLabelSelector:  sanitizeLabel(params.App),

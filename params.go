@@ -22,6 +22,7 @@ type Params struct {
 	App                             string              `json:"app,omitempty" yaml:"app,omitempty"`
 	Namespace                       string              `json:"namespace,omitempty" yaml:"namespace,omitempty"`
 	Schedule                        string              `json:"schedule,omitempty" yaml:"schedule,omitempty"`
+	RestartPolicy                   string              `json:"restartPolicy,omitempty" yaml:"restartPolicy,omitempty"`
 	ConcurrencyPolicy               string              `json:"concurrencypolicy,omitempty" yaml:"concurrencypolicy,omitempty"`
 	PodManagementPolicy             string              `json:"podManagementpolicy,omitempty" yaml:"podManagementpolicy,omitempty"`
 	Replicas                        int                 `json:"replicas,omitempty" yaml:"replicas,omitempty"`
@@ -522,6 +523,10 @@ func (p *Params) SetDefaults(gitName, appLabel, buildVersion, releaseName, relea
 		if p.ConcurrencyPolicy == "" {
 			p.ConcurrencyPolicy = "Allow"
 		}
+	}
+
+	if p.RestartPolicy == "" {
+		p.RestartPolicy = "OnFailure"
 	}
 
 	if p.Kind == "statefulset" {

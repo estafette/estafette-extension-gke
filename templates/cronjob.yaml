@@ -29,7 +29,7 @@ spec:
             prometheus.io/port: "{{.Container.Metrics.Port}}"
             prometheus.io/scrape-nginx-sidecar: "true"
         spec:
-          restartPolicy: OnFailure
+          restartPolicy: {{.RestartPolicy}}
           serviceAccount: {{.Name}}
           containers:
           - name: {{.Name}}
