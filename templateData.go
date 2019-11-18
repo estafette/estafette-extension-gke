@@ -7,6 +7,9 @@ type TemplateData struct {
 	Namespace                            string
 	Schedule                             string
 	RestartPolicy                        string
+	Completions                          int
+	Parallelism                          int
+	BackoffLimit                         int
 	ConcurrencyPolicy                    string
 	Labels                               map[string]string
 	PodLabels                            map[string]string

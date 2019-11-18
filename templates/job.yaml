@@ -8,8 +8,9 @@ metadata:
     {{$key}}: {{$value}}
     {{- end}}
 spec:
-  completions: 1
-  parallelism: 1
+  completions: {{.Completions}}
+  parallelism: {{.Parallelism}}
+  backoffLimit: {{.BackoffLimit}}
   template:
     metadata:
       labels:

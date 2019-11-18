@@ -2277,6 +2277,78 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "Never", params.RestartPolicy)
 	})
 
+	t.Run("DefaultsCompletionsTo1", func(t *testing.T) {
+
+		params := Params{
+			Completions: 0,
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, 1, params.Completions)
+	})
+
+	t.Run("KeepsCompletionsIfSet", func(t *testing.T) {
+
+		params := Params{
+			Completions: 3,
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, 3, params.Completions)
+	})
+
+	t.Run("DefaultsParallelismTo1", func(t *testing.T) {
+
+		params := Params{
+			Parallelism: 0,
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, 1, params.Parallelism)
+	})
+
+	t.Run("KeepsParallelismIfSet", func(t *testing.T) {
+
+		params := Params{
+			Parallelism: 3,
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, 3, params.Parallelism)
+	})
+
+	t.Run("DefaultsBackoffLimitTo6", func(t *testing.T) {
+
+		params := Params{
+			BackoffLimit: 0,
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, 6, params.BackoffLimit)
+	})
+
+	t.Run("KeepsBackoffLimitIfSet", func(t *testing.T) {
+
+		params := Params{
+			BackoffLimit: 3,
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, 3, params.BackoffLimit)
+	})
+
 	t.Run("KeepsKindIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
