@@ -14,11 +14,13 @@ import (
 	"time"
 
 	"github.com/alecthomas/kingpin"
+	foundation "github.com/estafette/estafette-foundation"
 	"github.com/sethgrid/pester"
 	"gopkg.in/yaml.v2"
 )
 
 var (
+	appgroup  string
 	app       string
 	version   string
 	branch    string
@@ -55,12 +57,8 @@ func main() {
 	// parse command line parameters
 	kingpin.Parse()
 
-	// log to stdout and hide timestamp
-	log.SetOutput(os.Stdout)
-	log.SetFlags(log.Flags() &^ (log.Ldate | log.Ltime))
-
-	// log startup message
-	logInfo("Starting %v version %v...", app, version)
+	// init log format from envvar ESTAFETTE_LOG_FORMAT
+	foundation.InitLoggingFromEnv(appgroup, app, version, branch, revision, buildDate)
 
 	// put all estafette labels in map
 	logInfo("Getting all estafette labels from envvars...")
