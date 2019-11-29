@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+
+	"github.com/rs/zerolog/log"
 )
 
 // Params is used to parameterize the deployment, set from custom properties in the manifest
@@ -890,7 +892,7 @@ func (p *Params) ReplaceSidecarTagsWithDigest() {
 
 	// see if there's a sidecar of type openresty
 	for _, s := range p.Sidecars {
-		logInfo("Replacing sidecar %v image tag with digest...", s.Type)
+		log.Info().Msgf("Replacing sidecar %v image tag with digest...", s.Type)
 
 		if s.Image == "" {
 			continue
@@ -939,6 +941,6 @@ func (p *Params) ReplaceSidecarTagsWithDigest() {
 
 		s.Image = fmt.Sprintf("%v@%v", repository, digest)
 
-		logInfo("Successfully replaced tag %v with digest %v...", tag, digest)
+		log.Info().Msgf("Successfully replaced tag %v with digest %v...", tag, digest)
 	}
 }

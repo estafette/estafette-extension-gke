@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"path/filepath"
 	"strings"
 	"text/template"
 
 	"github.com/Masterminds/sprig"
+	"github.com/rs/zerolog/log"
 )
 
 func buildTemplates(params Params) (*template.Template, error) {
@@ -21,20 +21,20 @@ func buildTemplates(params Params) (*template.Template, error) {
 		return nil, nil
 	}
 
-	logInfo("Merging templates %v...", strings.Join(templatesToMerge, ", "))
+	log.Info().Msgf("Merging templates %v...", strings.Join(templatesToMerge, ", "))
 
 	templateStrings := []string{}
 	for _, t := range templatesToMerge {
 		data, err := ioutil.ReadFile(t)
 		if err != nil {
-			log.Fatal(fmt.Sprintf("Failed reading file %v. Do you have a git-clone stage before running this extension? For releases git-clone is not automatically handled to save time in case it's not needed. ", t), err)
+			log.Fatal().Err(err).Msgf("Failed reading file %v. Do you have a git-clone stage before running this extension? For releases git-clone is not automatically handled to save time in case it's not needed. ", t)
 		}
 		templateStrings = append(templateStrings, string(data))
 	}
 	templateString := strings.Join(templateStrings, "\n---\n")
 
 	// parse templates
-	logInfo("Parsing merged templates...")
+	log.Info().Msg("Parsing merged templates...")
 	return template.New("kubernetes.yaml").Funcs(sprig.TxtFuncMap()).Parse(templateString)
 }
 
@@ -141,24 +141,24 @@ func renderConfig(params Params) (renderedConfigFiles map[string]string) {
 	renderedConfigFiles = map[string]string{}
 
 	if params.Action != "rollback-canary" && (len(params.Configs.Files) > 0 || len(params.Configs.InlineFiles) > 0) {
-		logInfo("Prerendering config files...")
+		log.Info().Msg("Prerendering config files...")
 
 		// render files passed with configs.files property, replacing placeholders with values specified in configs.data property
 		for _, cf := range params.Configs.Files {
 
 			data, err := ioutil.ReadFile(cf)
 			if err != nil {
-				log.Fatal(fmt.Sprintf("Failed reading file %v. Do you have a git-clone stage before running this extension? For releases git-clone is not automatically handled to save time in case it's not needed. ", cf), err)
+				log.Fatal().Err(err).Msgf("Failed reading file %v. Do you have a git-clone stage before running this extension? For releases git-clone is not automatically handled to save time in case it's not needed. ", cf)
 			}
 			tmpl, err := template.New(cf).Parse(string(data))
 			if err != nil {
-				log.Fatal(fmt.Sprintf("Failed building template from file %v: ", cf), err)
+				log.Fatal().Err(err).Msgf("Failed building template from file %v: ", cf)
 			}
 
 			var renderedTemplate bytes.Buffer
 			err = tmpl.Execute(&renderedTemplate, params.Configs.Data)
 			if err != nil {
-				log.Fatal(fmt.Sprintf("Failed rendering template from file %v: ", cf), err)
+				log.Fatal().Err(err).Msgf("Failed rendering template from file %v: ", cf)
 			}
 
 			renderedConfigFiles[filepath.Base(cf)] = renderedTemplate.String()
@@ -168,12 +168,12 @@ func renderConfig(params Params) (renderedConfigFiles map[string]string) {
 		for filename, content := range params.Configs.InlineFiles {
 			tmpl, err := template.New(filename).Parse(content)
 			if err != nil {
-				log.Fatal(fmt.Sprintf("Failed building template from inline file %v: ", filename), err)
+				log.Fatal().Err(err).Msgf("Failed building template from inline file %v: ", filename)
 			}
 			var renderedTemplate bytes.Buffer
 			err = tmpl.Execute(&renderedTemplate, params.Configs.Data)
 			if err != nil {
-				log.Fatal(fmt.Sprintf("Failed rendering template from file %v: ", filename), err)
+				log.Fatal().Err(err).Msgf("Failed rendering template from file %v: ", filename)
 			}
 
 			renderedConfigFiles[filename] = renderedTemplate.String()
@@ -190,16 +190,16 @@ func renderTemplate(tmpl *template.Template, templateData TemplateData) (bytes.B
 	}
 
 	// render templates
-	logInfo("Rendering merged templates...")
+	log.Info().Msg("Rendering merged templates...")
 	var renderedTemplate bytes.Buffer
 	err := tmpl.Execute(&renderedTemplate, templateData)
 	if err != nil {
 		return renderedTemplate, err
 	}
 
-	logInfo("Template after rendering:")
-	log.Println(renderedTemplate.String())
-	log.Println("")
+	log.Info().Msg("Template after rendering:")
+	log.Info().Msg(renderedTemplate.String())
+	log.Info().Msg("")
 
 	return renderedTemplate, err
 }
