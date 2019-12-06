@@ -129,6 +129,7 @@ func main() {
 
 	log.Info().Msg("Setting defaults for parameters that are not set in the manifest...")
 	params.SetDefaults(*gitName, *appLabel, *buildVersion, *releaseName, *releaseAction, estafetteLabels)
+	log.Debug().Interface("params", params).Msg("Showing parameters after applying defaults")
 
 	log.Info().Msg("Validating required parameters...")
 	valid, errors, warnings := params.ValidateRequiredProperties()
