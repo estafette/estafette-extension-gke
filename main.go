@@ -129,7 +129,6 @@ func main() {
 
 	log.Info().Msg("Setting defaults for parameters that are not set in the manifest...")
 	params.SetDefaults(*gitName, *appLabel, *buildVersion, *releaseName, *releaseAction, estafetteLabels)
-	log.Debug().Interface("params", params).Str("paramsYAML", *paramsYAML).Msg("Showing parameters after applying defaults")
 
 	log.Info().Msg("Validating required parameters...")
 	valid, errors, warnings := params.ValidateRequiredProperties()
@@ -568,7 +567,7 @@ func removeBackendConfigAnnotation(ctx context.Context, templateData TemplateDat
 }
 
 func deleteHorizontalPodAutoscaler(ctx context.Context, params Params, name, namespace string) {
-	if params.Kind == "deployment" && (params.Autoscale.Enable == nil || !*params.Autoscale.Enable) && (params.Action == "deploy-simple" || params.Action == "deploy-stable") {
+	if params.Kind == "deployment" && (params.Autoscale.Enabled == nil || !*params.Autoscale.Enabled) && (params.Action == "deploy-simple" || params.Action == "deploy-stable") {
 		log.Info().Msgf("Deleting HorizontalPodAutoscaler %v, since autoscaling is disabled...", name)
 		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "hpa", name, "-n", namespace, "--ignore-not-found=true"})
 	}

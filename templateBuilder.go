@@ -88,7 +88,7 @@ func getTemplates(params Params) []string {
 	if (params.Kind == "deployment" || params.Kind == "statefulset") && (params.Action == "deploy-simple" || params.Action == "deploy-stable") {
 		templatesToMerge = append(templatesToMerge, "poddisruptionbudget.yaml")
 	}
-	if params.Kind == "deployment" && params.Autoscale.Enable != nil && *params.Autoscale.Enable && (params.Action == "deploy-simple" || params.Action == "deploy-stable") {
+	if params.Kind == "deployment" && params.Autoscale.Enabled != nil && *params.Autoscale.Enabled && (params.Action == "deploy-simple" || params.Action == "deploy-stable") {
 		templatesToMerge = append(templatesToMerge, "horizontalpodautoscaler.yaml")
 	}
 	if (params.Kind == "deployment" || params.Kind == "statefulset") && (params.Visibility == "private" || params.Visibility == "iap" || params.Visibility == "public-whitelist") {

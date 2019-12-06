@@ -34,7 +34,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		IngressPath:         params.Basepath,
 		InternalIngressPath: params.Basepath,
 
-		IncludeReplicas: currentReplicas > 0 || ((params.Autoscale.Enable == nil || !*params.Autoscale.Enable) && params.Replicas > 0),
+		IncludeReplicas: currentReplicas > 0 || ((params.Autoscale.Enabled == nil || !*params.Autoscale.Enabled) && params.Replicas > 0),
 
 		MinReplicas:         params.Autoscale.MinReplicas,
 		MaxReplicas:         params.Autoscale.MaxReplicas,

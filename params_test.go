@@ -15,7 +15,7 @@ var (
 		App:       "myapp",
 		Namespace: "mynamespace",
 		Autoscale: AutoscaleParams{
-			Enable:        &trueValue,
+			Enabled:       &trueValue,
 			MinReplicas:   3,
 			MaxReplicas:   100,
 			CPUPercentage: 80,
