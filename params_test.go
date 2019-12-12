@@ -1494,7 +1494,7 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, false, *params.Container.Lifecycle.PrestopSleep)
 	})
 
-	t.Run("DefaultsLifecyclePrestopSleepSecondsTo15IfEmpty", func(t *testing.T) {
+	t.Run("DefaultsLifecyclePrestopSleepSecondsTo20IfEmpty", func(t *testing.T) {
 
 		params := Params{
 			Container: ContainerParams{
@@ -1507,7 +1507,7 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", "", map[string]string{})
 
-		assert.Equal(t, 15, *params.Container.Lifecycle.PrestopSleepSeconds)
+		assert.Equal(t, 20, *params.Container.Lifecycle.PrestopSleepSeconds)
 	})
 
 	t.Run("KeepsLifecyclePrestopSleepIfNotEmpty", func(t *testing.T) {

@@ -421,7 +421,7 @@ func (p *Params) SetDefaults(gitName, appLabel, buildVersion, releaseName, relea
 		p.Container.Lifecycle.PrestopSleep = &trueValue
 	}
 	if p.Container.Lifecycle.PrestopSleepSeconds == nil {
-		defaultSleepValue := 15
+		defaultSleepValue := 20
 		p.Container.Lifecycle.PrestopSleepSeconds = &defaultSleepValue
 	}
 
