@@ -48,21 +48,21 @@ stages:
     copy:
     - templates
 
-    check-container:
-      parallelStages:
-        check-efficiency:
-          image: extensions/docker:dev
-          action: dive
-          container: gke
-          repositories:
-          - extensions
+  check-container:
+    parallelStages:
+      check-efficiency:
+        image: extensions/docker:dev
+        action: dive
+        container: gke
+        repositories:
+        - extensions
 
-        vulnerability-scan:
-          image: extensions/docker:dev
-          action: trivy
-          container: gke
-          repositories:
-          - extensions
+      vulnerability-scan:
+        image: extensions/docker:dev
+        action: trivy
+        container: gke
+        repositories:
+        - extensions
 
   integration-tests:
     parallelStages:
