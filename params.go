@@ -563,7 +563,7 @@ func (p *Params) initializeSidecarDefaults(sidecar *SidecarParams) {
 	switch sidecar.Type {
 	case "openresty":
 		if sidecar.Image == "" {
-			sidecar.Image = "estafette/openresty-sidecar@sha256:96a6b19507a7fcb9da5f81645535dc951b1e0ba05b99419cbef0ca207d4a7c5e"
+			sidecar.Image = "estafette/openresty-sidecar@sha256:09630e7c5141d44b14a8bb7581c6316876353535e762e35e54f3339de1f5211b"
 		}
 		if sidecar.HealthCheckPath == "" {
 			sidecar.HealthCheckPath = p.Container.ReadinessProbe.Path
