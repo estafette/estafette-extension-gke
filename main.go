@@ -319,11 +319,6 @@ func assistTroubleshooting(ctx context.Context, templateData TemplateData, err e
 		log.Info().Msgf("Showing current ingresses, services, configmaps, secrets, deployments, jobs, cronjobs, poddisruptionbudgets, horizontalpodautoscalers, pods, endpoints for app=%v...", paramsForTroubleshooting.App)
 		foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"get", "ing,svc,cm,secret,deploy,job,cronjob,sts,pdb,hpa,po,ep", "-l", fmt.Sprintf("app=%v", paramsForTroubleshooting.App), "-n", paramsForTroubleshooting.Namespace})
 
-		if paramsForTroubleshooting.Action == "deploy-canary" {
-			log.Info().Msg("Showing logs for canary deployment...")
-			foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"logs", "-l", fmt.Sprintf("app=%v,track=canary", paramsForTroubleshooting.App), "-n", paramsForTroubleshooting.Namespace, "-c", paramsForTroubleshooting.App, "--tail", "50"})
-		}
-
 		if err != nil {
 			log.Info().Msg("Rollout failed, trying to show logs...")
 			if *releaseID != "" {
@@ -331,6 +326,9 @@ func assistTroubleshooting(ctx context.Context, templateData TemplateData, err e
 			} else if *buildVersion != "" {
 				_ = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"logs", "-l", fmt.Sprintf("app=%v,version=%v", templateData.AppLabelSelector, sanitizeLabel(*buildVersion)), "-n", templateData.Namespace, "--all-containers"})
 			}
+		} else if paramsForTroubleshooting.Action == "deploy-canary" {
+			log.Info().Msg("Showing logs for canary deployment...")
+			foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"logs", "-l", fmt.Sprintf("app=%v,track=canary", paramsForTroubleshooting.App), "-n", paramsForTroubleshooting.Namespace, "-c", paramsForTroubleshooting.App, "--tail", "50"})
 		}
 
 		foundation.HandleError(err)
