@@ -249,12 +249,16 @@ func main() {
 
 			if params.Kind == "deployment" {
 				log.Info().Msg("Waiting for the deployment to finish...")
-				foundation.RunCommandWithArgs(ctx, "kubectl", []string{"rollout", "status", "deployment", templateData.NameWithTrack, "-n", templateData.Namespace})
+				err = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"rollout", "status", "deployment", templateData.NameWithTrack, "-n", templateData.Namespace})
 			}
 			if params.Kind == "statefulset" {
 				log.Info().Msg("Waiting for the statefulset to finish...")
-				foundation.RunCommandWithArgs(ctx, "kubectl", []string{"rollout", "status", "statefulset", templateData.Name, "-n", templateData.Namespace})
+				err = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"rollout", "status", "statefulset", templateData.Name, "-n", templateData.Namespace})
 			}
+		}
+
+		if err != nil {
+			assistTroubleshooting(ctx, templateData, err)
 		}
 
 		// clean up old stuff
@@ -306,37 +310,28 @@ func main() {
 			break
 		}
 
-		assistTroubleshooting(ctx)
+		assistTroubleshooting(ctx, templateData, err)
 	}
 }
 
-func assistTroubleshooting(ctx context.Context) {
+func assistTroubleshooting(ctx context.Context, templateData TemplateData, err error) {
 	if assistTroubleshootingOnError {
 		log.Info().Msgf("Showing current ingresses, services, configmaps, secrets, deployments, jobs, cronjobs, poddisruptionbudgets, horizontalpodautoscalers, pods, endpoints for app=%v...", paramsForTroubleshooting.App)
 		foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"get", "ing,svc,cm,secret,deploy,job,cronjob,sts,pdb,hpa,po,ep", "-l", fmt.Sprintf("app=%v", paramsForTroubleshooting.App), "-n", paramsForTroubleshooting.Namespace})
 
-		if paramsForTroubleshooting.Action == "deploy-canary" {
+		if err != nil {
+			log.Info().Msg("Rollout failed, trying to show logs...")
+			if *releaseID != "" {
+				_ = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"logs", "-l", fmt.Sprintf("app=%v,estafette.io/release-id=%v", templateData.AppLabelSelector, sanitizeLabel(*releaseID)), "-n", templateData.Namespace, "--all-containers"})
+			} else if *buildVersion != "" {
+				_ = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"logs", "-l", fmt.Sprintf("app=%v,version=%v", templateData.AppLabelSelector, sanitizeLabel(*buildVersion)), "-n", templateData.Namespace, "--all-containers"})
+			}
+		} else if paramsForTroubleshooting.Action == "deploy-canary" {
 			log.Info().Msg("Showing logs for canary deployment...")
 			foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"logs", "-l", fmt.Sprintf("app=%v,track=canary", paramsForTroubleshooting.App), "-n", paramsForTroubleshooting.Namespace, "-c", paramsForTroubleshooting.App, "--tail", "50"})
 		}
 
-		// log.Info().Msg("Showing kubernetes events with the word %v in it...", paramsForTroubleshooting.App)
-		// c1 := exec.Command("kubectl", "get", "events", "--sort-by=.metadata.creationTimestamp", "-n", paramsForTroubleshooting.Namespace)
-		// c2 := exec.Command("grep", paramsForTroubleshooting.App)
-
-		// r, w := io.Pipe()
-		// c1.Stdout = w
-		// c2.Stdin = r
-
-		// var b2 bytes.Buffer
-		// c2.Stdout = &b2
-
-		// c1.Start()
-		// c2.Start()
-		// c1.Wait()
-		// w.Close()
-		// c2.Wait()
-		// io.Copy(os.Stdout, &b2)
+		foundation.HandleError(err)
 	}
 }
 
