@@ -202,7 +202,7 @@ func main() {
 
 	// checking number of replicas for existing deployment to make switching deployment type safe
 	currentReplicas := params.Replicas
-	if params.Kind == "deployment" {
+	if params.Kind == "deployment" || params.Kind == "headless-deployment" {
 		currentReplicas = getExistingNumberOfReplicas(ctx, params)
 	}
 
@@ -418,7 +418,7 @@ func deleteBackendConfigAndIAPOauthSecret(ctx context.Context, templateData Temp
 }
 
 func removePoddisruptionBudgetIfRequired(ctx context.Context, params Params, name, namespace string) {
-	if params.Kind == "deployment" && (params.Action == "deploy-simple" || params.Action == "deploy-stable") {
+	if (params.Kind == "deployment" || params.Kind == "headless-deployment") && (params.Action == "deploy-simple" || params.Action == "deploy-stable") {
 		// if there's a pdb that doesn't use maxUnavailable: 1 remove it so a new one can be created with correct settings
 		deletePoddisruptionBudget := false
 		maxUnavailable, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "pdb", name, "-n", namespace, "-o=jsonpath={.spec.maxUnavailable}"})
@@ -525,7 +525,7 @@ func cleanupJobIfRequired(ctx context.Context, params Params, templateData Templ
 }
 
 func getExistingNumberOfReplicas(ctx context.Context, params Params) int {
-	if params.Kind == "deployment" {
+	if params.Kind == "deployment" || params.Kind == "headless-deployment" {
 		deploymentName := ""
 		if params.Action == "deploy-simple" {
 			deploymentName = params.App + "-stable"
@@ -552,7 +552,7 @@ func getExistingNumberOfReplicas(ctx context.Context, params Params) int {
 }
 
 func patchDeploymentIfRequired(ctx context.Context, params Params, name, namespace string) {
-	if params.Kind == "deployment" && params.Action == "deploy-simple" {
+	if (params.Kind == "deployment" || params.Kind == "headless-deployment") && params.Action == "deploy-simple" {
 		selectorLabels, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "deploy", name, "-n", namespace, "-o=jsonpath={.spec.selector.matchLabels}"})
 		if err != nil {
 			log.Info().Msgf("Failed retrieving deployment selector labels: %v", err)
@@ -591,7 +591,7 @@ func removeBackendConfigAnnotation(ctx context.Context, templateData TemplateDat
 }
 
 func deleteHorizontalPodAutoscaler(ctx context.Context, params Params, name, namespace string) {
-	if params.Kind == "deployment" && (params.Autoscale.Enabled == nil || !*params.Autoscale.Enabled) && (params.Action == "deploy-simple" || params.Action == "deploy-stable") {
+	if (params.Kind == "deployment" || params.Kind == "headless-deployment") && (params.Autoscale.Enabled == nil || !*params.Autoscale.Enabled) && (params.Action == "deploy-simple" || params.Action == "deploy-stable") {
 		log.Info().Msgf("Deleting HorizontalPodAutoscaler %v, since autoscaling is disabled...", name)
 		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "hpa", name, "-n", namespace, "--ignore-not-found=true"})
 	}
