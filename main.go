@@ -247,7 +247,7 @@ func main() {
 			log.Info().Msg("Applying the manifests for real...")
 			foundation.RunCommandWithArgs(ctx, "kubectl", kubectlApplyArgs)
 
-			if params.Kind == "deployment" {
+			if params.Kind == "deployment" || params.Kind == "headless-deployment" {
 				log.Info().Msg("Waiting for the deployment to finish...")
 				err = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"rollout", "status", "deployment", templateData.NameWithTrack, "-n", templateData.Namespace})
 			}
@@ -295,6 +295,35 @@ func main() {
 				removeEstafetteCloudflareAnnotations(ctx, templateData, templateData.Name, templateData.Namespace)
 				removeBackendConfigAnnotation(ctx, templateData, templateData.Name, templateData.Namespace)
 				deleteBackendConfigAndIAPOauthSecret(ctx, templateData, templateData.Name, templateData.Namespace)
+				deleteHorizontalPodAutoscaler(ctx, params, templateData.Name, templateData.Namespace)
+				break
+			}
+			break
+
+		case "headless-deployment":
+			switch params.Action {
+			case "deploy-canary":
+				scaleCanaryDeployment(ctx, templateData.Name, templateData.Namespace, 1)
+				deleteConfigsForParamsChange(ctx, params, templateData.NameWithTrack, templateData.Namespace)
+				deleteSecretsForParamsChange(ctx, params, templateData.NameWithTrack, templateData.Namespace)
+				break
+			case "deploy-stable":
+				scaleCanaryDeployment(ctx, templateData.Name, templateData.Namespace, 0)
+				deleteResourcesForTypeSwitch(ctx, templateData.Name, templateData.Namespace)
+				deleteConfigsForParamsChange(ctx, params, templateData.NameWithTrack, templateData.Namespace)
+				deleteSecretsForParamsChange(ctx, params, templateData.NameWithTrack, templateData.Namespace)
+				deleteServiceAccountSecretForParamsChange(ctx, params, templateData.GoogleCloudCredentialsAppName, templateData.Namespace)
+				deleteHorizontalPodAutoscaler(ctx, params, templateData.NameWithTrack, templateData.Namespace)
+				break
+			case "rollback-canary":
+				scaleCanaryDeployment(ctx, templateData.Name, templateData.Namespace, 0)
+				break
+			case "deploy-simple":
+				deleteResourcesForTypeSwitch(ctx, fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
+				deleteResourcesForTypeSwitch(ctx, fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
+				deleteConfigsForParamsChange(ctx, params, templateData.Name, templateData.Namespace)
+				deleteSecretsForParamsChange(ctx, params, templateData.Name, templateData.Namespace)
+				deleteServiceAccountSecretForParamsChange(ctx, params, templateData.GoogleCloudCredentialsAppName, templateData.Namespace)
 				deleteHorizontalPodAutoscaler(ctx, params, templateData.Name, templateData.Namespace)
 				break
 			}

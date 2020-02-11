@@ -1543,6 +1543,21 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "openresty", params.Sidecars[0].Type)
 	})
 
+	t.Run("DoesntAddDefaultSidecarIfEmptyAndGlobalKindIsHeadlessDeployment", func(t *testing.T) {
+
+		params := Params{
+			Kind: "headless-deployment",
+			Sidecar: SidecarParams{
+				Type: "",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, 0, len(params.Sidecars))
+	})
+
 	t.Run("DoesntAddDefaultSidecarIfInjectFlagIsFalseEvenIfNoSidecarSpecified", func(t *testing.T) {
 
 		falseValue := false
@@ -2526,6 +2541,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfVisibilityIsNotSet", func(t *testing.T) {
 
 		params := validParams
+		params.Kind = "deployment"
 		params.Visibility = ""
 
 		// act
@@ -2538,6 +2554,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfVisibilityIsSetToUnsupportedValue", func(t *testing.T) {
 
 		params := validParams
+		params.Kind = "deployment"
 		params.Visibility = "everywhere"
 
 		// act
@@ -2550,6 +2567,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfVisibilityIsSetToPublic", func(t *testing.T) {
 
 		params := validParams
+		params.Kind = "deployment"
 		params.Visibility = "public"
 
 		// act
@@ -2562,6 +2580,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfVisibilityIsSetToPrivate", func(t *testing.T) {
 
 		params := validParams
+		params.Kind = "deployment"
 		params.Visibility = "private"
 
 		// act
@@ -2574,6 +2593,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfVisibilityIsSetToIAP", func(t *testing.T) {
 
 		params := validParams
+		params.Kind = "deployment"
 		params.Visibility = "iap"
 		params.IapOauthCredentialsClientID = "123123"
 		params.IapOauthCredentialsClientSecret = "somesecret"
@@ -2588,6 +2608,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfVisibilityIsSetToPublicWhitelist", func(t *testing.T) {
 
 		params := validParams
+		params.Kind = "deployment"
 		params.Visibility = "public-whitelist"
 
 		// act
@@ -2720,6 +2741,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfHostsAreNotSet", func(t *testing.T) {
 
 		params := validParams
+		params.Kind = "deployment"
 		params.Hosts = []string{}
 
 		// act
@@ -2732,6 +2754,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfOneOrMoreHostsAreSet", func(t *testing.T) {
 
 		params := validParams
+		params.Kind = "deployment"
 		params.Hosts = []string{"gke.estafette.io"}
 
 		// act
@@ -2744,6 +2767,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfOneOrMoreUppercaseHostsAreSet", func(t *testing.T) {
 
 		params := validParams
+		params.Kind = "deployment"
 		params.Hosts = []string{"GKE.ESTAFETTE.IO"}
 
 		// act
@@ -2756,6 +2780,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfHostHasLabelsLongerThan63Characters", func(t *testing.T) {
 
 		params := validParams
+		params.Kind = "deployment"
 		params.Hosts = []string{"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl.estafette.io"}
 
 		// act
@@ -2768,6 +2793,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfHostIsLongerThan253Characters", func(t *testing.T) {
 
 		params := validParams
+		params.Kind = "deployment"
 		params.Hosts = []string{"ab.abcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.estafette.io"}
 
 		// act
@@ -2780,6 +2806,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfHostHasOtherCharacterThanAlphaNumericOrHyphen", func(t *testing.T) {
 
 		params := validParams
+		params.Kind = "deployment"
 		params.Hosts = []string{"gke_site.estafette.io"}
 
 		// act
@@ -2792,6 +2819,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfInternalHostsAreNotSet", func(t *testing.T) {
 
 		params := validParams
+		params.Kind = "deployment"
 		params.InternalHosts = []string{}
 
 		// act
@@ -2804,6 +2832,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfOneOrMoreInternalHostsAreSet", func(t *testing.T) {
 
 		params := validParams
+		params.Kind = "deployment"
 		params.InternalHosts = []string{"ci.estafette.internal"}
 
 		// act
@@ -2816,6 +2845,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfOneOrMoreUppercaseInternalHostsAreSet", func(t *testing.T) {
 
 		params := validParams
+		params.Kind = "deployment"
 		params.InternalHosts = []string{"CI.ESTAFETTE.INTERNAL"}
 
 		// act
@@ -2828,6 +2858,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfInternalHostHasLabelsLongerThan63Characters", func(t *testing.T) {
 
 		params := validParams
+		params.Kind = "deployment"
 		params.InternalHosts = []string{"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl.estafette.internal"}
 
 		// act
@@ -2840,6 +2871,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfInternalHostIsLongerThan253Characters", func(t *testing.T) {
 
 		params := validParams
+		params.Kind = "deployment"
 		params.InternalHosts = []string{"abcdefghijklmnopqrstuvw.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.estafette.internal"}
 
 		// act
@@ -2852,6 +2884,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfInternalHostHasOtherCharacterThanAlphaNumericOrHyphen", func(t *testing.T) {
 
 		params := validParams
+		params.Kind = "deployment"
 		params.InternalHosts = []string{"gke_site.estafette.internal"}
 
 		// act

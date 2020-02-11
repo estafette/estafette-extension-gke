@@ -704,66 +704,68 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 	}
 
 	// validate params with respect to incoming requests
-	if p.Visibility == "" || (p.Visibility != "private" && p.Visibility != "public" && p.Visibility != "iap" && p.Visibility != "esp" && p.Visibility != "public-whitelist") {
-		errors = append(errors, fmt.Errorf("Visibility property is required; set it via visibility property on this stage; allowed values are private, iap, esp, public-whitelist or public"))
-	}
-	if p.Visibility == "iap" && p.IapOauthCredentialsClientID == "" {
-		errors = append(errors, fmt.Errorf("With visibility 'iap' property iapOauthClientID is required; set it via iapOauthClientID property on this stage"))
-	}
-	if p.Visibility == "iap" && p.IapOauthCredentialsClientSecret == "" {
-		errors = append(errors, fmt.Errorf("With visibility 'iap' property iapOauthClientSecret is required; set it via iapOauthClientSecret property on this stage"))
-	}
-	if p.Visibility == "esp" && !p.UseGoogleCloudCredentials {
-		errors = append(errors, fmt.Errorf("With visibility 'esp' property useGoogleCloudCredentials is required; set useGoogleCloudCredentials: true on this stage"))
-	}
-	if p.Visibility == "esp" && !p.DisableServiceAccountKeyRotation {
-		errors = append(errors, fmt.Errorf("With visibility 'esp' property disableServiceAccountKeyRotation is required; set disableServiceAccountKeyRotation: true on this stage"))
-	}
-	if p.Visibility == "esp" && p.EspOpenAPIYamlPath == "" {
-		errors = append(errors, fmt.Errorf("With visibility 'esp' property espOpenapiYamlPath is required; set espOpenapiYamlPath to the path towards openapi.yaml"))
-	}
-
-	if p.Visibility == "esp" && len(p.Hosts) != 1 {
-		errors = append(errors, fmt.Errorf("With visibility 'esp' property exactly one host is required. Set it via hosts array property on this stage"))
-	}
-
-	if len(p.Hosts) == 0 {
-		errors = append(errors, fmt.Errorf("At least one host is required; set it via hosts array property on this stage"))
-	}
-	for _, host := range p.Hosts {
-		if len(host) > 253 {
-			errors = append(errors, fmt.Errorf("Host %v is longer than the allowed 253 characters, which is invalid for DNS; please shorten your host", host))
-			break
+	if p.Kind == "deployment" {
+		if p.Visibility == "" || (p.Visibility != "private" && p.Visibility != "public" && p.Visibility != "iap" && p.Visibility != "esp" && p.Visibility != "public-whitelist") {
+			errors = append(errors, fmt.Errorf("Visibility property is required; set it via visibility property on this stage; allowed values are private, iap, esp, public-whitelist or public"))
+		}
+		if p.Visibility == "iap" && p.IapOauthCredentialsClientID == "" {
+			errors = append(errors, fmt.Errorf("With visibility 'iap' property iapOauthClientID is required; set it via iapOauthClientID property on this stage"))
+		}
+		if p.Visibility == "iap" && p.IapOauthCredentialsClientSecret == "" {
+			errors = append(errors, fmt.Errorf("With visibility 'iap' property iapOauthClientSecret is required; set it via iapOauthClientSecret property on this stage"))
+		}
+		if p.Visibility == "esp" && !p.UseGoogleCloudCredentials {
+			errors = append(errors, fmt.Errorf("With visibility 'esp' property useGoogleCloudCredentials is required; set useGoogleCloudCredentials: true on this stage"))
+		}
+		if p.Visibility == "esp" && !p.DisableServiceAccountKeyRotation {
+			errors = append(errors, fmt.Errorf("With visibility 'esp' property disableServiceAccountKeyRotation is required; set disableServiceAccountKeyRotation: true on this stage"))
+		}
+		if p.Visibility == "esp" && p.EspOpenAPIYamlPath == "" {
+			errors = append(errors, fmt.Errorf("With visibility 'esp' property espOpenapiYamlPath is required; set espOpenapiYamlPath to the path towards openapi.yaml"))
 		}
 
-		matchesInvalidChars, _ := regexp.MatchString("[^a-zA-Z0-9-.]", host)
-		if matchesInvalidChars {
-			errors = append(errors, fmt.Errorf("Host %v has invalid characters; only a-z, 0-9, - and . are allowed; please fix your host", host))
+		if p.Visibility == "esp" && len(p.Hosts) != 1 {
+			errors = append(errors, fmt.Errorf("With visibility 'esp' property exactly one host is required. Set it via hosts array property on this stage"))
 		}
 
-		hostLabels := strings.Split(host, ".")
-		for _, label := range hostLabels {
-			if len(label) > 63 {
-				errors = append(errors, fmt.Errorf("Host %v has label %v - the parts between dots - that is longer than the allowed 63 characters, which is invalid for DNS; please shorten your host label", host, label))
+		if len(p.Hosts) == 0 {
+			errors = append(errors, fmt.Errorf("At least one host is required; set it via hosts array property on this stage"))
+		}
+		for _, host := range p.Hosts {
+			if len(host) > 253 {
+				errors = append(errors, fmt.Errorf("Host %v is longer than the allowed 253 characters, which is invalid for DNS; please shorten your host", host))
+				break
+			}
+
+			matchesInvalidChars, _ := regexp.MatchString("[^a-zA-Z0-9-.]", host)
+			if matchesInvalidChars {
+				errors = append(errors, fmt.Errorf("Host %v has invalid characters; only a-z, 0-9, - and . are allowed; please fix your host", host))
+			}
+
+			hostLabels := strings.Split(host, ".")
+			for _, label := range hostLabels {
+				if len(label) > 63 {
+					errors = append(errors, fmt.Errorf("Host %v has label %v - the parts between dots - that is longer than the allowed 63 characters, which is invalid for DNS; please shorten your host label", host, label))
+				}
 			}
 		}
-	}
 
-	for _, host := range p.InternalHosts {
-		if len(host) > 253 {
-			errors = append(errors, fmt.Errorf("Internal host %v is longer than the allowed 253 characters, which is invalid for DNS; please shorten your host", host))
-			break
-		}
+		for _, host := range p.InternalHosts {
+			if len(host) > 253 {
+				errors = append(errors, fmt.Errorf("Internal host %v is longer than the allowed 253 characters, which is invalid for DNS; please shorten your host", host))
+				break
+			}
 
-		matchesInvalidChars, _ := regexp.MatchString("[^a-zA-Z0-9-.]", host)
-		if matchesInvalidChars {
-			errors = append(errors, fmt.Errorf("Internal host %v has invalid characters; only a-z, 0-9, - and . are allowed; please fix your host", host))
-		}
+			matchesInvalidChars, _ := regexp.MatchString("[^a-zA-Z0-9-.]", host)
+			if matchesInvalidChars {
+				errors = append(errors, fmt.Errorf("Internal host %v has invalid characters; only a-z, 0-9, - and . are allowed; please fix your host", host))
+			}
 
-		hostLabels := strings.Split(host, ".")
-		for _, label := range hostLabels {
-			if len(label) > 63 {
-				errors = append(errors, fmt.Errorf("Internal host %v has label %v - the parts between dots - that is longer than the allowed 63 characters, which is invalid for DNS; please shorten your host label", host, label))
+			hostLabels := strings.Split(host, ".")
+			for _, label := range hostLabels {
+				if len(label) > 63 {
+					errors = append(errors, fmt.Errorf("Internal host %v has label %v - the parts between dots - that is longer than the allowed 63 characters, which is invalid for DNS; please shorten your host label", host, label))
+				}
 			}
 		}
 	}

@@ -83,12 +83,19 @@ func getTemplates(params Params) []string {
 		if params.CertificateSecret == "" {
 			templatesToMerge = append(templatesToMerge, "certificate-secret.yaml")
 		}
+
+	case "headless-deployment":
+		templatesToMerge = append(templatesToMerge, []string{
+			"namespace.yaml",
+			"serviceaccount.yaml",
+			"deployment.yaml",
+		}...)
 	}
 
-	if (params.Kind == "deployment" || params.Kind == "statefulset") && (params.Action == "deploy-simple" || params.Action == "deploy-stable") {
+	if (params.Kind == "deployment" || params.Kind == "headless-deployment" || params.Kind == "statefulset") && (params.Action == "deploy-simple" || params.Action == "deploy-stable") {
 		templatesToMerge = append(templatesToMerge, "poddisruptionbudget.yaml")
 	}
-	if params.Kind == "deployment" && params.Autoscale.Enabled != nil && *params.Autoscale.Enabled && (params.Action == "deploy-simple" || params.Action == "deploy-stable") {
+	if (params.Kind == "deployment" || params.Kind == "headless-deployment") && params.Autoscale.Enabled != nil && *params.Autoscale.Enabled && (params.Action == "deploy-simple" || params.Action == "deploy-stable") {
 		templatesToMerge = append(templatesToMerge, "horizontalpodautoscaler.yaml")
 	}
 	if (params.Kind == "deployment" || params.Kind == "statefulset") && (params.Visibility == "private" || params.Visibility == "iap" || params.Visibility == "public-whitelist") {
