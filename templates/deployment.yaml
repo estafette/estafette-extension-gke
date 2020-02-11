@@ -351,7 +351,9 @@ spec:
         {{- end }}
       {{- end }}
       terminationGracePeriodSeconds: 300
+      {{- if .MountVolumes }}
       volumes:
+      {{- if .MountSslCertificate }}
       - name: ssl-certificate
         secret:
           {{- if .UseCertificateSecret }}
@@ -359,6 +361,7 @@ spec:
           {{- else }}
           secretName: {{.Name}}-letsencrypt-certificate
           {{- end }}
+      {{- end }}
       {{- if .UseESP }}
       - name: ssl-certificate-esp
         secret:
@@ -397,3 +400,4 @@ spec:
       - name: {{.Name}}
 {{.VolumeYAML | indent 8}}
       {{- end}}
+      {{- end }}

@@ -47,6 +47,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		HpaScalerScaleDownMaxRatio:  params.Autoscale.Safety.ScaleDownRatio,
 
 		Secrets:                 params.Secrets.Keys,
+		MountSslCertificate:     params.Kind == "deployment",
 		MountApplicationSecrets: len(params.Secrets.Keys) > 0,
 		SecretMountPath:         params.Secrets.MountPath,
 		MountConfigmap:          len(params.Configs.Files) > 0 || len(params.Configs.InlineFiles) > 0,
@@ -340,6 +341,8 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		data.UseCertificateSecret = true
 		data.CertificateSecretName = params.CertificateSecret
 	}
+
+	data.MountVolumes = data.MountSslCertificate || data.MountApplicationSecrets || data.MountConfigmap || data.MountPayloadLogging || data.MountServiceAccountSecret || data.MountAdditionalVolumes
 
 	return data
 }
