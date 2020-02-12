@@ -60,6 +60,7 @@ type TemplateData struct {
 	MountServiceAccountSecret            bool
 	DisableServiceAccountKeyRotation     bool
 	GoogleCloudCredentialsAppName        string
+	GoogleCloudCredentialsLabels         map[string]string
 	StrategyType                         string
 	RollingUpdateMaxSurge                string
 	RollingUpdateMaxUnavailable          string

@@ -63,6 +63,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		PreferPreemptibles:               params.ChaosProof,
 		MountServiceAccountSecret:        params.UseGoogleCloudCredentials,
 		GoogleCloudCredentialsAppName:    params.GoogleCloudCredentialsApp,
+		GoogleCloudCredentialsLabels:     sanitizeLabels(params.Labels),
 		DisableServiceAccountKeyRotation: params.DisableServiceAccountKeyRotation,
 
 		PodManagementPolicy: params.PodManagementPolicy,
@@ -115,6 +116,9 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 
 	if params.UseGoogleCloudCredentials {
 		data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "GOOGLE_APPLICATION_CREDENTIALS", "/gcp-service-account/service-account-key.json")
+		if data.GoogleCloudCredentialsAppName != "" {
+			data.GoogleCloudCredentialsLabels["app"] = data.GoogleCloudCredentialsAppName
+		}
 	}
 
 	// ensure the app label exists and is identical to the app label selector
