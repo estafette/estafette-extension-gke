@@ -197,6 +197,8 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 
 	if currentReplicas > 0 {
 		data.Replicas = currentReplicas
+	} else if (params.Autoscale.Enabled != nil && !*params.Autoscale.Enabled) || params.Replicas > data.MinReplicas {
+		data.Replicas = params.Replicas
 	} else {
 		data.Replicas = data.MinReplicas
 	}

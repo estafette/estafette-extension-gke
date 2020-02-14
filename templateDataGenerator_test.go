@@ -1842,7 +1842,39 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, 15, templateData.Replicas)
 	})
 
-	t.Run("SetsReplicasToMinReplicasIfReplicasIsZeroOrLess", func(t *testing.T) {
+	t.Run("SetsReplicasToReplicasParamIfCurrentReplicasIsZeroOrLessAndAutoscaleIsDisabled", func(t *testing.T) {
+
+		params := Params{
+			Replicas: 1,
+			Autoscale: AutoscaleParams{
+				Enabled:     &falseValue,
+				MinReplicas: 3,
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.Equal(t, 1, templateData.Replicas)
+	})
+
+	t.Run("SetsReplicasToReplicasParamIfCurrentReplicasIsZeroOrLessAndReplicasParamIsLargerThanMinReplicas", func(t *testing.T) {
+
+		params := Params{
+			Replicas: 5,
+			Autoscale: AutoscaleParams{
+				Enabled:     &falseValue,
+				MinReplicas: 3,
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.Equal(t, 5, templateData.Replicas)
+	})
+
+	t.Run("SetsReplicasToMinReplicasIfCurrentReplicasIsZeroOrLess", func(t *testing.T) {
 
 		params := Params{
 			Autoscale: AutoscaleParams{
