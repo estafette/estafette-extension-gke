@@ -627,7 +627,7 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 		errors = append(errors, fmt.Errorf("Namespace is required; either use credentials with a defaultNamespace or set it via namespace property on this stage"))
 	}
 
-	if p.Action == "rollback-canary" {
+	if p.Action == "rollback-canary" || p.Kind == "config" {
 		// the above properties are all you need for a rollback
 		return len(errors) == 0, errors, warnings
 	}
