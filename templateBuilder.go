@@ -47,6 +47,10 @@ func getTemplates(params Params) []string {
 	templatesToMerge := []string{}
 
 	switch params.Kind {
+	case "config":
+		templatesToMerge = append(templatesToMerge, []string{
+			"namespace.yaml",
+		}...)
 	case "job":
 		templatesToMerge = append(templatesToMerge, []string{
 			"namespace.yaml",
