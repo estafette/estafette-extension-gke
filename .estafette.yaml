@@ -383,6 +383,32 @@ stages:
                   fieldPath: metadata.labels['app']
         dryrun: true
 
+      test-alpha-version-config:
+        image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+        credentials: gke-tooling
+        kind: config
+        app: gke
+        namespace: estafette
+        configs:
+          # these are local files with golang template style placeholders, replaced with the values specified in the data section;
+          # set clone: true on the release target to ensure you have access to these files stored in your repository
+          files:
+          - config/config.json
+          - config/anotherconfig.yaml
+          # these are the values for the placeholders specified as {{.property1}} to be replaced in the config files
+          data:
+            property1: value 1
+            property2: value 2
+            property4: true
+            property5: 123123
+          # if you want to avoid cloning your repository and just need to pass a very short config you can inline full files here
+          inline:
+            inline-config.properties: |
+              enemies=aliens
+              lives=3
+          mountpath: /configs
+        dryrun: true
+
       test-alpha-version-canary:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
         credentials: gke-tooling
