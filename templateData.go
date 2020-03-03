@@ -44,7 +44,7 @@ type TemplateData struct {
 	Sidecars                             []SidecarData
 	HasInitContainers                    bool
 	InitContainers                       []*map[string]interface{}
-	UseHTTPS                             bool
+	HasOpenrestySidecar                  bool
 	UseESP                               bool
 	HasEspConfigID                       bool
 	EspConfigID                          string
@@ -85,6 +85,7 @@ type TemplateData struct {
 	NginxIngressProxyBuffersNumber       string
 	SetsNginxIngressLoadBalanceAlgorithm bool
 	NginxIngressLoadBalanceAlgorithm     string
+	UseHTTPS                             bool
 
 	IncludeReplicas                 bool
 	Replicas                        int

@@ -30,7 +30,7 @@ spec:
   {{- end}}
   {{- end}}
   ports:
-  {{- if .UseHTTPS }}
+  {{- if .HasOpenrestySidecar }}
   {{- if not .UseESP }}
   - name: http
     port: 80
