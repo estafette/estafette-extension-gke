@@ -138,12 +138,12 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_SAMPLER_PARAM", "0.001")
 	}
 
-	data.HasOpenrestySidecar = false
+	hasOpenrestySidecar := false
 	for _, sidecarParams := range params.Sidecars {
 		sidecar := buildSidecar(sidecarParams, params)
 		data.Sidecars = append(data.Sidecars, sidecar)
 		if sidecar.Type == "openresty" {
-			data.HasOpenrestySidecar = true
+			hasOpenrestySidecar = true
 		}
 	}
 	data.UseESP = params.Visibility == "esp"
@@ -155,7 +155,10 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		data.InitContainers = params.InitContainers
 	}
 
-	data.Container.Readiness.IncludeOnContainer = !data.HasOpenrestySidecar || params.Container.ReadinessProbe.Port != params.Container.Port || params.Container.ReadinessProbe.Path != params.Sidecar.HealthCheckPath
+	data.Container.Readiness.IncludeOnContainer = !hasOpenrestySidecar || params.Container.ReadinessProbe.Port != params.Container.Port || params.Container.ReadinessProbe.Path != params.Sidecar.HealthCheckPath
+
+	// if container port is set to 443, we always use https named port
+	data.UseHTTPS = hasOpenrestySidecar || params.Container.Port == 443
 
 	// set request params on the nginx ingress
 	requestTimeout, requestTimeoutConvertError := strconv.Atoi(strings.Trim(params.Request.Timeout, "s"))

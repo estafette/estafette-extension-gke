@@ -44,7 +44,7 @@ type TemplateData struct {
 	Sidecars                             []SidecarData
 	HasInitContainers                    bool
 	InitContainers                       []*map[string]interface{}
-	HasOpenrestySidecar                  bool
+	UseHTTPS                             bool
 	UseESP                               bool
 	HasEspConfigID                       bool
 	EspConfigID                          string
