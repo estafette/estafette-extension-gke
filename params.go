@@ -838,9 +838,20 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 		warnings = append(warnings, "The sidecar field is deprecated, the sidecars list should be used instead.")
 	}
 
+	// check if openresty was defined as deprecated sidecar type
+	hasOpenrestySidecar := p.Sidecar.Type == "openresty"
+
 	// validate sidecars params
 	for _, sidecar := range p.Sidecars {
 		errors = p.validateSidecar(sidecar, errors)
+		if sidecar.Type == "openresty" {
+			hasOpenrestySidecar = true
+		}
+	}
+
+	// openresty sidecar cannot be added in combination with port 443
+	if hasOpenrestySidecar && p.Container.Port == 443 {
+		errors = append(errors, fmt.Errorf("Container port can't be 443 if an openresty sidecar is injected."))
 	}
 
 	// validate load balance algorithm
