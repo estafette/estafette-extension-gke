@@ -157,6 +157,9 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 
 	data.Container.Readiness.IncludeOnContainer = !data.HasOpenrestySidecar || params.Container.ReadinessProbe.Port != params.Container.Port || params.Container.ReadinessProbe.Path != params.Sidecar.HealthCheckPath
 
+	// if container port is set to 443, we always use https named port
+	data.UseHTTPS = data.HasOpenrestySidecar || params.Container.Port == 443
+
 	// set request params on the nginx ingress
 	requestTimeout, requestTimeoutConvertError := strconv.Atoi(strings.Trim(params.Request.Timeout, "s"))
 

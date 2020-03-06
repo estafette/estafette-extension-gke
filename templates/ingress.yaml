@@ -10,7 +10,7 @@ metadata:
   annotations:
     {{- if .UseNginxIngress}}
     kubernetes.io/ingress.class: "nginx-office"
-    {{- if .HasOpenrestySidecar }}
+    {{- if .UseHTTPS }}
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     {{- end }}
     nginx.ingress.kubernetes.io/client-body-buffer-size: "{{.NginxIngressClientBodyBufferSize}}"

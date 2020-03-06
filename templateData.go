@@ -85,6 +85,7 @@ type TemplateData struct {
 	NginxIngressProxyBuffersNumber       string
 	SetsNginxIngressLoadBalanceAlgorithm bool
 	NginxIngressLoadBalanceAlgorithm     string
+	UseHTTPS                             bool
 
 	IncludeReplicas                 bool
 	Replicas                        int
