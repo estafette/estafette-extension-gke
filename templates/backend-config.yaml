@@ -12,3 +12,4 @@ spec:
     enabled: true
     oauthclientCredentials:
       secretName: {{.Name}}-iap-oauth-credentials
+  timeoutSec: {{.BackendConfigTimeout}}

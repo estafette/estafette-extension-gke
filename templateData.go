@@ -86,6 +86,7 @@ type TemplateData struct {
 	SetsNginxIngressLoadBalanceAlgorithm bool
 	NginxIngressLoadBalanceAlgorithm     string
 	UseHTTPS                             bool
+	BackendConfigTimeout                 int
 
 	IncludeReplicas                 bool
 	Replicas                        int
