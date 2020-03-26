@@ -2184,4 +2184,69 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.True(t, templateData.UseCertificateSecret)
 	})
 
+	t.Run("SetsServiceTypeToClusterIPIfVisibilityParamIsApigee", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "apigee",
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.Equal(t, "ClusterIP", templateData.ServiceType)
+	})
+
+	t.Run("SetsUseCloudflareProxyToFalseIfVisibilityParamIsApigee", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "apigee",
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.Equal(t, false, templateData.UseCloudflareProxy)
+	})
+
+	t.Run("SetsUseGCEIngressToFalseIfVisibilityParamIsApigee", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "apigee",
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.Equal(t, false, templateData.UseGCEIngress)
+	})
+
+	t.Run("SetsNginxAuthTLSSecretIfVisibilityParamIsApigee", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "apigee",
+			Request: RequestParams{
+				AuthSecret: "protected/some-secret",
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.Equal(t, "protected/some-secret", templateData.NginxAuthTLSSecret)
+	})
+
+	t.Run("SetsVerifyDepthIfVisibilityParamIsApigee", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "apigee",
+			Request: RequestParams{
+				VerifyDepth: 5,
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.Equal(t, 5, templateData.NginxAuthTLSVerifyDepth)
+	})
 }

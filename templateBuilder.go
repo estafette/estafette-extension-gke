@@ -105,6 +105,11 @@ func getTemplates(params Params) []string {
 	if (params.Kind == "deployment" || params.Kind == "statefulset") && (params.Visibility == "private" || params.Visibility == "iap" || params.Visibility == "public-whitelist") {
 		templatesToMerge = append(templatesToMerge, "ingress.yaml")
 	}
+
+	if params.Kind == "deployment" && params.Visibility == "apigee" {
+		templatesToMerge = append(templatesToMerge, "ingress-apigee.yaml")
+	}
+
 	if (params.Kind == "deployment" || params.Kind == "statefulset") && params.Visibility == "iap" {
 		templatesToMerge = append(templatesToMerge, "backend-config.yaml", "iap-oauth-credentials-secret.yaml")
 	}

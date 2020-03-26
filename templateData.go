@@ -87,6 +87,8 @@ type TemplateData struct {
 	NginxIngressLoadBalanceAlgorithm     string
 	UseHTTPS                             bool
 	BackendConfigTimeout                 int
+	NginxAuthTLSSecret                   string
+	NginxAuthTLSVerifyDepth              int
 
 	IncludeReplicas                 bool
 	Replicas                        int

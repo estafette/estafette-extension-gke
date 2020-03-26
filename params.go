@@ -131,6 +131,8 @@ type RequestParams struct {
 	ProxyBuffersNumber   int    `json:"proxybuffersnumber,omitempty" yaml:"proxybuffersnumber,omitempty"`
 	ClientBodyBufferSize string `json:"clientbodybuffersize,omitempty" yaml:"clientbodybuffersize,omitempty"`
 	LoadBalanceAlgorithm string `json:"loadbalance,omitempty" yaml:"loadbalance,omitempty"`
+	AuthSecret           string `json:"authsecret,omitempty" yaml:"authsecret,omitempty"`
+	VerifyDepth          int    `json:"verifydepth,omitempty" yaml:"verifydepth,omitempty"`
 }
 
 // ProbeParams sets params for liveness or readiness probe
@@ -473,6 +475,10 @@ func (p *Params) SetDefaults(gitName, appLabel, buildVersion, releaseName, relea
 		}
 	}
 
+	if p.Visibility == "apigee" && p.Request.VerifyDepth <= 0 {
+		p.Request.VerifyDepth = 3
+	}
+
 	for i := range p.Sidecars {
 		p.initializeSidecarDefaults(p.Sidecars[i])
 	}
@@ -705,8 +711,8 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 
 	// validate params with respect to incoming requests
 	if p.Kind == "deployment" {
-		if p.Visibility == "" || (p.Visibility != "private" && p.Visibility != "public" && p.Visibility != "iap" && p.Visibility != "esp" && p.Visibility != "public-whitelist") {
-			errors = append(errors, fmt.Errorf("Visibility property is required; set it via visibility property on this stage; allowed values are private, iap, esp, public-whitelist or public"))
+		if p.Visibility == "" || (p.Visibility != "private" && p.Visibility != "public" && p.Visibility != "iap" && p.Visibility != "esp" && p.Visibility != "public-whitelist" && p.Visibility != "apigee") {
+			errors = append(errors, fmt.Errorf("Visibility property is required; set it via visibility property on this stage; allowed values are private, iap, esp, public-whitelist, public or apigee"))
 		}
 		if p.Visibility == "iap" && p.IapOauthCredentialsClientID == "" {
 			errors = append(errors, fmt.Errorf("With visibility 'iap' property iapOauthClientID is required; set it via iapOauthClientID property on this stage"))
@@ -726,6 +732,10 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 
 		if p.Visibility == "esp" && len(p.Hosts) != 1 {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property exactly one host is required. Set it via hosts array property on this stage"))
+		}
+
+		if p.Visibility == "apigee" && p.Request.AuthSecret == "" {
+			errors = append(errors, fmt.Errorf("With visibility 'apigee' property authsecret is required; set it via authsecret property for request on this stage"))
 		}
 
 		if len(p.Hosts) == 0 {
