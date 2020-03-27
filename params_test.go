@@ -2414,6 +2414,19 @@ func TestSetDefaults(t *testing.T) {
 
 		assert.Equal(t, "1Gi", params.StorageSize)
 	})
+
+	t.Run("DefaultsTo3VerifyDepthForApigee", func(t *testing.T) {
+
+		params := Params{
+			Kind:       "deployment",
+			Visibility: "apigee",
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, 3, params.Request.VerifyDepth)
+	})
 }
 
 func TestValidateRequiredProperties(t *testing.T) {
@@ -3736,6 +3749,19 @@ func TestValidateRequiredProperties(t *testing.T) {
 
 		assert.True(t, valid)
 		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseAuthSecretIsNotSetForVisibilityApigee", func(t *testing.T) {
+
+		params := validParams
+		params.Kind = "deployment"
+		params.Visibility = "apigee"
+
+		// act
+		valid, errors, _ := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.Equal(t, 1, len(errors))
 	})
 }
 

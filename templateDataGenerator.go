@@ -184,6 +184,8 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 	data.NginxIngressProxyBuffersNumber = strconv.Itoa(params.Request.ProxyBuffersNumber)
 	data.SetsNginxIngressLoadBalanceAlgorithm = params.Request.LoadBalanceAlgorithm != ""
 	data.NginxIngressLoadBalanceAlgorithm = params.Request.LoadBalanceAlgorithm
+	data.NginxAuthTLSSecret = params.Request.AuthSecret
+	data.NginxAuthTLSVerifyDepth = params.Request.VerifyDepth
 
 	// set request params for gce ingress
 	data.BackendConfigTimeout = requestTimeout
@@ -287,6 +289,17 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		data.LimitTrustedIPRanges = false
 		data.OverrideDefaultWhitelist = len(params.WhitelistedIPS) > 0
 		data.NginxIngressWhitelist = strings.Join(params.WhitelistedIPS, ",")
+
+	case "apigee":
+		data.ServiceType = "ClusterIP"
+		data.UseNginxIngress = true
+		data.UseGCEIngress = false
+		data.UseDNSAnnotationsOnIngress = true
+		data.UseDNSAnnotationsOnService = false
+		data.UseCloudflareProxy = false
+		data.UseBackendConfigAnnotationOnService = false
+		data.LimitTrustedIPRanges = false
+		data.OverrideDefaultWhitelist = false
 
 	case "esp":
 		data.ServiceType = "LoadBalancer"

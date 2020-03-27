@@ -193,6 +193,19 @@ func TestGetTemplates(t *testing.T) {
 
 		assert.True(t, stringArrayContains(templates, "/templates/certificate-secret.yaml"))
 	})
+
+	t.Run("IncludesApigeeIngressIfVisibilityIsApigeeAndKindIsDeployment", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "apigee",
+			Kind:       "deployment",
+		}
+
+		// act
+		templates := getTemplates(params)
+
+		assert.True(t, stringArrayContains(templates, "/templates/ingress-apigee.yaml"))
+	})
 }
 
 func stringArrayContains(array []string, search string) bool {
