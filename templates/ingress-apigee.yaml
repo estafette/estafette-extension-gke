@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{.Name}}
+  name: {{.Name}}-apigee
   namespace: {{.Namespace}}
   labels:
     {{- range $key, $value := .Labels}}
@@ -17,15 +17,12 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "{{.NginxIngressProxyConnectTimeout}}"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "{{.NginxIngressProxySendTimeout}}"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "{{.NginxIngressProxyReadTimeout}}"
-    {{- if .OverrideDefaultWhitelist}}
-    nginx.ingress.kubernetes.io/whitelist-source-range: "{{.NginxIngressWhitelist}}"
-    {{- end}}
     {{- if .SetsNginxIngressLoadBalanceAlgorithm }}
     nginx.ingress.kubernetes.io/load-balance: "{{.NginxIngressLoadBalanceAlgorithm}}"
     {{- end }} 
     estafette.io/cloudflare-dns: "true"
     estafette.io/cloudflare-proxy: "false"
-    estafette.io/cloudflare-hostnames: "{{.HostsJoined}}"
+    estafette.io/cloudflare-hostnames: "{{.ApigeeHostsJoined}}"
     nginx.ingress.kubernetes.io/auth-tls-pass-certificate-to-upstream: "true"
     nginx.ingress.kubernetes.io/auth-tls-secret: "{{.NginxAuthTLSSecret}}"
     nginx.ingress.kubernetes.io/auth-tls-verify-client: "on"
@@ -33,7 +30,7 @@ metadata:
 spec:
   tls:
   - hosts:
-    {{- range .Hosts}}
+    {{- range .ApigeeHosts}}
     - {{.}}
     {{- end}}
     {{- if .UseCertificateSecret }}
@@ -42,7 +39,7 @@ spec:
     secretName: {{.Name}}-letsencrypt-certificate
     {{- end }}
   rules:
-  {{- range .Hosts}}
+  {{- range .ApigeeHosts}}
   - host: {{.}}
     http:
       paths:

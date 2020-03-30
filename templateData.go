@@ -20,6 +20,8 @@ type TemplateData struct {
 	InternalHostsJoined                  string
 	AllHosts                             []string
 	AllHostsJoined                       string
+	ApigeeHosts                          []string
+	ApigeeHostsJoined                    string
 	IngressPath                          string
 	InternalIngressPath                  string
 	UseIngress                           bool

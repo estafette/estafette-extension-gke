@@ -296,10 +296,16 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		data.UseGCEIngress = false
 		data.UseDNSAnnotationsOnIngress = true
 		data.UseDNSAnnotationsOnService = false
-		data.UseCloudflareProxy = false
+		data.UseCloudflareProxy = true // For private ingress. For Apigee it is hard-coded to be false.
 		data.UseBackendConfigAnnotationOnService = false
 		data.LimitTrustedIPRanges = false
 		data.OverrideDefaultWhitelist = false
+		for _, h := range params.Hosts {
+			hparts := strings.Split(h, ".")
+			hparts[0] = hparts[0] + "-" + params.ApigeeSuffix
+			data.ApigeeHosts = append(data.ApigeeHosts, strings.Join(hparts, "."))
+		}
+		data.ApigeeHostsJoined = strings.Join(data.ApigeeHosts, ",")
 
 	case "esp":
 		data.ServiceType = "LoadBalancer"
