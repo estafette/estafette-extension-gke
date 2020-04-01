@@ -2196,7 +2196,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "ClusterIP", templateData.ServiceType)
 	})
 
-	t.Run("SetsUseCloudflareProxyToFalseIfVisibilityParamIsApigee", func(t *testing.T) {
+	t.Run("SetsUseCloudflareProxyToTrueIfVisibilityParamIsApigee", func(t *testing.T) {
 
 		params := Params{
 			Visibility: "apigee",
@@ -2205,7 +2205,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		// act
 		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
-		assert.Equal(t, false, templateData.UseCloudflareProxy)
+		assert.Equal(t, true, templateData.UseCloudflareProxy)
 	})
 
 	t.Run("SetsUseGCEIngressToFalseIfVisibilityParamIsApigee", func(t *testing.T) {
@@ -2248,5 +2248,20 @@ func TestGenerateTemplateData(t *testing.T) {
 		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 5, templateData.NginxAuthTLSVerifyDepth)
+	})
+
+	t.Run("SetsApigeeHostsIfVisibilityParamIsApigee", func(t *testing.T) {
+
+		params := Params{
+			Visibility: "apigee",
+			Hosts:      []string{"google.com", "travix.com", "test-app"},
+		}
+
+		// act
+		params.SetDefaults("estafette-extension-gke", "sample-app", "0.1.0", "test", "deploy", nil)
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.Equal(t, []string{"google-apigee.com", "travix-apigee.com", "test-app-apigee"}, templateData.ApigeeHosts)
+		assert.Equal(t, "google-apigee.com,travix-apigee.com,test-app-apigee", templateData.ApigeeHostsJoined)
 	})
 }

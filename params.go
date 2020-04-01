@@ -43,6 +43,7 @@ type Params struct {
 	WhitelistedIPS                  []string            `json:"whitelist,omitempty" yaml:"whitelist,omitempty"`
 	Hosts                           []string            `json:"hosts,omitempty" yaml:"hosts,omitempty"`
 	InternalHosts                   []string            `json:"internalhosts,omitempty" yaml:"internalhosts,omitempty"`
+	ApigeeSuffix                    string              `json:"apigeesuffix,omitempty" yaml:"apigeesuffix,omitempty"`
 	Basepath                        string              `json:"basepath,omitempty" yaml:"basepath,omitempty"`
 	Autoscale                       AutoscaleParams     `json:"autoscale,omitempty" yaml:"autoscale,omitempty"`
 	Request                         RequestParams       `json:"request,omitempty" yaml:"request,omitempty"`
@@ -475,8 +476,13 @@ func (p *Params) SetDefaults(gitName, appLabel, buildVersion, releaseName, relea
 		}
 	}
 
-	if p.Visibility == "apigee" && p.Request.VerifyDepth <= 0 {
-		p.Request.VerifyDepth = 3
+	if p.Visibility == "apigee" {
+		if p.Request.VerifyDepth <= 0 {
+			p.Request.VerifyDepth = 3
+		}
+		if p.ApigeeSuffix == "" {
+			p.ApigeeSuffix = "apigee"
+		}
 	}
 
 	for i := range p.Sidecars {

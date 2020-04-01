@@ -108,6 +108,7 @@ func getTemplates(params Params) []string {
 
 	if params.Kind == "deployment" && params.Visibility == "apigee" {
 		templatesToMerge = append(templatesToMerge, "ingress-apigee.yaml")
+		templatesToMerge = append(templatesToMerge, "ingress.yaml")
 	}
 
 	if (params.Kind == "deployment" || params.Kind == "statefulset") && params.Visibility == "iap" {

@@ -205,6 +205,7 @@ func TestGetTemplates(t *testing.T) {
 		templates := getTemplates(params)
 
 		assert.True(t, stringArrayContains(templates, "/templates/ingress-apigee.yaml"))
+		assert.True(t, stringArrayContains(templates, "/templates/ingress.yaml"))
 	})
 }
 
