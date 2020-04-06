@@ -72,6 +72,7 @@ type TemplateData struct {
 	IncludeTrackLabel                    bool
 	TrackLabel                           string
 	AddSafeToEvictAnnotation             bool
+	AddIstioInjectSidecarAnnotation      bool
 	MountAdditionalVolumes               bool
 	AdditionalVolumeMounts               []VolumeMountData
 	AdditionalContainerPorts             []AdditionalPortData

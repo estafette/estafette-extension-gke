@@ -2631,6 +2631,19 @@ func TestValidateRequiredProperties(t *testing.T) {
 		assert.True(t, len(errors) == 0)
 	})
 
+	t.Run("ReturnsTrueIfVisibilityIsSetToIstio", func(t *testing.T) {
+
+		params := validParams
+		params.Kind = "deployment"
+		params.Visibility = "istio"
+
+		// act
+		valid, errors, _ := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
 	t.Run("ReturnsFalseIfCpuRequestIsNotSet", func(t *testing.T) {
 
 		params := validParams

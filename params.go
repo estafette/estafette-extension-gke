@@ -447,7 +447,7 @@ func (p *Params) SetDefaults(gitName, appLabel, buildVersion, releaseName, relea
 	}
 
 	// inject an openresty sidecar in the sidecars list if it isn't there yet for deployments
-	if *p.InjectHTTPProxySidecar && !openrestySidecarSpecifiedInList && p.Kind == "deployment" {
+	if *p.InjectHTTPProxySidecar && !openrestySidecarSpecifiedInList && p.Kind == "deployment" && p.Visibility != "istio" {
 		openrestySidecar := SidecarParams{Type: "openresty"}
 		p.initializeSidecarDefaults(&openrestySidecar)
 
@@ -717,8 +717,8 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 
 	// validate params with respect to incoming requests
 	if p.Kind == "deployment" {
-		if p.Visibility == "" || (p.Visibility != "private" && p.Visibility != "public" && p.Visibility != "iap" && p.Visibility != "esp" && p.Visibility != "public-whitelist" && p.Visibility != "apigee") {
-			errors = append(errors, fmt.Errorf("Visibility property is required; set it via visibility property on this stage; allowed values are private, iap, esp, public-whitelist, public or apigee"))
+		if p.Visibility == "" || (p.Visibility != "private" && p.Visibility != "public" && p.Visibility != "iap" && p.Visibility != "esp" && p.Visibility != "public-whitelist" && p.Visibility != "apigee" && p.Visibility != "istio") {
+			errors = append(errors, fmt.Errorf("Visibility property is required; set it via visibility property on this stage; allowed values are private, iap, esp, public-whitelist, public, apigee or istio"))
 		}
 		if p.Visibility == "iap" && p.IapOauthCredentialsClientID == "" {
 			errors = append(errors, fmt.Errorf("With visibility 'iap' property iapOauthClientID is required; set it via iapOauthClientID property on this stage"))

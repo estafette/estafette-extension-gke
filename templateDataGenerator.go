@@ -53,8 +53,9 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		MountConfigmap:          len(params.Configs.Files) > 0 || len(params.Configs.InlineFiles) > 0,
 		ConfigMountPath:         params.Configs.MountPath,
 
-		MountPayloadLogging:      params.EnablePayloadLogging,
-		AddSafeToEvictAnnotation: params.EnablePayloadLogging,
+		MountPayloadLogging:             params.EnablePayloadLogging,
+		AddSafeToEvictAnnotation:        params.EnablePayloadLogging,
+		AddIstioInjectSidecarAnnotation: params.Visibility == "istio",
 
 		StrategyType:                params.StrategyType,
 		RollingUpdateMaxSurge:       params.RollingUpdate.MaxSurge,
@@ -325,6 +326,17 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		data.UseDNSAnnotationsOnService = true
 		data.UseCloudflareProxy = true
 		data.LimitTrustedIPRanges = true
+		data.OverrideDefaultWhitelist = false
+
+	case "istio":
+		data.ServiceType = "ClusterIP"
+		data.UseNginxIngress = false
+		data.UseGCEIngress = false
+		data.UseDNSAnnotationsOnIngress = false
+		data.UseDNSAnnotationsOnService = false
+		data.UseCloudflareProxy = false
+		data.UseBackendConfigAnnotationOnService = false
+		data.LimitTrustedIPRanges = false
 		data.OverrideDefaultWhitelist = false
 	}
 
