@@ -42,9 +42,7 @@ spec:
         {{- if .AddSafeToEvictAnnotation }}
         cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
         {{- end}}
-        {{- if .AddIstioInjectSidecarAnnotation }}
-        sidecar.istio.io/inject: "true"
-        {{- end}}
+        sidecar.istio.io/inject: "{{.InjectIstioSidecar}}"
     spec:
       serviceAccount: {{.Name}}
       affinity:

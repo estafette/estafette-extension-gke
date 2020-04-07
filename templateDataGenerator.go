@@ -53,9 +53,9 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		MountConfigmap:          len(params.Configs.Files) > 0 || len(params.Configs.InlineFiles) > 0,
 		ConfigMountPath:         params.Configs.MountPath,
 
-		MountPayloadLogging:             params.EnablePayloadLogging,
-		AddSafeToEvictAnnotation:        params.EnablePayloadLogging,
-		AddIstioInjectSidecarAnnotation: params.Visibility == "istio",
+		MountPayloadLogging:      params.EnablePayloadLogging,
+		AddSafeToEvictAnnotation: params.EnablePayloadLogging,
+		InjectIstioSidecar:       params.Visibility == "istio",
 
 		StrategyType:                params.StrategyType,
 		RollingUpdateMaxSurge:       params.RollingUpdate.MaxSurge,
