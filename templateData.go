@@ -71,6 +71,7 @@ type TemplateData struct {
 	ManifestData                         map[string]interface{}
 	IncludeTrackLabel                    bool
 	TrackLabel                           string
+	ScrapeNginxSidecar                   bool
 	AddSafeToEvictAnnotation             bool
 	InjectIstioSidecar                   bool
 	MountAdditionalVolumes               bool

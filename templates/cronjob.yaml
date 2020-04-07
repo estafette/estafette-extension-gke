@@ -28,7 +28,8 @@ spec:
             prometheus.io/scrape: "{{.Container.Metrics.Scrape}}"
             prometheus.io/path: "{{.Container.Metrics.Path}}"
             prometheus.io/port: "{{.Container.Metrics.Port}}"
-            prometheus.io/scrape-nginx-sidecar: "true"
+            prometheus.io/scrape-nginx-sidecar: "{{.ScrapeNginxSidecar}}"
+            sidecar.istio.io/inject: "{{.InjectIstioSidecar}}"
         spec:
           restartPolicy: {{.RestartPolicy}}
           serviceAccount: {{.Name}}

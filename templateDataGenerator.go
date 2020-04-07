@@ -150,6 +150,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 	data.UseESP = params.Visibility == "esp"
 	data.HasEspConfigID = params.EspConfigID != ""
 	data.EspConfigID = params.EspConfigID
+	data.ScrapeNginxSidecar = data.HasOpenrestySidecar
 
 	if params.InitContainers != nil {
 		data.HasInitContainers = true
