@@ -255,7 +255,7 @@ stages:
           files:
           - override/service.yaml
           data:
-            property3: value 3
+            property3: value-3
             property6: true
             property7: 123123
         hosts:

@@ -7,7 +7,7 @@ metadata:
     {{- range $key, $value := .Labels}}
     {{$key}}: {{$value}}
     {{- end}}
-    anotherlabel: '{{.ManifestData.property3}}'
+    anotherlabel: {{.ManifestData.property3}}
   annotations:
     {{- if .UsePrometheusProbe}}
     prometheus.io/probe: "true"
