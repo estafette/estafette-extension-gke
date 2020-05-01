@@ -70,7 +70,7 @@ stages:
 
   integration-tests:
     parallelStages:
-      test-alpha-version:
+      test-with-defaults:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
         credentials: gke-tooling
         action: deploy-simple
@@ -290,7 +290,7 @@ stages:
         - gke.estafette.io
         dryrun: true
 
-      test-alpha-version-esp:
+      test-visibility-esp:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
         credentials: gke-tooling
         visibility: esp
@@ -304,7 +304,7 @@ stages:
         - gke.estafette.io
         dryrun: true
 
-      test-alpha-version-job:
+      test-kind-job:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
         credentials: gke-tooling
         kind: job
@@ -322,7 +322,7 @@ stages:
                   fieldPath: metadata.labels['app']
         dryrun: true
 
-      test-alpha-version-cronjob:
+      test-kind-cronjob:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
         credentials: gke-tooling
         kind: cronjob
@@ -342,7 +342,7 @@ stages:
                   fieldPath: metadata.labels['app']
         dryrun: true
 
-      test-alpha-version-statefulset:
+      test-kind-statefulset:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
         credentials: gke-tooling
         kind: statefulset
@@ -365,7 +365,7 @@ stages:
         - gke.estafette.io
         dryrun: true
 
-      test-alpha-version-headless-deployment:
+      test-kind-headless-deployment:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
         credentials: gke-tooling
         kind: headless-deployment
@@ -383,7 +383,7 @@ stages:
                   fieldPath: metadata.labels['app']
         dryrun: true
 
-      test-alpha-version-config:
+      test-kind-config:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
         credentials: gke-tooling
         kind: config
@@ -409,7 +409,7 @@ stages:
           mountpath: /configs
         dryrun: true
 
-      test-alpha-version-canary:
+      test-action-deploy-canary:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
         credentials: gke-tooling
         action: deploy-canary
@@ -419,7 +419,7 @@ stages:
         - gke.estafette.io
         dryrun: true
 
-      test-alpha-version-rollforward:
+      test-action-deploy-stable:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
         credentials: gke-tooling
         action: deploy-stable
@@ -429,7 +429,7 @@ stages:
         - gke.estafette.io
         dryrun: true
 
-      test-alpha-version-rollback:
+      test-action-rollback-canary:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
         credentials: gke-tooling
         action: rollback-canary
