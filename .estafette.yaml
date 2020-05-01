@@ -218,8 +218,8 @@ stages:
           keys:
             secret-file-1.json: c29tZSBzZWNyZXQgdmFsdWU=
             secret-file-2.yaml: YW5vdGhlciBzZWNyZXQgdmFsdWU=
-            bool-file: true
-            int-file: 123123
+            bool-file: dHJ1ZQo=
+            int-file: MTIzMTIzCg==
           mountpath: /secrets
         configs:
           # these are local files with golang template style placeholders, replaced with the values specified in the data section;
