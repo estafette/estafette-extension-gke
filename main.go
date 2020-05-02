@@ -233,7 +233,7 @@ func main() {
 		_ = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"diff", "-f", "/kubernetes.yaml", "-n", templateData.Namespace})
 	}
 
-	if !params.DryRun {
+	if !params.DryRun && !strings.HasPrefix(params.Action, "diff-") {
 
 		// ensure that from now on any error runs the troubleshooting assistant
 		assistTroubleshootingOnError = true
