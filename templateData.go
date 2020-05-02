@@ -61,6 +61,8 @@ type TemplateData struct {
 	MountPayloadLogging                  bool
 	MountServiceAccountSecret            bool
 	DisableServiceAccountKeyRotation     bool
+	UseLegacyServiceAccountKey           bool
+	LegacyServiceAccountKey              string
 	GoogleCloudCredentialsAppName        string
 	GoogleCloudCredentialsLabels         map[string]string
 	StrategyType                         string

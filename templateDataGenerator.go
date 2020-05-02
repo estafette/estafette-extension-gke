@@ -61,7 +61,8 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		RollingUpdateMaxUnavailable: params.RollingUpdate.MaxUnavailable,
 
 		PreferPreemptibles:               params.ChaosProof,
-		MountServiceAccountSecret:        params.UseGoogleCloudCredentials,
+		MountServiceAccountSecret:        params.UseGoogleCloudCredentials && params.LegacyGoogleCloudServiceAccountKeyFile == "",
+		UseLegacyServiceAccountKey:       params.LegacyGoogleCloudServiceAccountKeyFile != "",
 		GoogleCloudCredentialsAppName:    params.GoogleCloudCredentialsApp,
 		GoogleCloudCredentialsLabels:     sanitizeLabels(params.Labels),
 		DisableServiceAccountKeyRotation: params.DisableServiceAccountKeyRotation,
@@ -114,11 +115,13 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		ToYAML:              toYAML,
 	}
 
-	if params.UseGoogleCloudCredentials {
+	if params.UseGoogleCloudCredentials || params.LegacyGoogleCloudServiceAccountKeyFile != "" {
 		data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "GOOGLE_APPLICATION_CREDENTIALS", "/gcp-service-account/service-account-key.json")
 		if data.GoogleCloudCredentialsAppName != "" {
 			data.GoogleCloudCredentialsLabels["app"] = data.GoogleCloudCredentialsAppName
 		}
+
+		data.LegacyServiceAccountKey = params.LegacyGoogleCloudServiceAccountKeyFile
 	}
 
 	// ensure the app label exists and is identical to the app label selector

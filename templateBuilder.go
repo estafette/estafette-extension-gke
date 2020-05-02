@@ -120,7 +120,7 @@ func getTemplates(params Params) []string {
 	if len(params.Secrets.Keys) > 0 {
 		templatesToMerge = append(templatesToMerge, "application-secrets.yaml")
 	}
-	if params.UseGoogleCloudCredentials {
+	if params.UseGoogleCloudCredentials || params.LegacyGoogleCloudServiceAccountKeyFile != "" {
 		templatesToMerge = append(templatesToMerge, "service-account-secret.yaml")
 	}
 	if len(params.Configs.Files) > 0 || len(params.Configs.InlineFiles) > 0 {

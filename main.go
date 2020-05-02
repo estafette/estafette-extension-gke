@@ -397,7 +397,7 @@ func deleteSecretsForParamsChange(ctx context.Context, params Params, name, name
 }
 
 func deleteServiceAccountSecretForParamsChange(ctx context.Context, params Params, name, namespace string) {
-	if !params.UseGoogleCloudCredentials {
+	if !params.UseGoogleCloudCredentials && params.LegacyGoogleCloudServiceAccountKeyFile == "" {
 		log.Info().Msg("Deleting service account secret if it exists, because no use of service account is specified...")
 		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "secret", fmt.Sprintf("%v-gcp-service-account", name), "-n", namespace, "--ignore-not-found=true"})
 	}

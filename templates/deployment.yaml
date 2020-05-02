@@ -135,7 +135,7 @@ spec:
         - name: app-configs
           mountPath: {{.ConfigMountPath}}
         {{- end }}
-        {{- if .MountServiceAccountSecret }}
+        {{- if or .MountServiceAccountSecret }}
         - name: gcp-service-account
           mountPath: /gcp-service-account
         {{- end }}
@@ -297,7 +297,7 @@ spec:
                   "-instances={{ index .SidecarSpecificProperties "dbinstanceconnectionname" }}=tcp:{{ index .SidecarSpecificProperties "sqlproxyport" }}",
                   "-credential_file=/gcp-service-account/service-account-key.json",
                   "-term_timeout={{ index .SidecarSpecificProperties "sqlproxyterminationtimeoutseconds" }}s"]
-          {{- if $deployment.MountServiceAccountSecret }}
+          {{- if or $deployment.MountServiceAccountSecret }}
         volumeMounts:
           - name: gcp-service-account
             mountPath: /gcp-service-account
@@ -382,7 +382,7 @@ spec:
         configMap:
           name: {{.NameWithTrack}}-configs
       {{- end }}
-      {{- if .MountServiceAccountSecret }}
+      {{- if or .MountServiceAccountSecret }}
       - name: gcp-service-account
         secret:
           secretName: {{.GoogleCloudCredentialsAppName}}-gcp-service-account

@@ -52,11 +52,12 @@ type Params struct {
 	VolumeMounts                    []VolumeMountParams `json:"volumemounts,omitempty" yaml:"volumemounts,omitempty"`
 	CertificateSecret               string              `json:"certificatesecret,omitempty" yaml:"certificatesecret,omitempty"`
 
-	EnablePayloadLogging             bool   `json:"enablePayloadLogging,omitempty" yaml:"enablePayloadLogging,omitempty"`
-	UseGoogleCloudCredentials        bool   `json:"useGoogleCloudCredentials,omitempty" yaml:"useGoogleCloudCredentials,omitempty"`
-	DisableServiceAccountKeyRotation bool   `json:"disableServiceAccountKeyRotation,omitempty" yaml:"disableServiceAccountKeyRotation,omitempty"`
-	GoogleCloudCredentialsApp        string `json:"googleCloudCredentialsApp,omitempty" yaml:"googleCloudCredentialsApp,omitempty"`
-	ProbeService                     *bool  `json:"probeService,omitempty" yaml:"probeService,omitempty"`
+	EnablePayloadLogging                   bool   `json:"enablePayloadLogging,omitempty" yaml:"enablePayloadLogging,omitempty"`
+	UseGoogleCloudCredentials              bool   `json:"useGoogleCloudCredentials,omitempty" yaml:"useGoogleCloudCredentials,omitempty"`
+	DisableServiceAccountKeyRotation       bool   `json:"disableServiceAccountKeyRotation,omitempty" yaml:"disableServiceAccountKeyRotation,omitempty"`
+	LegacyGoogleCloudServiceAccountKeyFile string `json:"legacyGoogleCloudServiceAccountKeyFile,omitempty" yaml:"legacyGoogleCloudServiceAccountKeyFile,omitempty"`
+	GoogleCloudCredentialsApp              string `json:"googleCloudCredentialsApp,omitempty" yaml:"googleCloudCredentialsApp,omitempty"`
+	ProbeService                           *bool  `json:"probeService,omitempty" yaml:"probeService,omitempty"`
 
 	// container params
 	Container              ContainerParams           `json:"container,omitempty" yaml:"container,omitempty"`
