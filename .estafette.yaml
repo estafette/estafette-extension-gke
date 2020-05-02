@@ -435,6 +435,36 @@ stages:
         action: rollback-canary
         dryrun: true
 
+      test-action-diff-simple:
+        image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+        credentials: gke-tooling
+        action: diff-simple
+        container:
+          repository: extensions
+        hosts:
+        - gke.estafette.io
+        dryrun: true
+
+      test-action-diff-canary:
+        image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+        credentials: gke-tooling
+        action: diff-canary
+        container:
+          repository: extensions
+        hosts:
+        - gke.estafette.io
+        dryrun: true
+
+      test-action-diff-stable:
+        image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+        credentials: gke-tooling
+        action: diff-stable
+        container:
+          repository: extensions
+        hosts:
+        - gke.estafette.io
+        dryrun: true
+
   push-to-docker-hub:
     image: extensions/docker:dev
     action: push
