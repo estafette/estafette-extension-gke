@@ -473,7 +473,7 @@ stages:
         hosts:
         - gke.estafette.io
         dryrun: true
-        legacyGoogleCloudServiceAccountKeyFile
+        legacyGoogleCloudServiceAccountKeyFile: YWJjCg==
 
   push-to-docker-hub:
     image: extensions/docker:dev
