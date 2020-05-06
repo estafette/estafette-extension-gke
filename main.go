@@ -246,7 +246,7 @@ func main() {
 		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"apply", "-f", "/kubernetes-no-pdb.yaml", "-n", templateData.Namespace, "--dry-run=server"})
 
 		log.Info().Msg("Performing a diff to show what's changed...")
-		_ = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"diff", "-f", "/kubernetes.yaml", "-n", templateData.Namespace})
+		_ = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"diff", "-f", "/kubernetes-no-pdb.yaml", "-n", templateData.Namespace})
 	}
 
 	if !params.DryRun && !strings.HasPrefix(params.Action, "diff-") {
