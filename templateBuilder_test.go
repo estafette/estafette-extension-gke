@@ -16,7 +16,7 @@ func TestGetTemplates(t *testing.T) {
 		}
 
 		// act
-		templates := getTemplates(params)
+		templates := getTemplates(params, true)
 
 		assert.True(t, stringArrayContains(templates, "/templates/ingress.yaml"))
 	})
@@ -29,7 +29,7 @@ func TestGetTemplates(t *testing.T) {
 		}
 
 		// act
-		templates := getTemplates(params)
+		templates := getTemplates(params, true)
 
 		assert.True(t, stringArrayContains(templates, "/templates/ingress.yaml"))
 	})
@@ -42,7 +42,7 @@ func TestGetTemplates(t *testing.T) {
 		}
 
 		// act
-		templates := getTemplates(params)
+		templates := getTemplates(params, true)
 
 		assert.True(t, stringArrayContains(templates, "/templates/ingress.yaml"))
 	})
@@ -54,7 +54,7 @@ func TestGetTemplates(t *testing.T) {
 		}
 
 		// act
-		templates := getTemplates(params)
+		templates := getTemplates(params, true)
 
 		assert.False(t, stringArrayContains(templates, "/templates/ingress.yaml"))
 	})
@@ -67,7 +67,7 @@ func TestGetTemplates(t *testing.T) {
 		}
 
 		// act
-		templates := getTemplates(params)
+		templates := getTemplates(params, true)
 
 		assert.True(t, stringArrayContains(templates, "/templates/ingress-internal.yaml"))
 	})
@@ -79,7 +79,7 @@ func TestGetTemplates(t *testing.T) {
 		}
 
 		// act
-		templates := getTemplates(params)
+		templates := getTemplates(params, true)
 
 		assert.False(t, stringArrayContains(templates, "/templates/ingress-internal.yaml"))
 	})
@@ -96,7 +96,7 @@ func TestGetTemplates(t *testing.T) {
 		}
 
 		// act
-		templates := getTemplates(params)
+		templates := getTemplates(params, true)
 
 		assert.True(t, stringArrayContains(templates, "/templates/application-secrets.yaml"))
 	})
@@ -106,7 +106,7 @@ func TestGetTemplates(t *testing.T) {
 		params := Params{}
 
 		// act
-		templates := getTemplates(params)
+		templates := getTemplates(params, true)
 
 		assert.False(t, stringArrayContains(templates, "/templates/application-secrets.yaml"))
 	})
@@ -122,7 +122,7 @@ func TestGetTemplates(t *testing.T) {
 		}
 
 		// act
-		templates := getTemplates(params)
+		templates := getTemplates(params, true)
 
 		assert.True(t, stringArrayContains(templates, "./gke/another-ingress.yaml"))
 	})
@@ -138,7 +138,7 @@ func TestGetTemplates(t *testing.T) {
 		}
 
 		// act
-		templates := getTemplates(params)
+		templates := getTemplates(params, true)
 
 		assert.True(t, stringArrayContains(templates, "./gke/service.yaml"))
 		assert.False(t, stringArrayContains(templates, "/templates/service.yaml"))
@@ -151,7 +151,7 @@ func TestGetTemplates(t *testing.T) {
 		}
 
 		// act
-		templates := getTemplates(params)
+		templates := getTemplates(params, true)
 
 		assert.Equal(t, 0, len(templates))
 	})
@@ -163,7 +163,7 @@ func TestGetTemplates(t *testing.T) {
 		}
 
 		// act
-		templates := getTemplates(params)
+		templates := getTemplates(params, true)
 
 		assert.False(t, stringArrayContains(templates, "/templates/horizontalpodautoscaler.yaml"))
 		assert.False(t, stringArrayContains(templates, "/templates/poddisruptionbudget.yaml"))
@@ -177,7 +177,7 @@ func TestGetTemplates(t *testing.T) {
 		}
 
 		// act
-		templates := getTemplates(params)
+		templates := getTemplates(params, true)
 
 		assert.False(t, stringArrayContains(templates, "/templates/certificate-secret.yaml"))
 	})
@@ -189,7 +189,7 @@ func TestGetTemplates(t *testing.T) {
 		}
 
 		// act
-		templates := getTemplates(params)
+		templates := getTemplates(params, true)
 
 		assert.True(t, stringArrayContains(templates, "/templates/certificate-secret.yaml"))
 	})
@@ -202,7 +202,7 @@ func TestGetTemplates(t *testing.T) {
 		}
 
 		// act
-		templates := getTemplates(params)
+		templates := getTemplates(params, true)
 
 		assert.True(t, stringArrayContains(templates, "/templates/ingress-apigee.yaml"))
 		assert.True(t, stringArrayContains(templates, "/templates/ingress.yaml"))

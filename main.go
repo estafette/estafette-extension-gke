@@ -192,9 +192,14 @@ func main() {
 	foundation.RunCommandWithArgs(ctx, "gcloud", clustersGetCredentialsArsgs)
 
 	// combine templates
-	tmpl, err := buildTemplates(params)
+	tmpl, err := buildTemplates(params, true)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed building templates")
+	}
+
+	tmplNoPDB, err := buildTemplates(params, false)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed building templates without poddisruptionbudget")
 	}
 
 	// pre-render config files if they exist
@@ -214,6 +219,10 @@ func main() {
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed rendering templates")
 	}
+	renderedNoPDBTemplate, err := renderTemplate(tmplNoPDB, templateData)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed rendering templates without poddisruptionbudget")
+	}
 
 	if tmpl != nil {
 		log.Info().Msg("Storing rendered manifest on disk...")
@@ -223,11 +232,18 @@ func main() {
 		}
 	}
 
-	kubectlApplyArgs := []string{"apply", "-f", "/kubernetes.yaml", "-n", templateData.Namespace}
+	if tmplNoPDB != nil {
+		log.Info().Msg("Storing rendered manifest without poddisruptionbudget on disk...")
+		err = ioutil.WriteFile("/kubernetes-no-pdb.yaml", renderedNoPDBTemplate.Bytes(), 0600)
+		if err != nil {
+			log.Fatal().Err(err).Msg("Failed writing manifest without poddisruptionbudget")
+		}
+	}
+
 	if tmpl != nil {
 		// always perform a dryrun to ensure we're not ending up in a semi broken state where half of the templates is successfully applied and others not
 		log.Info().Msg("Performing a dryrun to test the validity of the manifests...")
-		foundation.RunCommandWithArgs(ctx, "kubectl", append(kubectlApplyArgs, "--dry-run=server"))
+		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"apply", "-f", "/kubernetes-no-pdb.yaml", "-n", templateData.Namespace, "--dry-run=server"})
 
 		log.Info().Msg("Performing a diff to show what's changed...")
 		_ = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"diff", "-f", "/kubernetes.yaml", "-n", templateData.Namespace})
@@ -248,7 +264,7 @@ func main() {
 			cleanupJobIfRequired(ctx, params, templateData, templateData.Name, templateData.Namespace)
 
 			log.Info().Msg("Applying the manifests for real...")
-			foundation.RunCommandWithArgs(ctx, "kubectl", kubectlApplyArgs)
+			foundation.RunCommandWithArgs(ctx, "kubectl", []string{"apply", "-f", "/kubernetes.yaml", "-n", templateData.Namespace})
 
 			if params.Kind == "deployment" || params.Kind == "headless-deployment" {
 				log.Info().Msg("Waiting for the deployment to finish...")

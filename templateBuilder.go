@@ -12,10 +12,10 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func buildTemplates(params Params) (*template.Template, error) {
+func buildTemplates(params Params, includePodDisruptionBudget bool) (*template.Template, error) {
 
 	// merge templates
-	templatesToMerge := getTemplates(params)
+	templatesToMerge := getTemplates(params, includePodDisruptionBudget)
 
 	if len(templatesToMerge) == 0 {
 		return nil, nil
@@ -38,7 +38,7 @@ func buildTemplates(params Params) (*template.Template, error) {
 	return template.New("kubernetes.yaml").Funcs(sprig.TxtFuncMap()).Parse(templateString)
 }
 
-func getTemplates(params Params) []string {
+func getTemplates(params Params, includePodDisruptionBudget bool) []string {
 
 	if params.Action == "rollback-canary" {
 		return []string{}
@@ -96,7 +96,7 @@ func getTemplates(params Params) []string {
 		}...)
 	}
 
-	if (params.Kind == "deployment" || params.Kind == "headless-deployment" || params.Kind == "statefulset") && (params.Action == "deploy-simple" || params.Action == "deploy-stable" || params.Action == "diff-simple" || params.Action == "diff-canary" || params.Action == "diff-stable") {
+	if includePodDisruptionBudget && (params.Kind == "deployment" || params.Kind == "headless-deployment" || params.Kind == "statefulset") && (params.Action == "deploy-simple" || params.Action == "deploy-stable" || params.Action == "diff-simple" || params.Action == "diff-canary" || params.Action == "diff-stable") {
 		templatesToMerge = append(templatesToMerge, "poddisruptionbudget.yaml")
 	}
 	if (params.Kind == "deployment" || params.Kind == "headless-deployment") && params.Autoscale.Enabled != nil && *params.Autoscale.Enabled && (params.Action == "deploy-simple" || params.Action == "deploy-stable" || params.Action == "diff-simple" || params.Action == "diff-canary" || params.Action == "diff-stable") {
