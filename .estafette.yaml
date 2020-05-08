@@ -369,6 +369,7 @@ stages:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
         credentials: gke-tooling
         kind: headless-deployment
+        strategytype: Recreate
         container:
           repository: extensions
           env:
