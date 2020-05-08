@@ -546,9 +546,9 @@ func cleanupJobIfRequired(ctx context.Context, params Params, templateData Templ
 func getExistingNumberOfReplicas(ctx context.Context, params Params) int {
 	if params.Kind == "deployment" || params.Kind == "headless-deployment" {
 		deploymentName := ""
-		if params.Action == "deploy-simple" {
+		if params.Action == "deploy-simple" || params.Action == "diff-simple" {
 			deploymentName = params.App + "-stable"
-		} else if params.Action == "deploy-stable" {
+		} else if params.Action == "deploy-stable" || params.Action == "diff-stable" {
 			deploymentName = params.App
 		}
 		if deploymentName != "" {
