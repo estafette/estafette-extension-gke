@@ -509,6 +509,10 @@ func (p *Params) SetDefaults(gitName, appLabel, buildVersion, releaseName, relea
 		p.RollingUpdate.Timeout = "5m"
 	}
 
+	if p.Replicas == 0 && p.StrategyType == "Recreate" {
+		p.Replicas = 1
+	}
+
 	// set mountpaths for configs and secrets
 	if p.Configs.MountPath == "" {
 		p.Configs.MountPath = "/configs"
