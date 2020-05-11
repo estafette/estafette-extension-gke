@@ -587,7 +587,7 @@ func (p *Params) initializeSidecarDefaults(sidecar *SidecarParams) {
 		}
 	case "esp":
 		if sidecar.Image == "" {
-			sidecar.Image = "gcr.io/endpoints-release/endpoints-runtime:1.44.0"
+			sidecar.Image = "gcr.io/endpoints-release/endpoints-runtime:1.50.0"
 		}
 	case "cloudsqlproxy":
 		if sidecar.Image == "" {
