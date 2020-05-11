@@ -243,6 +243,8 @@ func main() {
 	if tmpl != nil {
 		// fix resources before server-side dry-run to avoid failure
 		cleanupJobIfRequired(ctx, params, templateData, templateData.Name, templateData.Namespace)
+		patchServiceIfRequired(ctx, params, templateData, templateData.Name, templateData.Namespace)
+		patchDeploymentIfRequired(ctx, params, templateData.Name, templateData.Namespace)
 
 		// always perform a dryrun to ensure we're not ending up in a semi broken state where half of the templates is successfully applied and others not
 		log.Info().Msg("Performing a dryrun to test the validity of the manifests...")
@@ -260,11 +262,8 @@ func main() {
 
 		if tmpl != nil {
 			deployGoogleEndpointsServiceIfRequired(ctx, params)
-			patchServiceIfRequired(ctx, params, templateData, templateData.Name, templateData.Namespace)
-			patchDeploymentIfRequired(ctx, params, templateData.Name, templateData.Namespace)
 			removePoddisruptionBudgetIfRequired(ctx, params, templateData.NameWithTrack, templateData.Namespace)
 			removeIngressIfRequired(ctx, params, templateData, templateData.Name, templateData.Namespace)
-			cleanupJobIfRequired(ctx, params, templateData, templateData.Name, templateData.Namespace)
 
 			log.Info().Msg("Applying the manifests for real...")
 			foundation.RunCommandWithArgs(ctx, "kubectl", []string{"apply", "-f", "/kubernetes.yaml", "-n", templateData.Namespace})
