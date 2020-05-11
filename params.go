@@ -591,7 +591,7 @@ func (p *Params) initializeSidecarDefaults(sidecar *SidecarParams) {
 		}
 	case "cloudsqlproxy":
 		if sidecar.Image == "" {
-			sidecar.Image = "eu.gcr.io/cloudsql-docker/gce-proxy:1.16"
+			sidecar.Image = "eu.gcr.io/cloudsql-docker/gce-proxy:1.17"
 		}
 	}
 
