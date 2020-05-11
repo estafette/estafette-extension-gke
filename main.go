@@ -241,6 +241,9 @@ func main() {
 	}
 
 	if tmpl != nil {
+		// fix resources before server-side dry-run to avoid failure
+		cleanupJobIfRequired(ctx, params, templateData, templateData.Name, templateData.Namespace)
+
 		// always perform a dryrun to ensure we're not ending up in a semi broken state where half of the templates is successfully applied and others not
 		log.Info().Msg("Performing a dryrun to test the validity of the manifests...")
 		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"apply", "-f", "/kubernetes-no-pdb.yaml", "-n", templateData.Namespace, "--dry-run=server"})
