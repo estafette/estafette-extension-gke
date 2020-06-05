@@ -3763,6 +3763,18 @@ func TestValidateRequiredProperties(t *testing.T) {
 		assert.False(t, valid)
 		assert.Equal(t, 1, len(errors))
 	})
+
+	t.Run("WarnOnUsingVisibilityPublic", func(t *testing.T) {
+
+		params := validParams
+		params.Visibility = "public"
+
+		// act
+		valid, _, warnings := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.Equal(t, 1, len(warnings))
+	})
 }
 
 func TestReplaceSidecarTagsWithDigest(t *testing.T) {

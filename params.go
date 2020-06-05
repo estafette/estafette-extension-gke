@@ -725,6 +725,9 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 		if p.Visibility == "" || (p.Visibility != "private" && p.Visibility != "public" && p.Visibility != "iap" && p.Visibility != "esp" && p.Visibility != "public-whitelist" && p.Visibility != "apigee") {
 			errors = append(errors, fmt.Errorf("Visibility property is required; set it via visibility property on this stage; allowed values are private, iap, esp, public-whitelist, public or apigee"))
 		}
+		if p.Visibility == "public" {
+			warnings = append(warnings, "Visibility public is deprecated, please use esp or apigee.")
+		}
 		if p.Visibility == "iap" && p.IapOauthCredentialsClientID == "" {
 			errors = append(errors, fmt.Errorf("With visibility 'iap' property iapOauthClientID is required; set it via iapOauthClientID property on this stage"))
 		}
