@@ -241,6 +241,9 @@ func main() {
 	}
 
 	if tmpl != nil {
+		// visibility public is deprecated, so fail if creating new public service
+		failIfCreatingNewPublicService(ctx, params, templateData, templateData.Name, templateData.Namespace)
+
 		// fix resources before server-side dry-run to avoid failure
 		cleanupJobIfRequired(ctx, params, templateData, templateData.Name, templateData.Namespace)
 		patchServiceIfRequired(ctx, params, templateData, templateData.Name, templateData.Namespace)
@@ -504,6 +507,18 @@ func removeIngressIfRequired(ctx context.Context, params Params, templateData Te
 func deployGoogleEndpointsServiceIfRequired(ctx context.Context, params Params) {
 	if params.Kind == "deployment" && params.Visibility == "esp" && (params.Action == "deploy-simple" || params.Action == "deploy-canary") {
 		foundation.RunCommandWithArgs(ctx, "gcloud", []string{"endpoints", "services", "deploy", params.EspOpenAPIYamlPath})
+	}
+}
+
+func failIfCreatingNewPublicService(ctx context.Context, params Params, templateData TemplateData, name, namespace string) {
+	if params.Kind == "deployment" && params.Visibility == "public" {
+		serviceType, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "service", name, "-n", namespace, "-o=jsonpath={.spec.type}"})
+		// fail if creating new public service or updating to public
+		if err != nil {
+			log.Fatal().Err(err).Msgf("Creating new public service is no longer supported, please use visibility esp or apigee.")
+		} else if serviceType != "LoadBalancer" {
+			log.Fatal().Msgf("Changing service visibility to public is no longer supported, please use visibility esp or apigee.")
+		}
 	}
 }
 
