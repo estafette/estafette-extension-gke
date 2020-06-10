@@ -268,6 +268,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		data.UseDNSAnnotationsOnService = false
 		data.UseCloudflareProxy = true
 		data.UseBackendConfigAnnotationOnService = false
+		data.UseNegAnnotationOnService = false
 		data.LimitTrustedIPRanges = false
 		data.OverrideDefaultWhitelist = false
 
@@ -279,6 +280,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		data.UseDNSAnnotationsOnService = false
 		data.UseCloudflareProxy = false
 		data.UseBackendConfigAnnotationOnService = true
+		data.UseNegAnnotationOnService = params.ContainerNativeLoadBalancing
 		data.LimitTrustedIPRanges = false
 		data.OverrideDefaultWhitelist = false
 		data.IapOauthCredentialsClientID = params.IapOauthCredentialsClientID
@@ -292,6 +294,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		data.UseDNSAnnotationsOnService = false
 		data.UseCloudflareProxy = true
 		data.UseBackendConfigAnnotationOnService = false
+		data.UseNegAnnotationOnService = false
 		data.LimitTrustedIPRanges = false
 		data.OverrideDefaultWhitelist = len(params.WhitelistedIPS) > 0
 		data.NginxIngressWhitelist = strings.Join(params.WhitelistedIPS, ",")
@@ -304,6 +307,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		data.UseDNSAnnotationsOnService = false
 		data.UseCloudflareProxy = true // For private ingress. For Apigee it is hard-coded to be false.
 		data.UseBackendConfigAnnotationOnService = false
+		data.UseNegAnnotationOnService = false
 		data.LimitTrustedIPRanges = false
 		data.OverrideDefaultWhitelist = false
 		for _, h := range params.Hosts {

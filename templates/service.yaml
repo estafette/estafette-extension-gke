@@ -21,6 +21,9 @@ metadata:
     {{- if .UseBackendConfigAnnotationOnService}}
     beta.cloud.google.com/backend-config: '{"default": "{{.Name}}"}'
     {{- end}}
+    {{- if .UseNegAnnotationOnService}}
+    cloud.google.com/neg: '{"ingress": true}'
+    {{- end}}
 spec:
   type: {{.ServiceType}}
   {{- if .LimitTrustedIPRanges}}
