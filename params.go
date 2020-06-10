@@ -36,6 +36,7 @@ type Params struct {
 	StorageMountPath                string              `json:"storagemountpath,omitempty" yaml:"storagemountpath,omitempty"`
 	Labels                          map[string]string   `json:"labels,omitempty" yaml:"labels,omitempty"`
 	Visibility                      string              `json:"visibility,omitempty" yaml:"visibility,omitempty"`
+	ContainerNativeLoadBalancing    bool                `json:"containerNativeLoadBalancing,omitempty" yaml:"containerNativeLoadBalancing,omitempty"`
 	IapOauthCredentialsClientID     string              `json:"iapOauthClientID,omitempty" yaml:"iapOauthClientID,omitempty"`
 	IapOauthCredentialsClientSecret string              `json:"iapOauthClientSecret,omitempty" yaml:"iapOauthClientSecret,omitempty"`
 	EspConfigID                     string              `json:"espConfigID,omitempty" yaml:"espConfigID,omitempty"`

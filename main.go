@@ -303,6 +303,7 @@ func main() {
 				deleteIngressForVisibilityChange(ctx, templateData, templateData.Name, templateData.Namespace)
 				removeEstafetteCloudflareAnnotations(ctx, templateData, templateData.Name, templateData.Namespace)
 				removeBackendConfigAnnotation(ctx, templateData, templateData.Name, templateData.Namespace)
+				removeNegAnnotation(ctx, templateData, templateData.Name, templateData.Namespace)
 				deleteBackendConfigAndIAPOauthSecret(ctx, templateData, templateData.Name, templateData.Namespace)
 				deleteHorizontalPodAutoscaler(ctx, params, templateData.NameWithTrack, templateData.Namespace)
 				break
@@ -318,6 +319,7 @@ func main() {
 				deleteIngressForVisibilityChange(ctx, templateData, templateData.Name, templateData.Namespace)
 				removeEstafetteCloudflareAnnotations(ctx, templateData, templateData.Name, templateData.Namespace)
 				removeBackendConfigAnnotation(ctx, templateData, templateData.Name, templateData.Namespace)
+				removeNegAnnotation(ctx, templateData, templateData.Name, templateData.Namespace)
 				deleteBackendConfigAndIAPOauthSecret(ctx, templateData, templateData.Name, templateData.Namespace)
 				deleteHorizontalPodAutoscaler(ctx, params, templateData.Name, templateData.Namespace)
 				break
@@ -623,6 +625,14 @@ func removeBackendConfigAnnotation(ctx context.Context, templateData TemplateDat
 		// iap is not used, so the beta.cloud.google.com/backend-config annotations should be removed from the service
 		log.Info().Msg("Removing beta.cloud.google.com/backend-config annotations on the service if they exists, since visibility is not set to iap...")
 		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"annotate", "svc", name, "-n", namespace, "beta.cloud.google.com/backend-config-"})
+	}
+}
+
+func removeNegAnnotation(ctx context.Context, templateData TemplateData, name, namespace string) {
+	if !templateData.UseNegAnnotationOnService {
+		// cloud native load balancing is not used, so the beta.cloud.google.com/backend-config annotations should be removed from the service
+		log.Info().Msg("Removing cloud.google.com/neg annotations on the service if they exists, since visibility is not set to iap or containerNativeLoadBalancing is set to fals...")
+		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"annotate", "svc", name, "-n", namespace, "cloud.google.com/neg-"})
 	}
 }
 
