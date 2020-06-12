@@ -250,6 +250,7 @@ func main() {
 		patchDeploymentIfRequired(ctx, params, templateData.Name, templateData.Namespace)
 
 		// always perform a dryrun to ensure we're not ending up in a semi broken state where half of the templates is successfully applied and others not
+		// await https://github.com/kubernetes/kubernetes/issues/83562 to switch back to server-side dry-run and not fail for new namespaces
 		log.Info().Msg("Performing a dryrun to test the validity of the manifests...")
 		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"apply", "-f", "/kubernetes-no-pdb.yaml", "-n", templateData.Namespace, "--dry-run=client"})
 
