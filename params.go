@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"regexp"
@@ -263,7 +264,12 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	}
 	if gitSource != "" && gitOwner != "" && gitName != "" {
 		// add estafette.io/pipeline label to labels set on all resources for linking catalog entities back to pipelines
-		p.Labels["estafette.io/pipeline"] = sanitizeLabel(fmt.Sprintf("%v/%v/%v", gitSource, gitOwner, gitName))
+
+		pipeline := fmt.Sprintf("%v/%v/%v", gitSource, gitOwner, gitName)
+		pipelineBase64 := base64.StdEncoding.EncodeToString([]byte(pipeline))
+
+		p.Labels["estafette.io/pipeline"] = sanitizeLabel(pipeline)
+		p.Labels["estafette.io/pipeline-base64"] = sanitizeLabel(pipelineBase64)
 	}
 
 	// default visibility to private if no override in stage params

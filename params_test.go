@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"strings"
 	"testing"
 
@@ -307,6 +308,44 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, 2, len(params.Labels))
 		assert.Equal(t, "myapp", params.Labels["app"])
 		assert.Equal(t, "yourteam", params.Labels["team"])
+	})
+
+	t.Run("AddsEstafettePipelineLabel", func(t *testing.T) {
+
+		params := Params{
+			Labels: map[string]string{},
+		}
+		estafetteLabels := map[string]string{
+			"app":      "myapp",
+			"team":     "myteam",
+			"language": "golang",
+		}
+
+		// act
+		params.SetDefaults("github.com", "estafette", "estafette-extensions-gke", "", "", "", "", estafetteLabels)
+
+		assert.Equal(t, "github.com-estafette-estafette-extensions-gke", params.Labels["estafette.io/pipeline"])
+	})
+
+	t.Run("AddsEstafettePipelineBase64Label", func(t *testing.T) {
+
+		params := Params{
+			Labels: map[string]string{},
+		}
+		estafetteLabels := map[string]string{
+			"app":      "myapp",
+			"team":     "myteam",
+			"language": "golang",
+		}
+
+		// act
+		params.SetDefaults("github.com", "estafette", "estafette-extensions-gke", "", "", "", "", estafetteLabels)
+
+		assert.Equal(t, "Z2l0aHViLmNvbS9lc3RhZmV0dGUvZXN0YWZldHRlLWV4dGVuc2lvbnMtZ2tl", params.Labels["estafette.io/pipeline-base64"])
+
+		decodedLabel, err := base64.StdEncoding.DecodeString(params.Labels["estafette.io/pipeline-base64"])
+		assert.Nil(t, err)
+		assert.Equal(t, "github.com/estafette/estafette-extensions-gke", string(decodedLabel))
 	})
 
 	t.Run("OverwritesAppLabelToAppIfSetFromEstafetteLabels", func(t *testing.T) {
