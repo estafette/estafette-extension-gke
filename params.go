@@ -212,7 +212,7 @@ type VolumeMountParams struct {
 }
 
 // SetDefaults fills in empty fields with convention-based defaults
-func (p *Params) SetDefaults(gitName, appLabel, buildVersion, releaseName, releaseAction string, estafetteLabels map[string]string) {
+func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersion, releaseName, releaseAction string, estafetteLabels map[string]string) {
 
 	p.BuildVersion = buildVersion
 
@@ -260,6 +260,10 @@ func (p *Params) SetDefaults(gitName, appLabel, buildVersion, releaseName, relea
 	// ensure the app label is set and equals the app label or app override in stage params if present
 	if p.App != "" {
 		p.Labels["app"] = p.App
+	}
+	if gitSource != "" && gitOwner != "" && gitName != "" {
+		// add estafette.io/pipeline label to labels set on all resources for linking catalog entities back to pipelines
+		p.Labels["estafette.io/pipeline"] = sanitizeLabel(fmt.Sprintf("%v/%v/%v", gitSource, gitOwner, gitName))
 	}
 
 	// default visibility to private if no override in stage params
