@@ -28,7 +28,7 @@ type Params struct {
 	RestartPolicy                   string              `json:"restartPolicy,omitempty" yaml:"restartPolicy,omitempty"`
 	Completions                     int                 `json:"completions,omitempty" yaml:"completions,omitempty"`
 	Parallelism                     int                 `json:"parallelism,omitempty" yaml:"parallelism,omitempty"`
-	BackoffLimit                    int                 `json:"backoffLimit,omitempty" yaml:"backoffLimit,omitempty"`
+	BackoffLimit                    *int                `json:"backoffLimit,omitempty" yaml:"backoffLimit,omitempty"`
 	ConcurrencyPolicy               string              `json:"concurrencypolicy,omitempty" yaml:"concurrencypolicy,omitempty"`
 	PodManagementPolicy             string              `json:"podManagementpolicy,omitempty" yaml:"podManagementpolicy,omitempty"`
 	Replicas                        int                 `json:"replicas,omitempty" yaml:"replicas,omitempty"`
@@ -567,8 +567,9 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	if p.Parallelism <= 0 {
 		p.Parallelism = 1
 	}
-	if p.BackoffLimit <= 0 {
-		p.BackoffLimit = 6
+	if p.BackoffLimit == nil || *p.BackoffLimit < 0 {
+		defaultBackoffLimit := 6
+		p.BackoffLimit = &defaultBackoffLimit
 	}
 
 	if p.Kind == "statefulset" {
