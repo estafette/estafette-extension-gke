@@ -20,7 +20,6 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		RestartPolicy:     params.RestartPolicy,
 		Completions:       params.Completions,
 		Parallelism:       params.Parallelism,
-		BackoffLimit:      params.BackoffLimit,
 		Labels:            sanitizeLabels(params.Labels),
 		PodLabels:         sanitizeLabels(params.Labels),
 		AppLabelSelector:  sanitizeLabel(params.App),
@@ -113,6 +112,10 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		// IsSimpleEnvvarValue returns true if a value should be wrapped in 'value: ""', otherwise the interface should be outputted as yaml
 		IsSimpleEnvvarValue: isSimpleEnvvarValue,
 		ToYAML:              toYAML,
+	}
+
+	if params.BackoffLimit != nil {
+		data.BackoffLimit = *params.BackoffLimit
 	}
 
 	if data.MountServiceAccountSecret {

@@ -2382,25 +2382,39 @@ func TestSetDefaults(t *testing.T) {
 	t.Run("DefaultsBackoffLimitTo6", func(t *testing.T) {
 
 		params := Params{
-			BackoffLimit: 0,
+			BackoffLimit: nil,
 		}
 
 		// act
 		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
 
-		assert.Equal(t, 6, params.BackoffLimit)
+		assert.Equal(t, 6, *params.BackoffLimit)
 	})
 
 	t.Run("KeepsBackoffLimitIfSet", func(t *testing.T) {
 
+		backoffLimit := 3
 		params := Params{
-			BackoffLimit: 3,
+			BackoffLimit: &backoffLimit,
 		}
 
 		// act
 		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
 
-		assert.Equal(t, 3, params.BackoffLimit)
+		assert.Equal(t, 3, *params.BackoffLimit)
+	})
+
+	t.Run("KeepsBackoffLimitZeroIfSet", func(t *testing.T) {
+
+		backoffLimit := 0
+		params := Params{
+			BackoffLimit: &backoffLimit,
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, 0, *params.BackoffLimit)
 	})
 
 	t.Run("KeepsKindIfNotEmpty", func(t *testing.T) {
