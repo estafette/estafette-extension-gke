@@ -417,6 +417,7 @@ func scaleCanaryDeployment(ctx context.Context, name, namespace string, replicas
 func restartDeployment(ctx context.Context, name, namespace string) {
 	log.Info().Msgf("Restarting deployment rollout...")
 	foundation.RunCommandWithArgs(ctx, "kubectl", []string{"rollout", "restart", "deployment", name, "-n", namespace})
+	foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"rollout", "status", "deployment", name, "-n", namespace})
 }
 
 func deleteResourcesForTypeSwitch(ctx context.Context, name, namespace string) {
