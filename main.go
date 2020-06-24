@@ -354,6 +354,15 @@ func main() {
 			case ActionRollbackCanary:
 				scaleCanaryDeployment(ctx, templateData.Name, templateData.Namespace, 0)
 				break
+			case ActionRestartCanary:
+				restartDeployment(ctx, fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
+				break
+			case ActionRestartStable:
+				restartDeployment(ctx, fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
+				break
+			case ActionRestartSimple:
+				restartDeployment(ctx, templateData.Name, templateData.Namespace)
+				break
 			case ActionDeploySimple:
 				deleteResourcesForTypeSwitch(ctx, fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
 				deleteResourcesForTypeSwitch(ctx, fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
