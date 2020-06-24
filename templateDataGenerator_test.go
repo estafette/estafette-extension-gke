@@ -1472,7 +1472,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		params := Params{
 			App:    "myapp",
-			Action: "deploy-canary",
+			Action: ActionDeployCanary,
 		}
 
 		// act
@@ -1485,7 +1485,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		params := Params{
 			App:    "myapp",
-			Action: "deploy-stable",
+			Action: ActionDeployStable,
 		}
 
 		// act
@@ -1498,7 +1498,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		params := Params{
 			App:    "myapp",
-			Action: "deploy-simple",
+			Action: ActionDeploySimple,
 		}
 
 		// act
@@ -1511,7 +1511,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		params := Params{
 			App:    "myapp",
-			Action: "deploy-simple",
+			Action: ActionDeploySimple,
 		}
 		releaseID := ""
 
@@ -1525,7 +1525,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		params := Params{
 			App:    "myapp",
-			Action: "deploy-simple",
+			Action: ActionDeploySimple,
 		}
 		releaseID := "1"
 
@@ -1539,7 +1539,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		params := Params{
 			App:    "myapp",
-			Action: "deploy-simple",
+			Action: ActionDeploySimple,
 		}
 		triggeredBy := ""
 
@@ -1553,7 +1553,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		params := Params{
 			App:    "myapp",
-			Action: "deploy-simple",
+			Action: ActionDeploySimple,
 		}
 		triggeredBy := "user@estafette.io"
 
@@ -1567,7 +1567,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		params := Params{
 			App:    "myapp",
-			Action: "deploy-simple",
+			Action: ActionDeploySimple,
 		}
 
 		// act
@@ -1580,7 +1580,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		params := Params{
 			App:    "myapp",
-			Action: "deploy-canary",
+			Action: ActionDeployCanary,
 		}
 
 		// act
@@ -1593,7 +1593,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		params := Params{
 			App:    "myapp",
-			Action: "deploy-stable",
+			Action: ActionDeployStable,
 		}
 
 		// act
@@ -1606,7 +1606,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		params := Params{
 			App:    "myapp",
-			Action: "deploy-canary",
+			Action: ActionDeployCanary,
 		}
 
 		// act
@@ -1619,7 +1619,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		params := Params{
 			App:    "myapp",
-			Action: "deploy-stable",
+			Action: ActionDeployStable,
 		}
 
 		// act

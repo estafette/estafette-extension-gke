@@ -13,7 +13,7 @@ import (
 // Params is used to parameterize the deployment, set from custom properties in the manifest
 type Params struct {
 	// control params
-	Action          string          `json:"action,omitempty" yaml:"action,omitempty"`
+	Action          ActionType      `json:"action,omitempty" yaml:"action,omitempty"`
 	Kind            string          `json:"kind,omitempty" yaml:"kind,omitempty"`
 	DryRun          bool            `json:"dryrun,omitempty" yaml:"dryrun,omitempty"`
 	BuildVersion    string          `json:"-" yaml:"-"`
@@ -213,15 +213,15 @@ type VolumeMountParams struct {
 }
 
 // SetDefaults fills in empty fields with convention-based defaults
-func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersion, releaseName, releaseAction string, estafetteLabels map[string]string) {
+func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersion, releaseName string, releaseAction ActionType, estafetteLabels map[string]string) {
 
 	p.BuildVersion = buildVersion
 
 	// default action to deploy-simple unless it's either specified on the stage or passed in as a release action
-	if releaseAction != "" {
-		p.Action = releaseAction
-	} else if p.Action == "" && releaseAction == "" {
-		p.Action = "deploy-simple"
+	if releaseAction != ActionUnknown {
+		p.Action = ActionType(releaseAction)
+	} else if p.Action == "" && releaseAction == ActionUnknown {
+		p.Action = ActionDeploySimple
 	}
 
 	// default kind to deployment
@@ -656,7 +656,7 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 		errors = append(errors, fmt.Errorf("Namespace is required; either use credentials with a defaultNamespace or set it via namespace property on this stage"))
 	}
 
-	if p.Action == "rollback-canary" || p.Kind == "config" {
+	if p.Action == ActionRollbackCanary || p.Kind == "config" {
 		// the above properties are all you need for a rollback
 		return len(errors) == 0, errors, warnings
 	}

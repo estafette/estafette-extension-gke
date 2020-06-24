@@ -128,7 +128,7 @@ func main() {
 	}
 
 	log.Info().Msg("Setting defaults for parameters that are not set in the manifest...")
-	params.SetDefaults(*gitSource, *gitOwner, *gitName, *appLabel, *buildVersion, *releaseName, *releaseAction, estafetteLabels)
+	params.SetDefaults(*gitSource, *gitOwner, *gitName, *appLabel, *buildVersion, *releaseName, ActionType(*releaseAction), estafetteLabels)
 
 	log.Info().Msg("Validating required parameters...")
 	valid, errors, warnings := params.ValidateRequiredProperties()
@@ -258,7 +258,7 @@ func main() {
 		_ = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"diff", "-f", "/kubernetes-no-pdb.yaml", "-n", templateData.Namespace})
 	}
 
-	if !params.DryRun && !strings.HasPrefix(params.Action, "diff-") {
+	if !params.DryRun && params.Action != ActionDiffSimple && params.Action != ActionDiffCanary && params.Action != ActionDiffStable {
 
 		// ensure that from now on any error runs the troubleshooting assistant
 		assistTroubleshootingOnError = true
@@ -290,12 +290,12 @@ func main() {
 		switch params.Kind {
 		case "deployment":
 			switch params.Action {
-			case "deploy-canary":
+			case ActionDeployCanary:
 				scaleCanaryDeployment(ctx, templateData.Name, templateData.Namespace, 1)
 				deleteConfigsForParamsChange(ctx, params, templateData.NameWithTrack, templateData.Namespace)
 				deleteSecretsForParamsChange(ctx, params, templateData.NameWithTrack, templateData.Namespace)
 				break
-			case "deploy-stable":
+			case ActionDeployStable:
 				scaleCanaryDeployment(ctx, templateData.Name, templateData.Namespace, 0)
 				deleteResourcesForTypeSwitch(ctx, templateData.Name, templateData.Namespace)
 				deleteConfigsForParamsChange(ctx, params, templateData.NameWithTrack, templateData.Namespace)
@@ -308,10 +308,19 @@ func main() {
 				deleteBackendConfigAndIAPOauthSecret(ctx, templateData, templateData.Name, templateData.Namespace)
 				deleteHorizontalPodAutoscaler(ctx, params, templateData.NameWithTrack, templateData.Namespace)
 				break
-			case "rollback-canary":
+			case ActionRollbackCanary:
 				scaleCanaryDeployment(ctx, templateData.Name, templateData.Namespace, 0)
 				break
-			case "deploy-simple":
+			case ActionRestartCanary:
+				restartDeployment(ctx, fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
+				break
+			case ActionRestartStable:
+				restartDeployment(ctx, fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
+				break
+			case ActionRestartSimple:
+				restartDeployment(ctx, templateData.Name, templateData.Namespace)
+				break
+			case ActionDeploySimple:
 				deleteResourcesForTypeSwitch(ctx, fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
 				deleteResourcesForTypeSwitch(ctx, fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
 				deleteConfigsForParamsChange(ctx, params, templateData.Name, templateData.Namespace)
@@ -329,12 +338,12 @@ func main() {
 
 		case "headless-deployment":
 			switch params.Action {
-			case "deploy-canary":
+			case ActionDeployCanary:
 				scaleCanaryDeployment(ctx, templateData.Name, templateData.Namespace, 1)
 				deleteConfigsForParamsChange(ctx, params, templateData.NameWithTrack, templateData.Namespace)
 				deleteSecretsForParamsChange(ctx, params, templateData.NameWithTrack, templateData.Namespace)
 				break
-			case "deploy-stable":
+			case ActionDeployStable:
 				scaleCanaryDeployment(ctx, templateData.Name, templateData.Namespace, 0)
 				deleteResourcesForTypeSwitch(ctx, templateData.Name, templateData.Namespace)
 				deleteConfigsForParamsChange(ctx, params, templateData.NameWithTrack, templateData.Namespace)
@@ -342,10 +351,10 @@ func main() {
 				deleteServiceAccountSecretForParamsChange(ctx, params, templateData.GoogleCloudCredentialsAppName, templateData.Namespace)
 				deleteHorizontalPodAutoscaler(ctx, params, templateData.NameWithTrack, templateData.Namespace)
 				break
-			case "rollback-canary":
+			case ActionRollbackCanary:
 				scaleCanaryDeployment(ctx, templateData.Name, templateData.Namespace, 0)
 				break
-			case "deploy-simple":
+			case ActionDeploySimple:
 				deleteResourcesForTypeSwitch(ctx, fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
 				deleteResourcesForTypeSwitch(ctx, fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
 				deleteConfigsForParamsChange(ctx, params, templateData.Name, templateData.Namespace)
@@ -382,7 +391,7 @@ func assistTroubleshooting(ctx context.Context, templateData TemplateData, err e
 			} else if *buildVersion != "" {
 				_ = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"logs", "-l", fmt.Sprintf("app=%v,version=%v", templateData.AppLabelSelector, sanitizeLabel(*buildVersion)), "-n", templateData.Namespace, "--all-containers"})
 			}
-		} else if paramsForTroubleshooting.Action == "deploy-canary" {
+		} else if paramsForTroubleshooting.Action == ActionDeployCanary {
 			log.Info().Msg("Showing logs for canary deployment...")
 			foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"logs", "-l", fmt.Sprintf("app=%v,track=canary", paramsForTroubleshooting.App), "-n", paramsForTroubleshooting.Namespace, "-c", paramsForTroubleshooting.App, "--tail", "50"})
 		}
@@ -394,6 +403,11 @@ func assistTroubleshooting(ctx context.Context, templateData TemplateData, err e
 func scaleCanaryDeployment(ctx context.Context, name, namespace string, replicas int) {
 	log.Info().Msgf("Scaling canary deployment to %v replicas...", replicas)
 	foundation.RunCommandWithArgs(ctx, "kubectl", []string{"scale", "deploy", fmt.Sprintf("%v-canary", name), "-n", namespace, fmt.Sprintf("--replicas=%v", replicas)})
+}
+
+func restartDeployment(ctx context.Context, name, namespace string) {
+	log.Info().Msgf("Restarting deployment rollout...")
+	foundation.RunCommandWithArgs(ctx, "kubectl", []string{"rollout", "restart", "deployment", name, "-n", namespace})
 }
 
 func deleteResourcesForTypeSwitch(ctx context.Context, name, namespace string) {
@@ -445,7 +459,7 @@ func deleteBackendConfigAndIAPOauthSecret(ctx context.Context, templateData Temp
 }
 
 func removePoddisruptionBudgetIfRequired(ctx context.Context, params Params, name, namespace string) {
-	if (params.Kind == "deployment" || params.Kind == "headless-deployment") && (params.Action == "deploy-simple" || params.Action == "deploy-stable") {
+	if (params.Kind == "deployment" || params.Kind == "headless-deployment") && (params.Action == ActionDeploySimple || params.Action == ActionDeployStable) {
 		// if there's a pdb that doesn't use maxUnavailable: 1 remove it so a new one can be created with correct settings
 		deletePoddisruptionBudget := false
 		maxUnavailable, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "pdb", name, "-n", namespace, "-o=jsonpath={.spec.maxUnavailable}"})
@@ -474,7 +488,7 @@ func removePoddisruptionBudgetIfRequired(ctx context.Context, params Params, nam
 }
 
 func removeIngressIfRequired(ctx context.Context, params Params, templateData TemplateData, name, namespace string) {
-	if params.Kind == "deployment" && (params.Action == "deploy-simple" || params.Action == "deploy-canary" || params.Action == "deploy-stable") {
+	if params.Kind == "deployment" && (params.Action == ActionDeploySimple || params.Action == ActionDeployCanary || params.Action == ActionDeployStable) {
 		if templateData.UseNginxIngress {
 			// check if ingress exists and has kubernetes.io/ingress.class: gce, then delete it because of https://github.com/kubernetes/ingress-gce/issues/481
 			ingressClass, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "ing", name, "-n", namespace, "-o=go-template={{index .metadata.annotations \"kubernetes.io/ingress.class\"}}"})
@@ -508,7 +522,7 @@ func removeIngressIfRequired(ctx context.Context, params Params, templateData Te
 }
 
 func deployGoogleEndpointsServiceIfRequired(ctx context.Context, params Params) {
-	if params.Kind == "deployment" && params.Visibility == "esp" && (params.Action == "deploy-simple" || params.Action == "deploy-canary") {
+	if params.Kind == "deployment" && params.Visibility == "esp" && (params.Action == ActionDeploySimple || params.Action == ActionDeployCanary) {
 		foundation.RunCommandWithArgs(ctx, "gcloud", []string{"endpoints", "services", "deploy", params.EspOpenAPIYamlPath})
 	}
 }
@@ -566,9 +580,9 @@ func cleanupJobIfRequired(ctx context.Context, params Params, templateData Templ
 func getExistingNumberOfReplicas(ctx context.Context, params Params) int {
 	if params.Kind == "deployment" || params.Kind == "headless-deployment" {
 		deploymentName := ""
-		if params.Action == "deploy-simple" || params.Action == "diff-simple" {
+		if params.Action == ActionDeploySimple || params.Action == ActionDiffSimple {
 			deploymentName = params.App + "-stable"
-		} else if params.Action == "deploy-stable" || params.Action == "diff-stable" {
+		} else if params.Action == ActionDeployStable || params.Action == ActionDiffStable {
 			deploymentName = params.App
 		}
 		if deploymentName != "" {
@@ -591,7 +605,7 @@ func getExistingNumberOfReplicas(ctx context.Context, params Params) int {
 }
 
 func patchDeploymentIfRequired(ctx context.Context, params Params, name, namespace string) {
-	if (params.Kind == "deployment" || params.Kind == "headless-deployment") && params.Action == "deploy-simple" {
+	if (params.Kind == "deployment" || params.Kind == "headless-deployment") && params.Action == ActionDeploySimple {
 		selectorLabels, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "deploy", name, "-n", namespace, "-o=jsonpath={.spec.selector.matchLabels}"})
 		if err != nil {
 			log.Info().Msgf("Failed retrieving deployment selector labels: %v", err)
@@ -638,7 +652,7 @@ func removeNegAnnotation(ctx context.Context, templateData TemplateData, name, n
 }
 
 func deleteHorizontalPodAutoscaler(ctx context.Context, params Params, name, namespace string) {
-	if (params.Kind == "deployment" || params.Kind == "headless-deployment") && (params.Autoscale.Enabled == nil || !*params.Autoscale.Enabled) && (params.Action == "deploy-simple" || params.Action == "deploy-stable") {
+	if (params.Kind == "deployment" || params.Kind == "headless-deployment") && (params.Autoscale.Enabled == nil || !*params.Autoscale.Enabled) && (params.Action == ActionDeploySimple || params.Action == ActionDeployStable) {
 		log.Info().Msgf("Deleting HorizontalPodAutoscaler %v, since autoscaling is disabled...", name)
 		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "hpa", name, "-n", namespace, "--ignore-not-found=true"})
 	}
