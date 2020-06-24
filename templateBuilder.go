@@ -40,7 +40,7 @@ func buildTemplates(params Params, includePodDisruptionBudget bool) (*template.T
 
 func getTemplates(params Params, includePodDisruptionBudget bool) []string {
 
-	if params.Action == ActionRollbackCanary || params.Action == ActionUnknown {
+	if params.Action == ActionRollbackCanary || params.Action == ActionUnknown || params.Action == ActionRestartCanary || params.Action == ActionRestartStable || params.Action == ActionRestartSimple {
 		return []string{}
 	}
 
