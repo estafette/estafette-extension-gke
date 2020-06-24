@@ -135,7 +135,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 	// set tracing service name
 	data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_SERVICE_NAME", params.App)
 
-	if params.Action == "deploy-canary" || params.Action == "diff-canary" {
+	if params.Action == ActionDeployCanary || params.Action == ActionDiffCanary {
 		data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_SAMPLER_TYPE", "probabilistic")
 		data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_SAMPLER_PARAM", "0.1")
 		data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_TAGS", "track=canary")
@@ -240,16 +240,16 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 	}
 
 	switch params.Action {
-	case "deploy-simple",
-		"diff-simple":
+	case ActionDeploySimple,
+		ActionDiffSimple:
 		data.IncludeTrackLabel = false
-	case "deploy-canary",
-		"diff-canary":
+	case ActionDeployCanary,
+		ActionDiffCanary:
 		data.NameWithTrack += "-canary"
 		data.IncludeTrackLabel = true
 		data.TrackLabel = "canary"
-	case "deploy-stable",
-		"diff-stable":
+	case ActionDeployStable,
+		ActionDiffStable:
 		data.NameWithTrack += "-stable"
 		data.IncludeTrackLabel = true
 		data.TrackLabel = "stable"

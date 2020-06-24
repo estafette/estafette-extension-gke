@@ -40,7 +40,7 @@ func buildTemplates(params Params, includePodDisruptionBudget bool) (*template.T
 
 func getTemplates(params Params, includePodDisruptionBudget bool) []string {
 
-	if params.Action == "rollback-canary" {
+	if params.Action == ActionRollbackCanary || params.Action == ActionUnknown || params.Action == ActionRestartCanary || params.Action == ActionRestartStable || params.Action == ActionRestartSimple {
 		return []string{}
 	}
 
@@ -96,10 +96,10 @@ func getTemplates(params Params, includePodDisruptionBudget bool) []string {
 		}...)
 	}
 
-	if includePodDisruptionBudget && (params.Kind == "deployment" || params.Kind == "headless-deployment" || params.Kind == "statefulset") && (params.Action == "deploy-simple" || params.Action == "deploy-stable" || params.Action == "diff-simple" || params.Action == "diff-canary" || params.Action == "diff-stable") {
+	if includePodDisruptionBudget && (params.Kind == "deployment" || params.Kind == "headless-deployment" || params.Kind == "statefulset") && (params.Action == ActionDeploySimple || params.Action == ActionDeployStable || params.Action == ActionDiffSimple || params.Action == ActionDiffCanary || params.Action == ActionDiffStable) {
 		templatesToMerge = append(templatesToMerge, "poddisruptionbudget.yaml")
 	}
-	if (params.Kind == "deployment" || params.Kind == "headless-deployment") && params.Autoscale.Enabled != nil && *params.Autoscale.Enabled && params.StrategyType != "Recreate" && (params.Action == "deploy-simple" || params.Action == "deploy-stable" || params.Action == "diff-simple" || params.Action == "diff-canary" || params.Action == "diff-stable") {
+	if (params.Kind == "deployment" || params.Kind == "headless-deployment") && params.Autoscale.Enabled != nil && *params.Autoscale.Enabled && params.StrategyType != "Recreate" && (params.Action == ActionDeploySimple || params.Action == ActionDeployStable || params.Action == ActionDiffSimple || params.Action == ActionDiffCanary || params.Action == ActionDiffStable) {
 		templatesToMerge = append(templatesToMerge, "horizontalpodautoscaler.yaml")
 	}
 	if (params.Kind == "deployment" || params.Kind == "statefulset") && (params.Visibility == "private" || params.Visibility == "iap" || params.Visibility == "public-whitelist") {
@@ -157,7 +157,7 @@ func renderConfig(params Params) (renderedConfigFiles map[string]string) {
 
 	renderedConfigFiles = map[string]string{}
 
-	if params.Action != "rollback-canary" && (len(params.Configs.Files) > 0 || len(params.Configs.InlineFiles) > 0) {
+	if params.Action != ActionRollbackCanary && (len(params.Configs.Files) > 0 || len(params.Configs.InlineFiles) > 0) {
 		log.Info().Msg("Prerendering config files...")
 
 		// render files passed with configs.files property, replacing placeholders with values specified in configs.data property

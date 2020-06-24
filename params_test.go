@@ -12,7 +12,7 @@ var (
 	trueValue   = true
 	falseValue  = false
 	validParams = Params{
-		Action:    "deploy-simple",
+		Action:    ActionDeploySimple,
 		App:       "myapp",
 		Namespace: "mynamespace",
 		Autoscale: AutoscaleParams{
@@ -2243,31 +2243,31 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
 
-		assert.Equal(t, "deploy-simple", params.Action)
+		assert.Equal(t, ActionDeploySimple, params.Action)
 	})
 
 	t.Run("KeepsActionIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
-			Action: "deploy-canary",
+			Action: ActionDeployCanary,
 		}
 
 		// act
 		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
 
-		assert.Equal(t, "deploy-canary", params.Action)
+		assert.Equal(t, ActionDeployCanary, params.Action)
 	})
 
 	t.Run("OverridesActionIfActionIsNotEmptyButReleaseActionIsSet", func(t *testing.T) {
 
 		params := Params{
-			Action: "deploy-canary",
+			Action: ActionDeployCanary,
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", "", "", "rollback-canary", map[string]string{})
+		params.SetDefaults("", "", "", "", "", "", ActionRollbackCanary, map[string]string{})
 
-		assert.Equal(t, "rollback-canary", params.Action)
+		assert.Equal(t, ActionRollbackCanary, params.Action)
 	})
 
 	t.Run("SetsActionToReleaseActionIfActionIsEmptyAndReleaseActionIsSet", func(t *testing.T) {
@@ -2277,9 +2277,9 @@ func TestSetDefaults(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("", "", "", "", "", "", "rollback-canary", map[string]string{})
+		params.SetDefaults("", "", "", "", "", "", ActionRollbackCanary, map[string]string{})
 
-		assert.Equal(t, "rollback-canary", params.Action)
+		assert.Equal(t, ActionRollbackCanary, params.Action)
 	})
 
 	t.Run("DefaultsKindToDeploymentIfEmpty", func(t *testing.T) {
