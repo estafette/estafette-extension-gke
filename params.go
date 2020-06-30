@@ -56,7 +56,7 @@ type Params struct {
 
 	EnablePayloadLogging                   bool   `json:"enablePayloadLogging,omitempty" yaml:"enablePayloadLogging,omitempty"`
 	UseGoogleCloudCredentials              bool   `json:"useGoogleCloudCredentials,omitempty" yaml:"useGoogleCloudCredentials,omitempty"`
-	DisableServiceAccountKeyRotation       bool   `json:"disableServiceAccountKeyRotation,omitempty" yaml:"disableServiceAccountKeyRotation,omitempty"`
+	DisableServiceAccountKeyRotation       *bool  `json:"disableServiceAccountKeyRotation,omitempty" yaml:"disableServiceAccountKeyRotation,omitempty"`
 	LegacyGoogleCloudServiceAccountKeyFile string `json:"legacyGoogleCloudServiceAccountKeyFile,omitempty" yaml:"legacyGoogleCloudServiceAccountKeyFile,omitempty"`
 	GoogleCloudCredentialsApp              string `json:"googleCloudCredentialsApp,omitempty" yaml:"googleCloudCredentialsApp,omitempty"`
 	ProbeService                           *bool  `json:"probeService,omitempty" yaml:"probeService,omitempty"`
@@ -236,6 +236,13 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	if p.App == "" && appLabel != "" {
 		p.App = appLabel
 	}
+
+	// default DisableServiceAccountKeyRotation to true for avoiding unintended side-effects of key rotation
+	if p.DisableServiceAccountKeyRotation == nil {
+		trueValue := true
+		p.DisableServiceAccountKeyRotation = &trueValue
+	}
+
 	// default GoogleCloudCredentialsApp to App if empty
 	if p.GoogleCloudCredentialsApp == "" {
 		p.GoogleCloudCredentialsApp = p.App
@@ -749,7 +756,7 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 		if p.Visibility == "esp" && !p.UseGoogleCloudCredentials {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property useGoogleCloudCredentials is required; set useGoogleCloudCredentials: true on this stage"))
 		}
-		if p.Visibility == "esp" && !p.DisableServiceAccountKeyRotation {
+		if p.Visibility == "esp" && (p.DisableServiceAccountKeyRotation == nil || !*p.DisableServiceAccountKeyRotation) {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property disableServiceAccountKeyRotation is required; set disableServiceAccountKeyRotation: true on this stage"))
 		}
 		if p.Visibility == "esp" && p.EspOpenAPIYamlPath == "" {

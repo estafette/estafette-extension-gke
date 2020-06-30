@@ -59,12 +59,11 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		RollingUpdateMaxSurge:       params.RollingUpdate.MaxSurge,
 		RollingUpdateMaxUnavailable: params.RollingUpdate.MaxUnavailable,
 
-		PreferPreemptibles:               params.ChaosProof,
-		MountServiceAccountSecret:        params.UseGoogleCloudCredentials || params.LegacyGoogleCloudServiceAccountKeyFile != "",
-		UseLegacyServiceAccountKey:       params.LegacyGoogleCloudServiceAccountKeyFile != "",
-		GoogleCloudCredentialsAppName:    params.GoogleCloudCredentialsApp,
-		GoogleCloudCredentialsLabels:     sanitizeLabels(params.Labels),
-		DisableServiceAccountKeyRotation: params.DisableServiceAccountKeyRotation,
+		PreferPreemptibles:            params.ChaosProof,
+		MountServiceAccountSecret:     params.UseGoogleCloudCredentials || params.LegacyGoogleCloudServiceAccountKeyFile != "",
+		UseLegacyServiceAccountKey:    params.LegacyGoogleCloudServiceAccountKeyFile != "",
+		GoogleCloudCredentialsAppName: params.GoogleCloudCredentialsApp,
+		GoogleCloudCredentialsLabels:  sanitizeLabels(params.Labels),
 
 		PodManagementPolicy: params.PodManagementPolicy,
 		StorageClass:        params.StorageClass,
@@ -116,6 +115,10 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 
 	if params.BackoffLimit != nil {
 		data.BackoffLimit = *params.BackoffLimit
+	}
+
+	if params.DisableServiceAccountKeyRotation != nil {
+		data.DisableServiceAccountKeyRotation = *params.DisableServiceAccountKeyRotation
 	}
 
 	if data.MountServiceAccountSecret {
