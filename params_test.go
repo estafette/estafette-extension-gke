@@ -158,6 +158,30 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "yourapp", params.App)
 	})
 
+	t.Run("DefaultsDisableServiceAccountKeyRotationToTrueIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			DisableServiceAccountKeyRotation: nil,
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, true, *params.DisableServiceAccountKeyRotation)
+	})
+
+	t.Run("KeepsDisableServiceAccountKeyRotationIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			DisableServiceAccountKeyRotation: &falseValue,
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, false, *params.DisableServiceAccountKeyRotation)
+	})
+
 	t.Run("DefaultsGoogleCloudCredentialsAppToAppIfEmpty", func(t *testing.T) {
 
 		params := Params{
