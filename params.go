@@ -14,7 +14,7 @@ import (
 type Params struct {
 	// control params
 	Action          ActionType      `json:"action,omitempty" yaml:"action,omitempty"`
-	Kind            string          `json:"kind,omitempty" yaml:"kind,omitempty"`
+	Kind            Kind            `json:"kind,omitempty" yaml:"kind,omitempty"`
 	DryRun          bool            `json:"dryrun,omitempty" yaml:"dryrun,omitempty"`
 	BuildVersion    string          `json:"-" yaml:"-"`
 	ChaosProof      bool            `json:"chaosproof,omitempty" yaml:"chaosproof,omitempty"`
@@ -36,7 +36,7 @@ type Params struct {
 	StorageSize                     string              `json:"storagesize,omitempty" yaml:"storagesize,omitempty"`
 	StorageMountPath                string              `json:"storagemountpath,omitempty" yaml:"storagemountpath,omitempty"`
 	Labels                          map[string]string   `json:"labels,omitempty" yaml:"labels,omitempty"`
-	Visibility                      string              `json:"visibility,omitempty" yaml:"visibility,omitempty"`
+	Visibility                      Visibility          `json:"visibility,omitempty" yaml:"visibility,omitempty"`
 	ContainerNativeLoadBalancing    bool                `json:"containerNativeLoadBalancing,omitempty" yaml:"containerNativeLoadBalancing,omitempty"`
 	IapOauthCredentialsClientID     string              `json:"iapOauthClientID,omitempty" yaml:"iapOauthClientID,omitempty"`
 	IapOauthCredentialsClientSecret string              `json:"iapOauthClientSecret,omitempty" yaml:"iapOauthClientSecret,omitempty"`
@@ -91,10 +91,10 @@ type ContainerParams struct {
 
 // AdditionalPortParams provides information about any additional ports exposed and accessible via a service
 type AdditionalPortParams struct {
-	Name       string `json:"name,omitempty" yaml:"name,omitempty"`
-	Port       int    `json:"port,omitempty" yaml:"port,omitempty"`
-	Protocol   string `json:"protocol,omitempty" yaml:"protocol,omitempty"`
-	Visibility string `json:"visibility,omitempty" yaml:"visibility,omitempty"`
+	Name       string     `json:"name,omitempty" yaml:"name,omitempty"`
+	Port       int        `json:"port,omitempty" yaml:"port,omitempty"`
+	Protocol   string     `json:"protocol,omitempty" yaml:"protocol,omitempty"`
+	Visibility Visibility `json:"visibility,omitempty" yaml:"visibility,omitempty"`
 }
 
 // CPUParams sets cpu request and limit values
@@ -141,6 +141,7 @@ type RequestParams struct {
 
 // ProbeParams sets params for liveness or readiness probe
 type ProbeParams struct {
+	Enabled             *bool  `json:"enabled,omitempty" yaml:"enabled,omitempty"`
 	Path                string `json:"path,omitempty" yaml:"path,omitempty"`
 	Port                int    `json:"port,omitempty" yaml:"port,omitempty"`
 	InitialDelaySeconds int    `json:"delay,omitempty" yaml:"delay,omitempty"`
@@ -165,7 +166,7 @@ type LifecycleParams struct {
 
 // SidecarParams sets params for sidecar injection
 type SidecarParams struct {
-	Type                              string                 `json:"type,omitempty" yaml:"type,omitempty"`
+	Type                              SidecarType            `json:"type,omitempty" yaml:"type,omitempty"`
 	Image                             string                 `json:"image,omitempty" yaml:"image,omitempty"`
 	EnvironmentVariables              map[string]interface{} `json:"env,omitempty" yaml:"env,omitempty"`
 	CPU                               CPUParams              `json:"cpu,omitempty" yaml:"cpu,omitempty"`
@@ -225,8 +226,8 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	}
 
 	// default kind to deployment
-	if p.Kind == "" {
-		p.Kind = "deployment"
+	if p.Kind == KindUnknown {
+		p.Kind = KindDeployment
 	}
 
 	// default app to estafette app label if no override in stage params
@@ -280,8 +281,8 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	}
 
 	// default visibility to private if no override in stage params
-	if p.Visibility == "" {
-		p.Visibility = "private"
+	if p.Visibility == VisibilityUnknown {
+		p.Visibility = VisibilityPrivate
 	}
 
 	// set cpu defaults
@@ -329,7 +330,7 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 			if ap.Protocol == "" {
 				ap.Protocol = "TCP"
 			}
-			if ap.Visibility == "" {
+			if ap.Visibility == VisibilityUnknown {
 				ap.Visibility = p.Visibility
 			}
 		}
@@ -379,6 +380,10 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	}
 
 	// set liveness probe defaults
+	if p.Container.LivenessProbe.Enabled == nil {
+		trueValue := true
+		p.Container.LivenessProbe.Enabled = &trueValue
+	}
 	if p.Container.LivenessProbe.Path == "" {
 		p.Container.LivenessProbe.Path = "/liveness"
 	}
@@ -402,6 +407,15 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	}
 
 	// set readiness probe defaults
+	if p.Container.ReadinessProbe.Enabled == nil {
+		if p.Kind == KindHeadlessDeployment {
+			falseValue := false
+			p.Container.ReadinessProbe.Enabled = &falseValue
+		} else {
+			trueValue := true
+			p.Container.ReadinessProbe.Enabled = &trueValue
+		}
+	}
 	if p.Container.ReadinessProbe.Path == "" {
 		p.Container.ReadinessProbe.Path = "/readiness"
 	}
@@ -460,20 +474,20 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	// check if an openresty sidecar is in the list
 	openrestySidecarSpecifiedInList := false
 	for _, sidecar := range p.Sidecars {
-		if sidecar.Type == "openresty" {
+		if sidecar.Type == SidecarTypeOpenresty {
 			openrestySidecarSpecifiedInList = true
 		}
 	}
 
 	// inject an openresty sidecar in the sidecars list if it isn't there yet for deployments
-	if *p.InjectHTTPProxySidecar && !openrestySidecarSpecifiedInList && p.Kind == "deployment" {
-		openrestySidecar := SidecarParams{Type: "openresty"}
+	if *p.InjectHTTPProxySidecar && !openrestySidecarSpecifiedInList && p.Kind == KindDeployment {
+		openrestySidecar := SidecarParams{Type: SidecarTypeOpenresty}
 		p.initializeSidecarDefaults(&openrestySidecar)
 
 		p.Sidecars = append(p.Sidecars, &openrestySidecar)
 	}
 
-	if p.Visibility == "esp" {
+	if p.Visibility == VisibilityESP {
 		if p.EspOpenAPIYamlPath == "" {
 			p.EspOpenAPIYamlPath = "openapi.yaml"
 		}
@@ -481,21 +495,21 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 		// check if an esp sidecar is in the list
 		espSidecarSpecifiedInList := false
 		for _, sidecar := range p.Sidecars {
-			if sidecar.Type == "esp" {
+			if sidecar.Type == SidecarTypeESP {
 				espSidecarSpecifiedInList = true
 			}
 		}
 
 		// inject an esp sidecar in the sidecars list if it isn't there yet for deployments
-		if *p.InjectHTTPProxySidecar && !espSidecarSpecifiedInList && p.Kind == "deployment" {
-			espSidecar := SidecarParams{Type: "esp"}
+		if *p.InjectHTTPProxySidecar && !espSidecarSpecifiedInList && p.Kind == KindDeployment {
+			espSidecar := SidecarParams{Type: SidecarTypeESP}
 			p.initializeSidecarDefaults(&espSidecar)
 
 			p.Sidecars = append(p.Sidecars, &espSidecar)
 		}
 	}
 
-	if p.Visibility == "apigee" {
+	if p.Visibility == VisibilityApigee {
 		if p.Request.VerifyDepth <= 0 {
 			p.Request.VerifyDepth = 3
 		}
@@ -559,7 +573,7 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 		}
 	}
 
-	if p.Kind == "cronjob" {
+	if p.Kind == KindCronJob {
 		if p.ConcurrencyPolicy == "" {
 			p.ConcurrencyPolicy = "Allow"
 		}
@@ -579,7 +593,7 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 		p.BackoffLimit = &defaultBackoffLimit
 	}
 
-	if p.Kind == "statefulset" {
+	if p.Kind == KindStatefulset {
 		if p.PodManagementPolicy == "" {
 			p.PodManagementPolicy = "Parallel"
 		}
@@ -597,18 +611,18 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 
 func (p *Params) initializeSidecarDefaults(sidecar *SidecarParams) {
 	switch sidecar.Type {
-	case "openresty":
+	case SidecarTypeOpenresty:
 		if sidecar.Image == "" {
 			sidecar.Image = "estafette/openresty-sidecar@sha256:09630e7c5141d44b14a8bb7581c6316876353535e762e35e54f3339de1f5211b"
 		}
 		if sidecar.HealthCheckPath == "" {
 			sidecar.HealthCheckPath = p.Container.ReadinessProbe.Path
 		}
-	case "esp":
+	case SidecarTypeESP:
 		if sidecar.Image == "" {
 			sidecar.Image = "gcr.io/endpoints-release/endpoints-runtime:1.50.0"
 		}
-	case "cloudsqlproxy":
+	case SidecarTypeCloudSQLProxy:
 		if sidecar.Image == "" {
 			sidecar.Image = "eu.gcr.io/cloudsql-docker/gce-proxy:1.17"
 		}
@@ -663,7 +677,7 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 		errors = append(errors, fmt.Errorf("Namespace is required; either use credentials with a defaultNamespace or set it via namespace property on this stage"))
 	}
 
-	if p.Action == ActionRollbackCanary || p.Kind == "config" {
+	if p.Action == ActionRollbackCanary || p.Kind == KindConfig {
 		// the above properties are all you need for a rollback
 		return len(errors) == 0, errors, warnings
 	}
@@ -709,8 +723,8 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 		errors = append(errors, fmt.Errorf("Rollingupdate max unavailable is required; set it via rollingupdate.maxunavailable property on this stage"))
 	}
 
-	if p.Kind == "job" || p.Kind == "cronjob" {
-		if p.Kind == "cronjob" {
+	if p.Kind == KindJob || p.Kind == KindCronJob {
+		if p.Kind == KindCronJob {
 			if p.Schedule == "" {
 				errors = append(errors, fmt.Errorf("Schedule is required for a cronjob; set it via schedule property on this stage"))
 			}
@@ -724,7 +738,7 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 		return len(errors) == 0, errors, warnings
 	}
 
-	if p.Kind == "statefulset" {
+	if p.Kind == KindStatefulset {
 		if p.PodManagementPolicy != "OrderedReady" && p.PodManagementPolicy != "Parallel" {
 			errors = append(errors, fmt.Errorf("PodManagementPolicy is required for a statefulset; allowed values for podmanagementpolicy property are OrderedReady or Parallel"))
 		}
@@ -740,34 +754,34 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 	}
 
 	// validate params with respect to incoming requests
-	if p.Kind == "deployment" {
-		if p.Visibility == "" || (p.Visibility != "private" && p.Visibility != "public" && p.Visibility != "iap" && p.Visibility != "esp" && p.Visibility != "public-whitelist" && p.Visibility != "apigee") {
+	if p.Kind == KindDeployment {
+		if p.Visibility == VisibilityUnknown || (p.Visibility != VisibilityPrivate && p.Visibility != VisibilityPublic && p.Visibility != VisibilityIAP && p.Visibility != VisibilityESP && p.Visibility != VisibilityPublicWhitelist && p.Visibility != VisibilityApigee) {
 			errors = append(errors, fmt.Errorf("Visibility property is required; set it via visibility property on this stage; allowed values are private, iap, esp, public-whitelist, public or apigee"))
 		}
-		if p.Visibility == "public" {
+		if p.Visibility == VisibilityPublic {
 			warnings = append(warnings, "Visibility public is deprecated, please use esp or apigee.")
 		}
-		if p.Visibility == "iap" && p.IapOauthCredentialsClientID == "" {
+		if p.Visibility == VisibilityIAP && p.IapOauthCredentialsClientID == "" {
 			errors = append(errors, fmt.Errorf("With visibility 'iap' property iapOauthClientID is required; set it via iapOauthClientID property on this stage"))
 		}
-		if p.Visibility == "iap" && p.IapOauthCredentialsClientSecret == "" {
+		if p.Visibility == VisibilityIAP && p.IapOauthCredentialsClientSecret == "" {
 			errors = append(errors, fmt.Errorf("With visibility 'iap' property iapOauthClientSecret is required; set it via iapOauthClientSecret property on this stage"))
 		}
-		if p.Visibility == "esp" && !p.UseGoogleCloudCredentials {
+		if p.Visibility == VisibilityESP && !p.UseGoogleCloudCredentials {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property useGoogleCloudCredentials is required; set useGoogleCloudCredentials: true on this stage"))
 		}
-		if p.Visibility == "esp" && (p.DisableServiceAccountKeyRotation == nil || !*p.DisableServiceAccountKeyRotation) {
+		if p.Visibility == VisibilityESP && (p.DisableServiceAccountKeyRotation == nil || !*p.DisableServiceAccountKeyRotation) {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property disableServiceAccountKeyRotation is required; set disableServiceAccountKeyRotation: true on this stage"))
 		}
-		if p.Visibility == "esp" && p.EspOpenAPIYamlPath == "" {
+		if p.Visibility == VisibilityESP && p.EspOpenAPIYamlPath == "" {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property espOpenapiYamlPath is required; set espOpenapiYamlPath to the path towards openapi.yaml"))
 		}
 
-		if p.Visibility == "esp" && len(p.Hosts) != 1 {
+		if p.Visibility == VisibilityESP && len(p.Hosts) != 1 {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property exactly one host is required. Set it via hosts array property on this stage"))
 		}
 
-		if p.Visibility == "apigee" && p.Request.AuthSecret == "" {
+		if p.Visibility == VisibilityApigee && p.Request.AuthSecret == "" {
 			errors = append(errors, fmt.Errorf("With visibility 'apigee' property authsecret is required; set it via authsecret property for request on this stage"))
 		}
 
@@ -882,12 +896,12 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 	}
 
 	// check if openresty was defined as deprecated sidecar type
-	hasOpenrestySidecar := p.Sidecar.Type == "openresty"
+	hasOpenrestySidecar := p.Sidecar.Type == SidecarTypeOpenresty
 
 	// validate sidecars params
 	for _, sidecar := range p.Sidecars {
 		errors = p.validateSidecar(sidecar, errors)
-		if sidecar.Type == "openresty" {
+		if sidecar.Type == SidecarTypeOpenresty {
 			hasOpenrestySidecar = true
 		}
 	}
@@ -907,16 +921,16 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 
 func (p *Params) validateSidecar(sidecar *SidecarParams, errors []error) []error {
 	switch sidecar.Type {
-	case "openresty":
+	case SidecarTypeOpenresty:
 		break
-	case "cloudsqlproxy":
+	case SidecarTypeCloudSQLProxy:
 		if sidecar.DbInstanceConnectionName == "" {
 			errors = append(errors, fmt.Errorf("The name of the DB instance used by this Cloud SQL Proxy is required; set it via sidecar.dbinstanceconnectionname property on this stage"))
 		}
 		if sidecar.SQLProxyPort == 0 {
 			errors = append(errors, fmt.Errorf("The port on which the Cloud SQL Proxy listens is required; set it via sidecar.sqlproxyport property on this stage"))
 		}
-	case "":
+	case SidecarTypeUnknown:
 		errors = append(errors, fmt.Errorf("The sidecar type is empty; set a type"))
 	}
 

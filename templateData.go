@@ -148,7 +148,7 @@ type MetricsData struct {
 
 // SidecarData configures the injected sidecar
 type SidecarData struct {
-	Type                      string
+	Type                      SidecarType
 	Image                     string
 	EnvironmentVariables      map[string]interface{}
 	HasEnvironmentVariables   bool

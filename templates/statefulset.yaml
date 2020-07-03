@@ -90,6 +90,7 @@ spec:
           containerPort: {{.Port}}
           protocol: {{.Protocol}}
         {{- end}}
+        {{- if .Container.Liveness.IncludeOnContainer }}
         livenessProbe:
           httpGet:
             path: {{.Container.Liveness.Path}}
@@ -99,6 +100,7 @@ spec:
           periodSeconds: {{.Container.Liveness.PeriodSeconds}}
           failureThreshold: {{.Container.Liveness.FailureThreshold}}
           successThreshold: {{.Container.Liveness.SuccessThreshold}}
+        {{- end }}
         {{- if .Container.Readiness.IncludeOnContainer }}
         readinessProbe:
           httpGet:
@@ -143,7 +145,7 @@ spec:
         {{- end}}
       {{ $deployment := . }}
       {{- range .Sidecars}}
-        {{- if eq .Type "openresty" }}
+        {{- if eq .Type SidecarTypeOpenresty }}
       - name: {{$deployment.Name}}-openresty
         image: {{.Image}}
         imagePullPolicy: IfNotPresent

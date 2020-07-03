@@ -64,11 +64,11 @@ var (
 				Port:   5000,
 			},
 		},
-		Visibility: "private",
+		Visibility: VisibilityPrivate,
 		Hosts:      []string{"gke.estafette.io"},
 		Basepath:   "/",
 		Sidecar: SidecarParams{
-			Type:  "openresty",
+			Type:  SidecarTypeOpenresty,
 			Image: "estafette/openresty-sidecar:1.13.6.2-alpine",
 			CPU: CPUParams{
 				Request: "10m",
@@ -81,7 +81,7 @@ var (
 		},
 		Sidecars: []*SidecarParams{
 			&SidecarParams{
-				Type:  "openresty",
+				Type:  SidecarTypeOpenresty,
 				Image: "estafette/openresty-sidecar:1.13.6.2-alpine",
 				CPU: CPUParams{
 					Request: "10m",
@@ -93,7 +93,7 @@ var (
 				},
 			},
 			&SidecarParams{
-				Type:  "heater",
+				Type:  SidecarTypeESP,
 				Image: "estafette/estafette-docker-cache-heater:dev",
 				CPU: CPUParams{
 					Request: "10m",
@@ -394,25 +394,25 @@ func TestSetDefaults(t *testing.T) {
 	t.Run("DefaultsVisibilityToPrivateIfEmpty", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "",
+			Visibility: VisibilityUnknown,
 		}
 
 		// act
 		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
 
-		assert.Equal(t, "private", params.Visibility)
+		assert.Equal(t, VisibilityPrivate, params.Visibility)
 	})
 
 	t.Run("KeepsVisibilityIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "public",
+			Visibility: VisibilityPublic,
 		}
 
 		// act
 		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
 
-		assert.Equal(t, "public", params.Visibility)
+		assert.Equal(t, VisibilityPublic, params.Visibility)
 	})
 
 	t.Run("DefaultsCpuRequestTo100MIfBothRequestAndLimitAreEmpty", func(t *testing.T) {
@@ -670,7 +670,7 @@ func TestSetDefaults(t *testing.T) {
 		params := Params{
 			Container: ContainerParams{
 				AdditionalPorts: []*AdditionalPortParams{
-					&AdditionalPortParams{
+					{
 						Protocol: "UDP",
 					},
 				},
@@ -686,11 +686,11 @@ func TestSetDefaults(t *testing.T) {
 	t.Run("DefaultsAdditionalPortVisibilityToApplicationVisibilityIfEmpty", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "public",
+			Visibility: VisibilityPublic,
 			Container: ContainerParams{
 				AdditionalPorts: []*AdditionalPortParams{
-					&AdditionalPortParams{
-						Visibility: "",
+					{
+						Visibility: VisibilityUnknown,
 					},
 				},
 			},
@@ -699,17 +699,17 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
 
-		assert.Equal(t, "public", params.Container.AdditionalPorts[0].Visibility)
+		assert.Equal(t, VisibilityPublic, params.Container.AdditionalPorts[0].Visibility)
 	})
 
 	t.Run("KeepsAdditionalPortVisibilityIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "public",
+			Visibility: VisibilityPublic,
 			Container: ContainerParams{
 				AdditionalPorts: []*AdditionalPortParams{
-					&AdditionalPortParams{
-						Visibility: "private",
+					{
+						Visibility: VisibilityPrivate,
 					},
 				},
 			},
@@ -718,7 +718,7 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
 
-		assert.Equal(t, "private", params.Container.AdditionalPorts[0].Visibility)
+		assert.Equal(t, VisibilityPrivate, params.Container.AdditionalPorts[0].Visibility)
 	})
 
 	t.Run("DefaultsAutoscaleMinReplicasTo3IfZero", func(t *testing.T) {
@@ -1015,6 +1015,38 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "8k", params.Request.ProxyBufferSize)
 	})
 
+	t.Run("DefaultsLivenessEnabledToTrue", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				LivenessProbe: ProbeParams{
+					Enabled: nil,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, true, *params.Container.LivenessProbe.Enabled)
+	})
+
+	t.Run("KeepsLivenessWhenSet", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				LivenessProbe: ProbeParams{
+					Enabled: &falseValue,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, false, *params.Container.LivenessProbe.Enabled)
+	})
+
 	t.Run("DefaultsLivenessInitialDelaySecondsTo30IfZero", func(t *testing.T) {
 
 		params := Params{
@@ -1207,6 +1239,55 @@ func TestSetDefaults(t *testing.T) {
 		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 8081, params.Container.LivenessProbe.Port)
+	})
+
+	t.Run("DefaultsReadinessEnabledToTrue", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				ReadinessProbe: ProbeParams{
+					Enabled: nil,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, true, *params.Container.ReadinessProbe.Enabled)
+	})
+
+	t.Run("DefaultsReadinessEnabledToFalseIfKindIsHeadlessDeployment", func(t *testing.T) {
+
+		params := Params{
+			Kind: KindHeadlessDeployment,
+			Container: ContainerParams{
+				ReadinessProbe: ProbeParams{
+					Enabled: nil,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, false, *params.Container.ReadinessProbe.Enabled)
+	})
+
+	t.Run("KeepsReadinessWhenSet", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				ReadinessProbe: ProbeParams{
+					Enabled: &falseValue,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, false, *params.Container.ReadinessProbe.Enabled)
 	})
 
 	t.Run("DefaultsReadinessInitialDelaySecondsTo0IfZero", func(t *testing.T) {
@@ -1594,7 +1675,7 @@ func TestSetDefaults(t *testing.T) {
 	t.Run("AddsDefaultsOpenrestySidecarIfEmptyAndGlobalKindIsDeployment", func(t *testing.T) {
 
 		params := Params{
-			Kind: "deployment",
+			Kind: KindDeployment,
 			Sidecar: SidecarParams{
 				Type: "",
 			},
@@ -1603,13 +1684,13 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
 
-		assert.Equal(t, "openresty", params.Sidecars[0].Type)
+		assert.Equal(t, SidecarTypeOpenresty, params.Sidecars[0].Type)
 	})
 
 	t.Run("DoesntAddDefaultSidecarIfEmptyAndGlobalKindIsHeadlessDeployment", func(t *testing.T) {
 
 		params := Params{
-			Kind: "headless-deployment",
+			Kind: KindHeadlessDeployment,
 			Sidecar: SidecarParams{
 				Type: "",
 			},
@@ -1625,7 +1706,7 @@ func TestSetDefaults(t *testing.T) {
 
 		falseValue := false
 		params := Params{
-			Kind:                   "deployment",
+			Kind:                   KindDeployment,
 			InjectHTTPProxySidecar: &falseValue,
 			Sidecar: SidecarParams{
 				Type: "",
@@ -1641,9 +1722,9 @@ func TestSetDefaults(t *testing.T) {
 	t.Run("AddsNoDefaultSidecarIfEmptyAndGlobalKindIsJob", func(t *testing.T) {
 
 		params := Params{
-			Kind: "job",
+			Kind: KindJob,
 			Sidecar: SidecarParams{
-				Type: "",
+				Type: SidecarTypeUnknown,
 			},
 		}
 
@@ -1651,21 +1732,21 @@ func TestSetDefaults(t *testing.T) {
 		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 0, len(params.Sidecars))
-		assert.Equal(t, "", params.Sidecar.Type)
+		assert.Equal(t, SidecarTypeUnknown, params.Sidecar.Type)
 	})
 
 	t.Run("KeepsSidecarTypeIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
 			Sidecar: SidecarParams{
-				Type: "istio",
+				Type: SidecarTypeIstio,
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
 
-		assert.Equal(t, "istio", params.Sidecar.Type)
+		assert.Equal(t, SidecarTypeIstio, params.Sidecar.Type)
 	})
 
 	t.Run("DefaultsSidecarImageToEstafetteOpenrestyIfEmpty", func(t *testing.T) {
@@ -1683,18 +1764,18 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "estafette/openresty-sidecar@sha256:09630e7c5141d44b14a8bb7581c6316876353535e762e35e54f3339de1f5211b", params.Sidecars[0].Image)
 	})
 
-	t.Run("IfNoOpenrestSidecarPresentThenCustomSidecarsKeptAndOpenrestySidecarAdded", func(t *testing.T) {
+	t.Run("IfNoOpenrestySidecarPresentThenCustomSidecarsKeptAndOpenrestySidecarAdded", func(t *testing.T) {
 
 		params := Params{
 			Sidecar: SidecarParams{
-				Type: "prometheus",
+				Type: SidecarTypeESP,
 			},
 			Sidecars: []*SidecarParams{
-				&SidecarParams{
-					Type: "istio",
+				{
+					Type: SidecarTypeIstio,
 				},
-				&SidecarParams{
-					Type: "logger",
+				{
+					Type: SidecarTypeCloudSQLProxy,
 				},
 			},
 		}
@@ -1703,24 +1784,24 @@ func TestSetDefaults(t *testing.T) {
 		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 4, len(params.Sidecars))
-		assert.Equal(t, "prometheus", params.Sidecars[0].Type)
-		assert.Equal(t, "istio", params.Sidecars[1].Type)
-		assert.Equal(t, "logger", params.Sidecars[2].Type)
-		assert.Equal(t, "openresty", params.Sidecars[3].Type)
+		assert.Equal(t, SidecarTypeESP, params.Sidecars[0].Type)
+		assert.Equal(t, SidecarTypeIstio, params.Sidecars[1].Type)
+		assert.Equal(t, SidecarTypeCloudSQLProxy, params.Sidecars[2].Type)
+		assert.Equal(t, SidecarTypeOpenresty, params.Sidecars[3].Type)
 	})
 
 	t.Run("SidecarIsOpenrestyThenItsPrependedToSidecars", func(t *testing.T) {
 
 		params := Params{
 			Sidecar: SidecarParams{
-				Type: "openresty",
+				Type: SidecarTypeOpenresty,
 			},
 			Sidecars: []*SidecarParams{
-				&SidecarParams{
-					Type: "istio",
+				{
+					Type: SidecarTypeIstio,
 				},
-				&SidecarParams{
-					Type: "prometheus",
+				{
+					Type: SidecarTypeCloudSQLProxy,
 				},
 			},
 		}
@@ -1729,23 +1810,23 @@ func TestSetDefaults(t *testing.T) {
 		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 3, len(params.Sidecars))
-		assert.Equal(t, "openresty", params.Sidecars[0].Type)
-		assert.Equal(t, "istio", params.Sidecars[1].Type)
-		assert.Equal(t, "prometheus", params.Sidecars[2].Type)
+		assert.Equal(t, SidecarTypeOpenresty, params.Sidecars[0].Type)
+		assert.Equal(t, SidecarTypeIstio, params.Sidecars[1].Type)
+		assert.Equal(t, SidecarTypeCloudSQLProxy, params.Sidecars[2].Type)
 	})
 
 	t.Run("OneOfTheSidecarsIsOpenrestyThenOtherSidecarsAreKeptAndNoExtraSidecarAdded", func(t *testing.T) {
 
 		params := Params{
 			Sidecar: SidecarParams{
-				Type: "istio",
+				Type: SidecarTypeIstio,
 			},
 			Sidecars: []*SidecarParams{
-				&SidecarParams{
-					Type: "openresty",
+				{
+					Type: SidecarTypeOpenresty,
 				},
-				&SidecarParams{
-					Type: "prometheus",
+				{
+					Type: SidecarTypeCloudSQLProxy,
 				},
 			},
 		}
@@ -1754,9 +1835,9 @@ func TestSetDefaults(t *testing.T) {
 		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 3, len(params.Sidecars))
-		assert.Equal(t, "istio", params.Sidecars[0].Type)
-		assert.Equal(t, "openresty", params.Sidecars[1].Type)
-		assert.Equal(t, "prometheus", params.Sidecars[2].Type)
+		assert.Equal(t, SidecarTypeIstio, params.Sidecars[0].Type)
+		assert.Equal(t, SidecarTypeOpenresty, params.Sidecars[1].Type)
+		assert.Equal(t, SidecarTypeCloudSQLProxy, params.Sidecars[2].Type)
 	})
 
 	t.Run("KeepsSidecarImageIfNotEmpty", func(t *testing.T) {
@@ -1782,7 +1863,7 @@ func TestSetDefaults(t *testing.T) {
 				},
 			},
 			Sidecar: SidecarParams{
-				Type:            "openresty",
+				Type:            SidecarTypeOpenresty,
 				HealthCheckPath: "",
 			},
 		}
@@ -2024,7 +2105,7 @@ func TestSetDefaults(t *testing.T) {
 				},
 			},
 			Sidecar: SidecarParams{
-				Type: "openresty",
+				Type: SidecarTypeOpenresty,
 			},
 		}
 
@@ -2043,7 +2124,7 @@ func TestSetDefaults(t *testing.T) {
 				},
 			},
 			Sidecar: SidecarParams{
-				Type:  "openresty",
+				Type:  SidecarTypeOpenresty,
 				Image: "testImage",
 			},
 		}
@@ -2309,19 +2390,19 @@ func TestSetDefaults(t *testing.T) {
 	t.Run("DefaultsKindToDeploymentIfEmpty", func(t *testing.T) {
 
 		params := Params{
-			Kind: "",
+			Kind: KindUnknown,
 		}
 
 		// act
 		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
 
-		assert.Equal(t, "deployment", params.Kind)
+		assert.Equal(t, KindDeployment, params.Kind)
 	})
 
 	t.Run("DefaultsToAllowConcurrencyPolicyForCronJobs", func(t *testing.T) {
 
 		params := Params{
-			Kind:              "cronjob",
+			Kind:              KindCronJob,
 			ConcurrencyPolicy: "",
 		}
 
@@ -2444,19 +2525,19 @@ func TestSetDefaults(t *testing.T) {
 	t.Run("KeepsKindIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
-			Kind: "job",
+			Kind: KindJob,
 		}
 
 		// act
 		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
 
-		assert.Equal(t, "job", params.Kind)
+		assert.Equal(t, KindJob, params.Kind)
 	})
 
 	t.Run("DefaultsToParallelPodManagementPolicyForStatefulsets", func(t *testing.T) {
 
 		params := Params{
-			Kind:                "statefulset",
+			Kind:                KindStatefulset,
 			PodManagementPolicy: "",
 		}
 
@@ -2469,7 +2550,7 @@ func TestSetDefaults(t *testing.T) {
 	t.Run("DefaultsToStandardStorageClassForStatefulsets", func(t *testing.T) {
 
 		params := Params{
-			Kind:         "statefulset",
+			Kind:         KindStatefulset,
 			StorageClass: "",
 		}
 
@@ -2482,7 +2563,7 @@ func TestSetDefaults(t *testing.T) {
 	t.Run("DefaultsTo1GiStorageSizeForStatefulsets", func(t *testing.T) {
 
 		params := Params{
-			Kind:        "statefulset",
+			Kind:        KindStatefulset,
 			StorageSize: "",
 		}
 
@@ -2495,8 +2576,8 @@ func TestSetDefaults(t *testing.T) {
 	t.Run("DefaultsTo3VerifyDepthForApigee", func(t *testing.T) {
 
 		params := Params{
-			Kind:       "deployment",
-			Visibility: "apigee",
+			Kind:       KindDeployment,
+			Visibility: VisibilityApigee,
 		}
 
 		// act
@@ -2631,7 +2712,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfVisibilityIsNotSet", func(t *testing.T) {
 
 		params := validParams
-		params.Kind = "deployment"
+		params.Kind = KindDeployment
 		params.Visibility = ""
 
 		// act
@@ -2644,7 +2725,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfVisibilityIsSetToUnsupportedValue", func(t *testing.T) {
 
 		params := validParams
-		params.Kind = "deployment"
+		params.Kind = KindDeployment
 		params.Visibility = "everywhere"
 
 		// act
@@ -2657,8 +2738,8 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfVisibilityIsSetToPublic", func(t *testing.T) {
 
 		params := validParams
-		params.Kind = "deployment"
-		params.Visibility = "public"
+		params.Kind = KindDeployment
+		params.Visibility = VisibilityPublic
 
 		// act
 		valid, errors, _ := params.ValidateRequiredProperties()
@@ -2670,8 +2751,8 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfVisibilityIsSetToPrivate", func(t *testing.T) {
 
 		params := validParams
-		params.Kind = "deployment"
-		params.Visibility = "private"
+		params.Kind = KindDeployment
+		params.Visibility = VisibilityPrivate
 
 		// act
 		valid, errors, _ := params.ValidateRequiredProperties()
@@ -2683,7 +2764,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfVisibilityIsSetToIAP", func(t *testing.T) {
 
 		params := validParams
-		params.Kind = "deployment"
+		params.Kind = KindDeployment
 		params.Visibility = "iap"
 		params.IapOauthCredentialsClientID = "123123"
 		params.IapOauthCredentialsClientSecret = "somesecret"
@@ -2698,8 +2779,8 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfVisibilityIsSetToPublicWhitelist", func(t *testing.T) {
 
 		params := validParams
-		params.Kind = "deployment"
-		params.Visibility = "public-whitelist"
+		params.Kind = KindDeployment
+		params.Visibility = VisibilityPublicWhitelist
 
 		// act
 		valid, errors, _ := params.ValidateRequiredProperties()
@@ -2831,7 +2912,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfHostsAreNotSet", func(t *testing.T) {
 
 		params := validParams
-		params.Kind = "deployment"
+		params.Kind = KindDeployment
 		params.Hosts = []string{}
 
 		// act
@@ -2844,7 +2925,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfOneOrMoreHostsAreSet", func(t *testing.T) {
 
 		params := validParams
-		params.Kind = "deployment"
+		params.Kind = KindDeployment
 		params.Hosts = []string{"gke.estafette.io"}
 
 		// act
@@ -2857,7 +2938,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfOneOrMoreUppercaseHostsAreSet", func(t *testing.T) {
 
 		params := validParams
-		params.Kind = "deployment"
+		params.Kind = KindDeployment
 		params.Hosts = []string{"GKE.ESTAFETTE.IO"}
 
 		// act
@@ -2870,7 +2951,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfHostHasLabelsLongerThan63Characters", func(t *testing.T) {
 
 		params := validParams
-		params.Kind = "deployment"
+		params.Kind = KindDeployment
 		params.Hosts = []string{"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl.estafette.io"}
 
 		// act
@@ -2883,7 +2964,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfHostIsLongerThan253Characters", func(t *testing.T) {
 
 		params := validParams
-		params.Kind = "deployment"
+		params.Kind = KindDeployment
 		params.Hosts = []string{"ab.abcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.estafette.io"}
 
 		// act
@@ -2896,7 +2977,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfHostHasOtherCharacterThanAlphaNumericOrHyphen", func(t *testing.T) {
 
 		params := validParams
-		params.Kind = "deployment"
+		params.Kind = KindDeployment
 		params.Hosts = []string{"gke_site.estafette.io"}
 
 		// act
@@ -2909,7 +2990,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfInternalHostsAreNotSet", func(t *testing.T) {
 
 		params := validParams
-		params.Kind = "deployment"
+		params.Kind = KindDeployment
 		params.InternalHosts = []string{}
 
 		// act
@@ -2922,7 +3003,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfOneOrMoreInternalHostsAreSet", func(t *testing.T) {
 
 		params := validParams
-		params.Kind = "deployment"
+		params.Kind = KindDeployment
 		params.InternalHosts = []string{"ci.estafette.internal"}
 
 		// act
@@ -2935,7 +3016,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfOneOrMoreUppercaseInternalHostsAreSet", func(t *testing.T) {
 
 		params := validParams
-		params.Kind = "deployment"
+		params.Kind = KindDeployment
 		params.InternalHosts = []string{"CI.ESTAFETTE.INTERNAL"}
 
 		// act
@@ -2948,7 +3029,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfInternalHostHasLabelsLongerThan63Characters", func(t *testing.T) {
 
 		params := validParams
-		params.Kind = "deployment"
+		params.Kind = KindDeployment
 		params.InternalHosts = []string{"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl.estafette.internal"}
 
 		// act
@@ -2961,7 +3042,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfInternalHostIsLongerThan253Characters", func(t *testing.T) {
 
 		params := validParams
-		params.Kind = "deployment"
+		params.Kind = KindDeployment
 		params.InternalHosts = []string{"abcdefghijklmnopqrstuvw.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.estafette.internal"}
 
 		// act
@@ -2974,7 +3055,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfInternalHostHasOtherCharacterThanAlphaNumericOrHyphen", func(t *testing.T) {
 
 		params := validParams
-		params.Kind = "deployment"
+		params.Kind = KindDeployment
 		params.InternalHosts = []string{"gke_site.estafette.internal"}
 
 		// act
@@ -3363,7 +3444,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfSidecarTypeIsSet", func(t *testing.T) {
 
 		params := validParams
-		params.Sidecar.Type = "openresty"
+		params.Sidecar.Type = SidecarTypeOpenresty
 
 		// act
 		valid, errors, _ := params.ValidateRequiredProperties()
@@ -3495,7 +3576,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfSqlProxyInstanceNameNotSet", func(t *testing.T) {
 
 		params := validParams
-		params.Sidecar.Type = "cloudsqlproxy"
+		params.Sidecar.Type = SidecarTypeCloudSQLProxy
 		params.Sidecar.DbInstanceConnectionName = ""
 		params.Sidecar.SQLProxyPort = 8080
 
@@ -3509,7 +3590,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfSqlProxyPortNotSet", func(t *testing.T) {
 
 		params := validParams
-		params.Sidecar.Type = "cloudsqlproxy"
+		params.Sidecar.Type = SidecarTypeCloudSQLProxy
 		params.Sidecar.DbInstanceConnectionName = "instance"
 		params.Sidecar.SQLProxyPort = 0
 
@@ -3523,7 +3604,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfSqlProxyProperlyConfigured", func(t *testing.T) {
 
 		params := validParams
-		params.Sidecar.Type = "cloudsqlproxy"
+		params.Sidecar.Type = SidecarTypeCloudSQLProxy
 		params.Sidecar.DbInstanceConnectionName = "instance"
 		params.Sidecar.SQLProxyPort = 8080
 
@@ -3538,7 +3619,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 
 		params := validParams
 		params.Sidecar = SidecarParams{
-			Type:  "openresty",
+			Type:  SidecarTypeOpenresty,
 			Image: "estafette/openresty-sidecar:1.13.6.2-alpine",
 			CPU: CPUParams{
 				Request: "10m",
@@ -3567,7 +3648,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 
 		params.Sidecars = []*SidecarParams{
 			&SidecarParams{
-				Type:  "openresty",
+				Type:  SidecarTypeOpenresty,
 				Image: "estafette/openresty-sidecar:1.13.6.2-alpine",
 				CPU: CPUParams{
 					Request: "10m",
@@ -3663,7 +3744,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfScheduleIsNotSetAndKindIsCronjob", func(t *testing.T) {
 
 		params := validParams
-		params.Kind = "cronjob"
+		params.Kind = KindCronJob
 		params.Schedule = ""
 		params.ConcurrencyPolicy = "Allow"
 
@@ -3677,7 +3758,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfConcurrencyPolicyIsInvalidAndKindIsCronjob", func(t *testing.T) {
 
 		params := validParams
-		params.Kind = "cronjob"
+		params.Kind = KindCronJob
 		params.Schedule = "*/5 * * * *"
 		params.ConcurrencyPolicy = "InvalidPolicy"
 
@@ -3691,7 +3772,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfScheduleIsSetAndConcurrencyPolicyIsValidAndKindIsCronjob", func(t *testing.T) {
 
 		params := validParams
-		params.Kind = "cronjob"
+		params.Kind = KindCronJob
 		params.Schedule = "*/5 * * * *"
 		params.ConcurrencyPolicy = "Allow"
 
@@ -3705,7 +3786,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfPodManagementPolicyIsInvalidAndKindIsStatefulset", func(t *testing.T) {
 
 		params := validParams
-		params.Kind = "statefulset"
+		params.Kind = KindStatefulset
 		params.PodManagementPolicy = "InvalidPolicy"
 
 		// act
@@ -3718,7 +3799,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsTrueIfPodManagementPolicyIsValidAndKindIsStatefulset", func(t *testing.T) {
 
 		params := validParams
-		params.Kind = "statefulset"
+		params.Kind = KindStatefulset
 		params.PodManagementPolicy = "Parallel"
 
 		// act
@@ -3731,7 +3812,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfStorageClassIsEmptyAndKindIsStatefulset", func(t *testing.T) {
 
 		params := validParams
-		params.Kind = "statefulset"
+		params.Kind = KindStatefulset
 		params.StorageClass = ""
 
 		// act
@@ -3744,7 +3825,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfStorageClassIsSetAndKindIsStatefulset", func(t *testing.T) {
 
 		params := validParams
-		params.Kind = "statefulset"
+		params.Kind = KindStatefulset
 		params.StorageClass = "standard"
 
 		// act
@@ -3757,7 +3838,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfStorageSizeIsEmptyAndKindIsStatefulset", func(t *testing.T) {
 
 		params := validParams
-		params.Kind = "statefulset"
+		params.Kind = KindStatefulset
 		params.StorageSize = ""
 
 		// act
@@ -3770,7 +3851,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseIfStorageSizeIsSetAndKindIsStatefulset", func(t *testing.T) {
 
 		params := validParams
-		params.Kind = "statefulset"
+		params.Kind = KindStatefulset
 		params.StorageSize = "1Gi"
 
 		// act
@@ -3831,8 +3912,8 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("ReturnsFalseAuthSecretIsNotSetForVisibilityApigee", func(t *testing.T) {
 
 		params := validParams
-		params.Kind = "deployment"
-		params.Visibility = "apigee"
+		params.Kind = KindDeployment
+		params.Visibility = VisibilityApigee
 
 		// act
 		valid, errors, _ := params.ValidateRequiredProperties()
@@ -3844,7 +3925,7 @@ func TestValidateRequiredProperties(t *testing.T) {
 	t.Run("WarnOnUsingVisibilityPublic", func(t *testing.T) {
 
 		params := validParams
-		params.Visibility = "public"
+		params.Visibility = VisibilityPublic
 
 		// act
 		valid, _, warnings := params.ValidateRequiredProperties()
@@ -3863,7 +3944,7 @@ func TestReplaceSidecarTagsWithDigest(t *testing.T) {
 		// act
 		params.ReplaceSidecarTagsWithDigest()
 
-		assert.Equal(t, "openresty", params.Sidecars[0].Type)
+		assert.Equal(t, SidecarTypeOpenresty, params.Sidecars[0].Type)
 		assert.True(t, strings.HasPrefix(params.Sidecars[0].Image, "estafette/openresty-sidecar@sha256:"))
 	})
 
@@ -3875,7 +3956,7 @@ func TestReplaceSidecarTagsWithDigest(t *testing.T) {
 		// act
 		params.ReplaceSidecarTagsWithDigest()
 
-		assert.Equal(t, "openresty", params.Sidecars[0].Type)
+		assert.Equal(t, SidecarTypeOpenresty, params.Sidecars[0].Type)
 		assert.True(t, strings.HasPrefix(params.Sidecars[0].Image, "estafette/openresty-sidecar@sha256:"))
 	})
 
@@ -3886,7 +3967,7 @@ func TestReplaceSidecarTagsWithDigest(t *testing.T) {
 		// act
 		params.ReplaceSidecarTagsWithDigest()
 
-		assert.Equal(t, "heater", params.Sidecars[1].Type)
+		assert.Equal(t, SidecarTypeESP, params.Sidecars[1].Type)
 		assert.True(t, strings.HasPrefix(params.Sidecars[1].Image, "estafette/estafette-docker-cache-heater@sha256:"))
 	})
 
@@ -3898,7 +3979,7 @@ func TestReplaceSidecarTagsWithDigest(t *testing.T) {
 		// act
 		params.ReplaceSidecarTagsWithDigest()
 
-		assert.Equal(t, "heater", params.Sidecars[1].Type)
+		assert.Equal(t, SidecarTypeESP, params.Sidecars[1].Type)
 		assert.True(t, strings.HasPrefix(params.Sidecars[1].Image, "estafette/estafette-docker-cache-heater@sha256:"))
 	})
 }
