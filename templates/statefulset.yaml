@@ -145,7 +145,7 @@ spec:
         {{- end}}
       {{ $deployment := . }}
       {{- range .Sidecars}}
-        {{- if eq .Type SidecarTypeOpenresty }}
+        {{- if eq .Type "openresty" }}
       - name: {{$deployment.Name}}-openresty
         image: {{.Image}}
         imagePullPolicy: IfNotPresent

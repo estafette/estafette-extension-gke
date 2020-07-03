@@ -160,7 +160,7 @@ spec:
         {{- end}}
       {{ $deployment := . }}
       {{- range .Sidecars}}
-        {{- if eq .Type SidecarTypeOpenresty }}
+        {{- if eq .Type "openresty" }}
       - name: {{$deployment.Name}}-openresty
         image: {{.Image}}
         imagePullPolicy: IfNotPresent
@@ -274,7 +274,7 @@ spec:
         {{- if .HasCustomProperties }}
 {{.CustomPropertiesYAML | indent 8}}
         {{- end }}
-        {{- else if eq .Type SidecarTypeCloudSQLProxy }}
+        {{- else if eq .Type "cloudsqlproxy" }}
       - name: {{$deployment.Name}}-cloudsql-proxy
         image: {{.Image}}
         {{- if .HasEnvironmentVariables }}

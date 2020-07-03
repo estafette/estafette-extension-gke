@@ -151,7 +151,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 	for _, sidecarParams := range params.Sidecars {
 		sidecar := buildSidecar(sidecarParams, params)
 		data.Sidecars = append(data.Sidecars, sidecar)
-		if sidecar.Type == SidecarTypeOpenresty {
+		if sidecar.Type == string(SidecarTypeOpenresty) {
 			data.HasOpenrestySidecar = true
 		}
 	}
@@ -399,7 +399,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 
 func buildSidecar(sidecar *SidecarParams, params Params) SidecarData {
 	builtSidecar := SidecarData{
-		Type:                    sidecar.Type,
+		Type:                    string(sidecar.Type),
 		Image:                   sidecar.Image,
 		CPURequest:              sidecar.CPU.Request,
 		CPULimit:                sidecar.CPU.Limit,
@@ -415,7 +415,7 @@ func buildSidecar(sidecar *SidecarParams, params Params) SidecarData {
 		},
 	}
 
-	if builtSidecar.Type == SidecarTypeOpenresty {
+	if sidecar.Type == SidecarTypeOpenresty {
 		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "SEND_TIMEOUT", params.Request.Timeout)
 		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "CLIENT_BODY_TIMEOUT", params.Request.Timeout)
 		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "CLIENT_HEADER_TIMEOUT", params.Request.Timeout)

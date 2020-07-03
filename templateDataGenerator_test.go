@@ -893,11 +893,11 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, 1, len(templateData.Sidecars))
 	})
 
-	t.Run("SetsSidecarTypeToSidecarType", func(t *testing.T) {
+	t.Run("SetsSidecarTypeToSidecarTypeAsString", func(t *testing.T) {
 
 		params := Params{
 			Sidecars: []*SidecarParams{
-				&SidecarParams{
+				{
 					Type: SidecarTypeOpenresty,
 				},
 			},
@@ -906,7 +906,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		// act
 		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
-		assert.Equal(t, SidecarTypeOpenresty, templateData.Sidecars[0].Type)
+		assert.Equal(t, "openresty", templateData.Sidecars[0].Type)
 	})
 
 	t.Run("SetsSidecarImageToSidecarImageParam", func(t *testing.T) {
