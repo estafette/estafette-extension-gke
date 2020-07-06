@@ -141,7 +141,7 @@ func main() {
 	}
 
 	// check for visibility esp if openapi.yaml exists
-	if _, err := os.Stat(params.EspOpenAPIYamlPath); params.Visibility == "esp" && os.IsNotExist(err) {
+	if _, err := os.Stat(params.EspOpenAPIYamlPath); params.Visibility == VisibilityESP && os.IsNotExist(err) {
 		log.Fatal().Err(err).Msg("When using visibility: esp make sure to set clone: true and have openapi.yaml available in the working directory")
 	}
 
@@ -207,7 +207,7 @@ func main() {
 
 	// checking number of replicas for existing deployment to make switching deployment type safe
 	currentReplicas := params.Replicas
-	if params.Kind == "deployment" || params.Kind == "headless-deployment" {
+	if params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment {
 		currentReplicas = getExistingNumberOfReplicas(ctx, params)
 	}
 
@@ -272,11 +272,11 @@ func main() {
 			log.Info().Msg("Applying the manifests for real...")
 			foundation.RunCommandWithArgs(ctx, "kubectl", []string{"apply", "-f", "/kubernetes.yaml", "-n", templateData.Namespace})
 
-			if params.Kind == "deployment" || params.Kind == "headless-deployment" {
+			if params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment {
 				log.Info().Msg("Waiting for the deployment to finish...")
 				err = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"rollout", "status", "deployment", templateData.NameWithTrack, "-n", templateData.Namespace})
 			}
-			if params.Kind == "statefulset" {
+			if params.Kind == KindStatefulset {
 				log.Info().Msg("Waiting for the statefulset to finish...")
 				err = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"rollout", "status", "statefulset", templateData.Name, "-n", templateData.Namespace})
 			}
@@ -288,7 +288,7 @@ func main() {
 
 		// clean up old stuff
 		switch params.Kind {
-		case "deployment":
+		case KindDeployment:
 			switch params.Action {
 			case ActionDeployCanary:
 				scaleCanaryDeployment(ctx, templateData.Name, templateData.Namespace, 1)
@@ -336,7 +336,7 @@ func main() {
 			}
 			break
 
-		case "headless-deployment":
+		case KindHeadlessDeployment:
 			switch params.Action {
 			case ActionDeployCanary:
 				scaleCanaryDeployment(ctx, templateData.Name, templateData.Namespace, 1)
@@ -373,7 +373,7 @@ func main() {
 				break
 			}
 			break
-		case "statefulset":
+		case KindStatefulset:
 			deleteConfigsForParamsChange(ctx, params, templateData.Name, templateData.Namespace)
 			deleteSecretsForParamsChange(ctx, params, templateData.Name, templateData.Namespace)
 			deleteServiceAccountSecretForParamsChange(ctx, params, templateData.GoogleCloudCredentialsAppName, templateData.Namespace)
@@ -469,7 +469,7 @@ func deleteBackendConfigAndIAPOauthSecret(ctx context.Context, templateData Temp
 }
 
 func removePoddisruptionBudgetIfRequired(ctx context.Context, params Params, name, namespace string) {
-	if (params.Kind == "deployment" || params.Kind == "headless-deployment") && (params.Action == ActionDeploySimple || params.Action == ActionDeployStable) {
+	if (params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment) && (params.Action == ActionDeploySimple || params.Action == ActionDeployStable) {
 		// if there's a pdb that doesn't use maxUnavailable: 1 remove it so a new one can be created with correct settings
 		deletePoddisruptionBudget := false
 		maxUnavailable, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "pdb", name, "-n", namespace, "-o=jsonpath={.spec.maxUnavailable}"})
@@ -498,7 +498,7 @@ func removePoddisruptionBudgetIfRequired(ctx context.Context, params Params, nam
 }
 
 func removeIngressIfRequired(ctx context.Context, params Params, templateData TemplateData, name, namespace string) {
-	if params.Kind == "deployment" && (params.Action == ActionDeploySimple || params.Action == ActionDeployCanary || params.Action == ActionDeployStable) {
+	if params.Kind == KindDeployment && (params.Action == ActionDeploySimple || params.Action == ActionDeployCanary || params.Action == ActionDeployStable) {
 		if templateData.UseNginxIngress {
 			// check if ingress exists and has kubernetes.io/ingress.class: gce, then delete it because of https://github.com/kubernetes/ingress-gce/issues/481
 			ingressClass, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "ing", name, "-n", namespace, "-o=go-template={{index .metadata.annotations \"kubernetes.io/ingress.class\"}}"})
@@ -532,13 +532,13 @@ func removeIngressIfRequired(ctx context.Context, params Params, templateData Te
 }
 
 func deployGoogleEndpointsServiceIfRequired(ctx context.Context, params Params) {
-	if params.Kind == "deployment" && params.Visibility == "esp" && (params.Action == ActionDeploySimple || params.Action == ActionDeployCanary) {
+	if params.Kind == KindDeployment && params.Visibility == VisibilityESP && (params.Action == ActionDeploySimple || params.Action == ActionDeployCanary) {
 		foundation.RunCommandWithArgs(ctx, "gcloud", []string{"endpoints", "--project", params.EspEnpointsProjectID, "services", "deploy", params.EspOpenAPIYamlPath})
 	}
 }
 
 func failIfCreatingNewPublicService(ctx context.Context, params Params, templateData TemplateData, name, namespace string) {
-	if params.Kind == "deployment" && params.Visibility == "public" {
+	if params.Kind == KindDeployment && params.Visibility == VisibilityPublic {
 		serviceType, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "service", name, "-n", namespace, "-o=jsonpath={.spec.type}"})
 		// fail if creating new public service or updating to public
 		if err != nil {
@@ -550,7 +550,7 @@ func failIfCreatingNewPublicService(ctx context.Context, params Params, template
 }
 
 func patchServiceIfRequired(ctx context.Context, params Params, templateData TemplateData, name, namespace string) {
-	if params.Kind == "deployment" && templateData.ServiceType == "ClusterIP" {
+	if params.Kind == KindDeployment && templateData.ServiceType == "ClusterIP" {
 		serviceType, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "service", name, "-n", namespace, "-o=jsonpath={.spec.type}"})
 		if err != nil {
 			log.Info().Msgf("Failed retrieving service type: %v", err)
@@ -573,13 +573,13 @@ func patchServiceIfRequired(ctx context.Context, params Params, templateData Tem
 }
 
 func cleanupJobIfRequired(ctx context.Context, params Params, templateData TemplateData, name, namespace string) {
-	if params.Kind == "job" {
+	if params.Kind == KindJob {
 		err := foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"delete", "job", name, "-n", namespace, "--ignore-not-found=true"})
 		if err != nil {
 			log.Info().Msgf("Deleting job %v failed: %v", name, err)
 		}
 	}
-	if params.Kind == "cronjob" {
+	if params.Kind == KindCronJob {
 		err := foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"delete", "cronjob", name, "-n", namespace, "--ignore-not-found=true"})
 		if err != nil {
 			log.Info().Msgf("Deleting cronjob %v failed: %v", name, err)
@@ -588,7 +588,7 @@ func cleanupJobIfRequired(ctx context.Context, params Params, templateData Templ
 }
 
 func getExistingNumberOfReplicas(ctx context.Context, params Params) int {
-	if params.Kind == "deployment" || params.Kind == "headless-deployment" {
+	if params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment {
 		deploymentName := ""
 		if params.Action == ActionDeploySimple || params.Action == ActionDiffSimple {
 			deploymentName = params.App + "-stable"
@@ -615,7 +615,7 @@ func getExistingNumberOfReplicas(ctx context.Context, params Params) int {
 }
 
 func patchDeploymentIfRequired(ctx context.Context, params Params, name, namespace string) {
-	if (params.Kind == "deployment" || params.Kind == "headless-deployment") && params.Action == ActionDeploySimple {
+	if (params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment) && params.Action == ActionDeploySimple {
 		selectorLabels, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "deploy", name, "-n", namespace, "-o=jsonpath={.spec.selector.matchLabels}"})
 		if err != nil {
 			log.Info().Msgf("Failed retrieving deployment selector labels: %v", err)
@@ -662,7 +662,7 @@ func removeNegAnnotation(ctx context.Context, templateData TemplateData, name, n
 }
 
 func deleteHorizontalPodAutoscaler(ctx context.Context, params Params, name, namespace string) {
-	if (params.Kind == "deployment" || params.Kind == "headless-deployment") && (params.Autoscale.Enabled == nil || !*params.Autoscale.Enabled) && (params.Action == ActionDeploySimple || params.Action == ActionDeployStable) {
+	if (params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment) && (params.Autoscale.Enabled == nil || !*params.Autoscale.Enabled) && (params.Action == ActionDeploySimple || params.Action == ActionDeployStable) {
 		log.Info().Msgf("Deleting HorizontalPodAutoscaler %v, since autoscaling is disabled...", name)
 		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "hpa", name, "-n", namespace, "--ignore-not-found=true"})
 	}
