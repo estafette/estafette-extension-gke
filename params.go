@@ -753,7 +753,6 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 			errors = append(errors, fmt.Errorf("StorageMountPath is required for a statefulset; set it via storagemountpath property on this stage"))
 		}
 	}
-
 	// validate params with respect to incoming requests
 	if p.Kind == KindDeployment {
 		if p.Visibility == VisibilityUnknown || (p.Visibility != VisibilityPrivate && p.Visibility != VisibilityPublic && p.Visibility != VisibilityIAP && p.Visibility != VisibilityESP && p.Visibility != VisibilityPublicWhitelist && p.Visibility != VisibilityApigee) {
