@@ -3943,13 +3943,13 @@ func TestValidateRequiredProperties(t *testing.T) {
 		assert.Equal(t, 1, len(warnings))
 	})
 
-	t.Run("ReturnsFalseIfEspEnpointsProjectIDNotSet", func(t *testing.T) {
+	t.Run("ReturnsFalseIfEspEndpointsProjectIDNotSet", func(t *testing.T) {
 
 		params := validParams
 		params.Kind = KindDeployment
 		params.Visibility = VisibilityESP
-		params.EspEnpointsProjectID = ""
-		error_string := "With visibility 'esp' property espEnpointsProjectID is required; provide id of the 'endpoints' project"
+		params.EspEndpointsProjectID = ""
+		error_string := "With visibility 'esp' property espEndpointsProjectID is required; provide id of the 'endpoints' project"
 
 		// act
 		valid, errors, _ := params.ValidateRequiredProperties()
