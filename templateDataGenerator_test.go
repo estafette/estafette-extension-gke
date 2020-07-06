@@ -139,7 +139,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsServiceTypeToClusterIPIfVisibilityParamIsPrivate", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "private",
+			Visibility: VisibilityPrivate,
 		}
 
 		// act
@@ -151,7 +151,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsServiceTypeToClusterIPIfVisibilityParamIsPublicWhitelist", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "public-whitelist",
+			Visibility: VisibilityPublicWhitelist,
 		}
 
 		// act
@@ -163,7 +163,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsServiceTypeToNodePortIfVisibilityParamIsIap", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "iap",
+			Visibility: VisibilityIAP,
 		}
 
 		// act
@@ -175,7 +175,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsServiceTypeToLoadBalancerIfVisibilityParamIsPublic", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "public",
+			Visibility: VisibilityPublic,
 		}
 
 		// act
@@ -187,7 +187,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsUseDNSAnnotationsOnIngressToTrueIfVisibilityParamIsPrivate", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "private",
+			Visibility: VisibilityPrivate,
 		}
 
 		// act
@@ -199,7 +199,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsUseDNSAnnotationsOnIngressToTrueIfVisibilityParamIsPublicWhitelist", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "public-whitelist",
+			Visibility: VisibilityPublicWhitelist,
 		}
 
 		// act
@@ -211,7 +211,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsUseDNSAnnotationsOnIngressToFalseIfVisibilityParamIsPublic", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "public",
+			Visibility: VisibilityPublic,
 		}
 
 		// act
@@ -223,7 +223,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsUseDNSAnnotationsOnServiceToTrueIfVisibilityParamIsPublic", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "public",
+			Visibility: VisibilityPublic,
 		}
 
 		// act
@@ -235,7 +235,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsUseDNSAnnotationsOnServiceToFalseIfVisibilityParamIsPrivate", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "private",
+			Visibility: VisibilityPrivate,
 		}
 
 		// act
@@ -247,7 +247,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsUseDNSAnnotationsOnServiceToFalseIfVisibilityParamIsPublicWhitelist", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "public-whitelist",
+			Visibility: VisibilityPublicWhitelist,
 		}
 
 		// act
@@ -259,7 +259,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsUseCloudflareProxyToTrueIfVisibilityParamIsPrivate", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "private",
+			Visibility: VisibilityPrivate,
 		}
 
 		// act
@@ -271,7 +271,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsUseCloudflareProxyToTrueIfVisibilityParamIsPublicWhitelist", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "public-whitelist",
+			Visibility: VisibilityPublicWhitelist,
 		}
 
 		// act
@@ -283,7 +283,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsUseCloudflareProxyToTrueIfVisibilityParamIsPublic", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "public",
+			Visibility: VisibilityPublic,
 		}
 
 		// act
@@ -295,7 +295,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsUseCloudflareProxyToFalseIfVisibilityParamIsIAP", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "iap",
+			Visibility: VisibilityIAP,
 		}
 
 		// act
@@ -477,7 +477,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsUseNginxIngressToTrueIfVisibilityIsPrivate", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "private",
+			Visibility: VisibilityPrivate,
 		}
 
 		// act
@@ -489,7 +489,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsUseNginxIngressToTrueIfVisibilityIsPublicWhitelist", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "public-whitelist",
+			Visibility: VisibilityPublicWhitelist,
 		}
 
 		// act
@@ -501,7 +501,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsUseNginxIngressToFalseIfVisibilityIsPublic", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "public",
+			Visibility: VisibilityPublic,
 		}
 
 		// act
@@ -513,7 +513,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsUseNginxIngressToFalseIfVisibilityIsIap", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "iap",
+			Visibility: VisibilityIAP,
 		}
 
 		// act
@@ -525,7 +525,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsUseGCEIngressToTrueIfVisibilityIsIap", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "iap",
+			Visibility: VisibilityIAP,
 		}
 
 		// act
@@ -537,7 +537,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsUseGCEIngressToFalseIfVisibilityIsPublic", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "public",
+			Visibility: VisibilityPublic,
 		}
 
 		// act
@@ -549,7 +549,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsUseGCEIngressToFalseIfVisibilityIsPrivate", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "private",
+			Visibility: VisibilityPrivate,
 		}
 
 		// act
@@ -561,7 +561,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsUseGCEIngressToFalseIfVisibilityIsPublicWhitelist", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "public-whitelist",
+			Visibility: VisibilityPublicWhitelist,
 		}
 
 		// act
@@ -881,8 +881,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		params := Params{
 			Sidecars: []*SidecarParams{
-				&SidecarParams{
-					Type: "openresty",
+				{
+					Type: SidecarTypeOpenresty,
 				},
 			},
 		}
@@ -893,12 +893,12 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, 1, len(templateData.Sidecars))
 	})
 
-	t.Run("SetsSidecarTypeToSidecarType", func(t *testing.T) {
+	t.Run("SetsSidecarTypeToSidecarTypeAsString", func(t *testing.T) {
 
 		params := Params{
 			Sidecars: []*SidecarParams{
-				&SidecarParams{
-					Type: "openresty",
+				{
+					Type: SidecarTypeOpenresty,
 				},
 			},
 		}
@@ -1135,7 +1135,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		params := Params{
 			Basepath:   "/api",
-			Visibility: "iap",
+			Visibility: VisibilityIAP,
 		}
 
 		// act
@@ -1172,7 +1172,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		params := Params{
 			Basepath:   "/api",
-			Visibility: "iap",
+			Visibility: VisibilityIAP,
 		}
 
 		// act
@@ -1371,7 +1371,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsLimitTrustedIPRangesIfVisibilityParamIsPublic", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "public",
+			Visibility: VisibilityPublic,
 		}
 
 		// act
@@ -1383,7 +1383,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsLimitTrustedIPRangesToTrueIfVisibilityParamIsPublic", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "public",
+			Visibility: VisibilityPublic,
 		}
 
 		// act
@@ -1395,7 +1395,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsLimitTrustedIPRangesToFalseIfVisibilityParamIsIap", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "iap",
+			Visibility: VisibilityIAP,
 		}
 
 		// act
@@ -1407,7 +1407,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsLimitTrustedIPRangesToFalseIfVisibilityParamIsPrivate", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "private",
+			Visibility: VisibilityPrivate,
 		}
 
 		// act
@@ -1673,13 +1673,13 @@ func TestGenerateTemplateData(t *testing.T) {
 						Name:       "grpc",
 						Port:       8085,
 						Protocol:   "TCP",
-						Visibility: "private",
+						Visibility: VisibilityPrivate,
 					},
 					&AdditionalPortParams{
 						Name:       "grpc",
 						Port:       8085,
 						Protocol:   "UDP",
-						Visibility: "public",
+						Visibility: VisibilityPublic,
 					},
 				},
 			},
@@ -1694,20 +1694,20 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsAdditionalServicePortsToContainerAdditionalPortsParamForPortsWithVisibilityEqualToVisibilityParam", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "private",
+			Visibility: VisibilityPrivate,
 			Container: ContainerParams{
 				AdditionalPorts: []*AdditionalPortParams{
 					&AdditionalPortParams{
 						Name:       "grpc",
 						Port:       8085,
 						Protocol:   "TCP",
-						Visibility: "private",
+						Visibility: VisibilityPrivate,
 					},
 					&AdditionalPortParams{
 						Name:       "snmp",
 						Port:       8086,
 						Protocol:   "UDP",
-						Visibility: "public",
+						Visibility: VisibilityPublic,
 					},
 				},
 			},
@@ -1725,7 +1725,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsOverrideDefaultWhitelistToTrueIfVisibilityEqualsPublicWhitelistAndWhitelistedIPSHasOneOrMoreItems", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "public-whitelist",
+			Visibility: VisibilityPublicWhitelist,
 			WhitelistedIPS: []string{
 				"0.0.0.0/0",
 			},
@@ -1740,7 +1740,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsOverrideDefaultWhitelistToFalseIfVisibilityEqualsPublicWhitelistButWhitelistedIPSHasNoItems", func(t *testing.T) {
 
 		params := Params{
-			Visibility:     "public-whitelist",
+			Visibility:     VisibilityPublicWhitelist,
 			WhitelistedIPS: []string{},
 		}
 
@@ -1753,7 +1753,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsOverrideDefaultWhitelistToFalseIfVisibilityIsPrivate", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "private",
+			Visibility: VisibilityPrivate,
 			WhitelistedIPS: []string{
 				"0.0.0.0/0",
 			},
@@ -1768,7 +1768,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsOverrideDefaultWhitelistToFalseIfVisibilityIsPrivate", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "iap",
+			Visibility: VisibilityIAP,
 			WhitelistedIPS: []string{
 				"0.0.0.0/0",
 			},
@@ -1783,7 +1783,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsOverrideDefaultWhitelistToFalseIfVisibilityIsPrivate", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "public",
+			Visibility: VisibilityPublic,
 			WhitelistedIPS: []string{
 				"0.0.0.0/0",
 			},
@@ -1798,7 +1798,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsNginxIngressWhitelistToCommaSeparatedJoingOfWhitelistedIPS", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "public-whitelist",
+			Visibility: VisibilityPublicWhitelist,
 			WhitelistedIPS: []string{
 				"10.0.0.0/8",
 				"172.16.0.0/12",
@@ -2187,7 +2187,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsServiceTypeToClusterIPIfVisibilityParamIsApigee", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "apigee",
+			Visibility: VisibilityApigee,
 		}
 
 		// act
@@ -2199,7 +2199,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsUseCloudflareProxyToTrueIfVisibilityParamIsApigee", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "apigee",
+			Visibility: VisibilityApigee,
 		}
 
 		// act
@@ -2211,7 +2211,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsUseGCEIngressToFalseIfVisibilityParamIsApigee", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "apigee",
+			Visibility: VisibilityApigee,
 		}
 
 		// act
@@ -2223,7 +2223,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsNginxAuthTLSSecretIfVisibilityParamIsApigee", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "apigee",
+			Visibility: VisibilityApigee,
 			Request: RequestParams{
 				AuthSecret: "protected/some-secret",
 			},
@@ -2238,7 +2238,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsVerifyDepthIfVisibilityParamIsApigee", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "apigee",
+			Visibility: VisibilityApigee,
 			Request: RequestParams{
 				VerifyDepth: 5,
 			},
@@ -2253,7 +2253,7 @@ func TestGenerateTemplateData(t *testing.T) {
 	t.Run("SetsApigeeHostsIfVisibilityParamIsApigee", func(t *testing.T) {
 
 		params := Params{
-			Visibility: "apigee",
+			Visibility: VisibilityApigee,
 			Hosts:      []string{"google.com", "travix.com", "test-app"},
 		}
 

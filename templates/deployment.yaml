@@ -105,6 +105,7 @@ spec:
           containerPort: {{.Port}}
           protocol: {{.Protocol}}
         {{- end}}
+        {{- if .Container.Liveness.IncludeOnContainer }}
         livenessProbe:
           httpGet:
             path: {{.Container.Liveness.Path}}
@@ -114,6 +115,7 @@ spec:
           periodSeconds: {{.Container.Liveness.PeriodSeconds}}
           failureThreshold: {{.Container.Liveness.FailureThreshold}}
           successThreshold: {{.Container.Liveness.SuccessThreshold}}
+        {{- end }}
         {{- if .Container.Readiness.IncludeOnContainer }}
         readinessProbe:
           httpGet:

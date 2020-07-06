@@ -46,7 +46,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		HpaScalerScaleDownMaxRatio:  params.Autoscale.Safety.ScaleDownRatio,
 
 		Secrets:                 params.Secrets.Keys,
-		MountSslCertificate:     params.Kind == "deployment",
+		MountSslCertificate:     params.Kind == KindDeployment,
 		MountApplicationSecrets: len(params.Secrets.Keys) > 0,
 		SecretMountPath:         params.Secrets.MountPath,
 		MountConfigmap:          len(params.Configs.Files) > 0 || len(params.Configs.InlineFiles) > 0,
@@ -91,7 +91,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 				PeriodSeconds:       params.Container.LivenessProbe.PeriodSeconds,
 				FailureThreshold:    params.Container.LivenessProbe.FailureThreshold,
 				SuccessThreshold:    params.Container.LivenessProbe.SuccessThreshold,
-				IncludeOnContainer:  true,
+				IncludeOnContainer:  params.Container.LivenessProbe.Enabled != nil && *params.Container.LivenessProbe.Enabled,
 			},
 			Readiness: ProbeData{
 				Path:                params.Container.ReadinessProbe.Path,
@@ -151,11 +151,11 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 	for _, sidecarParams := range params.Sidecars {
 		sidecar := buildSidecar(sidecarParams, params)
 		data.Sidecars = append(data.Sidecars, sidecar)
-		if sidecar.Type == "openresty" {
+		if sidecar.Type == string(SidecarTypeOpenresty) {
 			data.HasOpenrestySidecar = true
 		}
 	}
-	data.UseESP = params.Visibility == "esp"
+	data.UseESP = params.Visibility == VisibilityESP
 	data.HasEspConfigID = params.EspConfigID != ""
 	data.EspConfigID = params.EspConfigID
 
@@ -164,7 +164,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		data.InitContainers = params.InitContainers
 	}
 
-	data.Container.Readiness.IncludeOnContainer = !data.HasOpenrestySidecar || params.Container.ReadinessProbe.Port != params.Container.Port || params.Container.ReadinessProbe.Path != params.Sidecar.HealthCheckPath
+	data.Container.Readiness.IncludeOnContainer = params.Container.ReadinessProbe.Enabled != nil && *params.Container.ReadinessProbe.Enabled && (!data.HasOpenrestySidecar || params.Container.ReadinessProbe.Port != params.Container.Port || params.Container.ReadinessProbe.Path != params.Sidecar.HealthCheckPath)
 
 	// if container port is set to 443, we always use https named port
 	data.UseHTTPS = data.HasOpenrestySidecar || params.Container.Port == 443
@@ -266,7 +266,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 	}
 
 	switch params.Visibility {
-	case "private":
+	case VisibilityPrivate:
 		data.ServiceType = "ClusterIP"
 		data.UseNginxIngress = true
 		data.UseGCEIngress = false
@@ -278,7 +278,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		data.LimitTrustedIPRanges = false
 		data.OverrideDefaultWhitelist = false
 
-	case "iap":
+	case VisibilityIAP:
 		data.ServiceType = "NodePort"
 		data.UseNginxIngress = false
 		data.UseGCEIngress = true
@@ -292,7 +292,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		data.IapOauthCredentialsClientID = params.IapOauthCredentialsClientID
 		data.IapOauthCredentialsClientSecret = params.IapOauthCredentialsClientSecret
 
-	case "public-whitelist":
+	case VisibilityPublicWhitelist:
 		data.ServiceType = "ClusterIP"
 		data.UseNginxIngress = true
 		data.UseGCEIngress = false
@@ -305,7 +305,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		data.OverrideDefaultWhitelist = len(params.WhitelistedIPS) > 0
 		data.NginxIngressWhitelist = strings.Join(params.WhitelistedIPS, ",")
 
-	case "apigee":
+	case VisibilityApigee:
 		data.ServiceType = "ClusterIP"
 		data.UseNginxIngress = true
 		data.UseGCEIngress = false
@@ -323,7 +323,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		}
 		data.ApigeeHostsJoined = strings.Join(data.ApigeeHosts, ",")
 
-	case "esp":
+	case VisibilityESP:
 		data.ServiceType = "LoadBalancer"
 		data.UseNginxIngress = false
 		data.UseGCEIngress = false
@@ -333,7 +333,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		data.LimitTrustedIPRanges = true
 		data.OverrideDefaultWhitelist = false
 
-	case "public":
+	case VisibilityPublic:
 		data.ServiceType = "LoadBalancer"
 		data.UseNginxIngress = false
 		data.UseGCEIngress = false
@@ -399,7 +399,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 
 func buildSidecar(sidecar *SidecarParams, params Params) SidecarData {
 	builtSidecar := SidecarData{
-		Type:                    sidecar.Type,
+		Type:                    string(sidecar.Type),
 		Image:                   sidecar.Image,
 		CPURequest:              sidecar.CPU.Request,
 		CPULimit:                sidecar.CPU.Limit,
@@ -415,7 +415,7 @@ func buildSidecar(sidecar *SidecarParams, params Params) SidecarData {
 		},
 	}
 
-	if builtSidecar.Type == "openresty" {
+	if sidecar.Type == SidecarTypeOpenresty {
 		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "SEND_TIMEOUT", params.Request.Timeout)
 		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "CLIENT_BODY_TIMEOUT", params.Request.Timeout)
 		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "CLIENT_HEADER_TIMEOUT", params.Request.Timeout)
@@ -432,7 +432,7 @@ func buildSidecar(sidecar *SidecarParams, params Params) SidecarData {
 			builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "GRACEFUL_SHUTDOWN_DELAY_SECONDS", strconv.Itoa(*params.Container.Lifecycle.PrestopSleepSeconds))
 		}
 
-		if params.Visibility == "esp" {
+		if params.Visibility == VisibilityESP {
 			builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "ENFORCE_HTTPS", "false")
 		}
 	}

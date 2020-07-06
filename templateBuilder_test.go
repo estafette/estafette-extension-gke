@@ -12,8 +12,8 @@ func TestGetTemplates(t *testing.T) {
 
 		params := Params{
 			Action:     ActionDeploySimple,
-			Visibility: "private",
-			Kind:       "deployment",
+			Visibility: VisibilityPrivate,
+			Kind:       KindDeployment,
 		}
 
 		// act
@@ -26,8 +26,8 @@ func TestGetTemplates(t *testing.T) {
 
 		params := Params{
 			Action:     ActionDeploySimple,
-			Visibility: "iap",
-			Kind:       "deployment",
+			Visibility: VisibilityIAP,
+			Kind:       KindDeployment,
 		}
 
 		// act
@@ -40,8 +40,8 @@ func TestGetTemplates(t *testing.T) {
 
 		params := Params{
 			Action:     ActionDeploySimple,
-			Visibility: "public-whitelist",
-			Kind:       "deployment",
+			Visibility: VisibilityPublicWhitelist,
+			Kind:       KindDeployment,
 		}
 
 		// act
@@ -54,7 +54,7 @@ func TestGetTemplates(t *testing.T) {
 
 		params := Params{
 			Action:     ActionDeploySimple,
-			Visibility: "public",
+			Visibility: VisibilityPublic,
 		}
 
 		// act
@@ -67,7 +67,7 @@ func TestGetTemplates(t *testing.T) {
 
 		params := Params{
 			Action:        ActionDeploySimple,
-			Kind:          "deployment",
+			Kind:          KindDeployment,
 			InternalHosts: []string{"ci.estafette.internal"},
 		}
 
@@ -184,7 +184,7 @@ func TestGetTemplates(t *testing.T) {
 
 		params := Params{
 			Action:            ActionDeploySimple,
-			Kind:              "deployment",
+			Kind:              KindDeployment,
 			CertificateSecret: "shared-wildcard-letsencrypt-certificate",
 		}
 
@@ -198,7 +198,7 @@ func TestGetTemplates(t *testing.T) {
 
 		params := Params{
 			Action: ActionDeploySimple,
-			Kind:   "deployment",
+			Kind:   KindDeployment,
 		}
 
 		// act
@@ -211,8 +211,8 @@ func TestGetTemplates(t *testing.T) {
 
 		params := Params{
 			Action:     ActionDeploySimple,
-			Visibility: "apigee",
-			Kind:       "deployment",
+			Visibility: VisibilityApigee,
+			Kind:       KindDeployment,
 		}
 
 		// act
