@@ -116,6 +116,15 @@ var (
 	}
 )
 
+func stringInErrorSlice(a string, list []error) string {
+	for _, b := range list {
+		if b.Error() == a {
+			return a
+		}
+	}
+	return ""
+}
+
 func TestSetDefaults(t *testing.T) {
 
 	t.Run("DefaultsAppToGitNameIfAppParamIsEmptyAndAppLabelIsEmpty", func(t *testing.T) {
@@ -3932,6 +3941,20 @@ func TestValidateRequiredProperties(t *testing.T) {
 
 		assert.True(t, valid)
 		assert.Equal(t, 1, len(warnings))
+	})
+
+	t.Run("ReturnsFalseIfEspEnpointsProjectIDNotSet", func(t *testing.T) {
+
+		params := validParams
+		params.Kind = KindDeployment
+		params.Visibility = VisibilityESP
+		params.EspEnpointsProjectID = ""
+		error_string := "With visibility 'esp' property espEnpointsProjectID is required; provide id of the 'endpoints' project"
+
+		// act
+		valid, errors, _ := params.ValidateRequiredProperties()
+		assert.False(t, valid)
+		assert.Equal(t, error_string, stringInErrorSlice(error_string, errors))
 	})
 }
 

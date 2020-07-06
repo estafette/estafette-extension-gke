@@ -533,7 +533,8 @@ func removeIngressIfRequired(ctx context.Context, params Params, templateData Te
 
 func deployGoogleEndpointsServiceIfRequired(ctx context.Context, params Params) {
 	if params.Kind == KindDeployment && params.Visibility == VisibilityESP && (params.Action == ActionDeploySimple || params.Action == ActionDeployCanary) {
-		foundation.RunCommandWithArgs(ctx, "gcloud", []string{"endpoints", "services", "deploy", params.EspOpenAPIYamlPath})
+		log.Info().Msgf("Deploying endpoints service, endpoints project:  %v", params.EspEnpointsProjectID)
+		foundation.RunCommandWithArgs(ctx, "gcloud", []string{"endpoints", "--project", params.EspEnpointsProjectID, "services", "deploy", params.EspOpenAPIYamlPath})
 	}
 }
 

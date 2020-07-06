@@ -40,6 +40,7 @@ type Params struct {
 	ContainerNativeLoadBalancing    bool                `json:"containerNativeLoadBalancing,omitempty" yaml:"containerNativeLoadBalancing,omitempty"`
 	IapOauthCredentialsClientID     string              `json:"iapOauthClientID,omitempty" yaml:"iapOauthClientID,omitempty"`
 	IapOauthCredentialsClientSecret string              `json:"iapOauthClientSecret,omitempty" yaml:"iapOauthClientSecret,omitempty"`
+	EspEnpointsProjectID            string              `json:"espEnpointsProjectID,omitempty" yaml:"espEnpointsProjectID,omitempty"`
 	EspConfigID                     string              `json:"espConfigID,omitempty" yaml:"espConfigID,omitempty"`
 	EspOpenAPIYamlPath              string              `json:"espOpenapiYamlPath,omitempty" yaml:"espOpenapiYamlPath,omitempty"`
 	WhitelistedIPS                  []string            `json:"whitelist,omitempty" yaml:"whitelist,omitempty"`
@@ -752,7 +753,6 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 			errors = append(errors, fmt.Errorf("StorageMountPath is required for a statefulset; set it via storagemountpath property on this stage"))
 		}
 	}
-
 	// validate params with respect to incoming requests
 	if p.Kind == KindDeployment {
 		if p.Visibility == VisibilityUnknown || (p.Visibility != VisibilityPrivate && p.Visibility != VisibilityPublic && p.Visibility != VisibilityIAP && p.Visibility != VisibilityESP && p.Visibility != VisibilityPublicWhitelist && p.Visibility != VisibilityApigee) {
@@ -767,16 +767,19 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 		if p.Visibility == VisibilityIAP && p.IapOauthCredentialsClientSecret == "" {
 			errors = append(errors, fmt.Errorf("With visibility 'iap' property iapOauthClientSecret is required; set it via iapOauthClientSecret property on this stage"))
 		}
+
 		if p.Visibility == VisibilityESP && !p.UseGoogleCloudCredentials {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property useGoogleCloudCredentials is required; set useGoogleCloudCredentials: true on this stage"))
 		}
 		if p.Visibility == VisibilityESP && (p.DisableServiceAccountKeyRotation == nil || !*p.DisableServiceAccountKeyRotation) {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property disableServiceAccountKeyRotation is required; set disableServiceAccountKeyRotation: true on this stage"))
 		}
+		if p.Visibility == VisibilityESP && (p.EspEnpointsProjectID == "") {
+			errors = append(errors, fmt.Errorf("With visibility 'esp' property espEnpointsProjectID is required; provide id of the 'endpoints' project"))
+		}
 		if p.Visibility == VisibilityESP && p.EspOpenAPIYamlPath == "" {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property espOpenapiYamlPath is required; set espOpenapiYamlPath to the path towards openapi.yaml"))
 		}
-
 		if p.Visibility == VisibilityESP && len(p.Hosts) != 1 {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property exactly one host is required. Set it via hosts array property on this stage"))
 		}
