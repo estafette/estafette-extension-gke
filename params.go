@@ -40,6 +40,7 @@ type Params struct {
 	ContainerNativeLoadBalancing    bool                `json:"containerNativeLoadBalancing,omitempty" yaml:"containerNativeLoadBalancing,omitempty"`
 	IapOauthCredentialsClientID     string              `json:"iapOauthClientID,omitempty" yaml:"iapOauthClientID,omitempty"`
 	IapOauthCredentialsClientSecret string              `json:"iapOauthClientSecret,omitempty" yaml:"iapOauthClientSecret,omitempty"`
+	EspEnpointsProjectID            string              `json:"espEnpointsProjectID,omitempty" yaml:"espEnpointsProjectID,omitempty"`
 	EspConfigID                     string              `json:"espConfigID,omitempty" yaml:"espConfigID,omitempty"`
 	EspOpenAPIYamlPath              string              `json:"espOpenapiYamlPath,omitempty" yaml:"espOpenapiYamlPath,omitempty"`
 	WhitelistedIPS                  []string            `json:"whitelist,omitempty" yaml:"whitelist,omitempty"`
@@ -758,6 +759,9 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 		}
 		if p.Visibility == "esp" && (p.DisableServiceAccountKeyRotation == nil || !*p.DisableServiceAccountKeyRotation) {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property disableServiceAccountKeyRotation is required; set disableServiceAccountKeyRotation: true on this stage"))
+		}
+		if p.Visibility == "esp" && (p.EspEnpointsProjectID == nil) {
+			errors = append(errors, fmt.Errorf("With visibility 'esp' property espEnpointsProjectID is required; provide id of the 'endpoints' project"))
 		}
 		if p.Visibility == "esp" && p.EspOpenAPIYamlPath == "" {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property espOpenapiYamlPath is required; set espOpenapiYamlPath to the path towards openapi.yaml"))
