@@ -760,7 +760,7 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 		if p.Visibility == "esp" && (p.DisableServiceAccountKeyRotation == nil || !*p.DisableServiceAccountKeyRotation) {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property disableServiceAccountKeyRotation is required; set disableServiceAccountKeyRotation: true on this stage"))
 		}
-		if p.Visibility == "esp" && (p.EspEnpointsProjectID == nil) {
+		if p.Visibility == "esp" && (p.EspEnpointsProjectID == "") {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property espEnpointsProjectID is required; provide id of the 'endpoints' project"))
 		}
 		if p.Visibility == "esp" && p.EspOpenAPIYamlPath == "" {
