@@ -72,7 +72,7 @@ spec:
           {{- if (call $.IsSimpleEnvvarValue $value) }}
           value: "{{ $value }}"
           {{- else }}
-{{(call $.ToYAML $value) | indent 10}}
+{{(call $.RenderToYAML $value $) | indent 10}}
           {{- end }}
         {{- end }}
         resources:
@@ -189,7 +189,7 @@ spec:
           {{- if (call $.IsSimpleEnvvarValue $value) }}
           value: "{{ $value }}"
           {{- else }}
-{{(call $.ToYAML $value) | indent 10}}
+{{(call $.RenderToYAML $value $) | indent 10}}
           {{- end }}
         {{- end }}
         volumeMounts:
@@ -223,7 +223,7 @@ spec:
           {{- if (call $.IsSimpleEnvvarValue $value) }}
           value: "{{ $value }}"
           {{- else }}
-{{(call $.ToYAML $value) | indent 10}}
+{{(call $.RenderToYAML $value $) | indent 10}}
           {{- end }}
         {{- end }}
         {{- end }}
