@@ -12,6 +12,7 @@ metadata:
     kubernetes.io/ingress.class: "nginx-office"
     {{- if .UseHTTPS }}
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    nginx.ingress.kubernetes.io/proxy-ssl-verify: "on"
     {{- end }}
     nginx.ingress.kubernetes.io/client-body-buffer-size: "{{.NginxIngressClientBodyBufferSize}}"
     nginx.ingress.kubernetes.io/proxy-body-size: "{{.NginxIngressProxyBodySize}}"
