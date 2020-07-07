@@ -105,6 +105,7 @@ type TemplateData struct {
 	IapOauthCredentialsClientSecret string
 	IsSimpleEnvvarValue             func(interface{}) bool
 	ToYAML                          func(interface{}) string
+	RenderToYAML                    func(v interface{}, data interface{}) string
 	UseCertificateSecret            bool
 	CertificateSecretName           string
 }

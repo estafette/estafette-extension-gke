@@ -48,7 +48,7 @@ spec:
               {{- if (call $.IsSimpleEnvvarValue $value) }}
               value: "{{ $value }}"
               {{- else }}
-{{(call $.ToYAML $value) | indent 14}}
+{{(call $.RenderToYAML $value $) | indent 14}}
               {{- end }}
             {{- end }}
             resources:

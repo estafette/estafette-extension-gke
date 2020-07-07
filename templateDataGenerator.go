@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
+	"text/template"
 
 	yaml "gopkg.in/yaml.v2"
 )
@@ -111,6 +113,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		// IsSimpleEnvvarValue returns true if a value should be wrapped in 'value: ""', otherwise the interface should be outputted as yaml
 		IsSimpleEnvvarValue: isSimpleEnvvarValue,
 		ToYAML:              toYAML,
+		RenderToYAML:        renderToYAML,
 	}
 
 	if params.BackoffLimit != nil {
@@ -523,4 +526,22 @@ func toYAML(v interface{}) string {
 		return ""
 	}
 	return string(data)
+}
+
+func renderToYAML(v interface{}, data interface{}) string {
+
+	value := toYAML(v)
+
+	tmpl, err := template.New("renderToYAML").Parse(value)
+	if err != nil {
+		return value
+	}
+
+	var renderedTemplate bytes.Buffer
+	err = tmpl.Execute(&renderedTemplate, data)
+	if err != nil {
+		return value
+	}
+
+	return renderedTemplate.String()
 }
