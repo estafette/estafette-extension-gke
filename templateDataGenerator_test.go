@@ -780,34 +780,6 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "value2", templateData.Container.EnvironmentVariables["MY_OTHER_CUSTOM_ENV"])
 	})
 
-	t.Run("SetsEnvironmentVariablesToContainerEnvironmentVariablesParamReplacingPlaceholders", func(t *testing.T) {
-
-		params := Params{
-			App:    "myapp",
-			Action: ActionDeployCanary,
-			Container: ContainerParams{
-				EnvironmentVariables: map[string]interface{}{
-					"MY_CUSTOM_ENV": "value1",
-					"MY_OTHER_CUSTOM_ENV": map[string]interface{}{
-						"valueFrom": map[string]interface{}{
-							"secretKeyRef": map[string]interface{}{
-								"key":  "ClientCertificatePassword",
-								"name": "{{.NameWithTrack}}-secrets",
-							},
-						},
-					},
-				},
-			},
-		}
-
-		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
-
-		expected := map[string]interface{}{"valueFrom": map[string]interface{}{"secretKeyRef": map[string]interface{}{"key": "ClientCertificatePassword", "name": "myapp-canary-secrets"}}}
-		assert.Equal(t, "value1", templateData.Container.EnvironmentVariables["MY_CUSTOM_ENV"])
-		assert.Equal(t, expected, templateData.Container.EnvironmentVariables["MY_OTHER_CUSTOM_ENV"])
-	})
-
 	t.Run("AddsJaegerServiceNameToEnvironmentVariables", func(t *testing.T) {
 
 		params := Params{
