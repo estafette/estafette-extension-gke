@@ -178,7 +178,7 @@ stages:
               valueFrom:
                 secretKeyRef:
                   key: ClientCertificatePassword
-                  name: {{.NameWithTrack}}-secrets
+                  name: '{{.NameWithTrack}}-secrets'
           cpu:
             request: 10m
             limit: 50m
