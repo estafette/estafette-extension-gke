@@ -299,7 +299,7 @@ stages:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
         credentials: gke-tooling
         visibility: esp
-        espEndpointsProjectID: travix-development
+        espEndpointsProjectID: some-project-id
         espConfigID: 2019-04-24r0
         espOpenapiYamlPath: test/openapi.yaml
         container:
