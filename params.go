@@ -625,7 +625,7 @@ func (p *Params) initializeSidecarDefaults(sidecar *SidecarParams) {
 		}
 	case SidecarTypeESP:
 		if sidecar.Image == "" {
-			sidecar.Image = "gcr.io/endpoints-release/endpoints-runtime:1.50.0"
+			sidecar.Image = "gcr.io/endpoints-release/endpoints-runtime:1.53.0"
 		}
 	case SidecarTypeCloudSQLProxy:
 		if sidecar.Image == "" {
@@ -772,10 +772,10 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 			errors = append(errors, fmt.Errorf("With visibility 'iap' property iapOauthClientSecret is required; set it via iapOauthClientSecret property on this stage"))
 		}
 
-		if p.Visibility == VisibilityESP && !p.UseGoogleCloudCredentials {
+		if p.Visibility == VisibilityESP && !p.UseGoogleCloudCredentials && p.LegacyGoogleCloudServiceAccountKeyFile == "" {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property useGoogleCloudCredentials is required; set useGoogleCloudCredentials: true on this stage"))
 		}
-		if p.Visibility == VisibilityESP && (p.DisableServiceAccountKeyRotation == nil || !*p.DisableServiceAccountKeyRotation) {
+		if p.Visibility == VisibilityESP && (p.DisableServiceAccountKeyRotation == nil || !*p.DisableServiceAccountKeyRotation) && p.LegacyGoogleCloudServiceAccountKeyFile == "" {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property disableServiceAccountKeyRotation is required; set disableServiceAccountKeyRotation: true on this stage"))
 		}
 		if p.Visibility == VisibilityESP && (p.EspEndpointsProjectID == "") {
