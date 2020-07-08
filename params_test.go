@@ -1599,6 +1599,23 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, true, *params.Container.Metrics.Scrape)
 	})
 
+	t.Run("DefaultsMetricsScrapeToFalseIfEmptyAndKindProxyDeployment", func(t *testing.T) {
+
+		params := Params{
+			Kind: KindProxyDeployment,
+			Container: ContainerParams{
+				Metrics: MetricsParams{
+					Scrape: nil,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, false, *params.Container.Metrics.Scrape)
+	})
+
 	t.Run("KeepsMetricsScrapeIfNotEmpty", func(t *testing.T) {
 
 		params := Params{

@@ -449,8 +449,11 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 		p.Container.Metrics.Port = p.Container.Port
 	}
 	if p.Container.Metrics.Scrape == nil {
-		trueValue := true
-		p.Container.Metrics.Scrape = &trueValue
+		defaultValue := true
+		if p.Kind == KindProxyDeployment {
+			defaultValue = false
+		}
+		p.Container.Metrics.Scrape = &defaultValue
 	}
 
 	// set lifecycle defaults
