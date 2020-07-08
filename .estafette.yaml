@@ -390,6 +390,13 @@ stages:
                   fieldPath: metadata.labels['app']
         dryrun: true
 
+      test-kind-proxy-deployment:
+        image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+        credentials: gke-tooling
+        kind: proxy-deployment
+        proxyBackend: https://mybackend
+        dryrun: true
+
       test-kind-config:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
         credentials: gke-tooling

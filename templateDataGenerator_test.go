@@ -2264,4 +2264,128 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, []string{"google-apigee.com", "travix-apigee.com", "test-app-apigee"}, templateData.ApigeeHosts)
 		assert.Equal(t, "google-apigee.com,travix-apigee.com,test-app-apigee", templateData.ApigeeHostsJoined)
 	})
+
+	t.Run("SetsOffloadToProtoToHttpByDefault", func(t *testing.T) {
+
+		params := Params{}
+
+		// act
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.Equal(t, "http", templateData.OffloadToProto)
+	})
+
+	t.Run("SetsOffloadToProtoToProtoFromProxyBackendForKindProxyDeployment", func(t *testing.T) {
+
+		params := Params{
+			Kind:         KindProxyDeployment,
+			ProxyBackend: "https://mybackend",
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.Equal(t, "https", templateData.OffloadToProto)
+	})
+
+	t.Run("SetsOffloadToHostTo127Dot0Dot0Dot1ByDefault", func(t *testing.T) {
+
+		params := Params{}
+
+		// act
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.Equal(t, "127.0.0.1", templateData.OffloadToHost)
+	})
+
+	t.Run("SetsOffloadToHostFromProxyBackendForKindProxyDeployment", func(t *testing.T) {
+
+		params := Params{
+			Kind:         KindProxyDeployment,
+			ProxyBackend: "https://mybackend",
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.Equal(t, "mybackend", templateData.OffloadToHost)
+	})
+
+	t.Run("SetsOffloadToPortToContainerPortByDefault", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				Port: 5000,
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.Equal(t, 5000, templateData.OffloadToPort)
+	})
+
+	t.Run("SetsOffloadToPortToPortFromProxyBackendForKindProxyDeployment", func(t *testing.T) {
+
+		params := Params{
+			Kind:         KindProxyDeployment,
+			ProxyBackend: "https://mybackend:5353",
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.Equal(t, 5353, templateData.OffloadToPort)
+	})
+
+	t.Run("SetsOffloadToPortTo80IfProxyBackendHasNoPortAndHttpSchemeForKindProxyDeployment", func(t *testing.T) {
+
+		params := Params{
+			Kind:         KindProxyDeployment,
+			ProxyBackend: "http://mybackend",
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.Equal(t, 80, templateData.OffloadToPort)
+	})
+
+	t.Run("SetsOffloadToPortTo443IfProxyBackendHasNoPortAndHttpsSchemeForKindProxyDeployment", func(t *testing.T) {
+
+		params := Params{
+			Kind:         KindProxyDeployment,
+			ProxyBackend: "https://mybackend",
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.Equal(t, 443, templateData.OffloadToPort)
+	})
+
+	t.Run("SetsIncludeApplicationContainerToTrueByDefault", func(t *testing.T) {
+
+		params := Params{
+			Kind: KindDeployment,
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.Equal(t, true, templateData.IncludeApplicationContainer)
+	})
+
+	t.Run("SetsIncludeApplicationContainerToFalseIfKindIsProxyDeployment", func(t *testing.T) {
+
+		params := Params{
+			Kind:         KindProxyDeployment,
+			ProxyBackend: "https://mybackend",
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.Equal(t, false, templateData.IncludeApplicationContainer)
+	})
 }

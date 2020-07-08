@@ -207,7 +207,7 @@ func main() {
 
 	// checking number of replicas for existing deployment to make switching deployment type safe
 	currentReplicas := params.Replicas
-	if params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment {
+	if params.Kind == KindDeployment || params.Kind == KindProxyDeployment || params.Kind == KindHeadlessDeployment {
 		currentReplicas = getExistingNumberOfReplicas(ctx, params)
 	}
 
@@ -272,7 +272,7 @@ func main() {
 			log.Info().Msg("Applying the manifests for real...")
 			foundation.RunCommandWithArgs(ctx, "kubectl", []string{"apply", "-f", "/kubernetes.yaml", "-n", templateData.Namespace})
 
-			if params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment {
+			if params.Kind == KindDeployment || params.Kind == KindProxyDeployment || params.Kind == KindHeadlessDeployment {
 				log.Info().Msg("Waiting for the deployment to finish...")
 				err = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"rollout", "status", "deployment", templateData.NameWithTrack, "-n", templateData.Namespace})
 			}
@@ -469,7 +469,7 @@ func deleteBackendConfigAndIAPOauthSecret(ctx context.Context, templateData Temp
 }
 
 func removePoddisruptionBudgetIfRequired(ctx context.Context, params Params, name, namespace string) {
-	if (params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment) && (params.Action == ActionDeploySimple || params.Action == ActionDeployStable) {
+	if (params.Kind == KindDeployment || params.Kind == KindProxyDeployment || params.Kind == KindHeadlessDeployment) && (params.Action == ActionDeploySimple || params.Action == ActionDeployStable) {
 		// if there's a pdb that doesn't use maxUnavailable: 1 remove it so a new one can be created with correct settings
 		deletePoddisruptionBudget := false
 		maxUnavailable, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "pdb", name, "-n", namespace, "-o=jsonpath={.spec.maxUnavailable}"})
@@ -498,7 +498,7 @@ func removePoddisruptionBudgetIfRequired(ctx context.Context, params Params, nam
 }
 
 func removeIngressIfRequired(ctx context.Context, params Params, templateData TemplateData, name, namespace string) {
-	if params.Kind == KindDeployment && (params.Action == ActionDeploySimple || params.Action == ActionDeployCanary || params.Action == ActionDeployStable) {
+	if (params.Kind == KindDeployment || params.Kind == KindProxyDeployment) && (params.Action == ActionDeploySimple || params.Action == ActionDeployCanary || params.Action == ActionDeployStable) {
 		if templateData.UseNginxIngress {
 			// check if ingress exists and has kubernetes.io/ingress.class: gce, then delete it because of https://github.com/kubernetes/ingress-gce/issues/481
 			ingressClass, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "ing", name, "-n", namespace, "-o=go-template={{index .metadata.annotations \"kubernetes.io/ingress.class\"}}"})
@@ -532,14 +532,14 @@ func removeIngressIfRequired(ctx context.Context, params Params, templateData Te
 }
 
 func deployGoogleEndpointsServiceIfRequired(ctx context.Context, params Params) {
-	if params.Kind == KindDeployment && params.Visibility == VisibilityESP && (params.Action == ActionDeploySimple || params.Action == ActionDeployCanary) {
+	if (params.Kind == KindDeployment || params.Kind == KindProxyDeployment) && params.Visibility == VisibilityESP && (params.Action == ActionDeploySimple || params.Action == ActionDeployCanary) {
 		log.Info().Msgf("Deploying endpoints service, endpoints project:  %v", params.EspEndpointsProjectID)
 		foundation.RunCommandWithArgs(ctx, "gcloud", []string{"endpoints", "--project", params.EspEndpointsProjectID, "services", "deploy", params.EspOpenAPIYamlPath})
 	}
 }
 
 func failIfCreatingNewPublicService(ctx context.Context, params Params, templateData TemplateData, name, namespace string) {
-	if params.Kind == KindDeployment && params.Visibility == VisibilityPublic {
+	if (params.Kind == KindDeployment || params.Kind == KindProxyDeployment) && params.Visibility == VisibilityPublic {
 		serviceType, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "service", name, "-n", namespace, "-o=jsonpath={.spec.type}"})
 		// fail if creating new public service or updating to public
 		if err != nil {
@@ -551,7 +551,7 @@ func failIfCreatingNewPublicService(ctx context.Context, params Params, template
 }
 
 func patchServiceIfRequired(ctx context.Context, params Params, templateData TemplateData, name, namespace string) {
-	if params.Kind == KindDeployment && templateData.ServiceType == "ClusterIP" {
+	if (params.Kind == KindDeployment || params.Kind == KindProxyDeployment) && templateData.ServiceType == "ClusterIP" {
 		serviceType, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "service", name, "-n", namespace, "-o=jsonpath={.spec.type}"})
 		if err != nil {
 			log.Info().Msgf("Failed retrieving service type: %v", err)
@@ -589,7 +589,7 @@ func cleanupJobIfRequired(ctx context.Context, params Params, templateData Templ
 }
 
 func getExistingNumberOfReplicas(ctx context.Context, params Params) int {
-	if params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment {
+	if params.Kind == KindDeployment || params.Kind == KindProxyDeployment || params.Kind == KindHeadlessDeployment {
 		deploymentName := ""
 		if params.Action == ActionDeploySimple || params.Action == ActionDiffSimple {
 			deploymentName = params.App + "-stable"
@@ -616,7 +616,7 @@ func getExistingNumberOfReplicas(ctx context.Context, params Params) int {
 }
 
 func patchDeploymentIfRequired(ctx context.Context, params Params, name, namespace string) {
-	if (params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment) && params.Action == ActionDeploySimple {
+	if (params.Kind == KindDeployment || params.Kind == KindProxyDeployment || params.Kind == KindHeadlessDeployment) && params.Action == ActionDeploySimple {
 		selectorLabels, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "deploy", name, "-n", namespace, "-o=jsonpath={.spec.selector.matchLabels}"})
 		if err != nil {
 			log.Info().Msgf("Failed retrieving deployment selector labels: %v", err)
@@ -663,7 +663,7 @@ func removeNegAnnotation(ctx context.Context, templateData TemplateData, name, n
 }
 
 func deleteHorizontalPodAutoscaler(ctx context.Context, params Params, name, namespace string) {
-	if (params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment) && (params.Autoscale.Enabled == nil || !*params.Autoscale.Enabled) && (params.Action == ActionDeploySimple || params.Action == ActionDeployStable) {
+	if (params.Kind == KindDeployment || params.Kind == KindProxyDeployment || params.Kind == KindHeadlessDeployment) && (params.Autoscale.Enabled == nil || !*params.Autoscale.Enabled) && (params.Action == ActionDeploySimple || params.Action == ActionDeployStable) {
 		log.Info().Msgf("Deleting HorizontalPodAutoscaler %v, since autoscaling is disabled...", name)
 		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "hpa", name, "-n", namespace, "--ignore-not-found=true"})
 	}

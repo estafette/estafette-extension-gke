@@ -72,6 +72,7 @@ spec:
 {{(call $.ToYAML .InitContainers) | indent 6}}
       {{- end}}
       containers:
+      {{- if .IncludeApplicationContainer }}
       - name: {{.Name}}
         image: {{.Container.Repository}}/{{.Container.Name}}:{{.Container.Tag}}
         imagePullPolicy: IfNotPresent
@@ -158,6 +159,7 @@ spec:
               - /bin/sleep
               - {{.Container.PreStopSleepSeconds}}s
         {{- end}}
+      {{- end}}
       {{ $deployment := . }}
       {{- range .Sidecars}}
         {{- if eq .Type "openresty" }}
@@ -191,10 +193,12 @@ spec:
               fieldPath: status.hostIP
         - name: "JAEGER_SAMPLER_MANAGER_HOST_PORT"
           value: "http://$(JAEGER_AGENT_HOST):5778/sampling"
+        - name: "OFFLOAD_TO_PROTO"
+          value: "{{$deployment.OffloadToProto}}"
         - name: "OFFLOAD_TO_HOST"
-          value: "127.0.0.1"
+          value: "{{$deployment.OffloadToHost}}"
         - name: "OFFLOAD_TO_PORT"
-          value: "{{$deployment.Container.Port}}"
+          value: "{{$deployment.OffloadToPort}}"
         - name: "SERVICE_NAME"
           value: "{{$deployment.Name}}"
         - name: "NAMESPACE"
