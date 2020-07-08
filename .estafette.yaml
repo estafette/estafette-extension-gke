@@ -395,6 +395,8 @@ stages:
         credentials: gke-tooling
         kind: proxy-deployment
         proxyBackend: https://mybackend
+        hosts:
+        - gke.estafette.io
         dryrun: true
 
       test-kind-config:

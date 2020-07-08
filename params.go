@@ -688,13 +688,13 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 	}
 
 	// validate container params
-	if p.Container.ImageRepository == "" {
+	if p.Container.ImageRepository == "" && p.Kind != KindProxyDeployment {
 		errors = append(errors, fmt.Errorf("Image repository is required; set it via container.repository property on this stage"))
 	}
-	if p.Container.ImageName == "" {
+	if p.Container.ImageName == "" && p.Kind != KindProxyDeployment {
 		errors = append(errors, fmt.Errorf("Image name is required; set it via container.name property on this stage"))
 	}
-	if p.Container.ImageTag == "" {
+	if p.Container.ImageTag == "" && p.Kind != KindProxyDeployment {
 		errors = append(errors, fmt.Errorf("Image tag is required; set it via container.tag property on this stage"))
 	}
 
