@@ -200,23 +200,27 @@ func renderConfig(params Params) (renderedConfigFiles map[string]string) {
 	return
 }
 
-func renderTemplate(tmpl *template.Template, templateData TemplateData) (bytes.Buffer, error) {
+func renderTemplate(tmpl *template.Template, templateData TemplateData, logTemplate bool) (bytes.Buffer, error) {
 
 	if tmpl == nil {
 		return bytes.Buffer{}, nil
 	}
 
 	// render templates
-	log.Info().Msg("Rendering merged templates...")
+	if logTemplate {
+		log.Info().Msg("Rendering merged templates...")
+	}
 	var renderedTemplate bytes.Buffer
 	err := tmpl.Execute(&renderedTemplate, templateData)
 	if err != nil {
 		return renderedTemplate, err
 	}
 
-	log.Info().Msg("Template after rendering:")
-	log.Info().Msg(renderedTemplate.String())
-	log.Info().Msg("")
+	if logTemplate {
+		log.Info().Msg("Template after rendering:")
+		log.Info().Msg(renderedTemplate.String())
+		log.Info().Msg("")
+	}
 
 	return renderedTemplate, err
 }

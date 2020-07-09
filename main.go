@@ -215,11 +215,11 @@ func main() {
 	templateData := generateTemplateData(params, currentReplicas, *gitSource, *gitOwner, *gitName, *gitBranch, *gitRevision, *releaseID, *triggeredBy)
 
 	// render the template
-	renderedTemplate, err := renderTemplate(tmpl, templateData)
+	renderedTemplate, err := renderTemplate(tmpl, templateData, true)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed rendering templates")
 	}
-	renderedNoPDBTemplate, err := renderTemplate(tmplNoPDB, templateData)
+	renderedNoPDBTemplate, err := renderTemplate(tmplNoPDB, templateData, false)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed rendering templates without poddisruptionbudget")
 	}
