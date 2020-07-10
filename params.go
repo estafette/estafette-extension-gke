@@ -627,6 +627,12 @@ func (p *Params) initializeSidecarDefaults(sidecar *SidecarParams) {
 		if sidecar.Image == "" {
 			sidecar.Image = "eu.gcr.io/cloudsql-docker/gce-proxy:1.17"
 		}
+		if sidecar.SQLProxyPort <= 0 {
+			sidecar.SQLProxyPort = 5432
+		}
+		if sidecar.SQLProxyTerminationTimeoutSeconds <= 0 {
+			sidecar.SQLProxyTerminationTimeoutSeconds = 60
+		}
 	}
 
 	// set sidecar cpu defaults
