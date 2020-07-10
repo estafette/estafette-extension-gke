@@ -4005,4 +4005,76 @@ func TestReplaceSidecarTagsWithDigest(t *testing.T) {
 		assert.Equal(t, SidecarTypeESP, params.Sidecars[1].Type)
 		assert.True(t, strings.HasPrefix(params.Sidecars[1].Image, "estafette/estafette-docker-cache-heater@sha256:"))
 	})
+
+	t.Run("DefaultsSQLProxyPortTo5432IfNotSet", func(t *testing.T) {
+
+		params := Params{
+			Sidecars: []*SidecarParams{
+				{
+					Type:         SidecarTypeCloudSQLProxy,
+					SQLProxyPort: 0,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, SidecarTypeCloudSQLProxy, params.Sidecars[0].Type)
+		assert.Equal(t, 5432, params.Sidecars[0].SQLProxyPort)
+	})
+
+	t.Run("KeepsSQLProxyPortIfSet", func(t *testing.T) {
+
+		params := Params{
+			Sidecars: []*SidecarParams{
+				{
+					Type:         SidecarTypeCloudSQLProxy,
+					SQLProxyPort: 1601,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, SidecarTypeCloudSQLProxy, params.Sidecars[0].Type)
+		assert.Equal(t, 1601, params.Sidecars[0].SQLProxyPort)
+	})
+
+	t.Run("DefaultsSQLProxyTerminationTimeoutSecondsTo60IfNotSet", func(t *testing.T) {
+
+		params := Params{
+			Sidecars: []*SidecarParams{
+				{
+					Type:                              SidecarTypeCloudSQLProxy,
+					SQLProxyTerminationTimeoutSeconds: 0,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, SidecarTypeCloudSQLProxy, params.Sidecars[0].Type)
+		assert.Equal(t, 60, params.Sidecars[0].SQLProxyTerminationTimeoutSeconds)
+	})
+
+	t.Run("KeepsSQLProxyTerminationTimeoutSecondsIfSet", func(t *testing.T) {
+
+		params := Params{
+			Sidecars: []*SidecarParams{
+				{
+					Type:                              SidecarTypeCloudSQLProxy,
+					SQLProxyTerminationTimeoutSeconds: 45,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, SidecarTypeCloudSQLProxy, params.Sidecars[0].Type)
+		assert.Equal(t, 45, params.Sidecars[0].SQLProxyTerminationTimeoutSeconds)
+	})
 }
