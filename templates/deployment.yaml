@@ -367,7 +367,11 @@ spec:
       {{- if .UseESP }}
       - name: ssl-certificate-esp
         secret:
+          {{- if .UseCertificateSecret }}
+          secretName: {{.CertificateSecretName}}
+          {{- else }}
           secretName: {{.Name}}-letsencrypt-certificate
+          {{- end }}
           items:
           - key: ssl.crt
             path: nginx.crt
