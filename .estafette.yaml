@@ -45,7 +45,9 @@ stages:
 
       RUN wget -O- https://get.helm.sh/helm-v${HELM_VERSION}-linux-amd64.tar.gz | \
           tar -xzf - -C / \
-          && ls / \
+          && mv /linux-amd64/helm /helm \
+          && rm -rf /linux-amd64 \
+          && chmod +x /helm \
           && /helm version
 
       COPY ${ESTAFETTE_GIT_NAME} /
