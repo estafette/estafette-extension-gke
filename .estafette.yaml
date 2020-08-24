@@ -13,7 +13,7 @@ version:
 
 stages:
   build:
-    image: golang:1.14.4-alpine3.12
+    image: golang:1.15.0-alpine3.12
     env:
       CGO_ENABLED: 0
       GOOS: linux
@@ -56,7 +56,7 @@ stages:
       RUN /helm plugin install https://github.com/databus23/helm-diff --version ${HELM_DIFF_VERSION}
 
       COPY ${ESTAFETTE_GIT_NAME} /
-      COPY helm /helm-chart
+      COPY helm-chart /helm-chart
 
       ENV ESTAFETTE_LOG_FORMAT="console"
 
@@ -66,7 +66,7 @@ stages:
     - extensions
     path: ./publish
     copy:
-    - helm
+    - helm-chart
 
   check-container:
     parallelStages:
