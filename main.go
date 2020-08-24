@@ -200,7 +200,7 @@ func main() {
 	// generate the data required for rendering the templates
 	templateData := generateTemplateData(params, currentReplicas, *gitSource, *gitOwner, *gitName, *gitBranch, *gitRevision, *releaseID, *triggeredBy)
 
-	err = generateValues(templateData)
+	err = generateValues(templateData, "/helm-chart")
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed writing helm values.yaml")
 	}
@@ -453,7 +453,7 @@ func removeIngressIfRequired(ctx context.Context, params Params, templateData Te
 	if params.Kind == KindDeployment && (params.Action == ActionDeploySimple || params.Action == ActionDeployCanary || params.Action == ActionDeployStable) {
 		if templateData.UseNginxIngress {
 			// check if ingress exists and has kubernetes.io/ingress.class: gce, then delete it because of https://github.com/kubernetes/ingress-gce/issues/481
-			ingressClass, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "ing", name, "-n", namespace, "-o=go-template={{index .metadata.annotations \"kubernetes.io/ingress.class\"}}"})
+			ingressClass, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "ing", name, "-n", namespace, "-o=go-template={{ index .metadata.annotations \"kubernetes.io/ingress.class\" }}"})
 			if err == nil {
 				if ingressClass == "gce" {
 					// delete the ingress so all related load balancers, etc get deleted
@@ -467,7 +467,7 @@ func removeIngressIfRequired(ctx context.Context, params Params, templateData Te
 			}
 		} else if templateData.UseGCEIngress {
 			// check if ingress exists and has kubernetes.io/ingress.class: gce, then delete it to ensure there's no nginx ingress annotations lingering around
-			ingressClass, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "ing", name, "-n", namespace, "-o=go-template={{index .metadata.annotations \"kubernetes.io/ingress.class\"}}"})
+			ingressClass, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "ing", name, "-n", namespace, "-o=go-template={{ index .metadata.annotations \"kubernetes.io/ingress.class\" }}"})
 			if err == nil {
 				if ingressClass == "nginx" {
 					// delete the ingress so all related nginx ingress config gets deleted
@@ -577,7 +577,7 @@ func patchDeploymentIfRequired(ctx context.Context, params Params, name, namespa
 			log.Info().Msgf("Deployment selector labels %v not correct, patching it...", selectorLabels)
 
 			// patch the deployment
-			err = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"patch", "deploy", name, "-n", namespace, "--type", "json", "--patch", fmt.Sprintf("[{\"op\": \"replace\", \"path\": \"/spec/selector/matchLabels\", \"value\": {\"app\":\"%v\"}}]", name)})
+			err = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"patch", "deploy", name, "-n", namespace, "--type", "json", "--patch", fmt.Sprintf("[{\"op\": \"replace\", \"path\": \"/spec/selector/matchLabels\", \"value\": {\"app\":\"%v\" }}]", name)})
 			if err != nil {
 				log.Fatal().Err(err).Msg(fmt.Sprintf("Failed patching deployment to change selector labels from %v to app=%v", selectorLabels, name))
 			}

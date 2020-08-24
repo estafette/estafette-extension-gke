@@ -1,24 +1,26 @@
-{{- if .Values.Include.HorizontalPodAutoscaler -}}
+{{- if .Values.include.horizontalpodautoscaler -}}
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "gke-app.fullname" . }}
+  name: {{ .Values.name }}
   labels:
-    {{- include "gke-app.labels" . | nindent 4 }}
-  {{- if .UseHpaScaler}}
+    {{- range $key, $value := .Values.labels}}
+    {{$key}}: {{$value}}
+    {{- end}}
+  {{- if .UseHpaScaler }}
   annotations:
     estafette.io/hpa-scaler: "true"
-    estafette.io/hpa-scaler-prometheus-query: "{{.Values.HpaScalerPromQuery}}"
-    estafette.io/hpa-scaler-requests-per-replica: "{{.Values.HpaScalerRequestsPerReplica}}"
-    estafette.io/hpa-scaler-delta: "{{.Values.HpaScalerDelta}}"
-    estafette.io/hpa-scaler-scale-down-max-ratio: "{{.Values.HpaScalerScaleDownMaxRatio}}"
-  {{- end}}
+    estafette.io/hpa-scaler-prometheus-query: "{{ .Values.hpascalerpromquery }}"
+    estafette.io/hpa-scaler-requests-per-replica: "{{ .Values.hpascalerrequestsperreplica }}"
+    estafette.io/hpa-scaler-delta: "{{ .Values.hpascalerdelta }}"
+    estafette.io/hpa-scaler-scale-down-max-ratio: "{{ .Values.hpascalerscaledownmaxratio }}"
+  {{- end }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{.Values.NameWithTrack}}
-  minReplicas: {{.Values.MinReplicas}}
-  maxReplicas: {{.Values.MaxReplicas}}
-  targetCPUUtilizationPercentage: {{.Values.TargetCPUPercentage}}
+    name: {{ .Values.namewithtrack }}
+  minReplicas: {{ .Values.minreplicas }}
+  maxReplicas: {{ .Values.maxreplicas }}
+  targetCPUUtilizationPercentage: {{ .Values.targetcpupercentage }}
 {{- end -}}

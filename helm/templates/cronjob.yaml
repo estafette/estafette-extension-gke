@@ -1,38 +1,40 @@
-{{- if .Values.Include.CronJob -}}
+{{- if .Values.include.cronjob -}}
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
-  name: {{ include "gke-app.fullname" . }}
+  name: {{ .Values.name }}
   labels:
-    {{- include "gke-app.labels" . | nindent 4 }}
+    {{- range $key, $value := .Values.labels}}
+    {{$key}}: {{$value}}
+    {{- end}}
 spec:
-  schedule: '{{.Values.Schedule}}'
-  concurrencyPolicy: {{.Values.ConcurrencyPolicy}}
+  schedule: '{{ .Values.schedule }}'
+  concurrencyPolicy: {{ .Values.concurrencypolicy }}
   failedJobsHistoryLimit: 1
   successfulJobsHistoryLimit: 3
-  suspend: false  
+  suspend: false
   jobTemplate:
     spec:
-      completions: {{.Values.Completions}}
-      parallelism: {{.Values.Parallelism}}
-      backoffLimit: {{.Values.BackoffLimit}}
+      completions: {{ .Values.completions }}
+      parallelism: {{ .Values.parallelism }}
+      backoffLimit: {{ .Values.backofflimit }}
       template:
         metadata:
           labels:
-            {{- range $key, $value := .PodLabels}}
-            {{$key}}: "{{$value}}"
-            {{- end}}
+            {{- range $key, $value := .Values.podlabels }}
+            {{ $key }}: {{ $value | quote }}
+            {{- end }}
           annotations:
-            prometheus.io/scrape: "{{.Values.Container.Metrics.Scrape}}"
-            prometheus.io/path: "{{.Values.Container.Metrics.Path}}"
-            prometheus.io/port: "{{.Values.Container.Metrics.Port}}"
-            prometheus.io/scrape-nginx-sidecar: "{{.Values.HasOpenrestySidecar}}"
+            prometheus.io/scrape: "{{ .Values.container.metrics.scrape }}"
+            prometheus.io/path: "{{ .Values.container.metrics.path }}"
+            prometheus.io/port: "{{ .Values.container.metrics.port }}"
+            prometheus.io/scrape-nginx-sidecar: "{{ .Values.hasopenrestysidecar }}"
         spec:
-          restartPolicy: {{.Values.RestartPolicy}}
-          serviceAccount: {{ include "gke-app.fullname" . }}
+          restartPolicy: {{ .Values.restartpolicy }}
+          serviceAccount: {{ .Values.name }}
           containers:
-          - name: {{ include "gke-app.fullname" . }}
-            image: {{.Values.Container.Repository}}/{{.Values.Container.Name}}:{{.Values.Container.Tag}}
+          - name: {{ .Values.name }}
+            image: {{ .Values.container.repository }}/{{ .Values.container.name }}:{{ .Values.container.tag }}
             imagePullPolicy: IfNotPresent
             env:
             - name: "JAEGER_AGENT_HOST"
@@ -41,61 +43,57 @@ spec:
                   fieldPath: status.hostIP
             - name: "JAEGER_SAMPLER_MANAGER_HOST_PORT"
               value: "http://$(JAEGER_AGENT_HOST):5778/sampling"
-            {{- range $key, $value := .Values.Container.EnvironmentVariables }}
+            {{- range $key, $value := .Values.container.environmentvariables }}
             - name: "{{ $key }}"
-              {{- if (call $.IsSimpleEnvvarValue $value) }}
-              value: "{{ $value }}"
-              {{- else }}
-{{(call $.RenderToYAML $value $) | indent 14}}
-              {{- end }}
+              {{- template "gke-app.envvarValue" $value | nindent 14 }}
             {{- end }}
             resources:
               requests:
-                cpu: {{.Values.Container.CPURequest}}
-                memory: {{.Values.Container.MemoryRequest}}
+                cpu: {{ .Values.container.cpurequest }}
+                memory: {{ .Values.container.memoryrequest }}
               limits:
-                cpu: {{.Values.Container.CPULimit}}
-                memory: {{.Values.Container.MemoryLimit}}
-            {{- if or .Values.MountApplicationSecrets .Values.MountConfigmap .Values.MountServiceAccountSecret .Values.MountAdditionalVolumes }}
+                cpu: {{ .Values.container.cpulimit }}
+                memory: {{ .Values.container.memorylimit }}
+            {{- if or .Values.mountapplicationsecrets .Values.mountconfigmap .Values.mountserviceaccountsecret .Values.mountadditionalvolumes }}
             volumeMounts:
-            {{- if .Values.MountApplicationSecrets }}
+            {{- if .Values.mountapplicationsecrets }}
             - name: app-secrets
-              mountPath: {{.Values.SecretMountPath}}
+              mountPath: {{ .Values.secretmountpath }}
             {{- end }}
-            {{- if .Values.MountConfigmap }}
+            {{- if .Values.mountconfigmap }}
             - name: app-configs
-              mountPath: {{.Values.ConfigMountPath}}
+              mountPath: {{ .Values.configmountpath }}
             {{- end }}
-            {{- if .Values.MountServiceAccountSecret }}
+            {{- if .Values.mountserviceaccountsecret }}
             - name: gcp-service-account
               mountPath: /gcp-service-account
             {{- end }}
-            {{- range .Values.AdditionalVolumeMounts}}
-            - name: {{ include "gke-app.fullname" . }}
-              mountPath: {{.MountPath}}
-            {{- end}}
+            {{- range .Values.additionalvolumemounts }}
+            - name: {{ .name }}
+              mountPath: {{ .mountpath }}
+            {{- end }}
             {{- end }}
           terminationGracePeriodSeconds: 300
-          {{- if or .Values.MountApplicationSecrets .Values.MountConfigmap .Values.MountServiceAccountSecret .Values.MountAdditionalVolumes }}
+          {{- if or .Values.mountapplicationsecrets .Values.mountconfigmap .Values.mountserviceaccountsecret .Values.mountadditionalvolumes }}
           volumes:
-          {{- if .Values.MountApplicationSecrets }}
+          {{- if .Values.mountapplicationsecrets }}
           - name: app-secrets
             secret:
-              secretName: {{ include "gke-app.fullname" . }}-secrets
+              secretName: {{ .Values.name }}-secrets
           {{- end }}
-          {{- if .Values.MountConfigmap }}
+          {{- if .Values.mountconfigmap }}
           - name: app-configs
             configMap:
-              name: {{ include "gke-app.fullname" . }}-configs
+              name: {{ .Values.name }}-configs
           {{- end }}
-          {{- if .Values.MountServiceAccountSecret }}
+          {{- if .Values.mountserviceaccountsecret }}
           - name: gcp-service-account
             secret:
-              secretName: {{.Values.GoogleCloudCredentialsAppName}}-gcp-service-account
+              secretName: {{ .Values.googlecloudcredentialsappname }}-gcp-service-account
           {{- end }}
-          {{- range .Values.AdditionalVolumeMounts}}
-          - name: {{ include "gke-app.fullname" . }}
-{{.VolumeYAML | indent 12}}
-          {{- end}}
-          {{- end}}
+          {{- range .Values.additionalvolumemounts }}
+          - name: {{ .name }}
+            {{- .volumeyaml | nindent 12 }}
+          {{- end }}
+          {{- end }}
 {{- end -}}

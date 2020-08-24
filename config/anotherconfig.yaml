@@ -1,1 +1,1 @@
-property2: {{.property2}}
+property2: {{ .property2 }}

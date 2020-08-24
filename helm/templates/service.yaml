@@ -1,38 +1,40 @@
-{{- if .Values.Include.Service -}}
+{{- if .Values.include.service -}}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "gke-app.fullname" . }}
+  name: {{ .Values.name }}
   labels:
-    {{- include "gke-app.labels" . | nindent 4 }}
+    {{- range $key, $value := .Values.labels}}
+    {{$key}}: {{$value}}
+    {{- end}}
   annotations:
-    {{- if .Values.UsePrometheusProbe}}
+    {{- if .Values.useprometheusprobe }}
     prometheus.io/probe: "true"
-    prometheus.io/probe-path: "{{.Values.Container.Readiness.Path}}"
-    {{- end}}
+    prometheus.io/probe-path: "{{ .Values.container.readiness.path }}"
+    {{- end }}
     service.alpha.kubernetes.io/app-protocols: '{"https":"HTTPS"}'
-    {{- if .Values.UseDNSAnnotationsOnService}}
+    {{- if .Values.usednsannotationsonservice }}
     estafette.io/cloudflare-dns: "true"
-    estafette.io/cloudflare-proxy: "{{.Values.UseCloudflareProxy}}"
-    estafette.io/cloudflare-hostnames: "{{.Values.HostsJoined}}"
-    {{- end}}
-    {{- if .Values.UseBackendConfigAnnotationOnService}}
-    beta.cloud.google.com/backend-config: '{"default": "{{ include "gke-app.fullname" . }}"}'
-    {{- end}}
-    {{- if .Values.UseNegAnnotationOnService}}
+    estafette.io/cloudflare-proxy: "{{ .Values.usecloudflareproxy }}"
+    estafette.io/cloudflare-hostnames: "{{ .Values.hostsjoined }}"
+    {{- end }}
+    {{- if .Values.usebackendconfigannotationonservice }}
+    beta.cloud.google.com/backend-config: '{"default": "{{ .Values.name }}"}'
+    {{- end }}
+    {{- if .Values.usenegannotationonservice }}
     cloud.google.com/neg: '{"ingress": true}'
-    {{- end}}
+    {{- end }}
 spec:
-  type: {{.Values.ServiceType}}
-  {{- if .Values.LimitTrustedIPRanges}}
+  type: {{ .Values.servicetype }}
+  {{- if .Values.limittrustedipranges }}
   loadBalancerSourceRanges:
-  {{- range .Values.TrustedIPRanges}}
-  - {{.}}
-  {{- end}}
-  {{- end}}
+  {{- range .Values.trustedipranges }}
+  - {{ . }}
+  {{- end }}
+  {{- end }}
   ports:
-  {{- if .Values.HasOpenrestySidecar }}
-  {{- if not .Values.UseESP }}
+  {{- if .Values.hasopenrestysidecar }}
+  {{- if not .Values.useesp }}
   - name: http
     port: 80
     targetPort: http
@@ -44,16 +46,16 @@ spec:
     protocol: TCP
   {{- else }}
   - name: web
-    port: {{.Values.Container.Port}}
+    port: {{ .Values.container.port }}
     targetPort: web
     protocol: TCP
-  {{- end}}
-  {{- range .Values.AdditionalServicePorts}}
-  - name: {{ include "gke-app.fullname" . }}
-    port: {{.Port}}
-    targetPort: {{ include "gke-app.fullname" . }}
-    protocol: {{.Protocol}}
-  {{- end}}
+  {{- end }}
+  {{- range .Values.additionalserviceports }}
+  - name: {{ .Values.name }}
+    port: {{ .Port }}
+    targetPort: {{ .Values.name }}
+    protocol: {{ .Protocol }}
+  {{- end }}
   selector:
-    app: {{.Values.AppLabelSelector}}
+    app: {{ .Values.applabelselector }}
 {{- end -}}

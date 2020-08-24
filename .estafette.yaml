@@ -194,7 +194,7 @@ stages:
               valueFrom:
                 secretKeyRef:
                   key: ClientCertificatePassword
-                  name: '{{.NameWithTrack}}-secrets'
+                  name: '{{ .NameWithTrack }}-secrets'
           cpu:
             request: 10m
             limit: 50m
@@ -248,7 +248,7 @@ stages:
           files:
           - config/config.json
           - config/anotherconfig.yaml
-          # these are the values for the placeholders specified as {{.property1}} to be replaced in the config files
+          # these are the values for the placeholders specified as {{ .property1 }} to be replaced in the config files
           data:
             property1: value 1
             property2: value 2
@@ -418,7 +418,7 @@ stages:
           files:
           - config/config.json
           - config/anotherconfig.yaml
-          # these are the values for the placeholders specified as {{.property1}} to be replaced in the config files
+          # these are the values for the placeholders specified as {{ .property1 }} to be replaced in the config files
           data:
             property1: value 1
             property2: value 2

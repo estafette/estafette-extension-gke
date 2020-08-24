@@ -1,16 +1,18 @@
-{{- if .Values.Include.PodDisruptionBudget -}}
+{{- if .Values.include.poddisruptionbudget -}}
 apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
 metadata:
-  name: {{ include "gke-app.fullname" . }}
+  name: {{ .Values.name }}
   labels:
-    {{- include "gke-app.labels" . | nindent 4 }}
+    {{- range $key, $value := .Values.labels}}
+    {{$key}}: {{$value}}
+    {{- end}}
 spec:
   selector:
     matchLabels:
-      app: {{.Values.AppLabelSelector}}
-      {{- if .Values.IncludeTrackLabel}}
-      track: {{.Values.TrackLabel}}
-      {{- end}}
+      app: {{ .Values.applabelselector }}
+      {{- if .Values.includetracklabel }}
+      track: {{ .Values.tracklabel }}
+      {{- end }}
   maxUnavailable: 1
 {{- end -}}

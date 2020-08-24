@@ -1,23 +1,163 @@
-# Default values for gke-app.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
-Include:
-  ApplicationSecret: false
-  BackendConfig: false
-  CertificateSecret: false
-  ApplicationConfig: false
-  CronJob: false
-  Deployment: false
-  HorizontalPodAutoscaler: false
-  IAPSecret: false
-  Ingress: false
-  IngressApigee: false
-  IngressInternal: false
-  Job: false
-  PodDisruptionBudget: false
-  Service: false
-  ServiceAccountSecret: false
-  ServiceHeadless: false
-  ServiceAccount: false
-  StatefulSet: false
+name: myapp
+namewithtrack: myapp-stable
+namespace: mynamespace
+schedule: '*/5 * * * *'
+restartpolicy: Always
+completions: 1
+parallelism: 1
+backofflimit: 1
+concurrencypolicy: Forbid
+labels:
+  app: myapp
+podlabels:
+  app: myapp
+  version: 1.0.0.5
+applabelselector: ""
+hosts:
+- ci.estafette.io
+- ci.estafette.com
+hostsjoined: "ci.estafette.io,ci.estafette.com"
+internalhosts:
+- ci.internal.estafette.io
+internalhostsjoined: "ci.internal.estafette.io"
+allhosts:
+- ci.estafette.io
+- ci.estafette.com
+- ci.internal.estafette.io
+allhostsjoined: "ci.estafette.io,ci.estafette.com,ci.internal.estafette.io"
+apigeehosts: []
+apigeehostsjoined: ""
+ingresspath: "/"
+internalingresspath: "/"
+useingress: false
+usenginxingress: false
+usegceingress: false
+usednsannotationsoningress: false
+usecloudflareproxy: false
+usednsannotationsonservice: false
+usebackendconfigannotationonservice: false
+usenegannotationonservice: false
+useprometheusprobe: false
+servicetype: ""
+minreplicas: 0
+maxreplicas: 0
+targetcpupercentage: 0
+usehpascaler: false
+hpascalerpromquery: ""
+hpascalerrequestsperreplica: ""
+hpascalerdelta: ""
+hpascalerscaledownmaxratio: ""
+preferpreemptibles: false
+container:
+  repository: "estafette"
+  name: "estafette-ci-api"
+  tag: "1.0.0.5"
+  cpurequest: "100m"
+  memoryrequest: "100Mi"
+  cpulimit: "200m"
+  memorylimit: "200Mi"
+  port: 5000
+  environmentvariables: {}
+  liveness:
+    path: "/liveness"
+    port: 5000
+    initialdelayseconds: 0
+    timeoutseconds: 3
+    periodseconds: 10
+    includeoncontainer: false
+    failurethreshold: 3
+    successthreshold: 1
+  readiness:
+    path: "/readiness"
+    port: 5000
+    initialdelayseconds: 30
+    timeoutseconds: 3
+    periodseconds: 10
+    includeoncontainer: false
+    failurethreshold: 3
+    successthreshold: 1
+  metrics:
+    scrape: false
+    path: "/metrics"
+    port: 5000
+  uselifecycleprestopsleepcommand: false
+  prestopsleepseconds: 15
+sidecars: []
+hasinitcontainers: false
+initcontainers: []
+hasopenrestysidecar: false
+useesp: false
+hasespconfigid: false
+espconfigid: ""
+mountvolumes: false
+mountsslcertificate: false
+mountapplicationsecrets: false
+secrets: {}
+secretmountpath: ""
+mountconfigmap: false
+configmapfiles: {}
+configmountpath: ""
+mountpayloadlogging: false
+mountserviceaccountsecret: false
+disableserviceaccountkeyrotation: false
+uselegacyserviceaccountkey: false
+legacyserviceaccountkey: ""
+googlecloudcredentialsappname: ""
+googlecloudcredentialslabels: {}
+strategytype: RollingUpdate
+rollingupdatemaxsurge: "25%"
+rollingupdatemaxunavailable: "0"
+limittrustedipranges: false
+trustedipranges: []
+manifestdata: {}
+includetracklabel: false
+tracklabel: ""
+addsafetoevictannotation: false
+mountadditionalvolumes: false
+additionalvolumemounts: []
+additionalcontainerports: []
+additionalserviceports: []
+overridedefaultwhitelist: false
+nginxingresswhitelist: ""
+nginxingressclientbodybuffersize: ""
+nginxingressproxyconnecttimeout: 0
+nginxingressproxysendtimeout: 0
+nginxingressproxyreadtimeout: 0
+nginxingressproxybodysize: ""
+nginxingressproxybuffersize: ""
+nginxingressproxybuffersnumber: ""
+setsnginxingressloadbalancealgorithm: false
+nginxingressloadbalancealgorithm: ""
+usehttps: false
+backendconfigtimeout: 0
+nginxauthtlssecret: ""
+nginxauthtlsverifydepth: 0
+includereplicas: false
+replicas: 0
+podmanagementpolicy: ""
+storageclass: ""
+storagesize: ""
+storagemountpath: ""
+iapoauthcredentialsclientid: ""
+iapoauthcredentialsclientsecret: ""
+usecertificatesecret: false
+certificatesecretname: ""
+include:
+  applicationsecret: true
+  backendconfig: true
+  certificatesecret: true
+  applicationconfig: true
+  cronjob: true
+  deployment: true
+  horizontalpodautoscaler: true
+  iapsecret: true
+  ingress: true
+  ingressapigee: true
+  ingressinternal: true
+  job: true
+  poddisruptionbudget: true
+  service: true
+  serviceaccountsecret: true
+  serviceheadless: true
+  serviceaccount: true
+  statefulset: true

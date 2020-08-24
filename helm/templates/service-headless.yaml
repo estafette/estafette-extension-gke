@@ -1,10 +1,12 @@
-{{- if .Values.Include.ServiceHeadless -}}
+{{- if .Values.include.serviceheadless -}}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "gke-app.fullname" . }}-node
+  name: {{ .Values.name }}-node
   labels:
-    {{- include "gke-app.labels" . | nindent 4 }}
+    {{- range $key, $value := .Values.labels}}
+    {{$key}}: {{$value}}
+    {{- end}}
   annotations:
     service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
 spec:
@@ -12,15 +14,15 @@ spec:
   clusterIP: None
   ports:
   - name: web
-    port: {{.Values.Container.Port}}
+    port: {{ .Values.container.port }}
     targetPort: web
     protocol: TCP
-  {{- range .Values.AdditionalServicePorts}}
-  - name: {{ include "gke-app.fullname" . }}
-    port: {{.Port}}
-    targetPort: {{ include "gke-app.fullname" . }}
-    protocol: {{.Protocol}}
-  {{- end}}
+  {{- range .Values.additionalserviceports }}
+  - name: {{ .Values.name }}
+    port: {{ .port }}
+    targetPort: {{ .Values.name }}
+    protocol: {{ .protocol }}
+  {{- end }}
   selector:
-    app: {{.Values.AppLabelSelector}}
+    app: {{ .Values.applabelselector }}
 {{- end -}}
