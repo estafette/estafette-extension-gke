@@ -516,10 +516,10 @@ stages:
 
 releases:
   dev:
-    triggers:
-    - pipeline:
-        name: self
-        branch: .+
+    # triggers:
+    # - pipeline:
+    #     name: self
+    #     branch: .+
     stages:
       tag-container-image:
         image: extensions/docker:stable
