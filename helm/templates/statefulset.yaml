@@ -1,38 +1,36 @@
+{{- if .Values.Include.StatefulSet -}}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{.Name}}
-  namespace: {{.Namespace}}
+  name: {{ include "gke-app.fullname" . }}
   labels:
-    {{- range $key, $value := .Labels}}
-    {{$key}}: {{$value}}
-    {{- end}}
+    {{- include "gke-app.labels" . | nindent 4 }}
 spec:
   updateStrategy:
     type: RollingUpdate
-  serviceName: {{.Name}}-node
-  replicas: {{.Replicas}}
-  podManagementPolicy: {{.PodManagementPolicy}}
+  serviceName: {{ include "gke-app.fullname" . }}-node
+  replicas: {{.Values.Replicas}}
+  podManagementPolicy: {{.Values.PodManagementPolicy}}
   selector:
     matchLabels:
-      app: {{.Name}}
+      app: {{ include "gke-app.fullname" . }}
   revisionHistoryLimit: 10
   template:
     metadata:
       labels:
-        {{- range $key, $value := .PodLabels}}
+        {{- range $key, $value := .Values.PodLabels}}
         {{$key}}: "{{$value}}"
         {{- end}}
       annotations:
-        prometheus.io/scrape: "{{.Container.Metrics.Scrape}}"
-        prometheus.io/path: "{{.Container.Metrics.Path}}"
-        prometheus.io/port: "{{.Container.Metrics.Port}}"
-        prometheus.io/scrape-nginx-sidecar: "{{.HasOpenrestySidecar}}"
-        {{- if .AddSafeToEvictAnnotation }}
+        prometheus.io/scrape: "{{.Values.Container.Metrics.Scrape}}"
+        prometheus.io/path: "{{.Values.Container.Metrics.Path}}"
+        prometheus.io/port: "{{.Values.Container.Metrics.Port}}"
+        prometheus.io/scrape-nginx-sidecar: "{{.Values.HasOpenrestySidecar}}"
+        {{- if .Values.AddSafeToEvictAnnotation }}
         cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
         {{- end}}
     spec:
-      serviceAccount: {{.Name}}
+      serviceAccount: {{ include "gke-app.fullname" . }}
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -43,9 +41,9 @@ spec:
                 - key: app
                   operator: In
                   values:
-                  - {{.Name}}
+                  - {{ include "gke-app.fullname" . }}
               topologyKey: kubernetes.io/hostname
-        {{- if .PreferPreemptibles}}
+        {{- if .Values.PreferPreemptibles}}
         nodeAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
           - weight: 10
@@ -57,8 +55,8 @@ spec:
                 - "true"
         {{- end}}
       containers:
-      - name: {{.Name}}
-        image: {{.Container.Repository}}/{{.Container.Name}}:{{.Container.Tag}}
+      - name: {{ include "gke-app.fullname" . }}
+        image: {{.Values.Container.Repository}}/{{.Values.Container.Name}}:{{.Values.Container.Tag}}
         imagePullPolicy: IfNotPresent
         env:
         - name: "JAEGER_AGENT_HOST"
@@ -77,74 +75,74 @@ spec:
         {{- end }}
         resources:
           requests:
-            cpu: {{.Container.CPURequest}}
-            memory: {{.Container.MemoryRequest}}
+            cpu: {{.Values.Container.CPURequest}}
+            memory: {{.Values.Container.MemoryRequest}}
           limits:
-            cpu: {{.Container.CPULimit}}
-            memory: {{.Container.MemoryLimit}}
+            cpu: {{.Values.Container.CPULimit}}
+            memory: {{.Values.Container.MemoryLimit}}
         ports:
         - name: web
-          containerPort: {{.Container.Port}}
-        {{- range .AdditionalContainerPorts}}
-        - name: {{.Name}}
+          containerPort: {{.Values.Container.Port}}
+        {{- range .Values.AdditionalContainerPorts}}
+        - name: {{ include "gke-app.fullname" . }}
           containerPort: {{.Port}}
           protocol: {{.Protocol}}
         {{- end}}
-        {{- if .Container.Liveness.IncludeOnContainer }}
+        {{- if .Values.Container.Liveness.IncludeOnContainer }}
         livenessProbe:
           httpGet:
-            path: {{.Container.Liveness.Path}}
-            port: {{.Container.Liveness.Port}}
-          initialDelaySeconds: {{.Container.Liveness.InitialDelaySeconds}}
-          timeoutSeconds: {{.Container.Liveness.TimeoutSeconds}}
-          periodSeconds: {{.Container.Liveness.PeriodSeconds}}
-          failureThreshold: {{.Container.Liveness.FailureThreshold}}
-          successThreshold: {{.Container.Liveness.SuccessThreshold}}
+            path: {{.Values.Container.Liveness.Path}}
+            port: {{.Values.Container.Liveness.Port}}
+          initialDelaySeconds: {{.Values.Container.Liveness.InitialDelaySeconds}}
+          timeoutSeconds: {{.Values.Container.Liveness.TimeoutSeconds}}
+          periodSeconds: {{.Values.Container.Liveness.PeriodSeconds}}
+          failureThreshold: {{.Values.Container.Liveness.FailureThreshold}}
+          successThreshold: {{.Values.Container.Liveness.SuccessThreshold}}
         {{- end }}
-        {{- if .Container.Readiness.IncludeOnContainer }}
+        {{- if .Values.Container.Readiness.IncludeOnContainer }}
         readinessProbe:
           httpGet:
-            path: {{.Container.Readiness.Path}}
-            port: {{.Container.Readiness.Port}}
-          initialDelaySeconds: {{.Container.Readiness.InitialDelaySeconds}}
-          timeoutSeconds: {{.Container.Readiness.TimeoutSeconds}}
-          periodSeconds: {{.Container.Readiness.PeriodSeconds}}
-          failureThreshold: {{.Container.Readiness.FailureThreshold}}
-          successThreshold: {{.Container.Readiness.SuccessThreshold}}
+            path: {{.Values.Container.Readiness.Path}}
+            port: {{.Values.Container.Readiness.Port}}
+          initialDelaySeconds: {{.Values.Container.Readiness.InitialDelaySeconds}}
+          timeoutSeconds: {{.Values.Container.Readiness.TimeoutSeconds}}
+          periodSeconds: {{.Values.Container.Readiness.PeriodSeconds}}
+          failureThreshold: {{.Values.Container.Readiness.FailureThreshold}}
+          successThreshold: {{.Values.Container.Readiness.SuccessThreshold}}
         {{- end }}
         volumeMounts:
-        - name: {{.Name}}-data
+        - name: {{ include "gke-app.fullname" . }}-data
           mountPath: /data
-        {{- if .MountApplicationSecrets }}
+        {{- if .Values.MountApplicationSecrets }}
         - name: app-secrets
-          mountPath: {{.SecretMountPath}}
+          mountPath: {{.Values.SecretMountPath}}
         {{- end }}
-        {{- if .MountConfigmap }}
+        {{- if .Values.MountConfigmap }}
         - name: app-configs
-          mountPath: {{.ConfigMountPath}}
+          mountPath: {{.Values.ConfigMountPath}}
         {{- end }}
-        {{- if .MountServiceAccountSecret }}
+        {{- if .Values.MountServiceAccountSecret }}
         - name: gcp-service-account
           mountPath: /gcp-service-account
         {{- end }}
-        {{- if .MountPayloadLogging }}
+        {{- if .Values.MountPayloadLogging }}
         - name: pod-log
           mountPath: /var/log/travix
         {{- end }}
-        {{- range .AdditionalVolumeMounts}}
-        - name: {{.Name}}
-          mountPath: {{.MountPath}}
+        {{- range .Values.AdditionalVolumeMounts}}
+        - name: {{ include "gke-app.fullname" . }}
+          mountPath: {{.Values.MountPath}}
         {{- end}}
-        {{- if .Container.UseLifecyclePreStopSleepCommand }}
+        {{- if .Values.Container.UseLifecyclePreStopSleepCommand }}
         lifecycle:
           preStop:
             exec:
               command:
               - /bin/sleep
-              - {{.Container.PreStopSleepSeconds}}s
+              - {{.Values.Container.PreStopSleepSeconds}}s
         {{- end}}
-      {{ $deployment := . }}
-      {{- range .Sidecars}}
+      {{ $deployment := .Values }}
+      {{- range .Values.Sidecars}}
         {{- if eq .Type "openresty" }}
       - name: {{$deployment.Name}}-openresty
         image: {{.Image}}
@@ -249,7 +247,7 @@ spec:
           mountPath: /gcp-service-account
         {{- end }}
         {{- range $deployment.AdditionalVolumeMounts}}
-        - name: {{.Name}}
+        - name: {{ include "gke-app.fullname" . }}
           mountPath: {{.MountPath}}
         {{- end}}
         {{- end}}
@@ -262,53 +260,53 @@ spec:
       volumes:
       - name: ssl-certificate
         secret:
-          {{- if .UseCertificateSecret }}
-          secretName: {{.CertificateSecretName}}
+          {{- if .Values.UseCertificateSecret }}
+          secretName: {{.Values.CertificateSecretName}}
           {{- else }}
-          secretName: {{.Name}}-letsencrypt-certificate
+          secretName: {{ include "gke-app.fullname" . }}-letsencrypt-certificate
           {{- end }}
-      - name: {{.Name}}-data
+      - name: {{ include "gke-app.fullname" . }}-data
         persistentVolumeClaim:
-          claimName: {{.Name}}-data
-      {{- if .MountApplicationSecrets }}
+          claimName: {{ include "gke-app.fullname" . }}-data
+      {{- if .Values.MountApplicationSecrets }}
       - name: app-secrets
         secret:
-          secretName: {{.NameWithTrack}}-secrets
+          secretName: {{.Values.NameWithTrack}}-secrets
       {{- end }}
       {{- if .MountConfigmap }}
       - name: app-configs
         configMap:
-          name: {{.NameWithTrack}}-configs
+          name: {{.Values.NameWithTrack}}-configs
       {{- end }}
-      {{- if .MountServiceAccountSecret }}
+      {{- if .Values.MountServiceAccountSecret }}
       - name: gcp-service-account
         secret:
-          secretName: {{.GoogleCloudCredentialsAppName}}-gcp-service-account
+          secretName: {{.Values.GoogleCloudCredentialsAppName}}-gcp-service-account
       {{- end }}
-      {{- if .MountPayloadLogging }}
+      {{- if .Values.MountPayloadLogging }}
       - name: pod-log
         hostPath:
-          path: /var/log/fluentd-payload-logger/{{.Name}}
+          path: /var/log/fluentd-payload-logger/{{ include "gke-app.fullname" . }}
           type: DirectoryOrCreate
       - name: var-log
         hostPath:
           path: /var/log
       {{- end }}
-      {{- range .AdditionalVolumeMounts}}
-      - name: {{.Name}}
+      {{- range .Values.AdditionalVolumeMounts}}
+      - name: {{ include "gke-app.fullname" . }}
 {{.VolumeYAML | indent 8}}
       {{- end}}
   volumeClaimTemplates:
   - metadata:
-      name: {{.Name}}-data
-      namespace: {{.Namespace}}
+      name: {{ include "gke-app.fullname" . }}-data
       labels:
-        {{- range $key, $value := .Labels}}
+        {{- range $key, $value := .Values.Labels}}
         {{$key}}: {{$value}}
         {{- end}}
     spec:
       accessModes: [ "ReadWriteOnce" ]
-      storageClassName: {{.StorageClass}}
+      storageClassName: {{.Values.StorageClass}}
       resources:
         requests:
-          storage: {{.StorageSize}}
+          storage: {{.Values.StorageSize}}
+{{- end -}}

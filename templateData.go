@@ -108,6 +108,29 @@ type TemplateData struct {
 	RenderToYAML                    func(v interface{}, data interface{}) string
 	UseCertificateSecret            bool
 	CertificateSecretName           string
+
+	Include IncludeManifestsData
+}
+
+type IncludeManifestsData struct {
+	ApplicationSecret       bool
+	BackendConfig           bool
+	CertificateSecret       bool
+	ApplicationConfig       bool
+	CronJob                 bool
+	Deployment              bool
+	HorizontalPodAutoscaler bool
+	IAPSecret               bool
+	Ingress                 bool
+	IngressApigee           bool
+	IngressInternal         bool
+	Job                     bool
+	PodDisruptionBudget     bool
+	Service                 bool
+	ServiceAccountSecret    bool
+	ServiceHeadless         bool
+	ServiceAccount          bool
+	StatefulSet             bool
 }
 
 // ContainerData has data specific to the application container

@@ -48,10 +48,15 @@ stages:
           && mv /linux-amd64/helm /helm \
           && rm -rf /linux-amd64 \
           && chmod +x /helm \
-          && /helm version
+          && /helm version \
+          && mkdir -p ~/.helm/plugins
+
+      ARG HELM_DIFF_VERSION=v3.1.3
+
+      RUN helm plugin install https://github.com/databus23/helm-diff --version ${HELM_DIFF_VERSION}
 
       COPY ${ESTAFETTE_GIT_NAME} /
-      COPY templates /templates
+      COPY helm /helm-chart
 
       ENV ESTAFETTE_LOG_FORMAT="console"
 

@@ -114,6 +114,8 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		IsSimpleEnvvarValue: isSimpleEnvvarValue,
 		ToYAML:              toYAML,
 		RenderToYAML:        renderToYAML,
+
+		Include: generateIncludeManifestsData(params),
 	}
 
 	if params.BackoffLimit != nil {
@@ -398,6 +400,79 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 	data.MountVolumes = data.MountSslCertificate || data.MountApplicationSecrets || data.MountConfigmap || data.MountPayloadLogging || data.MountServiceAccountSecret || data.MountAdditionalVolumes
 
 	return data
+}
+
+func generateIncludeManifestsData(params Params) IncludeManifestsData {
+
+	if params.Action == ActionRollbackCanary || params.Action == ActionUnknown || params.Action == ActionRestartCanary || params.Action == ActionRestartStable || params.Action == ActionRestartSimple {
+		return IncludeManifestsData{}
+	}
+
+	includeManifestsData := IncludeManifestsData{}
+
+	switch params.Kind {
+	case KindConfig:
+	case KindJob:
+		includeManifestsData.ServiceAccount = true
+		includeManifestsData.Job = true
+	case KindCronJob:
+		includeManifestsData.ServiceAccount = true
+		includeManifestsData.CronJob = true
+	case KindStatefulset:
+		includeManifestsData.Service = true
+		includeManifestsData.ServiceHeadless = true
+		includeManifestsData.ServiceAccount = true
+		includeManifestsData.StatefulSet = true
+		if params.CertificateSecret == "" {
+			includeManifestsData.CertificateSecret = true
+		}
+
+	case KindDeployment:
+		includeManifestsData.Service = true
+		includeManifestsData.ServiceAccount = true
+		includeManifestsData.Deployment = true
+		if params.CertificateSecret == "" {
+			includeManifestsData.CertificateSecret = true
+		}
+
+	case KindHeadlessDeployment:
+		includeManifestsData.ServiceAccount = true
+		includeManifestsData.Deployment = true
+	}
+
+	if (params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment || params.Kind == KindStatefulset) && (params.Action == ActionDeploySimple || params.Action == ActionDeployStable || params.Action == ActionDiffSimple || params.Action == ActionDiffCanary || params.Action == ActionDiffStable) {
+		includeManifestsData.PodDisruptionBudget = true
+	}
+	if (params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment) && params.Autoscale.Enabled != nil && *params.Autoscale.Enabled && params.StrategyType != "Recreate" && (params.Action == ActionDeploySimple || params.Action == ActionDeployStable || params.Action == ActionDiffSimple || params.Action == ActionDiffCanary || params.Action == ActionDiffStable) {
+		includeManifestsData.HorizontalPodAutoscaler = true
+	}
+	if (params.Kind == KindDeployment || params.Kind == KindStatefulset) && (params.Visibility == VisibilityPrivate || params.Visibility == VisibilityIAP || params.Visibility == VisibilityPublicWhitelist) {
+		includeManifestsData.Ingress = true
+	}
+
+	if params.Kind == KindDeployment && params.Visibility == VisibilityApigee {
+		includeManifestsData.IngressApigee = true
+		includeManifestsData.Ingress = true
+	}
+
+	if (params.Kind == KindDeployment || params.Kind == KindStatefulset) && params.Visibility == VisibilityIAP {
+		includeManifestsData.BackendConfig = true
+		includeManifestsData.IAPSecret = true
+	}
+	if (params.Kind == KindDeployment || params.Kind == KindStatefulset) && len(params.InternalHosts) > 0 {
+		includeManifestsData.IngressInternal = true
+	}
+	if len(params.Secrets.Keys) > 0 {
+		includeManifestsData.ApplicationSecret = true
+	}
+	if params.UseGoogleCloudCredentials || params.LegacyGoogleCloudServiceAccountKeyFile != "" {
+		includeManifestsData.ServiceAccountSecret = true
+	}
+	if len(params.Configs.Files) > 0 || len(params.Configs.InlineFiles) > 0 {
+		includeManifestsData.ApplicationConfig = true
+	}
+
+	return includeManifestsData
 }
 
 func buildSidecar(sidecar *SidecarParams, params Params) SidecarData {

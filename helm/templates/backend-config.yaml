@@ -1,0 +1,14 @@
+{{- if .Values.Include.BackendConfig -}}
+apiVersion: cloud.google.com/v1beta1
+kind: BackendConfig
+metadata:
+  name: {{ include "gke-app.fullname" . }}
+  labels:
+    {{- include "gke-app.labels" . | nindent 4 }}
+spec:
+  iap:
+    enabled: true
+    oauthclientCredentials:
+      secretName: {{ include "gke-app.fullname" . }}-iap-oauth-credentials
+  timeoutSec: {{.Values.BackendConfigTimeout}}
+{{- end -}}

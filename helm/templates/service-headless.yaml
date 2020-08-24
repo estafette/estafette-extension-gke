@@ -1,0 +1,26 @@
+{{- if .Values.Include.ServiceHeadless -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "gke-app.fullname" . }}-node
+  labels:
+    {{- include "gke-app.labels" . | nindent 4 }}
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+spec:
+  publishNotReadyAddresses: true
+  clusterIP: None
+  ports:
+  - name: web
+    port: {{.Values.Container.Port}}
+    targetPort: web
+    protocol: TCP
+  {{- range .Values.AdditionalServicePorts}}
+  - name: {{ include "gke-app.fullname" . }}
+    port: {{.Port}}
+    targetPort: {{ include "gke-app.fullname" . }}
+    protocol: {{.Protocol}}
+  {{- end}}
+  selector:
+    app: {{.Values.AppLabelSelector}}
+{{- end -}}

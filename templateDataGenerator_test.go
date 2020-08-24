@@ -2265,3 +2265,237 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "google-apigee.com,estafette-apigee.io,test-app-apigee", templateData.ApigeeHostsJoined)
 	})
 }
+
+func TestGenerateIncludeManifestsData(t *testing.T) {
+
+	t.Run("IncludesIngressIfVisibilityIsPrivateAndKindIsDeployment", func(t *testing.T) {
+
+		params := Params{
+			Action:     ActionDeploySimple,
+			Visibility: VisibilityPrivate,
+			Kind:       KindDeployment,
+		}
+
+		// act
+		include := generateIncludeManifestsData(params)
+
+		assert.True(t, include.Ingress)
+	})
+
+	t.Run("IncludesIngressIfVisibilityIsIapAndKindIsDeployment", func(t *testing.T) {
+
+		params := Params{
+			Action:     ActionDeploySimple,
+			Visibility: VisibilityIAP,
+			Kind:       KindDeployment,
+		}
+
+		// act
+		include := generateIncludeManifestsData(params)
+
+		assert.True(t, include.Ingress)
+	})
+
+	t.Run("IncludesIngressIfVisibilityIsPublicWhitelistAndKindIsDeployment", func(t *testing.T) {
+
+		params := Params{
+			Action:     ActionDeploySimple,
+			Visibility: VisibilityPublicWhitelist,
+			Kind:       KindDeployment,
+		}
+
+		// act
+		include := generateIncludeManifestsData(params)
+
+		assert.True(t, include.Ingress)
+	})
+
+	t.Run("DoesNotIncludeIngressIfVisibilityIsPublic", func(t *testing.T) {
+
+		params := Params{
+			Action:     ActionDeploySimple,
+			Visibility: VisibilityPublic,
+		}
+
+		// act
+		include := generateIncludeManifestsData(params)
+
+		assert.False(t, include.Ingress)
+	})
+
+	t.Run("IncludesInternalIngressIfOneOrMoreInternalHostsAreSetAndKindIsDeployment", func(t *testing.T) {
+
+		params := Params{
+			Action:        ActionDeploySimple,
+			Kind:          KindDeployment,
+			InternalHosts: []string{"ci.estafette.internal"},
+		}
+
+		// act
+		include := generateIncludeManifestsData(params)
+
+		assert.True(t, include.IngressInternal)
+	})
+
+	t.Run("DoesNotIncludeInternalIngressIfNoInternalHostsAreSet", func(t *testing.T) {
+
+		params := Params{
+			Action:        ActionDeploySimple,
+			InternalHosts: []string{},
+		}
+
+		// act
+		include := generateIncludeManifestsData(params)
+
+		assert.False(t, include.IngressInternal)
+	})
+
+	t.Run("IncludesApplicationSecretsIfLengthOfSecretsIsMoreThanZero", func(t *testing.T) {
+
+		params := Params{
+			Action: ActionDeploySimple,
+			Secrets: SecretsParams{
+				Keys: map[string]interface{}{
+					"secret-file-1.json": "c29tZSBzZWNyZXQgdmFsdWU=",
+					"secret-file-2.yaml": "YW5vdGhlciBzZWNyZXQgdmFsdWU=",
+				},
+			},
+		}
+
+		// act
+		include := generateIncludeManifestsData(params)
+
+		assert.True(t, include.ApplicationSecret)
+	})
+
+	t.Run("DoesNotIncludeApplicationSecretsIfLengthOfSecretsZero", func(t *testing.T) {
+
+		params := Params{
+			Action: ActionDeploySimple,
+		}
+
+		// act
+		include := generateIncludeManifestsData(params)
+
+		assert.False(t, include.ApplicationSecret)
+	})
+
+	// t.Run("AddLocalManifestsIfSetInLocalManifestsParam", func(t *testing.T) {
+
+	// 	params := Params{
+	// 		Action: ActionDeploySimple,
+	// 		Manifests: ManifestsParams{
+	// 			Files: []string{
+	// 				"./gke/another-ingress.yaml",
+	// 			},
+	// 		},
+	// 	}
+
+	// 	// act
+	// 	include := generateIncludeManifestsData(params)
+
+	// 	assert.True(t, stringArrayContains(templates, "./gke/another-ingress.yaml"))
+	// })
+
+	// t.Run("OverrideWithLocalManifestsIfSetInLocalManifestsParamWithSameFilename", func(t *testing.T) {
+
+	// 	params := Params{
+	// 		Action: ActionDeploySimple,
+	// 		Manifests: ManifestsParams{
+	// 			Files: []string{
+	// 				"./gke/service.yaml",
+	// 			},
+	// 		},
+	// 	}
+
+	// 	// act
+	// 	include := generateIncludeManifestsData(params)
+
+	// 	assert.True(t, stringArrayContains(templates, "./gke/service.yaml"))
+	// 	assert.False(t, stringArrayContains(templates, "/templates/service.yaml"))
+	// })
+
+	t.Run("ReturnsEmptyListIfActionIsRollbackCanaray", func(t *testing.T) {
+
+		params := Params{
+			Action: ActionRollbackCanary,
+		}
+
+		// act
+		include := generateIncludeManifestsData(params)
+
+		assert.False(t, include.ApplicationSecret)
+		assert.False(t, include.BackendConfig)
+		assert.False(t, include.CertificateSecret)
+		assert.False(t, include.ApplicationConfig)
+		assert.False(t, include.CronJob)
+		assert.False(t, include.Deployment)
+		assert.False(t, include.HorizontalPodAutoscaler)
+		assert.False(t, include.IAPSecret)
+		assert.False(t, include.Ingress)
+		assert.False(t, include.IngressApigee)
+		assert.False(t, include.IngressInternal)
+		assert.False(t, include.Job)
+		assert.False(t, include.PodDisruptionBudget)
+		assert.False(t, include.Service)
+		assert.False(t, include.ServiceAccountSecret)
+		assert.False(t, include.ServiceHeadless)
+		assert.False(t, include.ServiceAccount)
+		assert.False(t, include.StatefulSet)
+	})
+
+	t.Run("ReturnsOnlyHorizontalPodAutoscalerAndPodDisruptionBudgetIfActionIsDeployCanary", func(t *testing.T) {
+
+		params := Params{
+			Action: ActionDeployCanary,
+		}
+
+		// act
+		include := generateIncludeManifestsData(params)
+
+		assert.False(t, include.HorizontalPodAutoscaler)
+		assert.False(t, include.PodDisruptionBudget)
+	})
+
+	t.Run("DoesNotIncludeCertificateSecretIfCertificateSecretIsSet", func(t *testing.T) {
+
+		params := Params{
+			Action:            ActionDeploySimple,
+			Kind:              KindDeployment,
+			CertificateSecret: "shared-wildcard-letsencrypt-certificate",
+		}
+
+		// act
+		include := generateIncludeManifestsData(params)
+
+		assert.False(t, include.CertificateSecret)
+	})
+
+	t.Run("IncludesCertificateSecretIfCertificateSecretIsNotSet", func(t *testing.T) {
+
+		params := Params{
+			Action: ActionDeploySimple,
+			Kind:   KindDeployment,
+		}
+
+		// act
+		include := generateIncludeManifestsData(params)
+
+		assert.True(t, include.CertificateSecret)
+	})
+
+	t.Run("IncludesApigeeIngressIfVisibilityIsApigeeAndKindIsDeployment", func(t *testing.T) {
+
+		params := Params{
+			Action:     ActionDeploySimple,
+			Visibility: VisibilityApigee,
+			Kind:       KindDeployment,
+		}
+
+		// act
+		include := generateIncludeManifestsData(params)
+
+		assert.True(t, include.IngressApigee)
+		assert.True(t, include.Ingress)
+	})
+}

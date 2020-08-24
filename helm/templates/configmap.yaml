@@ -1,0 +1,13 @@
+{{- if .Values.Include.ApplicationConfig -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "gke-app.fullname" . }}-configs
+  labels:
+    {{- include "gke-app.labels" . | nindent 4 }}
+data:
+  {{- range $filename, $filecontent := .Values.ConfigmapFiles}}
+  {{$filename}}: |-
+{{$filecontent | indent 4}}
+  {{- end}}
+{{- end -}}

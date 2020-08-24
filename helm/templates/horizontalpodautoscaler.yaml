@@ -1,0 +1,24 @@
+{{- if .Values.Include.HorizontalPodAutoscaler -}}
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "gke-app.fullname" . }}
+  labels:
+    {{- include "gke-app.labels" . | nindent 4 }}
+  {{- if .UseHpaScaler}}
+  annotations:
+    estafette.io/hpa-scaler: "true"
+    estafette.io/hpa-scaler-prometheus-query: "{{.Values.HpaScalerPromQuery}}"
+    estafette.io/hpa-scaler-requests-per-replica: "{{.Values.HpaScalerRequestsPerReplica}}"
+    estafette.io/hpa-scaler-delta: "{{.Values.HpaScalerDelta}}"
+    estafette.io/hpa-scaler-scale-down-max-ratio: "{{.Values.HpaScalerScaleDownMaxRatio}}"
+  {{- end}}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{.Values.NameWithTrack}}
+  minReplicas: {{.Values.MinReplicas}}
+  maxReplicas: {{.Values.MaxReplicas}}
+  targetCPUUtilizationPercentage: {{.Values.TargetCPUPercentage}}
+{{- end -}}

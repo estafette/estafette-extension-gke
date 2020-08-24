@@ -191,20 +191,6 @@ func main() {
 	}
 	foundation.RunCommandWithArgs(ctx, "gcloud", clustersGetCredentialsArsgs)
 
-	// combine templates
-	tmpl, err := buildTemplates(params, true)
-	if err != nil {
-		log.Fatal().Err(err).Msg("Failed building templates")
-	}
-
-	tmplNoPDB, err := buildTemplates(params, false)
-	if err != nil {
-		log.Fatal().Err(err).Msg("Failed building templates without poddisruptionbudget")
-	}
-
-	// pre-render config files if they exist
-	params.Configs.RenderedFileContent = renderConfig(params)
-
 	// checking number of replicas for existing deployment to make switching deployment type safe
 	currentReplicas := params.Replicas
 	if params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment {
@@ -214,49 +200,26 @@ func main() {
 	// generate the data required for rendering the templates
 	templateData := generateTemplateData(params, currentReplicas, *gitSource, *gitOwner, *gitName, *gitBranch, *gitRevision, *releaseID, *triggeredBy)
 
-	// render the template
-	renderedTemplate, err := renderTemplate(tmpl, templateData, true)
+	err = generateValues(templateData)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed rendering templates")
-	}
-	renderedNoPDBTemplate, err := renderTemplate(tmplNoPDB, templateData, false)
-	if err != nil {
-		log.Fatal().Err(err).Msg("Failed rendering templates without poddisruptionbudget")
+		log.Fatal().Err(err).Msg("Failed writing helm values.yaml")
 	}
 
-	if tmpl != nil {
-		log.Info().Msg("Storing rendered manifest on disk...")
-		err = ioutil.WriteFile("/kubernetes.yaml", renderedTemplate.Bytes(), 0600)
-		if err != nil {
-			log.Fatal().Err(err).Msg("Failed writing manifest")
-		}
-	}
+	foundation.RunCommandWithArgs(ctx, "/helm", []string{"lint", "helm-chart"})
 
-	if tmplNoPDB != nil {
-		log.Info().Msg("Storing rendered manifest without poddisruptionbudget on disk...")
-		err = ioutil.WriteFile("/kubernetes-no-pdb.yaml", renderedNoPDBTemplate.Bytes(), 0600)
-		if err != nil {
-			log.Fatal().Err(err).Msg("Failed writing manifest without poddisruptionbudget")
-		}
-	}
+	// visibility public is deprecated, so fail if creating new public service
+	failIfCreatingNewPublicService(ctx, params, templateData, templateData.Name, templateData.Namespace)
 
-	if tmpl != nil {
-		// visibility public is deprecated, so fail if creating new public service
-		failIfCreatingNewPublicService(ctx, params, templateData, templateData.Name, templateData.Namespace)
+	// fix resources before server-side dry-run to avoid failure
+	cleanupJobIfRequired(ctx, params, templateData, templateData.Name, templateData.Namespace)
+	patchServiceIfRequired(ctx, params, templateData, templateData.Name, templateData.Namespace)
+	patchDeploymentIfRequired(ctx, params, templateData.Name, templateData.Namespace)
 
-		// fix resources before server-side dry-run to avoid failure
-		cleanupJobIfRequired(ctx, params, templateData, templateData.Name, templateData.Namespace)
-		patchServiceIfRequired(ctx, params, templateData, templateData.Name, templateData.Namespace)
-		patchDeploymentIfRequired(ctx, params, templateData.Name, templateData.Namespace)
+	log.Info().Msg("Linting Helm chart...")
+	foundation.RunCommand(ctx, "/helm lint /helm-chart")
 
-		// always perform a dryrun to ensure we're not ending up in a semi broken state where half of the templates is successfully applied and others not
-		// await https://github.com/kubernetes/kubernetes/issues/83562 to switch back to server-side dry-run and not fail for new namespaces
-		log.Info().Msg("Performing a dryrun to test the validity of the manifests...")
-		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"apply", "-f", "/kubernetes-no-pdb.yaml", "-n", templateData.Namespace, "--dry-run=client"})
-
-		log.Info().Msg("Performing a diff to show what's changed...")
-		_ = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"diff", "-f", "/kubernetes-no-pdb.yaml", "-n", templateData.Namespace})
-	}
+	log.Info().Msg("Performing a diff to show what's changed...")
+	foundation.RunCommand(ctx, "/helm diff upgrade %v /helm-chart --install -n %v", params.App, templateData.Namespace)
 
 	if !params.DryRun && params.Action != ActionDiffSimple && params.Action != ActionDiffCanary && params.Action != ActionDiffStable {
 
@@ -264,23 +227,12 @@ func main() {
 		assistTroubleshootingOnError = true
 		paramsForTroubleshooting = params
 
-		if tmpl != nil {
-			deployGoogleEndpointsServiceIfRequired(ctx, params)
-			removePoddisruptionBudgetIfRequired(ctx, params, templateData.NameWithTrack, templateData.Namespace)
-			removeIngressIfRequired(ctx, params, templateData, templateData.Name, templateData.Namespace)
+		deployGoogleEndpointsServiceIfRequired(ctx, params)
+		removePoddisruptionBudgetIfRequired(ctx, params, templateData.NameWithTrack, templateData.Namespace)
+		removeIngressIfRequired(ctx, params, templateData, templateData.Name, templateData.Namespace)
 
-			log.Info().Msg("Applying the manifests for real...")
-			foundation.RunCommandWithArgs(ctx, "kubectl", []string{"apply", "-f", "/kubernetes.yaml", "-n", templateData.Namespace})
-
-			if params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment {
-				log.Info().Msg("Waiting for the deployment to finish...")
-				err = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"rollout", "status", "deployment", templateData.NameWithTrack, "-n", templateData.Namespace})
-			}
-			if params.Kind == KindStatefulset {
-				log.Info().Msg("Waiting for the statefulset to finish...")
-				err = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"rollout", "status", "statefulset", templateData.Name, "-n", templateData.Namespace})
-			}
-		}
+		log.Info().Msg("Upgrading Helm chart for real...")
+		foundation.RunCommand(ctx, "/helm upgrade %v /helm-chart --install -n %v --atomic --cleanup-on-fail", params.App, templateData.Namespace)
 
 		if err != nil {
 			assistTroubleshooting(ctx, templateData, err)
