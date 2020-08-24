@@ -66,7 +66,7 @@ stages:
     - extensions
     path: ./publish
     copy:
-    - templates
+    - helm
 
   check-container:
     parallelStages:
