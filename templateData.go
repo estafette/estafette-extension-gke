@@ -80,6 +80,9 @@ type TemplateData struct {
 	AdditionalContainerPorts             []AdditionalPortData
 	AdditionalServicePorts               []AdditionalPortData
 	OverrideDefaultWhitelist             bool
+	NginxIngressClass                    string
+	NginxIngressClassInternal            string
+	NginxIngressClassApigee              string
 	NginxIngressWhitelist                string
 	NginxIngressClientBodyBufferSize     string
 	NginxIngressProxyConnectTimeout      int

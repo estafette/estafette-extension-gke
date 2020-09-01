@@ -37,6 +37,9 @@ type Params struct {
 	StorageMountPath                string              `json:"storagemountpath,omitempty" yaml:"storagemountpath,omitempty"`
 	Labels                          map[string]string   `json:"labels,omitempty" yaml:"labels,omitempty"`
 	Visibility                      Visibility          `json:"visibility,omitempty" yaml:"visibility,omitempty"`
+	IngressClass                    string              `json:"ingressclass,omitempty" yaml:"ingressclass,omitempty"`
+	IngressClassInternal            string              `json:"ingressclassinternal,omitempty" yaml:"ingressclassinternal,omitempty"`
+	IngressClassApigee              string              `json:"ingressclassapigee,omitempty" yaml:"ingressclassapigee,omitempty"`
 	ContainerNativeLoadBalancing    bool                `json:"containerNativeLoadBalancing,omitempty" yaml:"containerNativeLoadBalancing,omitempty"`
 	IapOauthCredentialsClientID     string              `json:"iapOauthClientID,omitempty" yaml:"iapOauthClientID,omitempty"`
 	IapOauthCredentialsClientSecret string              `json:"iapOauthClientSecret,omitempty" yaml:"iapOauthClientSecret,omitempty"`
@@ -517,6 +520,16 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 		if p.ApigeeSuffix == "" {
 			p.ApigeeSuffix = "apigee"
 		}
+	}
+
+	if p.IngressClass == "" {
+		p.IngressClass = "nginx-office"
+	}
+	if p.IngressClassApigee == "" {
+		p.IngressClassApigee = "nginx-open"
+	}
+	if p.IngressClassInternal == "" {
+		p.IngressClassInternal = "nginx-internal"
 	}
 
 	for i := range p.Sidecars {

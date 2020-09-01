@@ -2264,4 +2264,39 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, []string{"google-apigee.com", "estafette-apigee.io", "test-app-apigee"}, templateData.ApigeeHosts)
 		assert.Equal(t, "google-apigee.com,estafette-apigee.io,test-app-apigee", templateData.ApigeeHostsJoined)
 	})
+
+	t.Run("SetsDefaultNginxIngressClassIfVisibilityParamIsApigee", func(t *testing.T) {
+
+		params := Params{
+			Visibility: VisibilityApigee,
+			Hosts:      []string{"google.com", "estafette.io", "test-app"},
+		}
+
+		// act
+		params.SetDefaults("github.com", "estafette", "estafette-extension-gke", "sample-app", "0.1.0", "test", "deploy", nil)
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.Equal(t, "nginx-open", templateData.NginxIngressClassApigee)
+		assert.Equal(t, "nginx-internal", templateData.NginxIngressClassInternal)
+		assert.Equal(t, "nginx-office", templateData.NginxIngressClass)
+	})
+
+	t.Run("SetsCustomNginxIngressClassIfVisibilityParamIsApigee", func(t *testing.T) {
+
+		params := Params{
+			Visibility:           VisibilityApigee,
+			IngressClassApigee:   "ingress-nginx-open-v1",
+			IngressClassInternal: "ingress-nginx-internal-v1",
+			IngressClass:         "ingress-nginx-office-v1",
+			Hosts:                []string{"google.com", "estafette.io", "test-app"},
+		}
+
+		// act
+		params.SetDefaults("github.com", "estafette", "estafette-extension-gke", "sample-app", "0.1.0", "test", "deploy", nil)
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.Equal(t, "ingress-nginx-open-v1", templateData.NginxIngressClassApigee)
+		assert.Equal(t, "ingress-nginx-internal-v1", templateData.NginxIngressClassInternal)
+		assert.Equal(t, "ingress-nginx-office-v1", templateData.NginxIngressClass)
+	})
 }

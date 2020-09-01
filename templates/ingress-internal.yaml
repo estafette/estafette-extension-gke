@@ -8,7 +8,7 @@ metadata:
     {{$key}}: {{$value}}
     {{- end}}
   annotations:
-    kubernetes.io/ingress.class: "nginx-internal"
+    kubernetes.io/ingress.class: "{{.NginxIngressClassInternal}}"
     {{- if .UseHTTPS }}
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     nginx.ingress.kubernetes.io/proxy-ssl-verify: "on"

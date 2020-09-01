@@ -268,10 +268,13 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		data.ManifestData[k] = v
 	}
 
+	data.NginxIngressClassInternal = params.IngressClassInternal
+
 	switch params.Visibility {
 	case VisibilityPrivate:
 		data.ServiceType = "ClusterIP"
 		data.UseNginxIngress = true
+		data.NginxIngressClass = params.IngressClass
 		data.UseGCEIngress = false
 		data.UseDNSAnnotationsOnIngress = true
 		data.UseDNSAnnotationsOnService = false
@@ -298,6 +301,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 	case VisibilityPublicWhitelist:
 		data.ServiceType = "ClusterIP"
 		data.UseNginxIngress = true
+		data.NginxIngressClass = params.IngressClass
 		data.UseGCEIngress = false
 		data.UseDNSAnnotationsOnIngress = true
 		data.UseDNSAnnotationsOnService = false
@@ -311,6 +315,8 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 	case VisibilityApigee:
 		data.ServiceType = "ClusterIP"
 		data.UseNginxIngress = true
+		data.NginxIngressClass = params.IngressClass
+		data.NginxIngressClassApigee = params.IngressClassApigee
 		data.UseGCEIngress = false
 		data.UseDNSAnnotationsOnIngress = true
 		data.UseDNSAnnotationsOnService = false
