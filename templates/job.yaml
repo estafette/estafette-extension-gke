@@ -23,6 +23,18 @@ spec:
         prometheus.io/port: "{{.Container.Metrics.Port}}"
         prometheus.io/scrape-nginx-sidecar: "{{.HasOpenrestySidecar}}"
     spec:
+      {{- if .Tolerations}}
+      tolerations:
+        {{- range .Tolerations}}
+        key: {{.Key}}
+        value: {{.Value}}
+        operator: {{.Operator}}
+        effect: {{.Effect}}
+        {{- if .TolerationsSeconds}}
+        tolerationSeconds: {{.TolerationsSeconds}}
+        {{- end}}
+        {{- end}}
+        {{- end}}
       restartPolicy: {{.RestartPolicy}}
       serviceAccount: {{.Name}}
       containers:

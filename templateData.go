@@ -94,6 +94,7 @@ type TemplateData struct {
 	BackendConfigTimeout                 int
 	NginxAuthTLSSecret                   string
 	NginxAuthTLSVerifyDepth              int
+	Tolerations                          []Toleration
 
 	IncludeReplicas                 bool
 	Replicas                        int
@@ -174,4 +175,12 @@ type AdditionalPortData struct {
 	Name     string
 	Port     int
 	Protocol string
+}
+
+type Toleration struct {
+	Key               string
+	Value             string
+	Operator          string
+	Effect            string
+	TolerationSeconds int
 }

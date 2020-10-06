@@ -15,6 +15,18 @@ spec:
   suspend: false  
   jobTemplate:
     spec:
+      {{- if .Tolerations}}
+      tolerations:
+        {{- range .Tolerations}}
+        key: {{.Key}}
+        value: {{.Value}}
+        operator: {{.Operator}}
+        effect: {{.Effect}}
+        {{- if .TolerationsSeconds}}
+        tolerationSeconds: {{.TolerationsSeconds}}
+        {{- end}}
+        {{- end}}
+        {{- end}}
       completions: {{.Completions}}
       parallelism: {{.Parallelism}}
       backoffLimit: {{.BackoffLimit}}

@@ -25,6 +25,18 @@ spec:
       {{- if .IncludeTrackLabel}}
       track: {{.TrackLabel}}
       {{- end}}
+  {{- if .Tolerations}}
+  tolerations:
+    {{- range .Tolerations}}
+    key: {{.Key}}
+    value: {{.Value}}
+    operator: {{.Operator}}
+    effect: {{.Effect}}
+    {{- if .TolerationsSeconds}}
+    tolerationSeconds: {{.TolerationsSeconds}}
+    {{- end}}
+    {{- end}}
+    {{- end}}
   template:
     metadata:
       labels:
