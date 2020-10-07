@@ -54,6 +54,7 @@ type Params struct {
 	Configs                         ConfigsParams       `json:"configs,omitempty" yaml:"configs,omitempty"`
 	VolumeMounts                    []VolumeMountParams `json:"volumemounts,omitempty" yaml:"volumemounts,omitempty"`
 	CertificateSecret               string              `json:"certificatesecret,omitempty" yaml:"certificatesecret,omitempty"`
+	ProxyBackend                    string              `json:"proxyBackend,omitempty" yaml:"proxyBackend,omitempty"`
 
 	EnablePayloadLogging                   bool   `json:"enablePayloadLogging,omitempty" yaml:"enablePayloadLogging,omitempty"`
 	UseGoogleCloudCredentials              bool   `json:"useGoogleCloudCredentials,omitempty" yaml:"useGoogleCloudCredentials,omitempty"`
@@ -448,8 +449,11 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 		p.Container.Metrics.Port = p.Container.Port
 	}
 	if p.Container.Metrics.Scrape == nil {
-		trueValue := true
-		p.Container.Metrics.Scrape = &trueValue
+		defaultValue := true
+		if p.Kind == KindProxyDeployment {
+			defaultValue = false
+		}
+		p.Container.Metrics.Scrape = &defaultValue
 	}
 
 	// set lifecycle defaults
@@ -481,7 +485,7 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	}
 
 	// inject an openresty sidecar in the sidecars list if it isn't there yet for deployments
-	if *p.InjectHTTPProxySidecar && !openrestySidecarSpecifiedInList && p.Kind == KindDeployment {
+	if *p.InjectHTTPProxySidecar && !openrestySidecarSpecifiedInList && (p.Kind == KindDeployment || p.Kind == KindProxyDeployment) {
 		openrestySidecar := SidecarParams{Type: SidecarTypeOpenresty}
 		p.initializeSidecarDefaults(&openrestySidecar)
 
@@ -502,7 +506,7 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 		}
 
 		// inject an esp sidecar in the sidecars list if it isn't there yet for deployments
-		if *p.InjectHTTPProxySidecar && !espSidecarSpecifiedInList && p.Kind == KindDeployment {
+		if *p.InjectHTTPProxySidecar && !espSidecarSpecifiedInList && (p.Kind == KindDeployment || p.Kind == KindProxyDeployment) {
 			espSidecar := SidecarParams{Type: SidecarTypeESP}
 			p.initializeSidecarDefaults(&espSidecar)
 
@@ -621,7 +625,7 @@ func (p *Params) initializeSidecarDefaults(sidecar *SidecarParams) {
 		}
 	case SidecarTypeESP:
 		if sidecar.Image == "" {
-			sidecar.Image = "gcr.io/endpoints-release/endpoints-runtime:1.50.0"
+			sidecar.Image = "gcr.io/endpoints-release/endpoints-runtime:1.53.0"
 		}
 	case SidecarTypeCloudSQLProxy:
 		if sidecar.Image == "" {
@@ -690,13 +694,13 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 	}
 
 	// validate container params
-	if p.Container.ImageRepository == "" {
+	if p.Container.ImageRepository == "" && p.Kind != KindProxyDeployment {
 		errors = append(errors, fmt.Errorf("Image repository is required; set it via container.repository property on this stage"))
 	}
-	if p.Container.ImageName == "" {
+	if p.Container.ImageName == "" && p.Kind != KindProxyDeployment {
 		errors = append(errors, fmt.Errorf("Image name is required; set it via container.name property on this stage"))
 	}
-	if p.Container.ImageTag == "" {
+	if p.Container.ImageTag == "" && p.Kind != KindProxyDeployment {
 		errors = append(errors, fmt.Errorf("Image tag is required; set it via container.tag property on this stage"))
 	}
 
@@ -760,7 +764,7 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 		}
 	}
 	// validate params with respect to incoming requests
-	if p.Kind == KindDeployment {
+	if p.Kind == KindDeployment || p.Kind == KindProxyDeployment {
 		if p.Visibility == VisibilityUnknown || (p.Visibility != VisibilityPrivate && p.Visibility != VisibilityPublic && p.Visibility != VisibilityIAP && p.Visibility != VisibilityESP && p.Visibility != VisibilityPublicWhitelist && p.Visibility != VisibilityApigee) {
 			errors = append(errors, fmt.Errorf("Visibility property is required; set it via visibility property on this stage; allowed values are private, iap, esp, public-whitelist, public or apigee"))
 		}
@@ -774,10 +778,10 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 			errors = append(errors, fmt.Errorf("With visibility 'iap' property iapOauthClientSecret is required; set it via iapOauthClientSecret property on this stage"))
 		}
 
-		if p.Visibility == VisibilityESP && !p.UseGoogleCloudCredentials {
+		if p.Visibility == VisibilityESP && !p.UseGoogleCloudCredentials && p.LegacyGoogleCloudServiceAccountKeyFile == "" {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property useGoogleCloudCredentials is required; set useGoogleCloudCredentials: true on this stage"))
 		}
-		if p.Visibility == VisibilityESP && (p.DisableServiceAccountKeyRotation == nil || !*p.DisableServiceAccountKeyRotation) {
+		if p.Visibility == VisibilityESP && (p.DisableServiceAccountKeyRotation == nil || !*p.DisableServiceAccountKeyRotation) && p.LegacyGoogleCloudServiceAccountKeyFile == "" {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property disableServiceAccountKeyRotation is required; set disableServiceAccountKeyRotation: true on this stage"))
 		}
 		if p.Visibility == VisibilityESP && (p.EspEndpointsProjectID == "") {
@@ -834,6 +838,10 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 				}
 			}
 		}
+	}
+
+	if p.Kind == KindProxyDeployment && p.ProxyBackend == "" {
+		errors = append(errors, fmt.Errorf("ProxyBackend property is required for kind: proxy-deployment; set it via proxyBackend property on this stage (i.e. http://backendservice:80)"))
 	}
 
 	if p.Basepath == "" {

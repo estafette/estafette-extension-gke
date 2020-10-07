@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
@@ -48,7 +49,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		HpaScalerScaleDownMaxRatio:  params.Autoscale.Safety.ScaleDownRatio,
 
 		Secrets:                 params.Secrets.Keys,
-		MountSslCertificate:     params.Kind == KindDeployment,
+		MountSslCertificate:     params.Kind == KindDeployment || params.Kind == KindProxyDeployment,
 		MountApplicationSecrets: len(params.Secrets.Keys) > 0,
 		SecretMountPath:         params.Secrets.MountPath,
 		MountConfigmap:          len(params.Configs.Files) > 0 || len(params.Configs.InlineFiles) > 0,
@@ -110,6 +111,11 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 			},
 		},
 
+		IncludeApplicationContainer: true,
+		OffloadToProto:              "http",
+		OffloadToHost:               "127.0.0.1",
+		OffloadToPort:               params.Container.Port,
+
 		// IsSimpleEnvvarValue returns true if a value should be wrapped in 'value: ""', otherwise the interface should be outputted as yaml
 		IsSimpleEnvvarValue: isSimpleEnvvarValue,
 		ToYAML:              toYAML,
@@ -161,6 +167,32 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 	data.UseESP = params.Visibility == VisibilityESP
 	data.HasEspConfigID = params.EspConfigID != ""
 	data.EspConfigID = params.EspConfigID
+
+	if params.Kind == KindProxyDeployment {
+		data.IncludeApplicationContainer = false
+
+		// extract Offload params from ProxyBackend
+		proxyBackendURL, err := url.Parse(params.ProxyBackend)
+		if err == nil {
+			data.OffloadToProto = proxyBackendURL.Scheme
+			data.OffloadToHost = proxyBackendURL.Host
+			port := proxyBackendURL.Port()
+			if port != "" {
+				portInt, err := strconv.Atoi(port)
+				if err == nil {
+					data.OffloadToPort = portInt
+				}
+			} else {
+				switch proxyBackendURL.Scheme {
+				case "https":
+					data.OffloadToPort = 443
+				case "http":
+					data.OffloadToPort = 80
+				}
+			}
+
+		}
+	}
 
 	if params.InitContainers != nil {
 		data.HasInitContainers = true

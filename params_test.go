@@ -1599,6 +1599,23 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, true, *params.Container.Metrics.Scrape)
 	})
 
+	t.Run("DefaultsMetricsScrapeToFalseIfEmptyAndKindProxyDeployment", func(t *testing.T) {
+
+		params := Params{
+			Kind: KindProxyDeployment,
+			Container: ContainerParams{
+				Metrics: MetricsParams{
+					Scrape: nil,
+				},
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, false, *params.Container.Metrics.Scrape)
+	})
+
 	t.Run("KeepsMetricsScrapeIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
@@ -3955,6 +3972,32 @@ func TestValidateRequiredProperties(t *testing.T) {
 		valid, errors, _ := params.ValidateRequiredProperties()
 		assert.False(t, valid)
 		assert.Equal(t, error_string, stringInErrorSlice(error_string, errors))
+	})
+
+	t.Run("ReturnsTrueIfKindIsProxyDeploymentAndProxyBackendIsNotEmpty", func(t *testing.T) {
+
+		params := validParams
+		params.Kind = KindProxyDeployment
+		params.ProxyBackend = "https://backendservice:443"
+
+		// act
+		valid, errors, _ := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfKindIsProxyDeploymentAndProxyBackendIsEmpty", func(t *testing.T) {
+
+		params := validParams
+		params.Kind = KindProxyDeployment
+		params.ProxyBackend = ""
+
+		// act
+		valid, errors, _ := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.True(t, len(errors) > 0)
 	})
 }
 

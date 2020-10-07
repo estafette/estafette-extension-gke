@@ -77,7 +77,8 @@ func getTemplates(params Params, includePodDisruptionBudget bool) []string {
 			templatesToMerge = append(templatesToMerge, "certificate-secret.yaml")
 		}
 
-	case KindDeployment:
+	case KindDeployment,
+		KindProxyDeployment:
 		templatesToMerge = append(templatesToMerge, []string{
 			"namespace.yaml",
 			"service.yaml",
@@ -96,25 +97,25 @@ func getTemplates(params Params, includePodDisruptionBudget bool) []string {
 		}...)
 	}
 
-	if includePodDisruptionBudget && (params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment || params.Kind == KindStatefulset) && (params.Action == ActionDeploySimple || params.Action == ActionDeployStable || params.Action == ActionDiffSimple || params.Action == ActionDiffCanary || params.Action == ActionDiffStable) {
+	if includePodDisruptionBudget && (params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment || params.Kind == KindProxyDeployment || params.Kind == KindStatefulset) && (params.Action == ActionDeploySimple || params.Action == ActionDeployStable || params.Action == ActionDiffSimple || params.Action == ActionDiffCanary || params.Action == ActionDiffStable) {
 		templatesToMerge = append(templatesToMerge, "poddisruptionbudget.yaml")
 	}
-	if (params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment) && params.Autoscale.Enabled != nil && *params.Autoscale.Enabled && params.StrategyType != "Recreate" && (params.Action == ActionDeploySimple || params.Action == ActionDeployStable || params.Action == ActionDiffSimple || params.Action == ActionDiffCanary || params.Action == ActionDiffStable) {
+	if (params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment || params.Kind == KindProxyDeployment) && params.Autoscale.Enabled != nil && *params.Autoscale.Enabled && params.StrategyType != "Recreate" && (params.Action == ActionDeploySimple || params.Action == ActionDeployStable || params.Action == ActionDiffSimple || params.Action == ActionDiffCanary || params.Action == ActionDiffStable) {
 		templatesToMerge = append(templatesToMerge, "horizontalpodautoscaler.yaml")
 	}
-	if (params.Kind == KindDeployment || params.Kind == KindStatefulset) && (params.Visibility == VisibilityPrivate || params.Visibility == VisibilityIAP || params.Visibility == VisibilityPublicWhitelist) {
+	if (params.Kind == KindDeployment || params.Kind == KindProxyDeployment || params.Kind == KindStatefulset) && (params.Visibility == VisibilityPrivate || params.Visibility == VisibilityIAP || params.Visibility == VisibilityPublicWhitelist) {
 		templatesToMerge = append(templatesToMerge, "ingress.yaml")
 	}
 
-	if params.Kind == KindDeployment && params.Visibility == VisibilityApigee {
+	if (params.Kind == KindDeployment || params.Kind == KindProxyDeployment) && params.Visibility == VisibilityApigee {
 		templatesToMerge = append(templatesToMerge, "ingress-apigee.yaml")
 		templatesToMerge = append(templatesToMerge, "ingress.yaml")
 	}
 
-	if (params.Kind == KindDeployment || params.Kind == KindStatefulset) && params.Visibility == VisibilityIAP {
+	if (params.Kind == KindDeployment || params.Kind == KindProxyDeployment || params.Kind == KindStatefulset) && params.Visibility == VisibilityIAP {
 		templatesToMerge = append(templatesToMerge, "backend-config.yaml", "iap-oauth-credentials-secret.yaml")
 	}
-	if (params.Kind == KindDeployment || params.Kind == KindStatefulset) && len(params.InternalHosts) > 0 {
+	if (params.Kind == KindDeployment || params.Kind == KindProxyDeployment || params.Kind == KindStatefulset) && len(params.InternalHosts) > 0 {
 		templatesToMerge = append(templatesToMerge, "ingress-internal.yaml")
 	}
 	if len(params.Secrets.Keys) > 0 {

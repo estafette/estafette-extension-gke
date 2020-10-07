@@ -95,6 +95,7 @@ type TemplateData struct {
 	NginxAuthTLSSecret                   string
 	NginxAuthTLSVerifyDepth              int
 
+	IncludeApplicationContainer     bool
 	IncludeReplicas                 bool
 	Replicas                        int
 	PodManagementPolicy             string
@@ -108,6 +109,10 @@ type TemplateData struct {
 	RenderToYAML                    func(v interface{}, data interface{}) string
 	UseCertificateSecret            bool
 	CertificateSecretName           string
+
+	OffloadToProto string
+	OffloadToHost  string
+	OffloadToPort  int
 }
 
 // ContainerData has data specific to the application container
