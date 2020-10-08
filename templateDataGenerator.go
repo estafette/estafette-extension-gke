@@ -162,6 +162,17 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 	data.HasEspConfigID = params.EspConfigID != ""
 	data.EspConfigID = params.EspConfigID
 
+	for _, tolerationParams := range params.Tolerations {
+		toleration := TolerationData{
+			Key:               tolerationParams.Key,
+			Value:             tolerationParams.Value,
+			Operator:          tolerationParams.Operator,
+			Effect:            tolerationParams.Effect,
+			TolerationSeconds: tolerationParams.TolerationSeconds,
+		}
+		data.Tolerations = append(data.Tolerations, toleration)
+	}
+
 	if params.InitContainers != nil {
 		data.HasInitContainers = true
 		data.InitContainers = params.InitContainers
