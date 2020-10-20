@@ -11,38 +11,6 @@ import (
 
 func TestInjectSteps(t *testing.T) {
 
-	t.Run("RenderTolerations", func(t *testing.T) {
-
-		tolerations := []Toleration{
-			Toleration{
-				Key:               "test",
-				Value:             "test",
-				Operator:          "Equal",
-				Effect:            "NoSchedule",
-				TolerationSeconds: 1000,
-			},
-		}
-
-		data := TemplateData{
-			Name:        "myapp",
-			Namespace:   "mynamespace",
-			Tolerations: tolerations,
-		}
-		tmpl, err := template.ParseFiles("templates/deployment.yaml")
-
-		if err != nil {
-			t.Fail()
-		}
-
-		// act
-		var renderedTemplate bytes.Buffer
-		err = tmpl.Execute(&renderedTemplate, data)
-
-		t.Log(renderedTemplate.String())
-
-		assert.True(t, strings.Contains(renderedTemplate.String(), "tolerations"))
-	})
-
 	t.Run("RenderNamespace", func(t *testing.T) {
 
 		data := TemplateData{
