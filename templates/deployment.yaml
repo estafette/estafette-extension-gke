@@ -28,7 +28,7 @@ spec:
   {{- if .Tolerations}}
   tolerations:
     {{- range .Tolerations}}
-    key: {{.Key}}
+  - key: {{.Key}}
     value: {{.Value}}
     operator: {{.Operator}}
     effect: {{.Effect}}
