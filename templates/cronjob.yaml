@@ -15,18 +15,6 @@ spec:
   suspend: false  
   jobTemplate:
     spec:
-      {{- if .Tolerations}}
-      tolerations:
-        {{- range .Tolerations}}
-      - key: {{.Key}}
-        value: {{.Value}}
-        operator: {{.Operator}}
-        effect: {{.Effect}}
-        {{- if .TolerationSeconds}}
-        tolerationSeconds: {{.TolerationSeconds}}
-        {{- end}}
-        {{- end}}
-        {{- end}}
       completions: {{.Completions}}
       parallelism: {{.Parallelism}}
       backoffLimit: {{.BackoffLimit}}
@@ -42,6 +30,18 @@ spec:
             prometheus.io/port: "{{.Container.Metrics.Port}}"
             prometheus.io/scrape-nginx-sidecar: "{{.HasOpenrestySidecar}}"
         spec:
+          {{- if .Tolerations}}
+          tolerations:
+            {{- range .Tolerations}}
+          - key: {{.Key}}
+            value: {{.Value}}
+            operator: {{.Operator}}
+            effect: {{.Effect}}
+            {{- if .TolerationSeconds}}
+            tolerationSeconds: {{.TolerationSeconds}}
+            {{- end}}
+            {{- end}}
+            {{- end}}
           restartPolicy: {{.RestartPolicy}}
           serviceAccount: {{.Name}}
           containers:

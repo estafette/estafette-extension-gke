@@ -25,18 +25,6 @@ spec:
       {{- if .IncludeTrackLabel}}
       track: {{.TrackLabel}}
       {{- end}}
-  {{- if .Tolerations}}
-  tolerations:
-    {{- range .Tolerations}}
-  - key: {{.Key}}
-    value: {{.Value}}
-    operator: {{.Operator}}
-    effect: {{.Effect}}
-    {{- if .TolerationSeconds}}
-    tolerationSeconds: {{.TolerationSeconds}}
-    {{- end}}
-    {{- end}}
-    {{- end}}
   template:
     metadata:
       labels:
@@ -55,6 +43,18 @@ spec:
         cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
         {{- end}}
     spec:
+      {{- if .Tolerations}}
+      tolerations:
+        {{- range .Tolerations}}
+      - key: {{.Key}}
+        value: {{.Value}}
+        operator: {{.Operator}}
+        effect: {{.Effect}}
+        {{- if .TolerationSeconds}}
+        tolerationSeconds: {{.TolerationSeconds}}
+        {{- end}}
+        {{- end}}
+        {{- end}}
       serviceAccount: {{.Name}}
       affinity:
         podAntiAffinity:
