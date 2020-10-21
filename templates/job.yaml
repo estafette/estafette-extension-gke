@@ -30,7 +30,9 @@ spec:
         value: {{.Value}}
         operator: {{.Operator}}
         effect: {{.Effect}}
-        tolerationSeconds: {{.TolerationsSeconds}}
+        {{- if .TolerationSeconds}}
+        tolerationSeconds: {{.TolerationSeconds}}
+        {{- end}}
         {{- end}}
         {{- end}}
       restartPolicy: {{.RestartPolicy}}
