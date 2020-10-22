@@ -270,7 +270,7 @@ func main() {
 			removeIngressIfRequired(ctx, params, templateData, templateData.Name, templateData.Namespace)
 
 			log.Info().Msg("Applying the manifests for real...")
-			foundation.RunCommandWithArgs(ctx, "kubectl", []string{"apply", "-f", "/kubernetes.yaml", "-n", templateData.Namespace})
+			foundation.RunCommandWithArgs(ctx, "kubectl", []string{"apply", "--record=false", "-f", "/kubernetes.yaml", "-n", templateData.Namespace})
 
 			if params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment {
 				log.Info().Msg("Waiting for the deployment to finish...")
