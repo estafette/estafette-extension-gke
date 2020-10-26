@@ -55,13 +55,13 @@ type Params struct {
 	VolumeMounts                    []VolumeMountParams `json:"volumemounts,omitempty" yaml:"volumemounts,omitempty"`
 	CertificateSecret               string              `json:"certificatesecret,omitempty" yaml:"certificatesecret,omitempty"`
 
-	EnablePayloadLogging                   bool         `json:"enablePayloadLogging,omitempty" yaml:"enablePayloadLogging,omitempty"`
-	UseGoogleCloudCredentials              bool         `json:"useGoogleCloudCredentials,omitempty" yaml:"useGoogleCloudCredentials,omitempty"`
-	DisableServiceAccountKeyRotation       *bool        `json:"disableServiceAccountKeyRotation,omitempty" yaml:"disableServiceAccountKeyRotation,omitempty"`
-	LegacyGoogleCloudServiceAccountKeyFile string       `json:"legacyGoogleCloudServiceAccountKeyFile,omitempty" yaml:"legacyGoogleCloudServiceAccountKeyFile,omitempty"`
-	GoogleCloudCredentialsApp              string       `json:"googleCloudCredentialsApp,omitempty" yaml:"googleCloudCredentialsApp,omitempty"`
-	ProbeService                           *bool        `json:"probeService,omitempty" yaml:"probeService,omitempty"`
-	Tolerations                            []Toleration `json:"tolerations,omitempty" yaml:"tolerations,omitempty"`
+	EnablePayloadLogging                   bool                      `json:"enablePayloadLogging,omitempty" yaml:"enablePayloadLogging,omitempty"`
+	UseGoogleCloudCredentials              bool                      `json:"useGoogleCloudCredentials,omitempty" yaml:"useGoogleCloudCredentials,omitempty"`
+	DisableServiceAccountKeyRotation       *bool                     `json:"disableServiceAccountKeyRotation,omitempty" yaml:"disableServiceAccountKeyRotation,omitempty"`
+	LegacyGoogleCloudServiceAccountKeyFile string                    `json:"legacyGoogleCloudServiceAccountKeyFile,omitempty" yaml:"legacyGoogleCloudServiceAccountKeyFile,omitempty"`
+	GoogleCloudCredentialsApp              string                    `json:"googleCloudCredentialsApp,omitempty" yaml:"googleCloudCredentialsApp,omitempty"`
+	ProbeService                           *bool                     `json:"probeService,omitempty" yaml:"probeService,omitempty"`
+	Tolerations                            []*map[string]interface{} `json:"tolerations,omitempty" yaml:"tolerations,omitempty"`
 
 	// container params
 	Container              ContainerParams           `json:"container,omitempty" yaml:"container,omitempty"`
@@ -71,14 +71,6 @@ type Params struct {
 	Sidecars               []*SidecarParams          `json:"sidecars,omitempty" yaml:"sidecars,omitempty"`
 	StrategyType           string                    `json:"strategytype,omitempty" yaml:"strategytype,omitempty"`
 	RollingUpdate          RollingUpdateParams       `json:"rollingupdate,omitempty" yaml:"rollingupdate,omitempty"`
-}
-
-type Toleration struct {
-	Key               string `json:"key,omitempty" yaml:"key,omitempty"`
-	Value             string `json:"value,omitempty" yaml:"value,omitempty"`
-	Operator          string `json:"operator,omitempty" yaml:"operator,omitempty"`
-	Effect            string `json:"effect,omitempty" yaml:"effect,omitempty"`
-	TolerationSeconds int    `json:"tolerationSeconds,omitempty" yaml:"tolerationSeconds,omitempty"`
 }
 
 // ContainerParams defines the container image to deploy

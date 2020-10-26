@@ -23,18 +23,10 @@ spec:
         prometheus.io/port: "{{.Container.Metrics.Port}}"
         prometheus.io/scrape-nginx-sidecar: "{{.HasOpenrestySidecar}}"
     spec:
-      {{- if .Tolerations}}
+      {{- if .HasTolerations }}
       tolerations:
-        {{- range .Tolerations}}
-      - key: {{.Key}}
-        value: {{.Value}}
-        operator: {{.Operator}}
-        effect: {{.Effect}}
-        {{- if .TolerationSeconds}}
-        tolerationSeconds: {{.TolerationSeconds}}
-        {{- end}}
-        {{- end}}
-        {{- end}}
+{{(call $.ToYAML .Tolerations) | indent 6}}
+      {{- end}}
       restartPolicy: {{.RestartPolicy}}
       serviceAccount: {{.Name}}
       containers:
