@@ -314,6 +314,12 @@ stages:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
         credentials: gke-tooling
         kind: job
+        tolerations:
+        - key: "test-key"
+          operator: "Equal"
+          value: "test-value"
+          effect: "NoExecute"
+          tolerationSeconds: 1200
         container:
           repository: extensions
           env:
@@ -334,6 +340,12 @@ stages:
         kind: cronjob
         schedule: "*/5 * * * *"
         concurrencypolicy: Forbid
+        tolerations:
+        - key: "test-key"
+          operator: "Equal"
+          value: "test-value"
+          effect: "NoExecute"
+          tolerationSeconds: 1200
         container:
           repository: extensions
           env:
@@ -376,6 +388,12 @@ stages:
         credentials: gke-tooling
         kind: headless-deployment
         strategytype: Recreate
+        tolerations:
+        - key: "test-key"
+          operator: "Equal"
+          value: "test-value"
+          effect: "NoExecute"
+          tolerationSeconds: 1200
         container:
           repository: extensions
           env:

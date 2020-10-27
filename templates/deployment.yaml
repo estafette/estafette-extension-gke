@@ -43,6 +43,10 @@ spec:
         cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
         {{- end}}
     spec:
+      {{- if .HasTolerations }}
+      tolerations:
+{{(call $.ToYAML .Tolerations) | indent 6}}
+      {{- end}}
       serviceAccount: {{.Name}}
       affinity:
         podAntiAffinity:

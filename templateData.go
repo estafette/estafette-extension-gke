@@ -94,6 +94,8 @@ type TemplateData struct {
 	BackendConfigTimeout                 int
 	NginxAuthTLSSecret                   string
 	NginxAuthTLSVerifyDepth              int
+	Tolerations                          []*map[string]interface{}
+	HasTolerations                       bool
 
 	IncludeReplicas                 bool
 	Replicas                        int
