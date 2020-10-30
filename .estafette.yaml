@@ -13,7 +13,7 @@ version:
 
 stages:
   build:
-    image: golang:1.14.4-alpine3.12
+    image: golang:1.15.3-alpine3.12
     env:
       CGO_ENABLED: 0
       GOOS: linux
@@ -26,7 +26,7 @@ stages:
     image: extensions/docker:dev
     action: build
     inline: |
-      FROM google/cloud-sdk:302.0.0-alpine
+      FROM google/cloud-sdk:316.0.0-alpine
 
       LABEL maintainer="estafette.io" \
             description="The ${ESTAFETTE_GIT_NAME} component is an Estafette extension to deploy applications to a Kubernetes Engine cluster"
@@ -35,7 +35,7 @@ stages:
           && apk add --upgrade gnupg \
           && rm /var/cache/apk/*
 
-      RUN curl https://storage.googleapis.com/kubernetes-release/release/v1.18.2/bin/linux/amd64/kubectl --output /google-cloud-sdk/bin/kubectl \
+      RUN curl https://storage.googleapis.com/kubernetes-release/release/v1.19.0/bin/linux/amd64/kubectl --output /google-cloud-sdk/bin/kubectl \
           && chmod +x /google-cloud-sdk/bin/kubectl \
           && kubectl version --client
 
