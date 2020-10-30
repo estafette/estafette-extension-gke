@@ -158,6 +158,11 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 			data.HasOpenrestySidecar = true
 		}
 	}
+	if params.CustomSidecars != nil {
+		data.HasCustomSidecars = true
+		data.CustomSidecars = params.CustomSidecars
+	}
+
 	data.UseESP = params.Visibility == VisibilityESP
 	data.HasEspConfigID = params.EspConfigID != ""
 	data.EspConfigID = params.EspConfigID

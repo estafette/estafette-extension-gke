@@ -69,6 +69,7 @@ type Params struct {
 	InitContainers         []*map[string]interface{} `json:"initcontainers,omitempty" yaml:"initcontainers,omitempty"`
 	Sidecar                SidecarParams             `json:"sidecar,omitempty" yaml:"sidecar,omitempty"`
 	Sidecars               []*SidecarParams          `json:"sidecars,omitempty" yaml:"sidecars,omitempty"`
+	CustomSidecars         []*map[string]interface{} `json:"customsidecars,omitempty" yaml:"customsidecars,omitempty"`
 	StrategyType           string                    `json:"strategytype,omitempty" yaml:"strategytype,omitempty"`
 	RollingUpdate          RollingUpdateParams       `json:"rollingupdate,omitempty" yaml:"rollingupdate,omitempty"`
 

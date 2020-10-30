@@ -80,7 +80,10 @@ spec:
             - name: {{.Name}}
               mountPath: {{.MountPath}}
             {{- end}}
-            {{- end }}
+          {{- end }}
+          {{- if .HasCustomSidecars }}
+{{(call $.ToYAML .CustomSidecars) | indent 10}}
+          {{- end}}
           terminationGracePeriodSeconds: 300
           {{- if or .MountApplicationSecrets .MountConfigmap .MountServiceAccountSecret .MountAdditionalVolumes }}
           volumes:
