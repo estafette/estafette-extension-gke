@@ -82,6 +82,7 @@ func main() {
 	}
 
 	log.Info().Msg("Unmarshalling credentials parameter...")
+	log.Debug().Msg(*paramsJSON)
 	var credentialsParam CredentialsParam
 	err := json.Unmarshal([]byte(*paramsJSON), &credentialsParam)
 	if err != nil {
