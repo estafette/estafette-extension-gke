@@ -71,6 +71,11 @@ type Params struct {
 	Sidecars               []*SidecarParams          `json:"sidecars,omitempty" yaml:"sidecars,omitempty"`
 	StrategyType           string                    `json:"strategytype,omitempty" yaml:"strategytype,omitempty"`
 	RollingUpdate          RollingUpdateParams       `json:"rollingupdate,omitempty" yaml:"rollingupdate,omitempty"`
+
+	// set default image for sidecars
+	DefaultOpenrestySidecarImage     string `json:"defaultOpenrestySidecarImage,omitempty" yaml:"defaultOpenrestySidecarImage,omitempty"`
+	DefaultESPSidecarImage           string `json:"defaultESPSidecarImage,omitempty" yaml:"defaultESPSidecarImage,omitempty"`
+	DefaultCloudSQLProxySidecarImage string `json:"defaultCloudSQLProxySidecarImage,omitempty" yaml:"defaultCloudSQLProxySidecarImage,omitempty"`
 }
 
 // ContainerParams defines the container image to deploy
@@ -520,6 +525,16 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 		}
 	}
 
+	if p.DefaultOpenrestySidecarImage == "" {
+		p.DefaultOpenrestySidecarImage = "estafette/openresty-sidecar@sha256:2aa9f2c8c3f506e0f6cc70871701b5ac81aa0f12e8574c7b8213e4d0379d2ddd"
+	}
+	if p.DefaultESPSidecarImage == "" {
+		p.DefaultESPSidecarImage = "gcr.io/endpoints-release/endpoints-runtime:1.50.0"
+	}
+	if p.DefaultCloudSQLProxySidecarImage == "" {
+		p.DefaultCloudSQLProxySidecarImage = "eu.gcr.io/cloudsql-docker/gce-proxy:1.17"
+	}
+
 	for i := range p.Sidecars {
 		p.initializeSidecarDefaults(p.Sidecars[i])
 	}
@@ -615,18 +630,18 @@ func (p *Params) initializeSidecarDefaults(sidecar *SidecarParams) {
 	switch sidecar.Type {
 	case SidecarTypeOpenresty:
 		if sidecar.Image == "" {
-			sidecar.Image = "estafette/openresty-sidecar@sha256:2aa9f2c8c3f506e0f6cc70871701b5ac81aa0f12e8574c7b8213e4d0379d2ddd"
+			sidecar.Image = p.DefaultOpenrestySidecarImage
 		}
 		if sidecar.HealthCheckPath == "" {
 			sidecar.HealthCheckPath = p.Container.ReadinessProbe.Path
 		}
 	case SidecarTypeESP:
 		if sidecar.Image == "" {
-			sidecar.Image = "gcr.io/endpoints-release/endpoints-runtime:1.50.0"
+			sidecar.Image = p.DefaultESPSidecarImage
 		}
 	case SidecarTypeCloudSQLProxy:
 		if sidecar.Image == "" {
-			sidecar.Image = "eu.gcr.io/cloudsql-docker/gce-proxy:1.17"
+			sidecar.Image = p.DefaultCloudSQLProxySidecarImage
 		}
 		if sidecar.SQLProxyPort <= 0 {
 			sidecar.SQLProxyPort = 5432
