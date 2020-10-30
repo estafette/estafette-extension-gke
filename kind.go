@@ -9,6 +9,7 @@ const (
 	KindJob                Kind = "job"
 	KindCronJob            Kind = "cronjob"
 	KindConfig             Kind = "config"
+	KindConfigToFile       Kind = "config-to-file"
 
 	KindUnknown Kind = ""
 )

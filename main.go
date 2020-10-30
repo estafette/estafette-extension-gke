@@ -204,6 +204,14 @@ func main() {
 
 	// pre-render config files if they exist
 	params.Configs.RenderedFileContent = renderConfig(params)
+	if params.Kind == KindConfigToFile {
+		// write files to working directory
+		for filename, data := range params.Configs.RenderedFileContent {
+			ioutil.WriteFile(filename, []byte(data), 0600)
+		}
+
+		return
+	}
 
 	// checking number of replicas for existing deployment to make switching deployment type safe
 	currentReplicas := params.Replicas
