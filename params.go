@@ -77,6 +77,10 @@ type Params struct {
 	DefaultOpenrestySidecarImage     string `json:"defaultOpenrestySidecarImage,omitempty" yaml:"defaultOpenrestySidecarImage,omitempty"`
 	DefaultESPSidecarImage           string `json:"defaultESPSidecarImage,omitempty" yaml:"defaultESPSidecarImage,omitempty"`
 	DefaultCloudSQLProxySidecarImage string `json:"defaultCloudSQLProxySidecarImage,omitempty" yaml:"defaultCloudSQLProxySidecarImage,omitempty"`
+
+	// params for image pull secret
+	ImagePullSecretUser     string `json:"imagePullSecretUser,omitempty" yaml:"imagePullSecretUser,omitempty"`
+	ImagePullSecretPassword string `json:"imagePullSecretPassword,omitempty" yaml:"imagePullSecretPassword,omitempty"`
 }
 
 // ContainerParams defines the container image to deploy

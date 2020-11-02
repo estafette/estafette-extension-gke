@@ -27,6 +27,10 @@ spec:
       tolerations:
 {{(call $.ToYAML .Tolerations) | indent 6}}
       {{- end}}
+      {{- if .HasImagePullSecret }}
+      imagePullSecrets:
+      - name: {{.Name}}-image-pull-secret
+      {{- end}}
       restartPolicy: {{.RestartPolicy}}
       serviceAccount: {{.Name}}
       containers:

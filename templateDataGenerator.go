@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/base64"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -406,6 +407,19 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 	}
 
 	data.MountVolumes = data.MountSslCertificate || data.MountApplicationSecrets || data.MountConfigmap || data.MountPayloadLogging || data.MountServiceAccountSecret || data.MountAdditionalVolumes
+
+	if params.ImagePullSecretUser != "" && params.ImagePullSecretPassword != "" {
+		data.HasImagePullSecret = true
+		data.DockerConfig = map[string]map[string]map[string]string{
+			"auths": {
+				"https://index.docker.io/v1/": map[string]string{
+					"username": params.ImagePullSecretUser,
+					"password": params.ImagePullSecretPassword,
+					"auth":     base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%v:%v", params.ImagePullSecretUser, params.ImagePullSecretPassword))),
+				},
+			},
+		}
+	}
 
 	return data
 }

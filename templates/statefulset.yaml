@@ -32,6 +32,14 @@ spec:
         cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
         {{- end}}
     spec:
+      {{- if .HasTolerations }}
+      tolerations:
+{{(call $.ToYAML .Tolerations) | indent 6}}
+      {{- end}}
+      {{- if .HasImagePullSecret }}
+      imagePullSecrets:
+      - name: {{.Name}}-image-pull-secret
+      {{- end}}
       serviceAccount: {{.Name}}
       affinity:
         podAntiAffinity:

@@ -112,6 +112,9 @@ type TemplateData struct {
 	RenderToYAML                    func(v interface{}, data interface{}) string
 	UseCertificateSecret            bool
 	CertificateSecretName           string
+
+	HasImagePullSecret bool
+	DockerConfig       map[string]map[string]map[string]string
 }
 
 // ContainerData has data specific to the application container
