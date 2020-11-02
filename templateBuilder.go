@@ -55,7 +55,6 @@ func getTemplates(params Params, includePodDisruptionBudget bool) []string {
 		templatesToMerge = append(templatesToMerge, []string{
 			"namespace.yaml",
 			"serviceaccount.yaml",
-			"image-pull-secret.yaml",
 			"job.yaml",
 		}...)
 
@@ -63,7 +62,6 @@ func getTemplates(params Params, includePodDisruptionBudget bool) []string {
 		templatesToMerge = append(templatesToMerge, []string{
 			"namespace.yaml",
 			"serviceaccount.yaml",
-			"image-pull-secret.yaml",
 			"cronjob.yaml",
 		}...)
 
@@ -73,7 +71,6 @@ func getTemplates(params Params, includePodDisruptionBudget bool) []string {
 			"service.yaml",
 			"service-headless.yaml",
 			"serviceaccount.yaml",
-			"image-pull-secret.yaml",
 			"statefulset.yaml",
 		}...)
 		if params.CertificateSecret == "" {
@@ -85,7 +82,6 @@ func getTemplates(params Params, includePodDisruptionBudget bool) []string {
 			"namespace.yaml",
 			"service.yaml",
 			"serviceaccount.yaml",
-			"image-pull-secret.yaml",
 			"deployment.yaml",
 		}...)
 		if params.CertificateSecret == "" {
@@ -96,8 +92,15 @@ func getTemplates(params Params, includePodDisruptionBudget bool) []string {
 		templatesToMerge = append(templatesToMerge, []string{
 			"namespace.yaml",
 			"serviceaccount.yaml",
-			"image-pull-secret.yaml",
 			"deployment.yaml",
+		}...)
+	}
+
+	hasImagePullSecret := params.ImagePullSecretUser != "" && params.ImagePullSecretPassword != ""
+
+	if hasImagePullSecret && params.Kind != KindConfig && params.Kind != KindConfigToFile {
+		templatesToMerge = append(templatesToMerge, []string{
+			"image-pull-secret.yaml",
 		}...)
 	}
 
