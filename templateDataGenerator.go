@@ -275,6 +275,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 	// set some additional labels similar to helm charts in order to unify alerting and dashboards
 	data.PodLabels["app.kubernetes.io/name"] = data.Name
 	data.PodLabels["app.kubernetes.io/instance"] = data.NameWithTrack
+	data.PodLabels["app.kubernetes.io/version"] = sanitizeLabel(params.BuildVersion)
 	data.PodLabels["app.kubernetes.io/managed-by"] = "estafette"
 
 	data.ConfigmapFiles = params.Configs.RenderedFileContent
