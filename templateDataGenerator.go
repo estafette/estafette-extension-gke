@@ -54,6 +54,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		SecretMountPath:         params.Secrets.MountPath,
 		MountConfigmap:          len(params.Configs.Files) > 0 || len(params.Configs.InlineFiles) > 0,
 		ConfigMountPath:         params.Configs.MountPath,
+		Tolerations:             []*map[string]interface{}{},
 
 		MountPayloadLogging:      params.EnablePayloadLogging,
 		AddSafeToEvictAnnotation: params.EnablePayloadLogging,
@@ -168,9 +169,19 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 	data.HasEspConfigID = params.EspConfigID != ""
 	data.EspConfigID = params.EspConfigID
 
+	if data.PreferPreemptibles {
+		data.HasTolerations = true
+		data.Tolerations = append(data.Tolerations, &map[string]interface{}{
+			"key":      "cloud.google.com/gke-preemptible",
+			"operator": "Equal",
+			"value":    "true",
+			"effect":   "NoSchedule",
+		})
+	}
+
 	if params.Tolerations != nil {
 		data.HasTolerations = true
-		data.Tolerations = params.Tolerations
+		data.Tolerations = append(data.Tolerations, params.Tolerations...)
 	}
 
 	if params.InitContainers != nil {

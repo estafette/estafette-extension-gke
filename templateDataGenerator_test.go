@@ -1269,7 +1269,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "1.2.3", templateData.PodLabels["version"])
 	})
 
-	t.Run("SetsPreferPreemptiblesgToTrueIfChaosProofParamIsTrue", func(t *testing.T) {
+	t.Run("SetsPreferPreemptiblesToTrueIfChaosProofParamIsTrue", func(t *testing.T) {
 
 		params := Params{
 			ChaosProof: true,
@@ -1291,6 +1291,68 @@ func TestGenerateTemplateData(t *testing.T) {
 		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.PreferPreemptibles)
+	})
+
+	t.Run("SetsHasTolerationsToTrueIfChaosProofParamIsTrue", func(t *testing.T) {
+
+		params := Params{
+			ChaosProof: true,
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.True(t, templateData.HasTolerations)
+	})
+
+	t.Run("AddsPreemptibleTolerationToTolerationsIfChaosProofParamIsTrue", func(t *testing.T) {
+
+		params := Params{
+			ChaosProof: true,
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.Equal(t, 1, len(templateData.Tolerations))
+		assert.Equal(t, &map[string]interface{}{
+			"key":      "cloud.google.com/gke-preemptible",
+			"operator": "Equal",
+			"value":    "true",
+			"effect":   "NoSchedule",
+		}, templateData.Tolerations[0])
+	})
+
+	t.Run("AddsPreemptibleTolerationAndOtherTolerationsIfChaosProofParamIsTrueAndTolerationsAreSet", func(t *testing.T) {
+
+		params := Params{
+			ChaosProof: true,
+			Tolerations: []*map[string]interface{}{
+				{
+					"key":      "role",
+					"operator": "Equal",
+					"value":    "tooling",
+					"effect":   "NoSchedule",
+				},
+			},
+		}
+
+		// act
+		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.Equal(t, 2, len(templateData.Tolerations))
+		assert.Equal(t, &map[string]interface{}{
+			"key":      "cloud.google.com/gke-preemptible",
+			"operator": "Equal",
+			"value":    "true",
+			"effect":   "NoSchedule",
+		}, templateData.Tolerations[0])
+		assert.Equal(t, &map[string]interface{}{
+			"key":      "role",
+			"operator": "Equal",
+			"value":    "tooling",
+			"effect":   "NoSchedule",
+		}, templateData.Tolerations[1])
 	})
 
 	t.Run("SetsMountConfigmapToTrueIfConfigFilesParamsLengthIsLargerThanZero", func(t *testing.T) {
