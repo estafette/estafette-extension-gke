@@ -88,7 +88,9 @@ spec:
             cpu: {{.Container.CPURequest}}
             memory: {{.Container.MemoryRequest}}
           limits:
+            {{- if .Container.CPULimit}}
             cpu: {{.Container.CPULimit}}
+            {{- end }}
             memory: {{.Container.MemoryLimit}}
         ports:
         - name: web
@@ -162,7 +164,9 @@ spec:
             cpu: {{.CPURequest}}
             memory: {{.MemoryRequest}}
           limits:
+            {{- if .CPULimit}}
             cpu: {{.CPULimit}}
+            {{- end }}
             memory: {{.MemoryLimit}}
         ports:
         - name: http
@@ -240,7 +244,9 @@ spec:
             cpu: {{.CPURequest}}
             memory: {{.MemoryRequest}}
           limits:
+            {{- if .CPULimit}}
             cpu: {{.CPULimit}}
+            {{- end }}
             memory: {{.MemoryLimit}}
         {{- if or $deployment.MountApplicationSecrets $deployment.MountConfigmap $deployment.MountServiceAccountSecret $deployment.MountAdditionalVolumes }}
         volumeMounts:

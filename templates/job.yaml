@@ -57,7 +57,9 @@ spec:
             cpu: {{.Container.CPURequest}}
             memory: {{.Container.MemoryRequest}}
           limits:
+            {{- if .Container.CPULimit}}
             cpu: {{.Container.CPULimit}}
+            {{- end }}
             memory: {{.Container.MemoryLimit}}
         {{- if or .MountApplicationSecrets .MountConfigmap .MountServiceAccountSecret .MountAdditionalVolumes }}
         volumeMounts:

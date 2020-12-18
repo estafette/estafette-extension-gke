@@ -306,13 +306,6 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 			p.Container.CPU.Request = "100m"
 		}
 	}
-	if p.Container.CPU.Limit == "" {
-		if !cpuRequestIsEmpty {
-			p.Container.CPU.Limit = p.Container.CPU.Request
-		} else {
-			p.Container.CPU.Limit = "125m"
-		}
-	}
 
 	// set memory defaults
 	memoryRequestIsEmpty := p.Container.Memory.Request == ""
@@ -665,13 +658,6 @@ func (p *Params) initializeSidecarDefaults(sidecar *SidecarParams) {
 			sidecar.CPU.Request = "50m"
 		}
 	}
-	if sidecar.CPU.Limit == "" {
-		if !sidecarCPURequestIsEmpty {
-			sidecar.CPU.Limit = sidecar.CPU.Request
-		} else {
-			sidecar.CPU.Limit = "75m"
-		}
-	}
 
 	// set sidecar memory defaults
 	sidecarMemoryRequestIsEmpty := sidecar.Memory.Request == ""
@@ -724,9 +710,6 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 	// validate cpu params
 	if p.Container.CPU.Request == "" {
 		errors = append(errors, fmt.Errorf("Cpu request is required; set it via container.cpu.request property on this stage"))
-	}
-	if p.Container.CPU.Limit == "" {
-		errors = append(errors, fmt.Errorf("Cpu limit is required; set it via container.cpu.limit property on this stage"))
 	}
 
 	// validate memory params
@@ -971,9 +954,6 @@ func (p *Params) validateSidecar(sidecar *SidecarParams, errors []error) []error
 	// validate sidecar cpu params
 	if sidecar.CPU.Request == "" {
 		errors = append(errors, fmt.Errorf("Sidecar cpu request is required; set it via sidecar.cpu.request property on this stage"))
-	}
-	if sidecar.CPU.Limit == "" {
-		errors = append(errors, fmt.Errorf("Sidecar cpu limit is required; set it via sidecar.cpu.limit property on this stage"))
 	}
 
 	// validate sidecar memory params
