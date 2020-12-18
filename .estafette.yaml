@@ -108,7 +108,6 @@ stages:
                   fieldPath: metadata.labels['app']
           cpu:
             request: 100m
-            limit: 100m
           memory:
             request: 256Mi
             limit: 256Mi
@@ -147,7 +146,6 @@ stages:
                   fieldPath: metadata.labels['app']
           cpu:
             request: 10m
-            limit: 50m
           memory:
             request: 10Mi
             limit: 50Mi
@@ -181,7 +179,6 @@ stages:
                   name: '{{.NameWithTrack}}-secrets'
           cpu:
             request: 10m
-            limit: 50m
           memory:
             request: 10Mi
             limit: 50Mi
