@@ -33,6 +33,29 @@ spec:
       {{- end}}
       restartPolicy: {{.RestartPolicy}}
       serviceAccount: {{.Name}}
+      {{- if or .PreferPreemptibles .UseWindowsNodes}}
+      affinity:
+        nodeAffinity:
+          {{- if .UseWindowsNodes}}
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/os
+                operator: In
+                values:
+                - windows
+          {{- end}}
+          {{- if .PreferPreemptibles}}
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 10
+            preference:
+              matchExpressions:
+              - key: cloud.google.com/gke-preemptible
+                operator: In
+                values:
+                - "true"
+          {{- end}}
+      {{- end}}
       containers:
       - name: {{.Name}}
         image: {{.Container.Repository}}/{{.Container.Name}}:{{.Container.Tag}}

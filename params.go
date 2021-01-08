@@ -18,6 +18,7 @@ type Params struct {
 	DryRun          bool            `json:"dryrun,omitempty" yaml:"dryrun,omitempty"`
 	BuildVersion    string          `json:"-" yaml:"-"`
 	ChaosProof      bool            `json:"chaosproof,omitempty" yaml:"chaosproof,omitempty"`
+	OperatingSystem OperatingSystem `json:"os,omitempty" yaml:"os,omitempty"`
 	Manifests       ManifestsParams `json:"manifests,omitempty" yaml:"manifests,omitempty"`
 	TrustedIPRanges []string        `json:"trustedips,omitempty" yaml:"trustedips,omitempty"`
 
@@ -240,6 +241,11 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	// default kind to deployment
 	if p.Kind == KindUnknown {
 		p.Kind = KindDeployment
+	}
+
+	// default operating system to linux
+	if p.OperatingSystem == OperatingSystemUnknown {
+		p.OperatingSystem = OperatingSystemLinux
 	}
 
 	// default app to estafette app label if no override in stage params
