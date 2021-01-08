@@ -43,6 +43,7 @@ type TemplateData struct {
 	HpaScalerDelta                       string
 	HpaScalerScaleDownMaxRatio           string
 	PreferPreemptibles                   bool
+	UseWindowsNodes                      bool
 	Container                            ContainerData
 	Sidecars                             []SidecarData
 	HasCustomSidecars                    bool

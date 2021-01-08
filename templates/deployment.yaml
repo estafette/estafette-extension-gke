@@ -64,8 +64,18 @@ spec:
                   values:
                   - {{.Name}}
               topologyKey: kubernetes.io/hostname
-        {{- if .PreferPreemptibles}}
+        {{- if or .PreferPreemptibles .UseWindowsNodes}}
         nodeAffinity:
+          {{- if .UseWindowsNodes}}
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/os
+                operator: In
+                values:
+                - windows
+          {{- end}}
+          {{- if .PreferPreemptibles}}
           preferredDuringSchedulingIgnoredDuringExecution:
           - weight: 10
             preference:
@@ -74,6 +84,7 @@ spec:
                 operator: In
                 values:
                 - "true"
+          {{- end}}
         {{- end}}
       {{- if .HasInitContainers }}
       initContainers:

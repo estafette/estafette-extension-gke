@@ -292,6 +292,16 @@ stages:
         - gke.estafette.io
         dryrun: true
 
+      test-os-windows:
+        image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+        credentials: gke-tooling
+        os: windows
+        container:
+          repository: extensions
+        hosts:
+        - gke.estafette.io
+        dryrun: true
+
       test-visibility-esp:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
         credentials: gke-tooling

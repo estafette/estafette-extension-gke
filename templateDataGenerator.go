@@ -64,6 +64,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		RollingUpdateMaxUnavailable: params.RollingUpdate.MaxUnavailable,
 
 		PreferPreemptibles:            params.ChaosProof,
+		UseWindowsNodes:               params.OperatingSystem == OperatingSystemWindows,
 		MountServiceAccountSecret:     params.UseGoogleCloudCredentials || params.LegacyGoogleCloudServiceAccountKeyFile != "",
 		UseLegacyServiceAccountKey:    params.LegacyGoogleCloudServiceAccountKeyFile != "",
 		GoogleCloudCredentialsAppName: params.GoogleCloudCredentialsApp,
@@ -175,6 +176,15 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 			"key":      "cloud.google.com/gke-preemptible",
 			"operator": "Equal",
 			"value":    "true",
+			"effect":   "NoSchedule",
+		})
+	}
+	if data.UseWindowsNodes {
+		data.HasTolerations = true
+		data.Tolerations = append(data.Tolerations, &map[string]interface{}{
+			"key":      "node.kubernetes.io/os",
+			"operator": "Equal",
+			"value":    "windows",
 			"effect":   "NoSchedule",
 		})
 	}
