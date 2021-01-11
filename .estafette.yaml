@@ -72,7 +72,7 @@ stages:
     parallelStages:
       test-with-defaults:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-        credentials: gke-tooling
+        credentials: gke-dev-common
         action: deploy-simple
         kind: deployment
         app: gke
@@ -285,26 +285,30 @@ stages:
 
       test-minimal-alpha-version:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-        credentials: gke-tooling
+        credentials: gke-dev-common
         container:
           repository: extensions
         hosts:
         - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
         dryrun: true
 
       test-os-windows:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-        credentials: gke-tooling
+        credentials: gke-dev-common
         os: windows
         container:
           repository: extensions
         hosts:
         - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
         dryrun: true
 
       test-visibility-esp:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-        credentials: gke-tooling
+        credentials: gke-dev-common
         visibility: esp
         espEndpointsProjectID: some-project-id
         espConfigID: 2019-04-24r0
@@ -315,11 +319,13 @@ stages:
         disableServiceAccountKeyRotation: true
         hosts:
         - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
         dryrun: true
 
       test-kind-job:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-        credentials: gke-tooling
+        credentials: gke-dev-common
         kind: job
         tolerations:
         - key: "test-key"
@@ -339,11 +345,15 @@ stages:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.labels['app']
+        hosts:
+        - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
         dryrun: true
 
       test-kind-cronjob:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-        credentials: gke-tooling
+        credentials: gke-dev-common
         kind: cronjob
         schedule: "*/5 * * * *"
         concurrencypolicy: Forbid
@@ -365,11 +375,15 @@ stages:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.labels['app']
+        hosts:
+        - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
         dryrun: true
 
       test-kind-statefulset:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-        credentials: gke-tooling
+        credentials: gke-dev-common
         kind: statefulset
         podManagementpolicy: OrderedReady
         storageclass: fast
@@ -388,11 +402,13 @@ stages:
                   fieldPath: metadata.labels['app']
         hosts:
         - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
         dryrun: true
 
       test-kind-headless-deployment:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-        credentials: gke-tooling
+        credentials: gke-dev-common
         kind: headless-deployment
         strategytype: Recreate
         tolerations:
@@ -413,11 +429,15 @@ stages:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.labels['app']
+        hosts:
+        - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
         dryrun: true
 
       test-kind-config:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-        credentials: gke-tooling
+        credentials: gke-dev-common
         kind: config
         app: gke
         namespace: estafette
@@ -439,71 +459,91 @@ stages:
               enemies=aliens
               lives=3
           mountpath: /configs
+        hosts:
+        - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
         dryrun: true
 
       test-action-deploy-canary:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-        credentials: gke-tooling
+        credentials: gke-dev-common
         action: deploy-canary
         container:
           repository: extensions
         hosts:
         - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
         dryrun: true
 
       test-action-deploy-stable:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-        credentials: gke-tooling
+        credentials: gke-dev-common
         action: deploy-stable
         container:
           repository: extensions
         hosts:
         - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
         dryrun: true
 
       test-action-rollback-canary:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-        credentials: gke-tooling
+        credentials: gke-dev-common
         action: rollback-canary
+        hosts:
+        - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
         dryrun: true
 
       test-action-diff-simple:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-        credentials: gke-tooling
+        credentials: gke-dev-common
         action: diff-simple
         container:
           repository: extensions
         hosts:
         - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
         dryrun: true
 
       test-action-diff-canary:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-        credentials: gke-tooling
+        credentials: gke-dev-common
         action: diff-canary
         container:
           repository: extensions
         hosts:
         - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
         dryrun: true
 
       test-action-diff-stable:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-        credentials: gke-tooling
+        credentials: gke-dev-common
         action: diff-stable
         container:
           repository: extensions
         hosts:
         - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
         dryrun: true
 
       test-legacy-gcp-service-account:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-        credentials: gke-tooling
+        credentials: gke-dev-common
         container:
           repository: extensions
         hosts:
         - gke.estafette.io
+        internalhosts:
+        - gke.internal.estafette.io
         dryrun: true
         legacyGoogleCloudServiceAccountKeyFile: YWJjCg==
 
