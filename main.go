@@ -109,6 +109,7 @@ func main() {
 			log.Fatal().Msgf("Failed reading credential file at path %v.", *credentialsPath)
 		}
 		*credentialsJSON = string(credentialsFileContent)
+		log.Debug().Msgf("Read string of length %v from file at path %v", len(string(credentialsFileContent)), *credentialsPath)
 	}
 
 	err = json.Unmarshal([]byte(*credentialsJSON), &credentials)
