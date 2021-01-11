@@ -108,13 +108,15 @@ func main() {
 		if err != nil {
 			log.Fatal().Msgf("Failed reading credential file at path %v.", *credentialsPath)
 		}
-		*credentialsJSON = string(credentialsFileContent)
-		log.Debug().Msgf("Read string of length %v from file at path %v", len(string(credentialsFileContent)), *credentialsPath)
-	}
-
-	err = json.Unmarshal([]byte(*credentialsJSON), &credentials)
-	if err != nil {
-		log.Fatal().Err(err).Msg("Failed unmarshalling injected credentials")
+		err = json.Unmarshal(credentialsFileContent, &credentials)
+		if err != nil {
+			log.Fatal().Err(err).Msg("Failed unmarshalling injected credentials")
+		}
+	} else {
+		err = json.Unmarshal([]byte(*credentialsJSON), &credentials)
+		if err != nil {
+			log.Fatal().Err(err).Msg("Failed unmarshalling injected credentials")
+		}
 	}
 
 	log.Info().Msgf("Checking if credential %v exists...", credentialsParam.Credentials)
