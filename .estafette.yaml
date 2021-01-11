@@ -429,6 +429,10 @@ stages:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.labels['app']
+        hosts:
+        - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
         dryrun: true
 
       test-kind-config:
@@ -455,6 +459,10 @@ stages:
               enemies=aliens
               lives=3
           mountpath: /configs
+        hosts:
+        - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
         dryrun: true
 
       test-action-deploy-canary:
@@ -465,6 +473,8 @@ stages:
           repository: extensions
         hosts:
         - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
         dryrun: true
 
       test-action-deploy-stable:
@@ -475,12 +485,18 @@ stages:
           repository: extensions
         hosts:
         - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
         dryrun: true
 
       test-action-rollback-canary:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
         credentials: gke-dev-common
         action: rollback-canary
+        hosts:
+        - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
         dryrun: true
 
       test-action-diff-simple:
@@ -491,6 +507,8 @@ stages:
           repository: extensions
         hosts:
         - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
         dryrun: true
 
       test-action-diff-canary:
@@ -501,6 +519,8 @@ stages:
           repository: extensions
         hosts:
         - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
         dryrun: true
 
       test-action-diff-stable:
@@ -511,6 +531,8 @@ stages:
           repository: extensions
         hosts:
         - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
         dryrun: true
 
       test-legacy-gcp-service-account:
