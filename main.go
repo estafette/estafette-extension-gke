@@ -33,7 +33,8 @@ var (
 	// flags
 	paramsJSON      = kingpin.Flag("params", "Extension parameters, created from custom properties.").Envar("ESTAFETTE_EXTENSION_CUSTOM_PROPERTIES").Required().String()
 	paramsYAML      = kingpin.Flag("params-yaml", "Extension parameters, created from custom properties.").Envar("ESTAFETTE_EXTENSION_CUSTOM_PROPERTIES_YAML").Required().String()
-	credentialsJSON = kingpin.Flag("credentials", "GKE credentials configured at service level, passed in to this trusted extension.").Envar("ESTAFETTE_CREDENTIALS_KUBERNETES_ENGINE").Required().String()
+	credentialsJSON = kingpin.Flag("credentials", "GKE credentials configured at service level, passed in to this trusted extension.").Envar("ESTAFETTE_CREDENTIALS_KUBERNETES_ENGINE").String()
+	credentialsPath = kingpin.Flag("credentials-path", "Path to GKE credentials configured at service level, passed in to this trusted extension.").Default("/credentials/kubernetes_engine.json").String()
 
 	// optional flags
 	gitSource     = kingpin.Flag("git-source", "Repository source.").Envar("ESTAFETTE_GIT_SOURCE").String()
@@ -99,6 +100,16 @@ func main() {
 
 	log.Info().Msg("Unmarshalling injected credentials...")
 	var credentials []GKECredentials
+
+	// use mounted credential file if present instead of relying on an envvar
+	if foundation.FileExists(*credentialsPath) {
+		credentialsFileContent, err := ioutil.ReadFile(*credentialsPath)
+		if err != nil {
+			log.Fatal().Msgf("Failed reading credential file at path %v.", *credentialsPath)
+		}
+		*credentialsJSON = string(credentialsFileContent)
+	}
+
 	err = json.Unmarshal([]byte(*credentialsJSON), &credentials)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed unmarshalling injected credentials")
