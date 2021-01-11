@@ -290,6 +290,8 @@ stages:
           repository: extensions
         hosts:
         - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
         dryrun: true
 
       test-os-windows:
@@ -300,6 +302,8 @@ stages:
           repository: extensions
         hosts:
         - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
         dryrun: true
 
       test-visibility-esp:
@@ -315,6 +319,8 @@ stages:
         disableServiceAccountKeyRotation: true
         hosts:
         - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
         dryrun: true
 
       test-kind-job:
@@ -339,6 +345,10 @@ stages:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.labels['app']
+        hosts:
+        - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
         dryrun: true
 
       test-kind-cronjob:
@@ -365,6 +375,10 @@ stages:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.labels['app']
+        hosts:
+        - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
         dryrun: true
 
       test-kind-statefulset:
@@ -388,6 +402,8 @@ stages:
                   fieldPath: metadata.labels['app']
         hosts:
         - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
         dryrun: true
 
       test-kind-headless-deployment:
@@ -504,6 +520,8 @@ stages:
           repository: extensions
         hosts:
         - gke.estafette.io
+        internalhosts:
+        - gke.internal.estafette.io
         dryrun: true
         legacyGoogleCloudServiceAccountKeyFile: YWJjCg==
 
