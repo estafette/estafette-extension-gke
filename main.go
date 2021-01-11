@@ -103,6 +103,7 @@ func main() {
 
 	// use mounted credential file if present instead of relying on an envvar
 	if foundation.FileExists(*credentialsPath) {
+		log.Info().Msgf("Reading credentials from file at path %v...", *credentialsPath)
 		credentialsFileContent, err := ioutil.ReadFile(*credentialsPath)
 		if err != nil {
 			log.Fatal().Msgf("Failed reading credential file at path %v.", *credentialsPath)
