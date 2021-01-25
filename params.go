@@ -464,8 +464,13 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 
 	// set lifecycle defaults
 	if p.Container.Lifecycle.PrestopSleep == nil {
-		trueValue := true
-		p.Container.Lifecycle.PrestopSleep = &trueValue
+		if p.OperatingSystem == OperatingSystemWindows {
+			falseValue := false
+			p.Container.Lifecycle.PrestopSleep = &falseValue
+		} else {
+			trueValue := true
+			p.Container.Lifecycle.PrestopSleep = &trueValue
+		}
 	}
 	if p.Container.Lifecycle.PrestopSleepSeconds == nil {
 		defaultSleepValue := 20
