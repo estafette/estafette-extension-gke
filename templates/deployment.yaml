@@ -413,13 +413,11 @@ spec:
       {{- if .MountApplicationSecrets }}
       - name: app-secrets
         secret:
-          defaultMode: 0444
           secretName: {{.NameWithTrack}}-secrets
       {{- end }}
       {{- if .MountConfigmap }}
       - name: app-configs
         configMap:
-          defaultMode: 0444
           name: {{.NameWithTrack}}-configs
       {{- end }}
       {{- if or .MountServiceAccountSecret }}
