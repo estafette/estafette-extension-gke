@@ -169,6 +169,9 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 	data.UseESP = params.Visibility == VisibilityESP
 	data.HasEspConfigID = params.EspConfigID != ""
 	data.EspConfigID = params.EspConfigID
+	if params.Visibility == VisibilityESP && len(params.Hosts) > 0 {
+		data.EspService = params.Hosts[0]
+	}
 
 	if data.PreferPreemptibles {
 		data.HasTolerations = true

@@ -54,6 +54,7 @@ type TemplateData struct {
 	UseESP                               bool
 	HasEspConfigID                       bool
 	EspConfigID                          string
+	EspService                           string
 	MountVolumes                         bool
 	MountSslCertificate                  bool
 	MountApplicationSecrets              bool

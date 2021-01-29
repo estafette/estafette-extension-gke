@@ -801,8 +801,8 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 		if p.Visibility == VisibilityESP && p.EspOpenAPIYamlPath == "" {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property espOpenapiYamlPath is required; set espOpenapiYamlPath to the path towards openapi.yaml"))
 		}
-		if p.Visibility == VisibilityESP && len(p.Hosts) != 1 {
-			// errors = append(errors, fmt.Errorf("With visibility 'esp' property exactly one host is required. Set it via hosts array property on this stage"))
+		if p.Visibility == VisibilityESP && len(p.Hosts) < 1 {
+			errors = append(errors, fmt.Errorf("With visibility 'esp' property at least one host is required. Set it via hosts array property on this stage"))
 		}
 
 		if p.Visibility == VisibilityApigee && p.Request.AuthSecret == "" {

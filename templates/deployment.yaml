@@ -264,7 +264,7 @@ spec:
         args: [
           "--ssl_port", "8443",
           "--backend", "127.0.0.1:80",
-          "--service", "{{$deployment.HostsJoined}}",
+          "--service", "{{$deployment.EspService}}",
           "--service_account_key", "/gcp-service-account/service-account-key.json",
           {{- if $deployment.HasEspConfigID }}
           "--version","{{$deployment.EspConfigID}}"
