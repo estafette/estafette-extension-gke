@@ -102,9 +102,9 @@ spec:
         - name: "JAEGER_SAMPLER_MANAGER_HOST_PORT"
           value: "http://$(JAEGER_AGENT_HOST):5778/sampling"
         {{- range $key, $value := .Container.EnvironmentVariables }}
-        - name: '{{ $key }}'
+        - name: {{ $key | quote }}
           {{- if (call $.IsSimpleEnvvarValue $value) }}
-          value: '{{ $value }}'
+          value: {{ $value | quote }}
           {{- else }}
 {{(call $.RenderToYAML $value $) | indent 10}}
           {{- end }}
@@ -225,9 +225,9 @@ spec:
         - name: "HEALT_CHECK_PATH"
           value: "{{index .SidecarSpecificProperties "healthcheckpath"}}"
         {{- range $key, $value := .EnvironmentVariables }}
-        - name: '{{ $key }}'
+        - name: {{ $key | quote }}
           {{- if (call $.IsSimpleEnvvarValue $value) }}
-          value: '{{ $value }}'
+          value: {{ $value | quote }}
           {{- else }}
 {{(call $.RenderToYAML $value $) | indent 10}}
           {{- end }}
@@ -305,9 +305,9 @@ spec:
         {{- if .HasEnvironmentVariables }}
         env:
         {{- range $key, $value := .EnvironmentVariables }}
-        - name: '{{ $key }}'
+        - name: {{ $key | quote }}
           {{- if (call $.IsSimpleEnvvarValue $value) }}
-          value: '{{ $value }}'
+          value: {{ $value | quote }}
           {{- else }}
 {{(call $.RenderToYAML $value $) | indent 10}}
           {{- end }}
@@ -340,9 +340,9 @@ spec:
         {{- if .HasEnvironmentVariables }}
         env:
         {{- range $key, $value := .EnvironmentVariables }}
-        - name: '{{ $key }}'
+        - name: {{ $key | quote }}
           {{- if (call $.IsSimpleEnvvarValue $value) }}
-          value: '{{ $value }}'
+          value: {{ $value | quote }}
           {{- else }}
 {{(call $.RenderToYAML $value $) | indent 10}}
           {{- end }}
