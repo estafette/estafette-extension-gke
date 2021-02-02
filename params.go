@@ -13,14 +13,15 @@ import (
 // Params is used to parameterize the deployment, set from custom properties in the manifest
 type Params struct {
 	// control params
-	Action          ActionType      `json:"action,omitempty" yaml:"action,omitempty"`
-	Kind            Kind            `json:"kind,omitempty" yaml:"kind,omitempty"`
-	DryRun          bool            `json:"dryrun,omitempty" yaml:"dryrun,omitempty"`
-	BuildVersion    string          `json:"-" yaml:"-"`
-	ChaosProof      bool            `json:"chaosproof,omitempty" yaml:"chaosproof,omitempty"`
-	OperatingSystem OperatingSystem `json:"os,omitempty" yaml:"os,omitempty"`
-	Manifests       ManifestsParams `json:"manifests,omitempty" yaml:"manifests,omitempty"`
-	TrustedIPRanges []string        `json:"trustedips,omitempty" yaml:"trustedips,omitempty"`
+	Action                  ActionType      `json:"action,omitempty" yaml:"action,omitempty"`
+	Kind                    Kind            `json:"kind,omitempty" yaml:"kind,omitempty"`
+	DryRun                  bool            `json:"dryrun,omitempty" yaml:"dryrun,omitempty"`
+	ProgressDeadlineSeconds int             `json:"progressDeadlineSeconds,omitempty" yaml:"progressDeadlineSeconds,omitempty"`
+	BuildVersion            string          `json:"-" yaml:"-"`
+	ChaosProof              bool            `json:"chaosproof,omitempty" yaml:"chaosproof,omitempty"`
+	OperatingSystem         OperatingSystem `json:"os,omitempty" yaml:"os,omitempty"`
+	Manifests               ManifestsParams `json:"manifests,omitempty" yaml:"manifests,omitempty"`
+	TrustedIPRanges         []string        `json:"trustedips,omitempty" yaml:"trustedips,omitempty"`
 
 	// app params
 	App                             string              `json:"app,omitempty" yaml:"app,omitempty"`
@@ -254,6 +255,10 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	}
 	if p.App == "" && appLabel != "" {
 		p.App = appLabel
+	}
+
+	if p.ProgressDeadlineSeconds <= 0 {
+		p.ProgressDeadlineSeconds = 600
 	}
 
 	// default DisableServiceAccountKeyRotation to true for avoiding unintended side-effects of key rotation

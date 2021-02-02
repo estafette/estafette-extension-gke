@@ -10,6 +10,7 @@ type TemplateData struct {
 	Completions                          int
 	Parallelism                          int
 	BackoffLimit                         int
+	ProgressDeadlineSeconds              int
 	ConcurrencyPolicy                    string
 	Labels                               map[string]string
 	PodLabels                            map[string]string
