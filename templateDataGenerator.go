@@ -36,6 +36,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		AllHostsJoined:      strings.Join(append(params.Hosts, params.InternalHosts...), ","),
 		IngressPath:         params.Basepath,
 		InternalIngressPath: params.Basepath,
+		AllowHTTP:           params.AllowHTTP,
 
 		IncludeReplicas: currentReplicas > 0 || ((params.Autoscale.Enabled == nil || !*params.Autoscale.Enabled || params.StrategyType == "Recreate") && params.Replicas > 0),
 

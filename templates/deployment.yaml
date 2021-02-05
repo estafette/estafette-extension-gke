@@ -225,6 +225,10 @@ spec:
           value: "{{$deployment.Namespace}}"
         - name: "HEALT_CHECK_PATH"
           value: "{{index .SidecarSpecificProperties "healthcheckpath"}}"
+        {{- if $deployment.AllowHTTP }}
+        - name: "ENFORCE_HTTPS"
+          value: "false"
+        {{- end}}
         {{- range $key, $value := .EnvironmentVariables }}
         - name: {{ $key | quote }}
           {{- if (call $.IsSimpleEnvvarValue $value) }}

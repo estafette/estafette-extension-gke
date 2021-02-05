@@ -14,6 +14,9 @@ metadata:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     nginx.ingress.kubernetes.io/proxy-ssl-verify: "on"
     {{- end }}
+    {{- if .AllowHTTP }}
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    {{- end}}
     nginx.ingress.kubernetes.io/client-body-buffer-size: "{{.NginxIngressClientBodyBufferSize}}"
     nginx.ingress.kubernetes.io/proxy-body-size: "{{.NginxIngressProxyBodySize}}"
     nginx.ingress.kubernetes.io/proxy-buffers-number: "{{.NginxIngressProxyBuffersNumber}}"

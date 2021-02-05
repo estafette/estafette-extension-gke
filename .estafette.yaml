@@ -483,6 +483,7 @@ stages:
         action: deploy-stable
         container:
           repository: extensions
+        allowhttp: true
         hosts:
         - gke.estafette.io
         internalhosts:
