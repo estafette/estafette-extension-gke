@@ -61,7 +61,6 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		MountPayloadLogging:      params.EnablePayloadLogging,
 		AddSafeToEvictAnnotation: params.EnablePayloadLogging,
 
-		StrategyType:                string(params.StrategyType),
 		RollingUpdateMaxSurge:       params.RollingUpdate.MaxSurge,
 		RollingUpdateMaxUnavailable: params.RollingUpdate.MaxUnavailable,
 
@@ -296,6 +295,15 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		data.NameWithTrack += "-stable"
 		data.IncludeTrackLabel = true
 		data.TrackLabel = "stable"
+	}
+
+	switch params.StrategyType {
+	case StrategyTypeRollingUpdate:
+		data.StrategyType = string(params.StrategyType)
+	case StrategyTypeRecreate:
+		data.StrategyType = string(params.StrategyType)
+	case StrategyTypeAtomicUpdate:
+		data.StrategyType = string(StrategyTypeRollingUpdate)
 	}
 
 	if params.StrategyType == StrategyTypeAtomicUpdate && (params.Action == ActionDeploySimple || params.Action == ActionDeployStable) {
