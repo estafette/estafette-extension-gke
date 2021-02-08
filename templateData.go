@@ -119,6 +119,9 @@ type TemplateData struct {
 
 	HasImagePullSecret bool
 	DockerConfig       map[string]map[string]map[string]string
+
+	IncludeReleaseIDSelector bool
+	ReleaseIDSelector        string
 }
 
 // ContainerData has data specific to the application container

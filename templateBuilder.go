@@ -80,10 +80,14 @@ func getTemplates(params Params, includePodDisruptionBudget bool) []string {
 	case KindDeployment:
 		templatesToMerge = append(templatesToMerge, []string{
 			"namespace.yaml",
-			"service.yaml",
 			"serviceaccount.yaml",
 			"deployment.yaml",
 		}...)
+
+		if params.StrategyType != StrategyTypeAtomicUpdate {
+			templatesToMerge = append(templatesToMerge, "service.yaml")
+		}
+
 		if params.CertificateSecret == "" {
 			templatesToMerge = append(templatesToMerge, "certificate-secret.yaml")
 		}
@@ -159,6 +163,12 @@ func getTemplates(params Params, includePodDisruptionBudget bool) []string {
 	}
 
 	return templatesToMerge
+}
+
+func getAtomicUpdateServiceTemplate() (*template.Template, error) {
+
+	// parse service template
+	return template.New("service.yaml").Funcs(sprig.TxtFuncMap()).ParseFiles("/templates/service.yaml")
 }
 
 func renderConfig(params Params) (renderedConfigFiles map[string]string) {

@@ -72,7 +72,7 @@ type Params struct {
 	Sidecar                SidecarParams             `json:"sidecar,omitempty" yaml:"sidecar,omitempty"`
 	Sidecars               []*SidecarParams          `json:"sidecars,omitempty" yaml:"sidecars,omitempty"`
 	CustomSidecars         []*map[string]interface{} `json:"customsidecars,omitempty" yaml:"customsidecars,omitempty"`
-	StrategyType           string                    `json:"strategytype,omitempty" yaml:"strategytype,omitempty"`
+	StrategyType           StrategyType              `json:"strategytype,omitempty" yaml:"strategytype,omitempty"`
 	RollingUpdate          RollingUpdateParams       `json:"rollingupdate,omitempty" yaml:"rollingupdate,omitempty"`
 
 	// set default image for sidecars
@@ -559,8 +559,8 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	}
 
 	// defaults for rollingupdate
-	if p.StrategyType == "" {
-		p.StrategyType = "RollingUpdate"
+	if p.StrategyType == StrategyTypeUnknown {
+		p.StrategyType = StrategyTypeRollingUpdate
 	}
 	if p.RollingUpdate.MaxSurge == "" {
 		p.RollingUpdate.MaxSurge = "25%"
@@ -572,7 +572,7 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 		p.RollingUpdate.Timeout = "5m"
 	}
 
-	if p.Replicas == 0 && p.StrategyType == "Recreate" {
+	if p.Replicas == 0 && p.StrategyType == StrategyTypeRecreate {
 		p.Replicas = 1
 	}
 

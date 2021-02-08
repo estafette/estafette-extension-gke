@@ -310,6 +310,8 @@ func main() {
 			assistTroubleshooting(ctx, templateData, err)
 		}
 
+		handleAtomicUpdate(ctx, params, templateData)
+
 		// clean up old stuff
 		switch params.Kind {
 		case KindDeployment:
@@ -691,6 +693,35 @@ func deleteHorizontalPodAutoscaler(ctx context.Context, params Params, name, nam
 		log.Info().Msgf("Deleting HorizontalPodAutoscaler %v, since autoscaling is disabled...", name)
 		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "hpa", name, "-n", namespace, "--ignore-not-found=true"})
 	}
+}
+
+func handleAtomicUpdate(ctx context.Context, params Params, templateData TemplateData) {
+	if params.StrategyType != StrategyTypeAtomicUpdate {
+		return
+	}
+
+	// update service in order to point to new deployment
+
+	atomicServiceTmpl, err := getAtomicUpdateServiceTemplate()
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed building service template")
+	}
+
+	renderedTemplate, err := renderTemplate(atomicServiceTmpl, templateData, true)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed rendering templates")
+	}
+
+	log.Info().Msg("Storing rendered manifest on disk...")
+	err = ioutil.WriteFile("/service.yaml", renderedTemplate.Bytes(), 0600)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed writing manifest")
+	}
+
+	log.Info().Msg("Applying the manifests for real...")
+	foundation.RunCommandWithArgs(ctx, "kubectl", []string{"apply", "-f", "/service.yaml", "-n", templateData.Namespace})
+
+	// TODO clean up old deployments, configmaps, secrets, hpa, pdb
 }
 
 func httpRequestBody(method, url string, headers map[string]string) string {

@@ -61,7 +61,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		MountPayloadLogging:      params.EnablePayloadLogging,
 		AddSafeToEvictAnnotation: params.EnablePayloadLogging,
 
-		StrategyType:                params.StrategyType,
+		StrategyType:                string(params.StrategyType),
 		RollingUpdateMaxSurge:       params.RollingUpdate.MaxSurge,
 		RollingUpdateMaxUnavailable: params.RollingUpdate.MaxUnavailable,
 
@@ -296,6 +296,12 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		data.NameWithTrack += "-stable"
 		data.IncludeTrackLabel = true
 		data.TrackLabel = "stable"
+	}
+
+	if params.StrategyType == StrategyTypeAtomicUpdate && releaseID != "" && (params.Action == ActionDeploySimple || params.Action == ActionDeployStable) {
+		data.NameWithTrack += "-" + releaseID
+		data.IncludeReleaseIDSelector = true
+		data.ReleaseIDSelector = sanitizeLabel(releaseID)
 	}
 
 	// set some additional labels similar to helm charts in order to unify alerting and dashboards

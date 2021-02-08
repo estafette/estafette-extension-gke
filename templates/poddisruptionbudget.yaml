@@ -14,4 +14,7 @@ spec:
       {{- if .IncludeTrackLabel}}
       track: {{.TrackLabel}}
       {{- end}}
+      {{- if .IncludeReleaseIDSelector }}
+      estafette.io/release-id: {{.ReleaseIDSelector}}
+      {{- end}}
   maxUnavailable: 1

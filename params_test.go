@@ -21,7 +21,7 @@ var (
 			MaxReplicas:   100,
 			CPUPercentage: 80,
 		},
-		StrategyType: "RollingUpdate",
+		StrategyType: StrategyTypeRollingUpdate,
 		RollingUpdate: RollingUpdateParams{
 			MaxSurge:       "25%",
 			MaxUnavailable: "25%",
