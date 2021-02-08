@@ -58,6 +58,6 @@ spec:
   {{- end}}
   selector:
     app: {{.AppLabelSelector}}
-    {{- if .IncludeReleaseIDSelector }}
-    estafette.io/release-id: {{.ReleaseIDSelector}}
+    {{- if .IncludeAtomicIDSelector }}
+    estafette.io/atomic-id: {{.AtomicID}}
     {{- end}}
