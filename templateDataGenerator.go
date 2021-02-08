@@ -300,7 +300,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 
 	if params.StrategyType == StrategyTypeAtomicUpdate && (params.Action == ActionDeploySimple || params.Action == ActionDeployStable) {
 		atomicID := releaseID
-		if atomicID != "" {
+		if atomicID == "" {
 			atomicID = params.BuildVersion
 		}
 
