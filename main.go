@@ -617,12 +617,18 @@ func cleanupJobIfRequired(ctx context.Context, params Params, templateData Templ
 func getExistingNumberOfReplicas(ctx context.Context, params Params) int {
 	if params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment {
 		if params.StrategyType == StrategyTypeAtomicUpdate {
-			replicas, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "deploy", "-l", fmt.Sprintf("app in (%v),estafette.io/atomic-id,estafette.io/atomic-id notin (%v)", params.App, params.AtomicID), "-n", params.Namespace, "-o=jsonpath={.spec.replicas}"})
+			replicas, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "deploy", "-l", fmt.Sprintf("app in (%v),estafette.io/atomic-id,estafette.io/atomic-id notin (%v)", sanitizeLabel(params.App), params.AtomicID), "-n", params.Namespace, "--sort-by=.metadata.creationTimestamp", "-o=jsonpath={.items[-1:].spec.replicas}"})
 			if err != nil {
 				log.Info().Err(err).Msg("Failed retrieving replicas for previous atomic deployments. Ignoring setting replicas since there's no switch for deployment type...")
 				return -1
 			}
-			log.Debug().Str("replicas", replicas).Msg("Retrieved replicas for previous atomic deployments")
+			replicasInt, err := strconv.Atoi(replicas)
+			if err != nil {
+				log.Info().Err(err).Msgf("Failed converting replicas value %v for previous atomic deployments. Ignoring setting replicas since there's no switch for deployment type...", replicas)
+				return -1
+			}
+			log.Info().Msgf("Retrieved number of replicas for previous atomic deployments is %v; using it to set correct number of replicas switching deployment type...", replicasInt)
+			return replicasInt
 		}
 
 		deploymentName := ""
