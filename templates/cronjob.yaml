@@ -5,7 +5,7 @@ metadata:
   namespace: {{.Namespace}}
   labels:
     {{- range $key, $value := .Labels}}
-    {{$key}}: {{$value}}
+    {{$key | quote}}: {{$value | quote}}
     {{- end}}
 spec:
   schedule: '{{.Schedule}}'
@@ -22,7 +22,7 @@ spec:
         metadata:
           labels:
             {{- range $key, $value := .PodLabels}}
-            {{$key}}: "{{$value}}"
+            {{$key | quote}}: {{$value | quote}}
             {{- end}}
           annotations:
             prometheus.io/scrape: "{{.Container.Metrics.Scrape}}"
