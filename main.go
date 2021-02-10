@@ -738,10 +738,11 @@ func handleAtomicUpdate(ctx context.Context, params Params, templateData Templat
 
 	// wait a bit to drain traffic to old deployment
 	sleepTime := 30
-	log.Info().Msgf("Wait for %v seconds to drain traffic to previous deployment...", sleepTime)
+	log.Info().Msgf("Waiting for %v seconds to drain traffic to previous deployment(s)...", sleepTime)
 	time.Sleep(time.Duration(sleepTime) * time.Second)
 
 	// clean up old deployments, configmaps, secrets, hpa, pdb
+	log.Info().Msg("Cleaning up previous deployments, configmaps, secrets, hpas and pdbs...")
 	foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "deploy,hpa,pdb", "-l", fmt.Sprintf("app in (%v),estafette.io/atomic-id,estafette.io/atomic-id notin (%v)", sanitizeLabel(params.App), params.AtomicID), "-n", templateData.Namespace, "--ignore-not-found=true"})
 	foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "configmap,secret", "-l", fmt.Sprintf("app in (%v),type in (application),estafette.io/atomic-id,estafette.io/atomic-id notin (%v)", sanitizeLabel(params.App), params.AtomicID), "-n", templateData.Namespace, "--ignore-not-found=true"})
 	if templateData.IncludeTrackLabel {
