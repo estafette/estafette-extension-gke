@@ -6,6 +6,7 @@ import (
 	"testing"
 	"text/template"
 
+	"github.com/Masterminds/sprig/v3"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -37,14 +38,15 @@ func TestInjectSteps(t *testing.T) {
 				"team": "myteam",
 			},
 		}
-		tmpl, err := template.ParseFiles("templates/serviceaccount.yaml")
+		tmpl, err := template.New("serviceaccount.yaml").Funcs(sprig.TxtFuncMap()).ParseFiles("templates/serviceaccount.yaml")
+		assert.Nil(t, err)
 
 		// act
 		var renderedTemplate bytes.Buffer
 		err = tmpl.Execute(&renderedTemplate, data)
 
 		assert.Nil(t, err)
-		assert.Equal(t, "apiVersion: v1\nkind: ServiceAccount\nmetadata:\n  name: myapp\n  namespace: mynamespace\n  labels:\n    app: myapp\n    team: myteam", renderedTemplate.String())
+		assert.Equal(t, "apiVersion: v1\nkind: ServiceAccount\nmetadata:\n  name: myapp\n  namespace: mynamespace\n  labels:\n    \"app\": \"myapp\"\n    \"team\": \"myteam\"", renderedTemplate.String())
 		assert.True(t, strings.Contains(renderedTemplate.String(), "mynamespace"))
 	})
 
@@ -62,14 +64,15 @@ func TestInjectSteps(t *testing.T) {
 			MaxReplicas:         19,
 			TargetCPUPercentage: 65,
 		}
-		tmpl, err := template.ParseFiles("templates/horizontalpodautoscaler.yaml")
+		tmpl, err := template.New("horizontalpodautoscaler.yaml").Funcs(sprig.TxtFuncMap()).ParseFiles("templates/horizontalpodautoscaler.yaml")
+		assert.Nil(t, err)
 
 		// act
 		var renderedTemplate bytes.Buffer
 		err = tmpl.Execute(&renderedTemplate, data)
 
 		assert.Nil(t, err)
-		assert.Equal(t, "apiVersion: autoscaling/v1\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: myapp-canary\n  namespace: mynamespace\n  labels:\n    app: myapp\n    team: myteam\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: myapp-canary\n  minReplicas: 3\n  maxReplicas: 19\n  targetCPUUtilizationPercentage: 65", renderedTemplate.String())
+		assert.Equal(t, "apiVersion: autoscaling/v1\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: myapp-canary\n  namespace: mynamespace\n  labels:\n    \"app\": \"myapp\"\n    \"team\": \"myteam\"\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: myapp-canary\n  minReplicas: 3\n  maxReplicas: 19\n  targetCPUUtilizationPercentage: 65", renderedTemplate.String())
 		assert.True(t, strings.Contains(renderedTemplate.String(), "mynamespace"))
 	})
 }

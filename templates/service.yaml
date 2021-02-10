@@ -5,7 +5,7 @@ metadata:
   namespace: {{.Namespace}}
   labels:
     {{- range $key, $value := .Labels}}
-    {{$key | quote}}: {{$value | quote}}
+    {{ $key | quote }}: {{ $value | quote }}
     {{- end}}
   annotations:
     {{- if .UsePrometheusProbe}}
@@ -57,7 +57,7 @@ spec:
     protocol: {{.Protocol}}
   {{- end}}
   selector:
-    app: {{.AppLabelSelector}}
+    "app": {{ .AppLabelSelector | quote }}
     {{- if .IncludeAtomicIDSelector }}
-    estafette.io/atomic-id: {{.AtomicID}}
+    "estafette.io/atomic-id": {{ .AtomicID | quote }}
     {{- end}}

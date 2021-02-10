@@ -5,7 +5,7 @@ metadata:
   namespace: {{.Namespace}}
   labels:
     {{- range $key, $value := .Labels}}
-    {{$key | quote}}: {{$value | quote}}
+    {{ $key | quote }}: {{ $value | quote }}
     {{- end}}
     anotherlabel: {{.ManifestData.property3}}
   annotations:

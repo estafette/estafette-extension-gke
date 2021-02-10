@@ -5,16 +5,16 @@ metadata:
   namespace: {{.Namespace}}
   labels:
     {{- range $key, $value := .Labels}}
-    {{$key | quote}}: {{$value | quote}}
+    {{ $key | quote }}: {{ $value | quote }}
     {{- end}}
 spec:
   selector:
     matchLabels:
-      app: {{.AppLabelSelector}}
+      "app": {{ .AppLabelSelector | quote }}
       {{- if .IncludeTrackLabel}}
-      track: {{.TrackLabel}}
+      "track": {{ .TrackLabel | quote }}
       {{- end}}
       {{- if .IncludeAtomicIDSelector }}
-      estafette.io/atomic-id: {{.AtomicID}}
+      "estafette.io/atomic-id": {{ .AtomicID | quote }}
       {{- end}}
   maxUnavailable: 1
