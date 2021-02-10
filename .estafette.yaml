@@ -435,7 +435,7 @@ stages:
         - gke.estafette.internal
         dryrun: true
 
-      test-kind-atomic-update:
+      test-strategytype-atomic-update:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
         credentials: gke-dev-common
         kind: deployment

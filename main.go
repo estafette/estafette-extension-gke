@@ -728,6 +728,11 @@ func handleAtomicUpdate(ctx context.Context, params Params, templateData Templat
 
 	// clean up old deployments, configmaps, secrets, hpa, pdb
 	foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "deploy,configmap,secret,hpa,pdb", "-l", fmt.Sprintf("estafette.io/atomic-id,estafette.io/atomic-id notin (%v)", templateData.AtomicID), "-n", templateData.Namespace, "--ignore-not-found=true"})
+	if templateData.IncludeTrackLabel {
+		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "deploy,configmap,secret,hpa,pdb", "-l", fmt.Sprintf("!estafette.io/atomic-id,track in (%v)", templateData.TrackLabel), "-n", templateData.Namespace, "--ignore-not-found=true"})
+	} else {
+		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "deploy,configmap,secret,hpa,pdb", "-l", "!estafette.io/atomic-id,!track", "-n", templateData.Namespace, "--ignore-not-found=true"})
+	}
 }
 
 func httpRequestBody(method, url string, headers map[string]string) string {
