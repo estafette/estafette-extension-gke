@@ -701,7 +701,7 @@ func handleAtomicUpdate(ctx context.Context, params Params, templateData Templat
 	}
 
 	// update service in order to point to new deployment
-
+	log.Info().Msgf("Updating service selector to use the latest atomic id...")
 	atomicServiceTmpl, err := getAtomicUpdateServiceTemplate()
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed building service template")
@@ -712,16 +712,22 @@ func handleAtomicUpdate(ctx context.Context, params Params, templateData Templat
 		log.Fatal().Err(err).Msg("Failed rendering templates")
 	}
 
-	log.Info().Msg("Storing rendered manifest on disk...")
+	log.Info().Msg("Storing rendered service manifest on disk...")
 	err = ioutil.WriteFile("/service.yaml", renderedTemplate.Bytes(), 0600)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed writing manifest")
 	}
 
-	log.Info().Msg("Applying the manifests for real...")
+	log.Info().Msg("Applying the service manifest...")
 	foundation.RunCommandWithArgs(ctx, "kubectl", []string{"apply", "-f", "/service.yaml", "-n", templateData.Namespace})
 
-	// TODO clean up old deployments, configmaps, secrets, hpa, pdb
+	// wait a bit to drain traffic to old deployment
+	sleepTime := 30
+	log.Info().Msgf("Wait for %v seconds to drain traffic to previous deployment...", sleepTime)
+	time.Sleep(time.Duration(sleepTime) * time.Second)
+
+	// clean up old deployments, configmaps, secrets, hpa, pdb
+	foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "deploy,configmap,secret,hpa,pdb", "-l", fmt.Sprintf("estafette.io/atomic-id,estafette.io/atomic-id notin (%v)", templateData.AtomicID), "-n", templateData.Namespace, "--ignore-not-found=true"})
 }
 
 func httpRequestBody(method, url string, headers map[string]string) string {
