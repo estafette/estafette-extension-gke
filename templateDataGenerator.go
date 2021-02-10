@@ -306,18 +306,13 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		data.StrategyType = string(StrategyTypeRollingUpdate)
 	}
 
-	if params.StrategyType == StrategyTypeAtomicUpdate && (params.Action == ActionDeploySimple || params.Action == ActionDeployStable) {
-		atomicID := releaseID
-		if atomicID == "" {
-			atomicID = params.BuildVersion
-		}
-
-		data.NameWithTrack += "-" + atomicID
+	if params.StrategyType == StrategyTypeAtomicUpdate && params.AtomicID != "" && (params.Action == ActionDeploySimple || params.Action == ActionDeployStable) {
+		data.NameWithTrack += "-" + params.AtomicID
 		data.IncludeAtomicIDSelector = true
-		data.AtomicID = sanitizeLabel(atomicID)
+		data.AtomicID = params.AtomicID
 
-		data.Labels["estafette.io/atomic-id"] = data.AtomicID
-		data.PodLabels["estafette.io/atomic-id"] = data.AtomicID
+		data.Labels["estafette.io/atomic-id"] = params.AtomicID
+		data.PodLabels["estafette.io/atomic-id"] = params.AtomicID
 	}
 
 	// set some additional labels similar to helm charts in order to unify alerting and dashboards

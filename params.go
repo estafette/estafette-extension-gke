@@ -73,6 +73,7 @@ type Params struct {
 	Sidecars               []*SidecarParams          `json:"sidecars,omitempty" yaml:"sidecars,omitempty"`
 	CustomSidecars         []*map[string]interface{} `json:"customsidecars,omitempty" yaml:"customsidecars,omitempty"`
 	StrategyType           StrategyType              `json:"strategytype,omitempty" yaml:"strategytype,omitempty"`
+	AtomicID               string                    `json:"-" yaml:"-"`
 	RollingUpdate          RollingUpdateParams       `json:"rollingupdate,omitempty" yaml:"rollingupdate,omitempty"`
 
 	// set default image for sidecars
@@ -228,7 +229,7 @@ type VolumeMountParams struct {
 }
 
 // SetDefaults fills in empty fields with convention-based defaults
-func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersion, releaseName string, releaseAction ActionType, estafetteLabels map[string]string) {
+func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersion, releaseName string, releaseAction ActionType, releaseID string, estafetteLabels map[string]string) {
 
 	p.BuildVersion = buildVersion
 
@@ -562,6 +563,13 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	if p.StrategyType == StrategyTypeUnknown {
 		p.StrategyType = StrategyTypeRollingUpdate
 	}
+	if p.StrategyType == StrategyTypeAtomicUpdate {
+		p.AtomicID = releaseID
+		if p.AtomicID == "" {
+			p.AtomicID = p.BuildVersion
+		}
+	}
+
 	if p.RollingUpdate.MaxSurge == "" {
 		p.RollingUpdate.MaxSurge = "25%"
 	}
@@ -736,9 +744,9 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 		errors = append(errors, fmt.Errorf("Memory limit is required; set it via container.memory.limit property on this stage"))
 	}
 
-	// defaults for rollingupdate
-	if p.StrategyType == "" {
-		errors = append(errors, fmt.Errorf("StrategyType is required; set it via strategytype property on this stage; valid values are RollingUpdate or Recreate"))
+	// validate params for rollingupdate
+	if p.StrategyType == StrategyTypeUnknown {
+		errors = append(errors, fmt.Errorf("StrategyType is required; set it via strategytype property on this stage; valid values are RollingUpdate, Recreate or AtomicUpdate"))
 	}
 	if p.RollingUpdate.MaxSurge == "" {
 		errors = append(errors, fmt.Errorf("Rollingupdate max surge is required; set it via rollingupdate.maxsurge property on this stage"))

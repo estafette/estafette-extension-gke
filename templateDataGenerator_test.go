@@ -2320,7 +2320,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		params.SetDefaults("github.com", "estafette", "estafette-extension-gke", "sample-app", "0.1.0", "test", "deploy", nil)
+		params.SetDefaults("github.com", "estafette", "estafette-extension-gke", "sample-app", "0.1.0", "test", "deploy", "", nil)
 		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, []string{"google-apigee.com", "estafette-apigee.io", "test-app-apigee"}, templateData.ApigeeHosts)
