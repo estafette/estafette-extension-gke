@@ -306,7 +306,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		data.StrategyType = string(StrategyTypeRollingUpdate)
 	}
 
-	if params.StrategyType == StrategyTypeAtomicUpdate && params.AtomicID != "" && (params.Action == ActionDeploySimple || params.Action == ActionDeployStable) {
+	if params.StrategyType == StrategyTypeAtomicUpdate && params.Action == ActionDeploySimple && params.AtomicID != "" {
 		data.NameWithTrack += "-" + params.AtomicID
 		data.IncludeAtomicIDSelector = true
 		data.AtomicID = params.AtomicID

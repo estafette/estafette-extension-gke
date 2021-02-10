@@ -748,6 +748,9 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 	if p.StrategyType == StrategyTypeUnknown {
 		errors = append(errors, fmt.Errorf("StrategyType is required; set it via strategytype property on this stage; valid values are RollingUpdate, Recreate or AtomicUpdate"))
 	}
+	if p.StrategyType == StrategyTypeAtomicUpdate && p.Action != ActionDeploySimple {
+		errors = append(errors, fmt.Errorf("StrategyType: AtomicUpdate can't be used in combination with other actions than deploy-simple as this would allow multiple versions to be served. Please use action: deploy-simple"))
+	}
 	if p.RollingUpdate.MaxSurge == "" {
 		errors = append(errors, fmt.Errorf("Rollingupdate max surge is required; set it via rollingupdate.maxsurge property on this stage"))
 	}
