@@ -22,9 +22,12 @@ spec:
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: {{.AppLabelSelector}}
+      "app": {{ .AppLabelSelector | quote }}
       {{- if .IncludeTrackLabel}}
-      track: {{.TrackLabel}}
+      "track": {{ .TrackLabel | quote }}
+      {{- end}}
+      {{- if .IncludeAtomicIDSelector }}
+      "estafette.io/atomic-id": {{ .AtomicID | quote }}
       {{- end}}
   template:
     metadata:

@@ -317,6 +317,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		data.AtomicID = sanitizeLabel(atomicID)
 
 		data.Labels["estafette.io/atomic-id"] = data.AtomicID
+		data.PodLabels["estafette.io/atomic-id"] = data.AtomicID
 	}
 
 	// set some additional labels similar to helm charts in order to unify alerting and dashboards
