@@ -727,11 +727,11 @@ func handleAtomicUpdate(ctx context.Context, params Params, templateData Templat
 	time.Sleep(time.Duration(sleepTime) * time.Second)
 
 	// clean up old deployments, configmaps, secrets, hpa, pdb
-	foundation.RunCommandWithArgs(ctx, "kubectl", []string{"get", "deploy,configmap,secret,hpa,pdb", "-l", fmt.Sprintf("app in (%v),estafette.io/atomic-id,estafette.io/atomic-id notin (%v)", templateData.AppLabelSelector, templateData.AtomicID), "-n", templateData.Namespace, "--ignore-not-found=true"})
+	foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "deploy,configmap,secret,hpa,pdb", "-l", fmt.Sprintf("app in (%v),estafette.io/atomic-id,estafette.io/atomic-id notin (%v)", templateData.AppLabelSelector, templateData.AtomicID), "-n", templateData.Namespace, "--ignore-not-found=true"})
 	if templateData.IncludeTrackLabel {
-		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"get", "deploy,configmap,secret,hpa,pdb", "-l", fmt.Sprintf("app in (%v),!estafette.io/atomic-id,track in (%v)", templateData.AppLabelSelector, templateData.TrackLabel), "-n", templateData.Namespace, "--ignore-not-found=true"})
+		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "deploy,configmap,secret,hpa,pdb", "-l", fmt.Sprintf("app in (%v),!estafette.io/atomic-id,track in (%v)", templateData.AppLabelSelector, templateData.TrackLabel), "-n", templateData.Namespace, "--ignore-not-found=true"})
 	} else {
-		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"get", "deploy,configmap,secret,hpa,pdb", "-l", fmt.Sprintf("app in (%v),!estafette.io/atomic-id,!track", templateData.AppLabelSelector), "-n", templateData.Namespace, "--ignore-not-found=true"})
+		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "deploy,configmap,secret,hpa,pdb", "-l", fmt.Sprintf("app in (%v),!estafette.io/atomic-id,!track", templateData.AppLabelSelector), "-n", templateData.Namespace, "--ignore-not-found=true"})
 	}
 }
 
