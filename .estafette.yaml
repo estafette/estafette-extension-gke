@@ -36,11 +36,14 @@ stages:
 
       RUN curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" \
           && curl -LO "https://dl.k8s.io/${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256" \
-          && echo "$(<kubectl.sha256) kubectl" | sha256sum -c - \
-          && mv kubectl /usr/bin/kubectl \
+          && ls -latr \
+          && cat kubectl.sha256 \
+          && cp kubectl /usr/bin/kubectl \
           && chmod +x /usr/bin/kubectl \
           && kubectl version --client \
           && mkdir -p ~/.kube
+
+      RUN echo "$(<kubectl.sha256) kubectl" | sha256sum -c -
 
       RUN rm -rf /tmp/*
 
