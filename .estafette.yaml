@@ -47,6 +47,7 @@ stages:
 
       COPY ${ESTAFETTE_GIT_NAME} /
       COPY templates /templates
+      COPY ca-certificates.crt /etc/ssl/certs/
 
       ENV ESTAFETTE_LOG_FORMAT="console" \
           GOOGLE_APPLICATION_CREDENTIALS="/key-file.json" \
@@ -59,6 +60,7 @@ stages:
     path: ./publish
     copy:
     - templates
+    - /etc/ssl/certs/ca-certificates.crt
 
   check-container:
     parallelStages:
