@@ -28,14 +28,20 @@ stages:
     inline: |
       FROM alpine:3.13
 
+      ENV KUBECTL_VERSION="v1.20.2"
+
       RUN apk update \
           && apk add curl \
           && rm /var/cache/apk/*
 
-      RUN curl https://storage.googleapis.com/kubernetes-release/release/v1.19.0/bin/linux/amd64/kubectl --output /usr/bin/kubectl \
+      RUN curl -L "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" --output /usr/bin/kubectl \
+          && curl -LO "https://dl.k8s.io/${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256" \
+          && echo "$(<kubectl.sha256) /usr/bin/kubectl" | sha256sum --check \
           && chmod +x /usr/bin/kubectl \
           && kubectl version --client \
           && mkdir -p ~/.kube
+
+      RUN rm -rf /tmp/*
 
       FROM scratch
 
@@ -44,6 +50,7 @@ stages:
 
       COPY --from=0 /usr/bin/kubectl /usr/bin/kubectl
       COPY --from=0 /root/.kube /root/.kube
+      COPY --from=0 /tmp /tmp
 
       COPY ${ESTAFETTE_GIT_NAME} /
       COPY templates /templates
