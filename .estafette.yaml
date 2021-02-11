@@ -42,6 +42,7 @@ stages:
           && mkdir -p ~/.kube
 
       RUN ls -latr /usr/bin
+      RUN ls -latr /usr/busybox
 
       RUN rm -rf /tmp/*
 
@@ -64,6 +65,9 @@ stages:
           PATH="/usr/bin:$PATH" \
           HOME="/root" \
           KUBECONFIG="/root/.kube/config"
+
+      RUN /usr/bin/diff \
+          && diff
 
       ENTRYPOINT ["/${ESTAFETTE_GIT_NAME}"]
     container: gke
