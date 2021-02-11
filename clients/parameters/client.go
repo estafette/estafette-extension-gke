@@ -44,7 +44,6 @@ func (c *client) Init(ctx context.Context, paramsYAML string, credential *api.GK
 		}
 	}
 
-	var params api.Params
 	if credential.AdditionalProperties.Defaults != nil {
 		log.Info().Msgf("Using defaults from credential %v...", credential.Name)
 		// todo log just the specified defaults, not the entire parms object
@@ -52,22 +51,22 @@ func (c *client) Init(ctx context.Context, paramsYAML string, credential *api.GK
 		// if err == nil {
 		// 	log.Printf(string(defaultsAsYAML))
 		// }
-		params = *credential.AdditionalProperties.Defaults
+		parameters = *credential.AdditionalProperties.Defaults
 	}
 
 	log.Info().Msg("Unmarshalling parameters / custom properties...")
-	err = yaml.Unmarshal([]byte(paramsYAML), &params)
+	err = yaml.Unmarshal([]byte(paramsYAML), &parameters)
 	if err != nil {
-		return params, fmt.Errorf("Failed unmarshalling parameters: %w", err)
+		return parameters, fmt.Errorf("Failed unmarshalling parameters: %w", err)
 	}
 
 	log.Info().Msg("Setting defaults for parameters that are not set in the manifest...")
-	params.SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersion, releaseName, api.ActionType(releaseAction), releaseID, estafetteLabels)
+	parameters.SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersion, releaseName, api.ActionType(releaseAction), releaseID, estafetteLabels)
 
 	log.Info().Msg("Validating required parameters...")
-	valid, errors, warnings := params.ValidateRequiredProperties()
+	valid, errors, warnings := parameters.ValidateRequiredProperties()
 	if !valid {
-		return params, fmt.Errorf("Not all valid fields are set: %v", errors)
+		return parameters, fmt.Errorf("Not all valid fields are set: %v", errors)
 	}
 
 	for _, warning := range warnings {
@@ -75,7 +74,7 @@ func (c *client) Init(ctx context.Context, paramsYAML string, credential *api.GK
 	}
 
 	// replacing sidecar image tags with digest
-	params.ReplaceSidecarTagsWithDigest()
+	parameters.ReplaceSidecarTagsWithDigest()
 
 	return
 }
