@@ -31,7 +31,7 @@ stages:
       ENV KUBECTL_VERSION="v1.20.2"
 
       RUN apk update \
-          && apk add curl \
+          && apk add curl diffutils \
           && rm /var/cache/apk/*
 
       RUN curl -L "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" --output /usr/bin/kubectl \
@@ -45,13 +45,13 @@ stages:
 
       RUN rm -rf /tmp/*
 
-      FROM alpine:3.13
+      FROM scratch
 
       LABEL maintainer="estafette.io" \
             description="The ${ESTAFETTE_GIT_NAME} component is an Estafette extension to deploy applications to a Kubernetes Engine cluster"
 
       COPY --from=0 /usr/bin/kubectl /usr/bin/kubectl
-      # COPY --from=0 /usr/bin/diff /usr/bin/diff
+      COPY --from=0 /usr/bin/diff /usr/bin/diff
       COPY --from=0 /root/.kube /root/.kube
       COPY --from=0 /tmp /tmp
 
