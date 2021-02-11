@@ -312,7 +312,7 @@ func assistTroubleshooting(ctx context.Context, templateData TemplateData, err e
 			}
 		} else if paramsForTroubleshooting.Action == api.ActionDeployCanary {
 			log.Info().Msg("Showing logs for canary deployment...")
-			foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"logs", "-l", fmt.Sprintf("app=%v,track=canary", paramsForTroubleshooting.App), "-n", paramsForTroubleshooting.Namespace, "-c", paramsForTroubleshooting.App, "--tail", "50"})
+			_ = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"logs", "-l", fmt.Sprintf("app=%v,track=canary", paramsForTroubleshooting.App), "-n", paramsForTroubleshooting.Namespace, "-c", paramsForTroubleshooting.App, "--tail", "50"})
 		}
 
 		foundation.HandleError(err)
