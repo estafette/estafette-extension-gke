@@ -34,7 +34,7 @@ stages:
           && apk add curl \
           && rm /var/cache/apk/*
 
-      RUN curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" --output /usr/bin/kubectl \
+      RUN curl -L "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" --output /usr/bin/kubectl \
           && curl -LO "https://dl.k8s.io/${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256" \
           && chmod +x /usr/bin/kubectl \
           && kubectl version --client \
