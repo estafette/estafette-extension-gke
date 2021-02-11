@@ -301,7 +301,7 @@ func main() {
 func assistTroubleshooting(ctx context.Context, templateData TemplateData, err error) {
 	if assistTroubleshootingOnError {
 		log.Info().Msgf("Showing current ingresses, services, configmaps, secrets, deployments, jobs, cronjobs, poddisruptionbudgets, horizontalpodautoscalers, pods, endpoints for app=%v...", paramsForTroubleshooting.App)
-		foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"get", "ing,svc,cm,secret,deploy,job,cronjob,sts,pdb,hpa,po,ep", "-l", fmt.Sprintf("app=%v", paramsForTroubleshooting.App), "-n", paramsForTroubleshooting.Namespace})
+		err = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"get", "ing,svc,cm,secret,deploy,job,cronjob,sts,pdb,hpa,po,ep", "-l", fmt.Sprintf("app=%v", paramsForTroubleshooting.App), "-n", paramsForTroubleshooting.Namespace})
 
 		if err != nil {
 			log.Info().Msg("Rollout failed, trying to show logs...")
@@ -327,7 +327,7 @@ func scaleCanaryDeployment(ctx context.Context, name, namespace string, replicas
 func restartDeployment(ctx context.Context, name, namespace string) {
 	log.Info().Msgf("Restarting deployment rollout...")
 	foundation.RunCommandWithArgs(ctx, "kubectl", []string{"rollout", "restart", "deployment", name, "-n", namespace})
-	foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"rollout", "status", "deployment", name, "-n", namespace})
+	foundation.RunCommandWithArgs(ctx, "kubectl", []string{"rollout", "status", "deployment", name, "-n", namespace})
 }
 
 func deleteResourcesForTypeSwitch(ctx context.Context, name, namespace string) {
