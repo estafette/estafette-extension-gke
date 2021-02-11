@@ -28,8 +28,9 @@ stages:
     inline: |
       FROM alpine:3.13
 
-      LABEL maintainer="estafette.io" \
-            description="The ${ESTAFETTE_GIT_NAME} component is an Estafette extension to deploy applications to a Kubernetes Engine cluster"
+      RUN apk update \
+          && apk add curl \
+          && rm /var/cache/apk/*
 
       RUN curl https://storage.googleapis.com/kubernetes-release/release/v1.19.0/bin/linux/amd64/kubectl --output /usr/bin/kubectl \
           && chmod +x /usr/bin/kubectl \
@@ -37,6 +38,9 @@ stages:
           && mkdir -p ~/.kube
 
       FROM scratch
+
+      LABEL maintainer="estafette.io" \
+            description="The ${ESTAFETTE_GIT_NAME} component is an Estafette extension to deploy applications to a Kubernetes Engine cluster"
 
       COPY --from=0 /usr/bin/kubectl /usr/bin/kubectl
       COPY --from=0 /root/.kube /root/.kube
