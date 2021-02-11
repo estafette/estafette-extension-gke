@@ -66,8 +66,7 @@ stages:
           HOME="/root" \
           KUBECONFIG="/root/.kube/config"
 
-      RUN /usr/bin/diff \
-          && diff
+      RUN ["/usr/bin/diff"]
 
       ENTRYPOINT ["/${ESTAFETTE_GIT_NAME}"]
     container: gke
