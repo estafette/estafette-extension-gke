@@ -162,8 +162,8 @@ func main() {
 		log.Info().Msg("Performing a dryrun to test the validity of the manifests...")
 		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"apply", "-f", "/kubernetes-no-pdb.yaml", "-n", templateData.Namespace, "--dry-run=client"})
 
-		// log.Info().Msg("Performing a diff to show what's changed...")
-		// _ = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"diff", "-f", "/kubernetes-no-pdb.yaml", "-n", templateData.Namespace})
+		log.Info().Msg("Performing a diff to show what's changed...")
+		_ = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"diff", "-f", "/kubernetes-no-pdb.yaml", "-n", templateData.Namespace})
 	}
 
 	if !params.DryRun && params.Action != api.ActionDiffSimple && params.Action != api.ActionDiffCanary && params.Action != api.ActionDiffStable {
