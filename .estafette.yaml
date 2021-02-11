@@ -45,7 +45,7 @@ stages:
 
       RUN rm -rf /tmp/*
 
-      FROM alpine:3.13
+      FROM scratch
 
       LABEL maintainer="estafette.io" \
             description="The ${ESTAFETTE_GIT_NAME} component is an Estafette extension to deploy applications to a Kubernetes Engine cluster"
@@ -66,7 +66,7 @@ stages:
           PATH="/usr/bin:$PATH" \
           HOME="/root" \
           KUBECONFIG="/root/.kube/config" \
-          KUBECTL_EXTERNAL_DIFF="/usr/bin/colordiff"
+          KUBECTL_EXTERNAL_DIFF="/usr/bin/diff3"
 
       ENTRYPOINT ["/${ESTAFETTE_GIT_NAME}"]
     container: gke
