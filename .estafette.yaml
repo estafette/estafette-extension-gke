@@ -34,11 +34,8 @@ stages:
           && apk add curl \
           && rm /var/cache/apk/*
 
-      RUN curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" \
+      RUN curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" --output /usr/bin/kubectl \
           && curl -LO "https://dl.k8s.io/${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256" \
-          && ls -latr \
-          && cat kubectl.sha256 \
-          && cp kubectl /usr/bin/kubectl \
           && chmod +x /usr/bin/kubectl \
           && kubectl version --client \
           && mkdir -p ~/.kube
