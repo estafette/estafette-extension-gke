@@ -2,21 +2,19 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"net/http"
-	"os"
 	"runtime"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/alecthomas/kingpin"
+	"github.com/estafette/estafette-extension-gke/api"
+	"github.com/estafette/estafette-extension-gke/clients/credentials"
+	"github.com/estafette/estafette-extension-gke/clients/gcp"
+	"github.com/estafette/estafette-extension-gke/clients/parameters"
 	foundation "github.com/estafette/estafette-foundation"
 	"github.com/rs/zerolog/log"
-	"github.com/sethgrid/pester"
-	"gopkg.in/yaml.v2"
 )
 
 var (
@@ -49,7 +47,7 @@ var (
 	triggeredBy   = kingpin.Flag("triggered-by", "The user id of the person triggering the release.").Envar("ESTAFETTE_TRIGGER_MANUAL_USER_ID").String()
 
 	assistTroubleshootingOnError = false
-	paramsForTroubleshooting     = Params{}
+	paramsForTroubleshooting     = api.Params{}
 )
 
 func main() {
@@ -58,154 +56,40 @@ func main() {
 	kingpin.Parse()
 
 	// init log format from envvar ESTAFETTE_LOG_FORMAT
-	foundation.InitLoggingFromEnv(appgroup, app, version, branch, revision, buildDate)
+	foundation.InitLoggingFromEnv(foundation.NewApplicationInfo(appgroup, app, version, branch, revision, buildDate))
 
 	// create context to cancel commands on sigterm
 	ctx := foundation.InitCancellationContext(context.Background())
 
-	// put all estafette labels in map
-	log.Info().Msg("Getting all estafette labels from envvars...")
-	estafetteLabels := map[string]string{}
-	for _, e := range os.Environ() {
-		kvPair := strings.SplitN(e, "=", 2)
-
-		if len(kvPair) == 2 {
-			envvarName := kvPair[0]
-			envvarValue := kvPair[1]
-
-			if strings.HasPrefix(envvarName, "ESTAFETTE_LABEL_") && !strings.HasSuffix(envvarName, "_DNS_SAFE") {
-				// strip prefix and convert to lowercase
-				key := strings.ToLower(strings.Replace(envvarName, "ESTAFETTE_LABEL_", "", 1))
-				estafetteLabels[key] = envvarValue
-			}
-		}
-	}
-
-	log.Info().Msg("Unmarshalling credentials parameter...")
-	var credentialsParam CredentialsParam
-	err := json.Unmarshal([]byte(*paramsJSON), &credentialsParam)
+	credentialsClient, err := credentials.NewClient(ctx)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed unmarshalling credential parameter")
+		log.Fatal().Err(err).Msg("Failed creating credentials.Client")
 	}
 
-	log.Info().Msg("Setting default for credential parameter...")
-	credentialsParam.SetDefaults(*releaseName)
-
-	log.Info().Msg("Validating required credential parameter...")
-	valid, errors := credentialsParam.ValidateRequiredProperties()
-	if !valid {
-		log.Fatal().Msgf("Not all valid fields are set: %v", errors)
-	}
-
-	log.Info().Msg("Unmarshalling injected credentials...")
-	var credentials []GKECredentials
-
-	// use mounted credential file if present instead of relying on an envvar
-	if runtime.GOOS == "windows" {
-		*credentialsPath = "C:" + *credentialsPath
-	}
-	if foundation.FileExists(*credentialsPath) {
-		log.Info().Msgf("Reading credentials from file at path %v...", *credentialsPath)
-		credentialsFileContent, err := ioutil.ReadFile(*credentialsPath)
-		if err != nil {
-			log.Fatal().Msgf("Failed reading credential file at path %v.", *credentialsPath)
-		}
-		err = json.Unmarshal(credentialsFileContent, &credentials)
-		if err != nil {
-			log.Fatal().Err(err).Msg("Failed unmarshalling injected credentials")
-		}
-		if len(credentials) == 0 {
-			log.Warn().Str("data", string(credentialsFileContent)).Msgf("Found 0 credentials in file %v", *credentialsPath)
-		}
-		log.Debug().Msgf("Read %v credentials", len(credentials))
-	}
-
-	log.Info().Msgf("Checking if credential %v exists...", credentialsParam.Credentials)
-	credential := GetCredentialsByName(credentials, credentialsParam.Credentials)
-	if credential == nil {
-		log.Fatal().Msgf("Credential with name %v does not exist.", credentialsParam.Credentials)
-	}
-
-	var params Params
-	if credential.AdditionalProperties.Defaults != nil {
-		log.Info().Msgf("Using defaults from credential %v...", credentialsParam.Credentials)
-		// todo log just the specified defaults, not the entire parms object
-		// defaultsAsYAML, err := yaml.Marshal(credential.AdditionalProperties.Defaults)
-		// if err == nil {
-		// 	log.Printf(string(defaultsAsYAML))
-		// }
-		params = *credential.AdditionalProperties.Defaults
-	}
-
-	log.Info().Msg("Unmarshalling parameters / custom properties...")
-	err = yaml.Unmarshal([]byte(*paramsYAML), &params)
+	credential, err := credentialsClient.Init(ctx, *paramsJSON, *releaseName, *credentialsPath)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed unmarshalling parameters")
+		log.Fatal().Err(err).Msg("Failed initializing credentials")
 	}
 
-	log.Info().Msg("Setting defaults for parameters that are not set in the manifest...")
-	params.SetDefaults(*gitSource, *gitOwner, *gitName, *appLabel, *buildVersion, *releaseName, ActionType(*releaseAction), *releaseID, estafetteLabels)
-
-	log.Info().Msg("Validating required parameters...")
-	valid, errors, warnings := params.ValidateRequiredProperties()
-	if !valid {
-		log.Fatal().Msgf("Not all valid fields are set: %v", errors)
-	}
-
-	for _, warning := range warnings {
-		log.Printf("Warning: %s", warning)
-	}
-
-	// check for visibility esp if openapi.yaml exists
-	if _, err := os.Stat(params.EspOpenAPIYamlPath); params.Visibility == VisibilityESP && os.IsNotExist(err) {
-		log.Fatal().Err(err).Msg("When using visibility: esp make sure to set clone: true and have openapi.yaml available in the working directory")
-	}
-
-	// replacing sidecar image tags with digest
-	params.ReplaceSidecarTagsWithDigest()
-
-	log.Info().Msg("Retrieving service account email from credentials...")
-	var keyFileMap map[string]interface{}
-	err = json.Unmarshal([]byte(credential.AdditionalProperties.ServiceAccountKeyfile), &keyFileMap)
+	parametersClient, err := parameters.NewClient(ctx)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed unmarshalling service account keyfile")
-	}
-	var saClientEmail string
-	if saClientEmailIntfc, ok := keyFileMap["client_email"]; !ok {
-		log.Fatal().Msg("Field client_email missing from service account keyfile")
-	} else {
-		if t, aok := saClientEmailIntfc.(string); !aok {
-			log.Fatal().Msg("Field client_email not of type string")
-		} else {
-			saClientEmail = t
-		}
+		log.Fatal().Err(err).Msg("Failed creating parameters.Client")
 	}
 
-	log.Info().Msgf("Storing gke credential %v on disk...", credentialsParam.Credentials)
-	err = ioutil.WriteFile("/key-file.json", []byte(credential.AdditionalProperties.ServiceAccountKeyfile), 0600)
+	params, err := parametersClient.Init(ctx, *paramsYAML, credential, *gitSource, *gitOwner, *gitName, *appLabel, *buildVersion, *releaseName, *releaseAction, *releaseID)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed writing service account keyfile")
+		log.Fatal().Err(err).Msg("Failed initializing parameters")
 	}
 
-	log.Info().Msg("Authenticating to google cloud")
-	foundation.RunCommandWithArgs(ctx, "gcloud", []string{"auth", "activate-service-account", saClientEmail, "--key-file", "/key-file.json"})
-
-	log.Info().Msgf("Setting gcloud account to %v", saClientEmail)
-	foundation.RunCommandWithArgs(ctx, "gcloud", []string{"config", "set", "account", saClientEmail})
-
-	log.Info().Msg("Setting gcloud project")
-	foundation.RunCommandWithArgs(ctx, "gcloud", []string{"config", "set", "project", credential.AdditionalProperties.Project})
-
-	log.Info().Msgf("Getting gke credentials for cluster %v", credential.AdditionalProperties.Cluster)
-	clustersGetCredentialsArsgs := []string{"container", "clusters", "get-credentials", credential.AdditionalProperties.Cluster}
-	if credential.AdditionalProperties.Zone != "" {
-		clustersGetCredentialsArsgs = append(clustersGetCredentialsArsgs, "--zone", credential.AdditionalProperties.Zone)
-	} else if credential.AdditionalProperties.Region != "" {
-		clustersGetCredentialsArsgs = append(clustersGetCredentialsArsgs, "--region", credential.AdditionalProperties.Region)
-	} else {
-		log.Fatal().Msg("Credentials have no zone or region; at least one of them has to be defined")
+	gcpClient, err := gcp.NewClient(ctx)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed creating gcp.Client")
 	}
-	foundation.RunCommandWithArgs(ctx, "gcloud", clustersGetCredentialsArsgs)
+
+	_, err = gcpClient.LoadGKEClusterKubeConfig(ctx, credential)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed creating kube config for gke cluster")
+	}
 
 	// combine templates
 	tmpl, err := buildTemplates(params, true)
@@ -220,7 +104,7 @@ func main() {
 
 	// pre-render config files if they exist
 	params.Configs.RenderedFileContent = renderConfig(params)
-	if params.Kind == KindConfigToFile {
+	if params.Kind == api.KindConfigToFile {
 		// write files to working directory
 		for filename, data := range params.Configs.RenderedFileContent {
 			ioutil.WriteFile(filename, []byte(data), 0600)
@@ -231,7 +115,7 @@ func main() {
 
 	// checking number of replicas for existing deployment to make switching deployment type safe
 	currentReplicas := params.Replicas
-	if params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment {
+	if params.Kind == api.KindDeployment || params.Kind == api.KindHeadlessDeployment {
 		currentReplicas = getExistingNumberOfReplicas(ctx, params)
 	}
 
@@ -282,7 +166,7 @@ func main() {
 		_ = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"diff", "-f", "/kubernetes-no-pdb.yaml", "-n", templateData.Namespace})
 	}
 
-	if !params.DryRun && params.Action != ActionDiffSimple && params.Action != ActionDiffCanary && params.Action != ActionDiffStable {
+	if !params.DryRun && params.Action != api.ActionDiffSimple && params.Action != api.ActionDiffCanary && params.Action != api.ActionDiffStable {
 
 		// ensure that from now on any error runs the troubleshooting assistant
 		assistTroubleshootingOnError = true
@@ -296,11 +180,11 @@ func main() {
 			log.Info().Msg("Applying the manifests for real...")
 			foundation.RunCommandWithArgs(ctx, "kubectl", []string{"apply", "-f", "/kubernetes.yaml", "-n", templateData.Namespace})
 
-			if params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment {
+			if params.Kind == api.KindDeployment || params.Kind == api.KindHeadlessDeployment {
 				log.Info().Msg("Waiting for the deployment to finish...")
 				err = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"rollout", "status", "deployment", templateData.NameWithTrack, "-n", templateData.Namespace})
 			}
-			if params.Kind == KindStatefulset {
+			if params.Kind == api.KindStatefulset {
 				log.Info().Msg("Waiting for the statefulset to finish...")
 				err = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"rollout", "status", "statefulset", templateData.Name, "-n", templateData.Namespace})
 			}
@@ -314,14 +198,14 @@ func main() {
 
 		// clean up old stuff
 		switch params.Kind {
-		case KindDeployment:
+		case api.KindDeployment:
 			switch params.Action {
-			case ActionDeployCanary:
+			case api.ActionDeployCanary:
 				scaleCanaryDeployment(ctx, templateData.Name, templateData.Namespace, 1)
 				deleteConfigsForParamsChange(ctx, params, templateData.NameWithTrack, templateData.Namespace)
 				deleteSecretsForParamsChange(ctx, params, templateData.NameWithTrack, templateData.Namespace)
 				break
-			case ActionDeployStable:
+			case api.ActionDeployStable:
 				scaleCanaryDeployment(ctx, templateData.Name, templateData.Namespace, 0)
 				deleteResourcesForTypeSwitch(ctx, templateData.Name, templateData.Namespace)
 				deleteConfigsForParamsChange(ctx, params, templateData.NameWithTrack, templateData.Namespace)
@@ -334,19 +218,19 @@ func main() {
 				deleteBackendConfigAndIAPOauthSecret(ctx, templateData, templateData.Name, templateData.Namespace)
 				deleteHorizontalPodAutoscaler(ctx, params, templateData.NameWithTrack, templateData.Namespace)
 				break
-			case ActionRollbackCanary:
+			case api.ActionRollbackCanary:
 				scaleCanaryDeployment(ctx, templateData.Name, templateData.Namespace, 0)
 				break
-			case ActionRestartCanary:
+			case api.ActionRestartCanary:
 				restartDeployment(ctx, fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
 				break
-			case ActionRestartStable:
+			case api.ActionRestartStable:
 				restartDeployment(ctx, fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
 				break
-			case ActionRestartSimple:
+			case api.ActionRestartSimple:
 				restartDeployment(ctx, templateData.Name, templateData.Namespace)
 				break
-			case ActionDeploySimple:
+			case api.ActionDeploySimple:
 				deleteResourcesForTypeSwitch(ctx, fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
 				deleteResourcesForTypeSwitch(ctx, fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
 				deleteConfigsForParamsChange(ctx, params, templateData.Name, templateData.Namespace)
@@ -362,14 +246,14 @@ func main() {
 			}
 			break
 
-		case KindHeadlessDeployment:
+		case api.KindHeadlessDeployment:
 			switch params.Action {
-			case ActionDeployCanary:
+			case api.ActionDeployCanary:
 				scaleCanaryDeployment(ctx, templateData.Name, templateData.Namespace, 1)
 				deleteConfigsForParamsChange(ctx, params, templateData.NameWithTrack, templateData.Namespace)
 				deleteSecretsForParamsChange(ctx, params, templateData.NameWithTrack, templateData.Namespace)
 				break
-			case ActionDeployStable:
+			case api.ActionDeployStable:
 				scaleCanaryDeployment(ctx, templateData.Name, templateData.Namespace, 0)
 				deleteResourcesForTypeSwitch(ctx, templateData.Name, templateData.Namespace)
 				deleteConfigsForParamsChange(ctx, params, templateData.NameWithTrack, templateData.Namespace)
@@ -377,19 +261,19 @@ func main() {
 				deleteServiceAccountSecretForParamsChange(ctx, params, templateData.GoogleCloudCredentialsAppName, templateData.Namespace)
 				deleteHorizontalPodAutoscaler(ctx, params, templateData.NameWithTrack, templateData.Namespace)
 				break
-			case ActionRollbackCanary:
+			case api.ActionRollbackCanary:
 				scaleCanaryDeployment(ctx, templateData.Name, templateData.Namespace, 0)
 				break
-			case ActionRestartCanary:
+			case api.ActionRestartCanary:
 				restartDeployment(ctx, fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
 				break
-			case ActionRestartStable:
+			case api.ActionRestartStable:
 				restartDeployment(ctx, fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
 				break
-			case ActionRestartSimple:
+			case api.ActionRestartSimple:
 				restartDeployment(ctx, templateData.Name, templateData.Namespace)
 				break
-			case ActionDeploySimple:
+			case api.ActionDeploySimple:
 				deleteResourcesForTypeSwitch(ctx, fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
 				deleteResourcesForTypeSwitch(ctx, fmt.Sprintf("%v-stable", templateData.Name), templateData.Namespace)
 				deleteConfigsForParamsChange(ctx, params, templateData.Name, templateData.Namespace)
@@ -399,7 +283,7 @@ func main() {
 				break
 			}
 			break
-		case KindStatefulset:
+		case api.KindStatefulset:
 			deleteConfigsForParamsChange(ctx, params, templateData.Name, templateData.Namespace)
 			deleteSecretsForParamsChange(ctx, params, templateData.Name, templateData.Namespace)
 			deleteServiceAccountSecretForParamsChange(ctx, params, templateData.GoogleCloudCredentialsAppName, templateData.Namespace)
@@ -422,11 +306,11 @@ func assistTroubleshooting(ctx context.Context, templateData TemplateData, err e
 		if err != nil {
 			log.Info().Msg("Rollout failed, trying to show logs...")
 			if *releaseID != "" {
-				_ = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"logs", "-l", fmt.Sprintf("app=%v,estafette.io/release-id=%v", templateData.AppLabelSelector, sanitizeLabel(*releaseID)), "-n", templateData.Namespace, "--all-containers"})
+				_ = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"logs", "-l", fmt.Sprintf("app=%v,estafette.io/release-id=%v", templateData.AppLabelSelector, api.SanitizeLabel(*releaseID)), "-n", templateData.Namespace, "--all-containers"})
 			} else if *buildVersion != "" {
-				_ = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"logs", "-l", fmt.Sprintf("app=%v,version=%v", templateData.AppLabelSelector, sanitizeLabel(*buildVersion)), "-n", templateData.Namespace, "--all-containers"})
+				_ = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"logs", "-l", fmt.Sprintf("app=%v,version=%v", templateData.AppLabelSelector, api.SanitizeLabel(*buildVersion)), "-n", templateData.Namespace, "--all-containers"})
 			}
-		} else if paramsForTroubleshooting.Action == ActionDeployCanary {
+		} else if paramsForTroubleshooting.Action == api.ActionDeployCanary {
 			log.Info().Msg("Showing logs for canary deployment...")
 			foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"logs", "-l", fmt.Sprintf("app=%v,track=canary", paramsForTroubleshooting.App), "-n", paramsForTroubleshooting.Namespace, "-c", paramsForTroubleshooting.App, "--tail", "50"})
 		}
@@ -456,21 +340,21 @@ func deleteResourcesForTypeSwitch(ctx context.Context, name, namespace string) {
 	foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "pdb", name, "-n", namespace, "--ignore-not-found=true"})
 }
 
-func deleteConfigsForParamsChange(ctx context.Context, params Params, name, namespace string) {
+func deleteConfigsForParamsChange(ctx context.Context, params api.Params, name, namespace string) {
 	if len(params.Configs.Files) == 0 && len(params.Configs.InlineFiles) == 0 {
 		log.Info().Msg("Deleting application configs if it exists, because no configs are specified...")
 		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "configmap", fmt.Sprintf("%v-configs", name), "-n", namespace, "--ignore-not-found=true"})
 	}
 }
 
-func deleteSecretsForParamsChange(ctx context.Context, params Params, name, namespace string) {
+func deleteSecretsForParamsChange(ctx context.Context, params api.Params, name, namespace string) {
 	if len(params.Secrets.Keys) == 0 {
 		log.Info().Msg("Deleting application secrets if it exists, because no secrets are specified...")
 		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "secret", fmt.Sprintf("%v-secrets", name), "-n", namespace, "--ignore-not-found=true"})
 	}
 }
 
-func deleteServiceAccountSecretForParamsChange(ctx context.Context, params Params, name, namespace string) {
+func deleteServiceAccountSecretForParamsChange(ctx context.Context, params api.Params, name, namespace string) {
 	if !params.UseGoogleCloudCredentials && params.LegacyGoogleCloudServiceAccountKeyFile == "" {
 		log.Info().Msg("Deleting service account secret if it exists, because no use of service account is specified...")
 		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "secret", fmt.Sprintf("%v-gcp-service-account", name), "-n", namespace, "--ignore-not-found=true"})
@@ -494,8 +378,8 @@ func deleteBackendConfigAndIAPOauthSecret(ctx context.Context, templateData Temp
 	}
 }
 
-func removePoddisruptionBudgetIfRequired(ctx context.Context, params Params, name, namespace string) {
-	if (params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment) && (params.Action == ActionDeploySimple || params.Action == ActionDeployStable) {
+func removePoddisruptionBudgetIfRequired(ctx context.Context, params api.Params, name, namespace string) {
+	if (params.Kind == api.KindDeployment || params.Kind == api.KindHeadlessDeployment) && (params.Action == api.ActionDeploySimple || params.Action == api.ActionDeployStable) {
 		// if there's a pdb that doesn't use maxUnavailable: 1 remove it so a new one can be created with correct settings
 		deletePoddisruptionBudget := false
 		maxUnavailable, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "pdb", name, "-n", namespace, "-o=jsonpath={.spec.maxUnavailable}"})
@@ -523,8 +407,8 @@ func removePoddisruptionBudgetIfRequired(ctx context.Context, params Params, nam
 	}
 }
 
-func removeIngressIfRequired(ctx context.Context, params Params, templateData TemplateData, name, namespace string) {
-	if params.Kind == KindDeployment && (params.Action == ActionDeploySimple || params.Action == ActionDeployCanary || params.Action == ActionDeployStable) {
+func removeIngressIfRequired(ctx context.Context, params api.Params, templateData TemplateData, name, namespace string) {
+	if params.Kind == api.KindDeployment && (params.Action == api.ActionDeploySimple || params.Action == api.ActionDeployCanary || params.Action == api.ActionDeployStable) {
 		if templateData.UseNginxIngress {
 			// check if ingress exists and has kubernetes.io/ingress.class: gce, then delete it because of https://github.com/kubernetes/ingress-gce/issues/481
 			ingressClass, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "ing", name, "-n", namespace, "-o=go-template={{index .metadata.annotations \"kubernetes.io/ingress.class\"}}"})
@@ -557,15 +441,15 @@ func removeIngressIfRequired(ctx context.Context, params Params, templateData Te
 	}
 }
 
-func deployGoogleEndpointsServiceIfRequired(ctx context.Context, params Params) {
-	if params.Kind == KindDeployment && params.Visibility == VisibilityESP && (params.Action == ActionDeploySimple || params.Action == ActionDeployCanary) {
+func deployGoogleEndpointsServiceIfRequired(ctx context.Context, params api.Params) {
+	if params.Kind == api.KindDeployment && params.Visibility == api.VisibilityESP && (params.Action == api.ActionDeploySimple || params.Action == api.ActionDeployCanary) {
 		log.Info().Msgf("Deploying endpoints service, endpoints project:  %v", params.EspEndpointsProjectID)
 		foundation.RunCommandWithArgs(ctx, "gcloud", []string{"endpoints", "--project", params.EspEndpointsProjectID, "services", "deploy", params.EspOpenAPIYamlPath})
 	}
 }
 
-func failIfCreatingNewPublicService(ctx context.Context, params Params, templateData TemplateData, name, namespace string) {
-	if params.Kind == KindDeployment && params.Visibility == VisibilityPublic {
+func failIfCreatingNewPublicService(ctx context.Context, params api.Params, templateData TemplateData, name, namespace string) {
+	if params.Kind == api.KindDeployment && params.Visibility == api.VisibilityPublic {
 		serviceType, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "service", name, "-n", namespace, "-o=jsonpath={.spec.type}"})
 		// fail if creating new public service or updating to public
 		if err != nil {
@@ -576,8 +460,8 @@ func failIfCreatingNewPublicService(ctx context.Context, params Params, template
 	}
 }
 
-func patchServiceIfRequired(ctx context.Context, params Params, templateData TemplateData, name, namespace string) {
-	if params.Kind == KindDeployment && templateData.ServiceType == "ClusterIP" {
+func patchServiceIfRequired(ctx context.Context, params api.Params, templateData TemplateData, name, namespace string) {
+	if params.Kind == api.KindDeployment && templateData.ServiceType == "ClusterIP" {
 		serviceType, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "service", name, "-n", namespace, "-o=jsonpath={.spec.type}"})
 		if err != nil {
 			log.Info().Msgf("Failed retrieving service type: %v", err)
@@ -599,14 +483,14 @@ func patchServiceIfRequired(ctx context.Context, params Params, templateData Tem
 	}
 }
 
-func cleanupJobIfRequired(ctx context.Context, params Params, templateData TemplateData, name, namespace string) {
-	if params.Kind == KindJob {
+func cleanupJobIfRequired(ctx context.Context, params api.Params, templateData TemplateData, name, namespace string) {
+	if params.Kind == api.KindJob {
 		err := foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"delete", "job", name, "-n", namespace, "--ignore-not-found=true"})
 		if err != nil {
 			log.Info().Msgf("Deleting job %v failed: %v", name, err)
 		}
 	}
-	if params.Kind == KindCronJob {
+	if params.Kind == api.KindCronJob {
 		err := foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"delete", "cronjob", name, "-n", namespace, "--ignore-not-found=true"})
 		if err != nil {
 			log.Info().Msgf("Deleting cronjob %v failed: %v", name, err)
@@ -614,10 +498,10 @@ func cleanupJobIfRequired(ctx context.Context, params Params, templateData Templ
 	}
 }
 
-func getExistingNumberOfReplicas(ctx context.Context, params Params) int {
-	if params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment {
-		if params.StrategyType == StrategyTypeAtomicUpdate {
-			replicas, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "deploy", "-l", fmt.Sprintf("app in (%v),estafette.io/atomic-id,estafette.io/atomic-id notin (%v)", sanitizeLabel(params.App), params.AtomicID), "-n", params.Namespace, "--sort-by=.metadata.creationTimestamp", "-o=jsonpath={.items[-1:].spec.replicas}"})
+func getExistingNumberOfReplicas(ctx context.Context, params api.Params) int {
+	if params.Kind == api.KindDeployment || params.Kind == api.KindHeadlessDeployment {
+		if params.StrategyType == api.StrategyTypeAtomicUpdate {
+			replicas, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "deploy", "-l", fmt.Sprintf("app in (%v),estafette.io/atomic-id,estafette.io/atomic-id notin (%v)", api.SanitizeLabel(params.App), params.AtomicID), "-n", params.Namespace, "--sort-by=.metadata.creationTimestamp", "-o=jsonpath={.items[-1:].spec.replicas}"})
 			if err != nil {
 				log.Info().Err(err).Msg("Failed retrieving replicas for previous atomic deployments. Ignoring setting replicas since there's no switch for deployment type...")
 				return -1
@@ -632,9 +516,9 @@ func getExistingNumberOfReplicas(ctx context.Context, params Params) int {
 		}
 
 		deploymentName := ""
-		if params.Action == ActionDeploySimple || params.Action == ActionDiffSimple {
+		if params.Action == api.ActionDeploySimple || params.Action == api.ActionDiffSimple {
 			deploymentName = params.App + "-stable"
-		} else if params.Action == ActionDeployStable || params.Action == ActionDiffStable {
+		} else if params.Action == api.ActionDeployStable || params.Action == api.ActionDiffStable {
 			deploymentName = params.App
 		}
 		if deploymentName != "" {
@@ -656,8 +540,8 @@ func getExistingNumberOfReplicas(ctx context.Context, params Params) int {
 	return -1
 }
 
-func patchDeploymentIfRequired(ctx context.Context, params Params, name, namespace string) {
-	if (params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment) && params.Action == ActionDeploySimple {
+func patchDeploymentIfRequired(ctx context.Context, params api.Params, name, namespace string) {
+	if (params.Kind == api.KindDeployment || params.Kind == api.KindHeadlessDeployment) && params.Action == api.ActionDeploySimple {
 		selectorLabels, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "deploy", name, "-n", namespace, "-o=jsonpath={.spec.selector.matchLabels}"})
 		if err != nil {
 			log.Info().Msgf("Failed retrieving deployment selector labels: %v", err)
@@ -703,15 +587,15 @@ func removeNegAnnotation(ctx context.Context, templateData TemplateData, name, n
 	}
 }
 
-func deleteHorizontalPodAutoscaler(ctx context.Context, params Params, name, namespace string) {
-	if (params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment) && (params.Autoscale.Enabled == nil || !*params.Autoscale.Enabled) && (params.Action == ActionDeploySimple || params.Action == ActionDeployStable) {
+func deleteHorizontalPodAutoscaler(ctx context.Context, params api.Params, name, namespace string) {
+	if (params.Kind == api.KindDeployment || params.Kind == api.KindHeadlessDeployment) && (params.Autoscale.Enabled == nil || !*params.Autoscale.Enabled) && (params.Action == api.ActionDeploySimple || params.Action == api.ActionDeployStable) {
 		log.Info().Msgf("Deleting HorizontalPodAutoscaler %v, since autoscaling is disabled...", name)
 		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "hpa", name, "-n", namespace, "--ignore-not-found=true"})
 	}
 }
 
-func handleAtomicUpdate(ctx context.Context, params Params, templateData TemplateData) {
-	if params.StrategyType != StrategyTypeAtomicUpdate {
+func handleAtomicUpdate(ctx context.Context, params api.Params, templateData TemplateData) {
+	if params.StrategyType != api.StrategyTypeAtomicUpdate {
 		return
 	}
 
@@ -743,78 +627,13 @@ func handleAtomicUpdate(ctx context.Context, params Params, templateData Templat
 
 	// clean up old deployments, configmaps, secrets, hpa, pdb
 	log.Info().Msg("Cleaning up previous deployments, configmaps, secrets, hpas and pdbs...")
-	foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "deploy,hpa,pdb", "-l", fmt.Sprintf("app in (%v),estafette.io/atomic-id,estafette.io/atomic-id notin (%v)", sanitizeLabel(params.App), params.AtomicID), "-n", templateData.Namespace, "--ignore-not-found=true"})
-	foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "configmap,secret", "-l", fmt.Sprintf("app in (%v),type in (application),estafette.io/atomic-id,estafette.io/atomic-id notin (%v)", sanitizeLabel(params.App), params.AtomicID), "-n", templateData.Namespace, "--ignore-not-found=true"})
+	foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "deploy,hpa,pdb", "-l", fmt.Sprintf("app in (%v),estafette.io/atomic-id,estafette.io/atomic-id notin (%v)", api.SanitizeLabel(params.App), params.AtomicID), "-n", templateData.Namespace, "--ignore-not-found=true"})
+	foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "configmap,secret", "-l", fmt.Sprintf("app in (%v),type in (application),estafette.io/atomic-id,estafette.io/atomic-id notin (%v)", api.SanitizeLabel(params.App), params.AtomicID), "-n", templateData.Namespace, "--ignore-not-found=true"})
 	if templateData.IncludeTrackLabel {
-		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "deploy,hpa,pdb", "-l", fmt.Sprintf("app in (%v),!estafette.io/atomic-id,track in (%v)", sanitizeLabel(params.App), templateData.TrackLabel), "-n", templateData.Namespace, "--ignore-not-found=true"})
-		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "configmap,secret", "-l", fmt.Sprintf("app in (%v),type in (application),!estafette.io/atomic-id,track in (%v)", sanitizeLabel(params.App), templateData.TrackLabel), "-n", templateData.Namespace, "--ignore-not-found=true"})
+		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "deploy,hpa,pdb", "-l", fmt.Sprintf("app in (%v),!estafette.io/atomic-id,track in (%v)", api.SanitizeLabel(params.App), templateData.TrackLabel), "-n", templateData.Namespace, "--ignore-not-found=true"})
+		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "configmap,secret", "-l", fmt.Sprintf("app in (%v),type in (application),!estafette.io/atomic-id,track in (%v)", api.SanitizeLabel(params.App), templateData.TrackLabel), "-n", templateData.Namespace, "--ignore-not-found=true"})
 	} else {
-		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "deploy,hpa,pdb", "-l", fmt.Sprintf("app in (%v),!estafette.io/atomic-id,!track", sanitizeLabel(params.App)), "-n", templateData.Namespace, "--ignore-not-found=true"})
-		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "configmap,secret", "-l", fmt.Sprintf("app in (%v),type in (application),!estafette.io/atomic-id,!track", sanitizeLabel(params.App)), "-n", templateData.Namespace, "--ignore-not-found=true"})
+		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "deploy,hpa,pdb", "-l", fmt.Sprintf("app in (%v),!estafette.io/atomic-id,!track", api.SanitizeLabel(params.App)), "-n", templateData.Namespace, "--ignore-not-found=true"})
+		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "configmap,secret", "-l", fmt.Sprintf("app in (%v),type in (application),!estafette.io/atomic-id,!track", api.SanitizeLabel(params.App)), "-n", templateData.Namespace, "--ignore-not-found=true"})
 	}
-}
-
-func httpRequestBody(method, url string, headers map[string]string) string {
-	client := pester.New()
-	client.MaxRetries = 3
-	client.Backoff = pester.ExponentialJitterBackoff
-	client.KeepLog = true
-	client.Timeout = time.Second * 5
-	request, err := http.NewRequest(method, url, nil)
-	if err != nil {
-		return ""
-	}
-
-	for k, v := range headers {
-		request.Header.Add(k, v)
-	}
-
-	// perform actual request
-	response, err := client.Do(request)
-	if err != nil {
-		return ""
-	}
-
-	defer response.Body.Close()
-
-	if response.StatusCode != http.StatusOK {
-		return ""
-	}
-
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return ""
-	}
-
-	return string(body)
-}
-
-func httpRequestHeader(method, url string, headers map[string]string, responseHeader string) string {
-	client := pester.New()
-	client.MaxRetries = 3
-	client.Backoff = pester.ExponentialJitterBackoff
-	client.KeepLog = true
-	client.Timeout = time.Second * 5
-	request, err := http.NewRequest(method, url, nil)
-	if err != nil {
-		return ""
-	}
-
-	for k, v := range headers {
-		request.Header.Add(k, v)
-	}
-
-	// perform actual request
-	response, err := client.Do(request)
-	if err != nil {
-		return ""
-	}
-
-	defer response.Body.Close()
-
-	if response.StatusCode != http.StatusOK {
-		return ""
-	}
-
-	return response.Header.Get(responseHeader)
 }

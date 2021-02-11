@@ -3,6 +3,7 @@ package main
 import (
 	"testing"
 
+	"github.com/estafette/estafette-extension-gke/api"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -10,10 +11,10 @@ func TestGetTemplates(t *testing.T) {
 
 	t.Run("IncludesIngressIfVisibilityIsPrivateAndKindIsDeployment", func(t *testing.T) {
 
-		params := Params{
-			Action:     ActionDeploySimple,
-			Visibility: VisibilityPrivate,
-			Kind:       KindDeployment,
+		params := api.Params{
+			Action:     api.ActionDeploySimple,
+			Visibility: api.VisibilityPrivate,
+			Kind:       api.KindDeployment,
 		}
 
 		// act
@@ -24,10 +25,10 @@ func TestGetTemplates(t *testing.T) {
 
 	t.Run("IncludesIngressIfVisibilityIsIapAndKindIsDeployment", func(t *testing.T) {
 
-		params := Params{
-			Action:     ActionDeploySimple,
-			Visibility: VisibilityIAP,
-			Kind:       KindDeployment,
+		params := api.Params{
+			Action:     api.ActionDeploySimple,
+			Visibility: api.VisibilityIAP,
+			Kind:       api.KindDeployment,
 		}
 
 		// act
@@ -38,10 +39,10 @@ func TestGetTemplates(t *testing.T) {
 
 	t.Run("IncludesIngressIfVisibilityIsPublicWhitelistAndKindIsDeployment", func(t *testing.T) {
 
-		params := Params{
-			Action:     ActionDeploySimple,
-			Visibility: VisibilityPublicWhitelist,
-			Kind:       KindDeployment,
+		params := api.Params{
+			Action:     api.ActionDeploySimple,
+			Visibility: api.VisibilityPublicWhitelist,
+			Kind:       api.KindDeployment,
 		}
 
 		// act
@@ -52,9 +53,9 @@ func TestGetTemplates(t *testing.T) {
 
 	t.Run("DoesNotIncludeIngressIfVisibilityIsPublic", func(t *testing.T) {
 
-		params := Params{
-			Action:     ActionDeploySimple,
-			Visibility: VisibilityPublic,
+		params := api.Params{
+			Action:     api.ActionDeploySimple,
+			Visibility: api.VisibilityPublic,
 		}
 
 		// act
@@ -65,9 +66,9 @@ func TestGetTemplates(t *testing.T) {
 
 	t.Run("IncludesInternalIngressIfOneOrMoreInternalHostsAreSetAndKindIsDeployment", func(t *testing.T) {
 
-		params := Params{
-			Action:        ActionDeploySimple,
-			Kind:          KindDeployment,
+		params := api.Params{
+			Action:        api.ActionDeploySimple,
+			Kind:          api.KindDeployment,
 			InternalHosts: []string{"ci.estafette.internal"},
 		}
 
@@ -79,8 +80,8 @@ func TestGetTemplates(t *testing.T) {
 
 	t.Run("DoesNotIncludeInternalIngressIfNoInternalHostsAreSet", func(t *testing.T) {
 
-		params := Params{
-			Action:        ActionDeploySimple,
+		params := api.Params{
+			Action:        api.ActionDeploySimple,
 			InternalHosts: []string{},
 		}
 
@@ -92,9 +93,9 @@ func TestGetTemplates(t *testing.T) {
 
 	t.Run("IncludesApplicationSecretsIfLengthOfSecretsIsMoreThanZero", func(t *testing.T) {
 
-		params := Params{
-			Action: ActionDeploySimple,
-			Secrets: SecretsParams{
+		params := api.Params{
+			Action: api.ActionDeploySimple,
+			Secrets: api.SecretsParams{
 				Keys: map[string]interface{}{
 					"secret-file-1.json": "c29tZSBzZWNyZXQgdmFsdWU=",
 					"secret-file-2.yaml": "YW5vdGhlciBzZWNyZXQgdmFsdWU=",
@@ -110,8 +111,8 @@ func TestGetTemplates(t *testing.T) {
 
 	t.Run("DoesNotIncludeApplicationSecretsIfLengthOfSecretsZero", func(t *testing.T) {
 
-		params := Params{
-			Action: ActionDeploySimple,
+		params := api.Params{
+			Action: api.ActionDeploySimple,
 		}
 
 		// act
@@ -122,9 +123,9 @@ func TestGetTemplates(t *testing.T) {
 
 	t.Run("AddLocalManifestsIfSetInLocalManifestsParam", func(t *testing.T) {
 
-		params := Params{
-			Action: ActionDeploySimple,
-			Manifests: ManifestsParams{
+		params := api.Params{
+			Action: api.ActionDeploySimple,
+			Manifests: api.ManifestsParams{
 				Files: []string{
 					"./gke/another-ingress.yaml",
 				},
@@ -139,9 +140,9 @@ func TestGetTemplates(t *testing.T) {
 
 	t.Run("OverrideWithLocalManifestsIfSetInLocalManifestsParamWithSameFilename", func(t *testing.T) {
 
-		params := Params{
-			Action: ActionDeploySimple,
-			Manifests: ManifestsParams{
+		params := api.Params{
+			Action: api.ActionDeploySimple,
+			Manifests: api.ManifestsParams{
 				Files: []string{
 					"./gke/service.yaml",
 				},
@@ -157,8 +158,8 @@ func TestGetTemplates(t *testing.T) {
 
 	t.Run("ReturnsEmptyListIfActionIsRollbackCanaray", func(t *testing.T) {
 
-		params := Params{
-			Action: ActionRollbackCanary,
+		params := api.Params{
+			Action: api.ActionRollbackCanary,
 		}
 
 		// act
@@ -169,8 +170,8 @@ func TestGetTemplates(t *testing.T) {
 
 	t.Run("ReturnsOnlyHorizontalPodAutoscalerAndPodDisruptionBudgetIfActionIsDeployCanary", func(t *testing.T) {
 
-		params := Params{
-			Action: ActionDeployCanary,
+		params := api.Params{
+			Action: api.ActionDeployCanary,
 		}
 
 		// act
@@ -182,9 +183,9 @@ func TestGetTemplates(t *testing.T) {
 
 	t.Run("DoesNotIncludeCertificateSecretIfCertificateSecretIsSet", func(t *testing.T) {
 
-		params := Params{
-			Action:            ActionDeploySimple,
-			Kind:              KindDeployment,
+		params := api.Params{
+			Action:            api.ActionDeploySimple,
+			Kind:              api.KindDeployment,
 			CertificateSecret: "shared-wildcard-letsencrypt-certificate",
 		}
 
@@ -196,9 +197,9 @@ func TestGetTemplates(t *testing.T) {
 
 	t.Run("IncludesCertificateSecretIfCertificateSecretIsNotSet", func(t *testing.T) {
 
-		params := Params{
-			Action: ActionDeploySimple,
-			Kind:   KindDeployment,
+		params := api.Params{
+			Action: api.ActionDeploySimple,
+			Kind:   api.KindDeployment,
 		}
 
 		// act
@@ -209,10 +210,10 @@ func TestGetTemplates(t *testing.T) {
 
 	t.Run("IncludesApigeeIngressIfVisibilityIsApigeeAndKindIsDeployment", func(t *testing.T) {
 
-		params := Params{
-			Action:     ActionDeploySimple,
-			Visibility: VisibilityApigee,
-			Kind:       KindDeployment,
+		params := api.Params{
+			Action:     api.ActionDeploySimple,
+			Visibility: api.VisibilityApigee,
+			Kind:       api.KindDeployment,
 		}
 
 		// act

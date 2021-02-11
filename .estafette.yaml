@@ -26,23 +26,27 @@ stages:
     image: extensions/docker:dev
     action: build
     inline: |
-      FROM google/cloud-sdk:321.0.0-alpine
+      FROM alpine:3.13
 
       LABEL maintainer="estafette.io" \
             description="The ${ESTAFETTE_GIT_NAME} component is an Estafette extension to deploy applications to a Kubernetes Engine cluster"
 
-      RUN apk update \
-          && apk add --upgrade gnupg \
-          && rm /var/cache/apk/*
+      RUN curl https://storage.googleapis.com/kubernetes-release/release/v1.19.0/bin/linux/amd64/kubectl --output /usr/bin/kubectl \
+          && chmod +x /usr/bin/kubectl \
+          && kubectl version --client \
+          && mkdir -p ~/.kube
 
-      RUN curl https://storage.googleapis.com/kubernetes-release/release/v1.19.0/bin/linux/amd64/kubectl --output /google-cloud-sdk/bin/kubectl \
-          && chmod +x /google-cloud-sdk/bin/kubectl \
-          && kubectl version --client
+      FROM scratch
+
+      COPY --from=0 /usr/bin/kubectl /usr/bin/kubectl
+      COPY --from=0 /root/.kube /root/.kube
 
       COPY ${ESTAFETTE_GIT_NAME} /
       COPY templates /templates
 
-      ENV ESTAFETTE_LOG_FORMAT="console"
+      ENV ESTAFETTE_LOG_FORMAT="console" \
+          GOOGLE_APPLICATION_CREDENTIALS="/key-file.json" \
+          PATH="/usr/bin:$PATH"
 
       ENTRYPOINT ["/${ESTAFETTE_GIT_NAME}"]
     container: gke

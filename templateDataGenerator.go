@@ -4,15 +4,15 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
-	"regexp"
 	"strconv"
 	"strings"
 	"text/template"
 
+	"github.com/estafette/estafette-extension-gke/api"
 	yaml "gopkg.in/yaml.v2"
 )
 
-func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwner, gitName, gitBranch, gitRevision, releaseID, triggeredBy string) TemplateData {
+func generateTemplateData(params api.Params, currentReplicas int, gitSource, gitOwner, gitName, gitBranch, gitRevision, releaseID, triggeredBy string) TemplateData {
 
 	data := TemplateData{
 		Name:                    params.App,
@@ -24,9 +24,9 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		Completions:             params.Completions,
 		Parallelism:             params.Parallelism,
 		ProgressDeadlineSeconds: params.ProgressDeadlineSeconds,
-		Labels:                  sanitizeLabels(params.Labels),
-		PodLabels:               sanitizeLabels(params.Labels),
-		AppLabelSelector:        sanitizeLabel(params.App),
+		Labels:                  api.SanitizeLabels(params.Labels),
+		PodLabels:               api.SanitizeLabels(params.Labels),
+		AppLabelSelector:        api.SanitizeLabel(params.App),
 
 		Hosts:               params.Hosts,
 		HostsJoined:         strings.Join(params.Hosts, ","),
@@ -51,7 +51,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		HpaScalerScaleDownMaxRatio:  params.Autoscale.Safety.ScaleDownRatio,
 
 		Secrets:                 params.Secrets.Keys,
-		MountSslCertificate:     params.Kind == KindDeployment,
+		MountSslCertificate:     params.Kind == api.KindDeployment,
 		MountApplicationSecrets: len(params.Secrets.Keys) > 0,
 		SecretMountPath:         params.Secrets.MountPath,
 		MountConfigmap:          len(params.Configs.Files) > 0 || len(params.Configs.InlineFiles) > 0,
@@ -65,11 +65,11 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		RollingUpdateMaxUnavailable: params.RollingUpdate.MaxUnavailable,
 
 		PreferPreemptibles:            params.ChaosProof,
-		UseWindowsNodes:               params.OperatingSystem == OperatingSystemWindows,
+		UseWindowsNodes:               params.OperatingSystem == api.OperatingSystemWindows,
 		MountServiceAccountSecret:     params.UseGoogleCloudCredentials || params.LegacyGoogleCloudServiceAccountKeyFile != "",
 		UseLegacyServiceAccountKey:    params.LegacyGoogleCloudServiceAccountKeyFile != "",
 		GoogleCloudCredentialsAppName: params.GoogleCloudCredentialsApp,
-		GoogleCloudCredentialsLabels:  sanitizeLabels(params.Labels),
+		GoogleCloudCredentialsLabels:  api.SanitizeLabels(params.Labels),
 
 		PodManagementPolicy: params.PodManagementPolicy,
 		StorageClass:        params.StorageClass,
@@ -145,7 +145,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 	// set tracing service name
 	data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_SERVICE_NAME", params.App)
 
-	if params.Action == ActionDeployCanary || params.Action == ActionDiffCanary {
+	if params.Action == api.ActionDeployCanary || params.Action == api.ActionDiffCanary {
 		data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_SAMPLER_TYPE", "probabilistic")
 		data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_SAMPLER_PARAM", "0.1")
 		data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_TAGS", "track=canary")
@@ -158,7 +158,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 	for _, sidecarParams := range params.Sidecars {
 		sidecar := buildSidecar(sidecarParams, params)
 		data.Sidecars = append(data.Sidecars, sidecar)
-		if sidecar.Type == string(SidecarTypeOpenresty) {
+		if sidecar.Type == string(api.SidecarTypeOpenresty) {
 			data.HasOpenrestySidecar = true
 		}
 	}
@@ -167,10 +167,10 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		data.CustomSidecars = params.CustomSidecars
 	}
 
-	data.UseESP = params.Visibility == VisibilityESP
+	data.UseESP = params.Visibility == api.VisibilityESP
 	data.HasEspConfigID = params.EspConfigID != ""
 	data.EspConfigID = params.EspConfigID
-	if params.Visibility == VisibilityESP && len(params.Hosts) > 0 {
+	if params.Visibility == api.VisibilityESP && len(params.Hosts) > 0 {
 		data.EspService = params.Hosts[0]
 	}
 
@@ -263,50 +263,50 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 	}
 
 	if params.BuildVersion != "" {
-		data.PodLabels["version"] = sanitizeLabel(params.BuildVersion)
+		data.PodLabels["version"] = api.SanitizeLabel(params.BuildVersion)
 	}
 	if releaseID != "" {
-		data.PodLabels["estafette.io/release-id"] = sanitizeLabel(releaseID)
+		data.PodLabels["estafette.io/release-id"] = api.SanitizeLabel(releaseID)
 	}
 	if triggeredBy != "" {
-		data.PodLabels["estafette.io/triggered-by"] = sanitizeLabel(triggeredBy)
+		data.PodLabels["estafette.io/triggered-by"] = api.SanitizeLabel(triggeredBy)
 	}
 	if gitSource != "" && gitOwner != "" && gitName != "" {
-		data.PodLabels["estafette.io/git-repository"] = sanitizeLabel(fmt.Sprintf("%v/%v/%v", gitSource, gitOwner, gitName))
+		data.PodLabels["estafette.io/git-repository"] = api.SanitizeLabel(fmt.Sprintf("%v/%v/%v", gitSource, gitOwner, gitName))
 	}
 	if gitBranch != "" {
-		data.PodLabels["estafette.io/git-branch"] = sanitizeLabel(gitBranch)
+		data.PodLabels["estafette.io/git-branch"] = api.SanitizeLabel(gitBranch)
 	}
 	if gitRevision != "" {
-		data.PodLabels["estafette.io/git-revision"] = sanitizeLabel(gitRevision)
+		data.PodLabels["estafette.io/git-revision"] = api.SanitizeLabel(gitRevision)
 	}
 
 	switch params.Action {
-	case ActionDeploySimple,
-		ActionDiffSimple:
+	case api.ActionDeploySimple,
+		api.ActionDiffSimple:
 		data.IncludeTrackLabel = false
-	case ActionDeployCanary,
-		ActionDiffCanary:
+	case api.ActionDeployCanary,
+		api.ActionDiffCanary:
 		data.NameWithTrack += "-canary"
 		data.IncludeTrackLabel = true
 		data.TrackLabel = "canary"
-	case ActionDeployStable,
-		ActionDiffStable:
+	case api.ActionDeployStable,
+		api.ActionDiffStable:
 		data.NameWithTrack += "-stable"
 		data.IncludeTrackLabel = true
 		data.TrackLabel = "stable"
 	}
 
 	switch params.StrategyType {
-	case StrategyTypeRollingUpdate:
+	case api.StrategyTypeRollingUpdate:
 		data.StrategyType = string(params.StrategyType)
-	case StrategyTypeRecreate:
+	case api.StrategyTypeRecreate:
 		data.StrategyType = string(params.StrategyType)
-	case StrategyTypeAtomicUpdate:
-		data.StrategyType = string(StrategyTypeRollingUpdate)
+	case api.StrategyTypeAtomicUpdate:
+		data.StrategyType = string(api.StrategyTypeRollingUpdate)
 	}
 
-	if params.StrategyType == StrategyTypeAtomicUpdate && params.Action == ActionDeploySimple && params.AtomicID != "" {
+	if params.StrategyType == api.StrategyTypeAtomicUpdate && params.Action == api.ActionDeploySimple && params.AtomicID != "" {
 		data.NameWithTrack += "-" + params.AtomicID
 		data.IncludeAtomicIDSelector = true
 		data.AtomicID = params.AtomicID
@@ -318,7 +318,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 	// set some additional labels similar to helm charts in order to unify alerting and dashboards
 	data.PodLabels["app.kubernetes.io/name"] = data.Name
 	data.PodLabels["app.kubernetes.io/instance"] = data.NameWithTrack
-	data.PodLabels["app.kubernetes.io/version"] = sanitizeLabel(params.BuildVersion)
+	data.PodLabels["app.kubernetes.io/version"] = api.SanitizeLabel(params.BuildVersion)
 	data.PodLabels["app.kubernetes.io/managed-by"] = "estafette"
 
 	data.ConfigmapFiles = params.Configs.RenderedFileContent
@@ -329,7 +329,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 	}
 
 	switch params.Visibility {
-	case VisibilityPrivate:
+	case api.VisibilityPrivate:
 		data.ServiceType = "ClusterIP"
 		data.UseNginxIngress = true
 		data.UseGCEIngress = false
@@ -341,7 +341,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		data.LimitTrustedIPRanges = false
 		data.OverrideDefaultWhitelist = false
 
-	case VisibilityIAP:
+	case api.VisibilityIAP:
 		data.ServiceType = "NodePort"
 		data.UseNginxIngress = false
 		data.UseGCEIngress = true
@@ -355,7 +355,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		data.IapOauthCredentialsClientID = params.IapOauthCredentialsClientID
 		data.IapOauthCredentialsClientSecret = params.IapOauthCredentialsClientSecret
 
-	case VisibilityPublicWhitelist:
+	case api.VisibilityPublicWhitelist:
 		data.ServiceType = "ClusterIP"
 		data.UseNginxIngress = true
 		data.UseGCEIngress = false
@@ -368,7 +368,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		data.OverrideDefaultWhitelist = len(params.WhitelistedIPS) > 0
 		data.NginxIngressWhitelist = strings.Join(params.WhitelistedIPS, ",")
 
-	case VisibilityApigee:
+	case api.VisibilityApigee:
 		data.ServiceType = "ClusterIP"
 		data.UseNginxIngress = true
 		data.UseGCEIngress = false
@@ -386,7 +386,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		}
 		data.ApigeeHostsJoined = strings.Join(data.ApigeeHosts, ",")
 
-	case VisibilityESP:
+	case api.VisibilityESP:
 		data.ServiceType = "LoadBalancer"
 		data.UseNginxIngress = false
 		data.UseGCEIngress = false
@@ -396,7 +396,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 		data.LimitTrustedIPRanges = true
 		data.OverrideDefaultWhitelist = false
 
-	case VisibilityPublic:
+	case api.VisibilityPublic:
 		data.ServiceType = "LoadBalancer"
 		data.UseNginxIngress = false
 		data.UseGCEIngress = false
@@ -473,7 +473,7 @@ func generateTemplateData(params Params, currentReplicas int, gitSource, gitOwne
 	return data
 }
 
-func buildSidecar(sidecar *SidecarParams, params Params) SidecarData {
+func buildSidecar(sidecar *api.SidecarParams, params api.Params) SidecarData {
 	builtSidecar := SidecarData{
 		Type:                    string(sidecar.Type),
 		Image:                   sidecar.Image,
@@ -491,7 +491,7 @@ func buildSidecar(sidecar *SidecarParams, params Params) SidecarData {
 		},
 	}
 
-	if sidecar.Type == SidecarTypeOpenresty {
+	if sidecar.Type == api.SidecarTypeOpenresty {
 		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "SEND_TIMEOUT", params.Request.Timeout)
 		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "CLIENT_BODY_TIMEOUT", params.Request.Timeout)
 		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "CLIENT_HEADER_TIMEOUT", params.Request.Timeout)
@@ -508,7 +508,7 @@ func buildSidecar(sidecar *SidecarParams, params Params) SidecarData {
 			builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "GRACEFUL_SHUTDOWN_DELAY_SECONDS", strconv.Itoa(*params.Container.Lifecycle.PrestopSleepSeconds))
 		}
 
-		if params.Visibility == VisibilityESP {
+		if params.Visibility == api.VisibilityESP {
 			builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "ENFORCE_HTTPS", "false")
 		}
 	}
@@ -534,47 +534,6 @@ func addEnvironmentVariableIfNotSet(environmentVariables map[string]interface{},
 	}
 
 	return environmentVariables
-}
-
-// a valid label must be an empty string or consist of alphanumeric characters, '-', '_' or '.', and must start and end with an alphanumeric character (e.g. 'MyValue',  or 'my_value',  or '12345', regex used for validation is '(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?')
-func sanitizeLabel(value string) string {
-
-	// Valid label values must be 63 characters or less and must be empty or begin and end with an alphanumeric character ([a-z0-9A-Z])
-	// with dashes (-), underscores (_), dots (.), and alphanumerics between.
-
-	// replace @ with -at-
-	reg := regexp.MustCompile(`@+`)
-	value = reg.ReplaceAllString(value, "-at-")
-
-	// replace all invalid characters with a hyphen
-	reg = regexp.MustCompile(`[^a-zA-Z0-9-_.]+`)
-	value = reg.ReplaceAllString(value, "-")
-
-	// replace double hyphens with a single one
-	value = strings.Replace(value, "--", "-", -1)
-
-	// ensure it starts with an alphanumeric character
-	reg = regexp.MustCompile(`^[^a-zA-Z0-9]+`)
-	value = reg.ReplaceAllString(value, "")
-
-	// maximize length at 63 characters
-	if len(value) > 63 {
-		value = value[:63]
-	}
-
-	// ensure it ends with an alphanumeric character
-	reg = regexp.MustCompile(`[^a-zA-Z0-9]+$`)
-	value = reg.ReplaceAllString(value, "")
-
-	return value
-}
-
-func sanitizeLabels(labels map[string]string) (sanitizedLabels map[string]string) {
-	sanitizedLabels = make(map[string]string, len(labels))
-	for k, v := range labels {
-		sanitizedLabels[k] = sanitizeLabel(v)
-	}
-	return
 }
 
 func isSimpleEnvvarValue(i interface{}) bool {

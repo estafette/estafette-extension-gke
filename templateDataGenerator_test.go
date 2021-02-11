@@ -3,14 +3,20 @@ package main
 import (
 	"testing"
 
+	"github.com/estafette/estafette-extension-gke/api"
 	"github.com/stretchr/testify/assert"
+)
+
+var (
+	trueValue  = true
+	falseValue = false
 )
 
 func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsNameToAppParam", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			App: "myapp",
 		}
 
@@ -22,7 +28,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsNamespaceToNamespaceParam", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			Namespace: "mynamespace",
 		}
 
@@ -34,7 +40,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsLabelsToLabelsParam", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			Labels: map[string]string{
 				"app":  "myapp",
 				"team": "myteam",
@@ -51,7 +57,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsAppLabelSelectorToAppParam", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			App: "myapp",
 		}
 
@@ -63,7 +69,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("ReplacesAppLabelValueWithAppParamIfAppLabelExists", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			Labels: map[string]string{
 				"app":  "myapp",
 				"team": "myteam",
@@ -80,7 +86,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("AddsAppLabelValueWithAppParamIfAppLabelDoesNotExists", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			Labels: map[string]string{
 				"team": "myteam",
 			},
@@ -96,8 +102,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsContainerRepositoryToImageRepositoryParam", func(t *testing.T) {
 
-		params := Params{
-			Container: ContainerParams{
+		params := api.Params{
+			Container: api.ContainerParams{
 				ImageRepository: "myproject",
 			},
 		}
@@ -110,8 +116,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsContainerNameToImageNameParam", func(t *testing.T) {
 
-		params := Params{
-			Container: ContainerParams{
+		params := api.Params{
+			Container: api.ContainerParams{
 				ImageName: "my-app",
 			},
 		}
@@ -124,8 +130,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsContainerTagToImageTagParam", func(t *testing.T) {
 
-		params := Params{
-			Container: ContainerParams{
+		params := api.Params{
+			Container: api.ContainerParams{
 				ImageTag: "1.0.0",
 			},
 		}
@@ -138,8 +144,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsServiceTypeToClusterIPIfVisibilityParamIsPrivate", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityPrivate,
+		params := api.Params{
+			Visibility: api.VisibilityPrivate,
 		}
 
 		// act
@@ -150,8 +156,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsServiceTypeToClusterIPIfVisibilityParamIsPublicWhitelist", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityPublicWhitelist,
+		params := api.Params{
+			Visibility: api.VisibilityPublicWhitelist,
 		}
 
 		// act
@@ -162,8 +168,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsServiceTypeToNodePortIfVisibilityParamIsIap", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityIAP,
+		params := api.Params{
+			Visibility: api.VisibilityIAP,
 		}
 
 		// act
@@ -174,8 +180,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsServiceTypeToLoadBalancerIfVisibilityParamIsPublic", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityPublic,
+		params := api.Params{
+			Visibility: api.VisibilityPublic,
 		}
 
 		// act
@@ -186,8 +192,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsUseDNSAnnotationsOnIngressToTrueIfVisibilityParamIsPrivate", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityPrivate,
+		params := api.Params{
+			Visibility: api.VisibilityPrivate,
 		}
 
 		// act
@@ -198,8 +204,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsUseDNSAnnotationsOnIngressToTrueIfVisibilityParamIsPublicWhitelist", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityPublicWhitelist,
+		params := api.Params{
+			Visibility: api.VisibilityPublicWhitelist,
 		}
 
 		// act
@@ -210,8 +216,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsUseDNSAnnotationsOnIngressToFalseIfVisibilityParamIsPublic", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityPublic,
+		params := api.Params{
+			Visibility: api.VisibilityPublic,
 		}
 
 		// act
@@ -222,8 +228,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsUseDNSAnnotationsOnServiceToTrueIfVisibilityParamIsPublic", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityPublic,
+		params := api.Params{
+			Visibility: api.VisibilityPublic,
 		}
 
 		// act
@@ -234,8 +240,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsUseDNSAnnotationsOnServiceToFalseIfVisibilityParamIsPrivate", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityPrivate,
+		params := api.Params{
+			Visibility: api.VisibilityPrivate,
 		}
 
 		// act
@@ -246,8 +252,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsUseDNSAnnotationsOnServiceToFalseIfVisibilityParamIsPublicWhitelist", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityPublicWhitelist,
+		params := api.Params{
+			Visibility: api.VisibilityPublicWhitelist,
 		}
 
 		// act
@@ -258,8 +264,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsUseCloudflareProxyToTrueIfVisibilityParamIsPrivate", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityPrivate,
+		params := api.Params{
+			Visibility: api.VisibilityPrivate,
 		}
 
 		// act
@@ -270,8 +276,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsUseCloudflareProxyToTrueIfVisibilityParamIsPublicWhitelist", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityPublicWhitelist,
+		params := api.Params{
+			Visibility: api.VisibilityPublicWhitelist,
 		}
 
 		// act
@@ -282,8 +288,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsUseCloudflareProxyToTrueIfVisibilityParamIsPublic", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityPublic,
+		params := api.Params{
+			Visibility: api.VisibilityPublic,
 		}
 
 		// act
@@ -294,8 +300,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsUseCloudflareProxyToFalseIfVisibilityParamIsIAP", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityIAP,
+		params := api.Params{
+			Visibility: api.VisibilityIAP,
 		}
 
 		// act
@@ -306,9 +312,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsContainerCPURequestToCPURequestParam", func(t *testing.T) {
 
-		params := Params{
-			Container: ContainerParams{
-				CPU: CPUParams{
+		params := api.Params{
+			Container: api.ContainerParams{
+				CPU: api.CPUParams{
 					Request: "1200m",
 				},
 			},
@@ -322,9 +328,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsContainerCPULimitToCPULimitParam", func(t *testing.T) {
 
-		params := Params{
-			Container: ContainerParams{
-				CPU: CPUParams{
+		params := api.Params{
+			Container: api.ContainerParams{
+				CPU: api.CPUParams{
 					Limit: "1500m",
 				},
 			},
@@ -338,9 +344,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsContainerMemoryRequestToMemoryRequestParam", func(t *testing.T) {
 
-		params := Params{
-			Container: ContainerParams{
-				Memory: MemoryParams{
+		params := api.Params{
+			Container: api.ContainerParams{
+				Memory: api.MemoryParams{
 					Request: "1024Mi",
 				},
 			},
@@ -354,9 +360,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsContainerMemoryLimitToMemoryLimitParam", func(t *testing.T) {
 
-		params := Params{
-			Container: ContainerParams{
-				Memory: MemoryParams{
+		params := api.Params{
+			Container: api.ContainerParams{
+				Memory: api.MemoryParams{
 					Limit: "2048Mi",
 				},
 			},
@@ -370,8 +376,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsContainerPortToContainerPortParam", func(t *testing.T) {
 
-		params := Params{
-			Container: ContainerParams{
+		params := api.Params{
+			Container: api.ContainerParams{
 				Port: 3080,
 			},
 		}
@@ -384,7 +390,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsHostsToHostsParam", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			Hosts: []string{
 				"gke.estafette.io",
 				"gke-deploy.estafette.io",
@@ -401,7 +407,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsHostsJoinedToCommaSeparatedJoinOfHostsParam", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			Hosts: []string{
 				"gke.estafette.io",
 				"gke-deploy.estafette.io",
@@ -416,7 +422,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsInternalHostsToInternalHostsParam", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			InternalHosts: []string{
 				"gke.estafette.io",
 				"gke-deploy.estafette.io",
@@ -433,7 +439,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsInternalHostsJoinedToCommaSeparatedJoinOfInternalHostsParam", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			InternalHosts: []string{
 				"gke.estafette.io",
 				"gke-deploy.estafette.io",
@@ -448,8 +454,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsMinReplicasToAutoscaleMinReplicasParam", func(t *testing.T) {
 
-		params := Params{
-			Autoscale: AutoscaleParams{
+		params := api.Params{
+			Autoscale: api.AutoscaleParams{
 				MinReplicas: 5,
 			},
 		}
@@ -462,8 +468,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsMaxReplicasToAutoscaleMaxReplicasParam", func(t *testing.T) {
 
-		params := Params{
-			Autoscale: AutoscaleParams{
+		params := api.Params{
+			Autoscale: api.AutoscaleParams{
 				MaxReplicas: 16,
 			},
 		}
@@ -476,8 +482,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsUseNginxIngressToTrueIfVisibilityIsPrivate", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityPrivate,
+		params := api.Params{
+			Visibility: api.VisibilityPrivate,
 		}
 
 		// act
@@ -488,8 +494,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsUseNginxIngressToTrueIfVisibilityIsPublicWhitelist", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityPublicWhitelist,
+		params := api.Params{
+			Visibility: api.VisibilityPublicWhitelist,
 		}
 
 		// act
@@ -500,8 +506,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsUseNginxIngressToFalseIfVisibilityIsPublic", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityPublic,
+		params := api.Params{
+			Visibility: api.VisibilityPublic,
 		}
 
 		// act
@@ -512,8 +518,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsUseNginxIngressToFalseIfVisibilityIsIap", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityIAP,
+		params := api.Params{
+			Visibility: api.VisibilityIAP,
 		}
 
 		// act
@@ -524,8 +530,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsUseGCEIngressToTrueIfVisibilityIsIap", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityIAP,
+		params := api.Params{
+			Visibility: api.VisibilityIAP,
 		}
 
 		// act
@@ -536,8 +542,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsUseGCEIngressToFalseIfVisibilityIsPublic", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityPublic,
+		params := api.Params{
+			Visibility: api.VisibilityPublic,
 		}
 
 		// act
@@ -548,8 +554,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsUseGCEIngressToFalseIfVisibilityIsPrivate", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityPrivate,
+		params := api.Params{
+			Visibility: api.VisibilityPrivate,
 		}
 
 		// act
@@ -560,8 +566,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsUseGCEIngressToFalseIfVisibilityIsPublicWhitelist", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityPublicWhitelist,
+		params := api.Params{
+			Visibility: api.VisibilityPublicWhitelist,
 		}
 
 		// act
@@ -572,9 +578,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsLivenessPathToLivenessProbePathParam", func(t *testing.T) {
 
-		params := Params{
-			Container: ContainerParams{
-				LivenessProbe: ProbeParams{
+		params := api.Params{
+			Container: api.ContainerParams{
+				LivenessProbe: api.ProbeParams{
 					Path: "/liveness",
 				},
 			},
@@ -588,9 +594,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsLivenessPortToLivenessProbePortParam", func(t *testing.T) {
 
-		params := Params{
-			Container: ContainerParams{
-				LivenessProbe: ProbeParams{
+		params := api.Params{
+			Container: api.ContainerParams{
+				LivenessProbe: api.ProbeParams{
 					Port: 5001,
 				},
 			},
@@ -604,9 +610,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsLivenessInitialDelaySecondsToLivenessProbeInitialDelaySecondsParam", func(t *testing.T) {
 
-		params := Params{
-			Container: ContainerParams{
-				LivenessProbe: ProbeParams{
+		params := api.Params{
+			Container: api.ContainerParams{
+				LivenessProbe: api.ProbeParams{
 					InitialDelaySeconds: 30,
 				},
 			},
@@ -620,9 +626,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsLivenessTimeoutSecondsToLivenessProbeTimeoutSecondsParam", func(t *testing.T) {
 
-		params := Params{
-			Container: ContainerParams{
-				LivenessProbe: ProbeParams{
+		params := api.Params{
+			Container: api.ContainerParams{
+				LivenessProbe: api.ProbeParams{
 					TimeoutSeconds: 1,
 				},
 			},
@@ -636,9 +642,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsLivenessFailureThresholdToLivenessProbeFailureThresholdParam", func(t *testing.T) {
 
-		params := Params{
-			Container: ContainerParams{
-				LivenessProbe: ProbeParams{
+		params := api.Params{
+			Container: api.ContainerParams{
+				LivenessProbe: api.ProbeParams{
 					FailureThreshold: 2,
 				},
 			},
@@ -652,9 +658,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsLivenessSuccessThresholdToLivenessProbeSuccessThresholdParam", func(t *testing.T) {
 
-		params := Params{
-			Container: ContainerParams{
-				LivenessProbe: ProbeParams{
+		params := api.Params{
+			Container: api.ContainerParams{
+				LivenessProbe: api.ProbeParams{
 					SuccessThreshold: 7,
 				},
 			},
@@ -668,9 +674,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsReadinessPathToReadinessProbePathParam", func(t *testing.T) {
 
-		params := Params{
-			Container: ContainerParams{
-				ReadinessProbe: ProbeParams{
+		params := api.Params{
+			Container: api.ContainerParams{
+				ReadinessProbe: api.ProbeParams{
 					Path: "/readiness",
 				},
 			},
@@ -684,9 +690,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsReadinessPortToReadinessProbePortParam", func(t *testing.T) {
 
-		params := Params{
-			Container: ContainerParams{
-				ReadinessProbe: ProbeParams{
+		params := api.Params{
+			Container: api.ContainerParams{
+				ReadinessProbe: api.ProbeParams{
 					Port: 5002,
 				},
 			},
@@ -700,9 +706,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsReadinessInitialDelaySecondsToReadinessProbeInitialDelaySecondsParam", func(t *testing.T) {
 
-		params := Params{
-			Container: ContainerParams{
-				ReadinessProbe: ProbeParams{
+		params := api.Params{
+			Container: api.ContainerParams{
+				ReadinessProbe: api.ProbeParams{
 					InitialDelaySeconds: 30,
 				},
 			},
@@ -716,9 +722,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsReadinessTimeoutSecondsToReadinessProbeTimeoutSecondsParam", func(t *testing.T) {
 
-		params := Params{
-			Container: ContainerParams{
-				ReadinessProbe: ProbeParams{
+		params := api.Params{
+			Container: api.ContainerParams{
+				ReadinessProbe: api.ProbeParams{
 					TimeoutSeconds: 1,
 				},
 			},
@@ -732,9 +738,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsReadinessFailureThresholdToReadinessProbeFailureThresholdParam", func(t *testing.T) {
 
-		params := Params{
-			Container: ContainerParams{
-				ReadinessProbe: ProbeParams{
+		params := api.Params{
+			Container: api.ContainerParams{
+				ReadinessProbe: api.ProbeParams{
 					FailureThreshold: 6,
 				},
 			},
@@ -748,9 +754,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsReadinessSuccessThresholdToReadinessProbeSuccessThresholdParam", func(t *testing.T) {
 
-		params := Params{
-			Container: ContainerParams{
-				ReadinessProbe: ProbeParams{
+		params := api.Params{
+			Container: api.ContainerParams{
+				ReadinessProbe: api.ProbeParams{
 					SuccessThreshold: 3,
 				},
 			},
@@ -764,8 +770,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsEnvironmentVariablesToContainerEnvironmentVariablesParam", func(t *testing.T) {
 
-		params := Params{
-			Container: ContainerParams{
+		params := api.Params{
+			Container: api.ContainerParams{
 				EnvironmentVariables: map[string]interface{}{
 					"MY_CUSTOM_ENV":       "value1",
 					"MY_OTHER_CUSTOM_ENV": "value2",
@@ -782,9 +788,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("AddsJaegerServiceNameToEnvironmentVariables", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			App: "my-app",
-			Container: ContainerParams{
+			Container: api.ContainerParams{
 				EnvironmentVariables: map[string]interface{}{},
 			},
 		}
@@ -797,9 +803,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsMetricsPathToMetricsProbePathParam", func(t *testing.T) {
 
-		params := Params{
-			Container: ContainerParams{
-				Metrics: MetricsParams{
+		params := api.Params{
+			Container: api.ContainerParams{
+				Metrics: api.MetricsParams{
 					Path: "/readiness",
 				},
 			},
@@ -813,9 +819,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsMetricsPortToMetricsPortParam", func(t *testing.T) {
 
-		params := Params{
-			Container: ContainerParams{
-				Metrics: MetricsParams{
+		params := api.Params{
+			Container: api.ContainerParams{
+				Metrics: api.MetricsParams{
 					Port: 3080,
 				},
 			},
@@ -829,9 +835,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsMetricsScrapeToMetricsScrapeParam", func(t *testing.T) {
 
-		params := Params{
-			Container: ContainerParams{
-				Metrics: MetricsParams{
+		params := api.Params{
+			Container: api.ContainerParams{
+				Metrics: api.MetricsParams{
 					Scrape: &trueValue,
 				},
 			},
@@ -845,9 +851,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsUseLifecyclePreStopSleepCommandToLifecyclePrestopSleepParam", func(t *testing.T) {
 
-		params := Params{
-			Container: ContainerParams{
-				Lifecycle: LifecycleParams{
+		params := api.Params{
+			Container: api.ContainerParams{
+				Lifecycle: api.LifecycleParams{
 					PrestopSleep: &trueValue,
 				},
 			},
@@ -863,9 +869,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		sleepValue := 25
 
-		params := Params{
-			Container: ContainerParams{
-				Lifecycle: LifecycleParams{
+		params := api.Params{
+			Container: api.ContainerParams{
+				Lifecycle: api.LifecycleParams{
 					PrestopSleepSeconds: &sleepValue,
 				},
 			},
@@ -879,10 +885,10 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SidecarAddedToSidecarsCollection", func(t *testing.T) {
 
-		params := Params{
-			Sidecars: []*SidecarParams{
+		params := api.Params{
+			Sidecars: []*api.SidecarParams{
 				{
-					Type: SidecarTypeOpenresty,
+					Type: api.SidecarTypeOpenresty,
 				},
 			},
 		}
@@ -895,10 +901,10 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsSidecarTypeToSidecarTypeAsString", func(t *testing.T) {
 
-		params := Params{
-			Sidecars: []*SidecarParams{
+		params := api.Params{
+			Sidecars: []*api.SidecarParams{
 				{
-					Type: SidecarTypeOpenresty,
+					Type: api.SidecarTypeOpenresty,
 				},
 			},
 		}
@@ -911,9 +917,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsSidecarImageToSidecarImageParam", func(t *testing.T) {
 
-		params := Params{
-			Sidecars: []*SidecarParams{
-				&SidecarParams{
+		params := api.Params{
+			Sidecars: []*api.SidecarParams{
+				&api.SidecarParams{
 					Image: "estafette/openresty-sidecar:1.13.6.1-alpine",
 				},
 			},
@@ -927,9 +933,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsSidecarHealthCheckPathToSidecarHealthCheckPathParam", func(t *testing.T) {
 
-		params := Params{
-			Sidecars: []*SidecarParams{
-				&SidecarParams{
+		params := api.Params{
+			Sidecars: []*api.SidecarParams{
+				&api.SidecarParams{
 					HealthCheckPath: "/readiness",
 				},
 			},
@@ -943,10 +949,10 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsSidecarCPURequestToSidecarCPURequestParam", func(t *testing.T) {
 
-		params := Params{
-			Sidecars: []*SidecarParams{
-				&SidecarParams{
-					CPU: CPUParams{
+		params := api.Params{
+			Sidecars: []*api.SidecarParams{
+				&api.SidecarParams{
+					CPU: api.CPUParams{
 						Request: "1200m",
 					},
 				},
@@ -961,10 +967,10 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsSidecarCPULimitToSidecarCPULimitParam", func(t *testing.T) {
 
-		params := Params{
-			Sidecars: []*SidecarParams{
-				&SidecarParams{
-					CPU: CPUParams{
+		params := api.Params{
+			Sidecars: []*api.SidecarParams{
+				&api.SidecarParams{
+					CPU: api.CPUParams{
 						Limit: "1500m",
 					},
 				},
@@ -979,10 +985,10 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsSidecarMemoryRequestToSidecarMemoryRequestParam", func(t *testing.T) {
 
-		params := Params{
-			Sidecars: []*SidecarParams{
-				&SidecarParams{
-					Memory: MemoryParams{
+		params := api.Params{
+			Sidecars: []*api.SidecarParams{
+				&api.SidecarParams{
+					Memory: api.MemoryParams{
 						Request: "1024Mi",
 					},
 				},
@@ -997,10 +1003,10 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsSidecarMemoryLimitToSidecarMemoryLimitParam", func(t *testing.T) {
 
-		params := Params{
-			Sidecars: []*SidecarParams{
-				&SidecarParams{
-					Memory: MemoryParams{
+		params := api.Params{
+			Sidecars: []*api.SidecarParams{
+				&api.SidecarParams{
+					Memory: api.MemoryParams{
 						Limit: "2048Mi",
 					},
 				},
@@ -1015,9 +1021,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsSidecarEnvironmentVariablesToSidecarEnvironmentVariablesParam", func(t *testing.T) {
 
-		params := Params{
-			Sidecars: []*SidecarParams{
-				&SidecarParams{
+		params := api.Params{
+			Sidecars: []*api.SidecarParams{
+				&api.SidecarParams{
 					EnvironmentVariables: map[string]interface{}{
 						"MY_CUSTOM_ENV":       "value1",
 						"MY_OTHER_CUSTOM_ENV": "value2",
@@ -1036,9 +1042,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsCloudSQLProxySpecificArgsToSidecarSpecificProperties", func(t *testing.T) {
 
-		params := Params{
-			Sidecars: []*SidecarParams{
-				&SidecarParams{
+		params := api.Params{
+			Sidecars: []*api.SidecarParams{
+				&api.SidecarParams{
 					HealthCheckPath:                   "testHealthCheckPath",
 					DbInstanceConnectionName:          "testDbInstanceConnectionName",
 					SQLProxyPort:                      15,
@@ -1059,8 +1065,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsSecretsToSecretsParam", func(t *testing.T) {
 
-		params := Params{
-			Secrets: SecretsParams{
+		params := api.Params{
+			Secrets: api.SecretsParams{
 				Keys: map[string]interface{}{
 					"secret-file-1.json": "c29tZSBzZWNyZXQgdmFsdWU=",
 					"secret-file-2.yaml": "YW5vdGhlciBzZWNyZXQgdmFsdWU=",
@@ -1078,8 +1084,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsMountApplicationSecretsToTrueIfSecretsParamLengthIsLargerThanZero", func(t *testing.T) {
 
-		params := Params{
-			Secrets: SecretsParams{
+		params := api.Params{
+			Secrets: api.SecretsParams{
 				Keys: map[string]interface{}{
 					"secret-file-1.json": "c29tZSBzZWNyZXQgdmFsdWU=",
 					"secret-file-2.yaml": "YW5vdGhlciBzZWNyZXQgdmFsdWU=",
@@ -1095,8 +1101,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsMountApplicationSecretsToFalseIfSecretsParamLengthIsZero", func(t *testing.T) {
 
-		params := Params{
-			Secrets: SecretsParams{
+		params := api.Params{
+			Secrets: api.SecretsParams{
 				Keys: map[string]interface{}{},
 			},
 		}
@@ -1109,7 +1115,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsIngressPathToBasepathParam", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			Basepath: "/",
 		}
 
@@ -1121,7 +1127,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("AppendSlashToIngressPathIfBasepathParamDoesNotEndInSlash", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			Basepath: "/api",
 		}
 
@@ -1133,9 +1139,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("AppendSlashStarToIngressPathIfUseGCEIngressIsTrue", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			Basepath:   "/api",
-			Visibility: VisibilityIAP,
+			Visibility: api.VisibilityIAP,
 		}
 
 		// act
@@ -1146,7 +1152,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsInternalIngressPathToBasepathParam", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			Basepath: "/",
 		}
 
@@ -1158,7 +1164,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("AppendSlashToInternalIngressPathIfBasepathParamDoesNotEndInSlash", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			Basepath: "/api",
 		}
 
@@ -1170,9 +1176,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("DoNotAppendSlashStarToInternalIngressPathIfUseGCEIngressIsTrue", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			Basepath:   "/api",
-			Visibility: VisibilityIAP,
+			Visibility: api.VisibilityIAP,
 		}
 
 		// act
@@ -1183,7 +1189,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsMountPayloadLoggingToTrueIfEnablePayloadLoggingParamIsTrue", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			EnablePayloadLogging: true,
 		}
 
@@ -1195,7 +1201,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsMountPayloadLoggingToFalseIfEnablePayloadLoggingParamIsFalse", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			EnablePayloadLogging: false,
 		}
 
@@ -1207,7 +1213,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsAddSafeToEvictAnnotationToTrueIfEnablePayloadLoggingParamIsTrue", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			EnablePayloadLogging: true,
 		}
 
@@ -1219,7 +1225,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsAddSafeToEvictAnnotationToFalseIfEnablePayloadLoggingParamIsFalse", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			EnablePayloadLogging: false,
 		}
 
@@ -1231,8 +1237,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsRollingUpdateMaxSurgeToRollingUpdateMaxSurgeParam", func(t *testing.T) {
 
-		params := Params{
-			RollingUpdate: RollingUpdateParams{
+		params := api.Params{
+			RollingUpdate: api.RollingUpdateParams{
 				MaxSurge: "25%",
 			},
 		}
@@ -1245,8 +1251,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsRollingUpdateMaxSurgeToRollingUpdateMaxSurgeParam", func(t *testing.T) {
 
-		params := Params{
-			RollingUpdate: RollingUpdateParams{
+		params := api.Params{
+			RollingUpdate: api.RollingUpdateParams{
 				MaxUnavailable: "15%",
 			},
 		}
@@ -1259,7 +1265,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("AddsBuildVersionLabelSetToBuildVersionParam", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			BuildVersion: "1.2.3",
 		}
 
@@ -1271,7 +1277,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsPreferPreemptiblesToTrueIfChaosProofParamIsTrue", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			ChaosProof: true,
 		}
 
@@ -1283,7 +1289,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsPreferPreemptiblesToFalseIfChaosProofParamIsFalse", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			ChaosProof: false,
 		}
 
@@ -1295,7 +1301,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsHasTolerationsToTrueIfChaosProofParamIsTrue", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			ChaosProof: true,
 		}
 
@@ -1307,7 +1313,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("AddsPreemptibleTolerationToTolerationsIfChaosProofParamIsTrue", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			ChaosProof: true,
 		}
 
@@ -1325,7 +1331,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("AddsPreemptibleTolerationAndOtherTolerationsIfChaosProofParamIsTrueAndTolerationsAreSet", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			ChaosProof: true,
 			Tolerations: []*map[string]interface{}{
 				{
@@ -1357,8 +1363,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsMountConfigmapToTrueIfConfigFilesParamsLengthIsLargerThanZero", func(t *testing.T) {
 
-		params := Params{
-			Configs: ConfigsParams{
+		params := api.Params{
+			Configs: api.ConfigsParams{
 				Files: []string{
 					"config.json",
 				},
@@ -1373,8 +1379,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsMountConfigmapToTrueIfInlineFilesParamsLengthIsLargerThanZero", func(t *testing.T) {
 
-		params := Params{
-			Configs: ConfigsParams{
+		params := api.Params{
+			Configs: api.ConfigsParams{
 				InlineFiles: map[string]string{
 					"inline-config.properties": "enemies=aliens\nlives=3",
 				},
@@ -1389,8 +1395,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsMountConfigmapToFalseIfConfigFilesAndInlineFilesParamsLengthAreZero", func(t *testing.T) {
 
-		params := Params{
-			Configs: ConfigsParams{
+		params := api.Params{
+			Configs: api.ConfigsParams{
 				Files:       []string{},
 				InlineFiles: map[string]string{},
 			},
@@ -1404,8 +1410,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsConfigMountPathToConfigMountPathParam", func(t *testing.T) {
 
-		params := Params{
-			Configs: ConfigsParams{
+		params := api.Params{
+			Configs: api.ConfigsParams{
 				MountPath: "/configs",
 			},
 		}
@@ -1418,8 +1424,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsSecretMountPathToSecretMountPathParam", func(t *testing.T) {
 
-		params := Params{
-			Secrets: SecretsParams{
+		params := api.Params{
+			Secrets: api.SecretsParams{
 				MountPath: "/secrets",
 			},
 		}
@@ -1432,8 +1438,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsLimitTrustedIPRangesIfVisibilityParamIsPublic", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityPublic,
+		params := api.Params{
+			Visibility: api.VisibilityPublic,
 		}
 
 		// act
@@ -1444,8 +1450,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsLimitTrustedIPRangesToTrueIfVisibilityParamIsPublic", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityPublic,
+		params := api.Params{
+			Visibility: api.VisibilityPublic,
 		}
 
 		// act
@@ -1456,8 +1462,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsLimitTrustedIPRangesToFalseIfVisibilityParamIsIap", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityIAP,
+		params := api.Params{
+			Visibility: api.VisibilityIAP,
 		}
 
 		// act
@@ -1468,8 +1474,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsLimitTrustedIPRangesToFalseIfVisibilityParamIsPrivate", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityPrivate,
+		params := api.Params{
+			Visibility: api.VisibilityPrivate,
 		}
 
 		// act
@@ -1480,7 +1486,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsTrustedIPRangesToTrustedIPRangesParams", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			TrustedIPRanges: []string{
 				"103.21.244.0/22",
 				"103.22.200.0/22",
@@ -1507,8 +1513,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsLocalManifestDataToAllLocalManifestDataCombined", func(t *testing.T) {
 
-		params := Params{
-			Manifests: ManifestsParams{
+		params := api.Params{
+			Manifests: api.ManifestsParams{
 				Files: []string{
 					"./gke/service.yaml",
 					"./gke/ingress.yaml",
@@ -1532,9 +1538,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("AppendsCanaryToNameWithTrackIfParamsTypeIsCanary", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			App:    "myapp",
-			Action: ActionDeployCanary,
+			Action: api.ActionDeployCanary,
 		}
 
 		// act
@@ -1545,9 +1551,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("AppendsStableToNameWithTrackIfParamsTypeIsRollforward", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			App:    "myapp",
-			Action: ActionDeployStable,
+			Action: api.ActionDeployStable,
 		}
 
 		// act
@@ -1558,9 +1564,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("DoesNotAppendTrackToNameWithTrackIfParamsTypeIsSimple", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			App:    "myapp",
-			Action: ActionDeploySimple,
+			Action: api.ActionDeploySimple,
 		}
 
 		// act
@@ -1571,9 +1577,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("DoesNotAddReleaseIDLabelToPodLabelsIfReleaseIDIsEmpty", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			App:    "myapp",
-			Action: ActionDeploySimple,
+			Action: api.ActionDeploySimple,
 		}
 		releaseID := ""
 
@@ -1585,9 +1591,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("AddsReleaseIDLabelToPodLabelsIfReleaseIDIsNotEmpty", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			App:    "myapp",
-			Action: ActionDeploySimple,
+			Action: api.ActionDeploySimple,
 		}
 		releaseID := "1"
 
@@ -1599,9 +1605,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsIncludeTriggeredByLabelToFalseIfTriggeredByIsEmpty", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			App:    "myapp",
-			Action: ActionDeploySimple,
+			Action: api.ActionDeploySimple,
 		}
 		triggeredBy := ""
 
@@ -1613,9 +1619,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsIncludeTriggeredByLabelToTrueIfTriggeredByIsNotEmpty", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			App:    "myapp",
-			Action: ActionDeploySimple,
+			Action: api.ActionDeploySimple,
 		}
 		triggeredBy := "user@estafette.io"
 
@@ -1627,9 +1633,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsIncludeTrackLabelToFalseIfParamsTypeIsSimple", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			App:    "myapp",
-			Action: ActionDeploySimple,
+			Action: api.ActionDeploySimple,
 		}
 
 		// act
@@ -1640,9 +1646,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsIncludeTrackLabelToTrueIfParamsTypeIsCanary", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			App:    "myapp",
-			Action: ActionDeployCanary,
+			Action: api.ActionDeployCanary,
 		}
 
 		// act
@@ -1653,9 +1659,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsIncludeTrackLabelToTrueIfParamsTypeIsRollforward", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			App:    "myapp",
-			Action: ActionDeployStable,
+			Action: api.ActionDeployStable,
 		}
 
 		// act
@@ -1666,9 +1672,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsTrackLabelToCanaryIfParamsTypeIsCanary", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			App:    "myapp",
-			Action: ActionDeployCanary,
+			Action: api.ActionDeployCanary,
 		}
 
 		// act
@@ -1679,9 +1685,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsTrackLabelToStableIfParamsTypeIsRollforward", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			App:    "myapp",
-			Action: ActionDeployStable,
+			Action: api.ActionDeployStable,
 		}
 
 		// act
@@ -1692,9 +1698,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsAdditionalVolumeMountsToVolumeMountsParam", func(t *testing.T) {
 
-		params := Params{
-			VolumeMounts: []VolumeMountParams{
-				VolumeMountParams{
+		params := api.Params{
+			VolumeMounts: []api.VolumeMountParams{
+				api.VolumeMountParams{
 					Name:      "client-certs",
 					MountPath: "/cockroach-certs",
 					Volume: map[string]interface{}{
@@ -1728,20 +1734,20 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsAdditionalContainerPortsToContainerAdditionalPortsParam", func(t *testing.T) {
 
-		params := Params{
-			Container: ContainerParams{
-				AdditionalPorts: []*AdditionalPortParams{
-					&AdditionalPortParams{
+		params := api.Params{
+			Container: api.ContainerParams{
+				AdditionalPorts: []*api.AdditionalPortParams{
+					&api.AdditionalPortParams{
 						Name:       "grpc",
 						Port:       8085,
 						Protocol:   "TCP",
-						Visibility: VisibilityPrivate,
+						Visibility: api.VisibilityPrivate,
 					},
-					&AdditionalPortParams{
+					&api.AdditionalPortParams{
 						Name:       "grpc",
 						Port:       8085,
 						Protocol:   "UDP",
-						Visibility: VisibilityPublic,
+						Visibility: api.VisibilityPublic,
 					},
 				},
 			},
@@ -1755,21 +1761,21 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsAdditionalServicePortsToContainerAdditionalPortsParamForPortsWithVisibilityEqualToVisibilityParam", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityPrivate,
-			Container: ContainerParams{
-				AdditionalPorts: []*AdditionalPortParams{
-					&AdditionalPortParams{
+		params := api.Params{
+			Visibility: api.VisibilityPrivate,
+			Container: api.ContainerParams{
+				AdditionalPorts: []*api.AdditionalPortParams{
+					&api.AdditionalPortParams{
 						Name:       "grpc",
 						Port:       8085,
 						Protocol:   "TCP",
-						Visibility: VisibilityPrivate,
+						Visibility: api.VisibilityPrivate,
 					},
-					&AdditionalPortParams{
+					&api.AdditionalPortParams{
 						Name:       "snmp",
 						Port:       8086,
 						Protocol:   "UDP",
-						Visibility: VisibilityPublic,
+						Visibility: api.VisibilityPublic,
 					},
 				},
 			},
@@ -1786,8 +1792,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsOverrideDefaultWhitelistToTrueIfVisibilityEqualsPublicWhitelistAndWhitelistedIPSHasOneOrMoreItems", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityPublicWhitelist,
+		params := api.Params{
+			Visibility: api.VisibilityPublicWhitelist,
 			WhitelistedIPS: []string{
 				"0.0.0.0/0",
 			},
@@ -1801,8 +1807,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsOverrideDefaultWhitelistToFalseIfVisibilityEqualsPublicWhitelistButWhitelistedIPSHasNoItems", func(t *testing.T) {
 
-		params := Params{
-			Visibility:     VisibilityPublicWhitelist,
+		params := api.Params{
+			Visibility:     api.VisibilityPublicWhitelist,
 			WhitelistedIPS: []string{},
 		}
 
@@ -1814,8 +1820,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsOverrideDefaultWhitelistToFalseIfVisibilityIsPrivate", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityPrivate,
+		params := api.Params{
+			Visibility: api.VisibilityPrivate,
 			WhitelistedIPS: []string{
 				"0.0.0.0/0",
 			},
@@ -1829,8 +1835,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsOverrideDefaultWhitelistToFalseIfVisibilityIsPrivate", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityIAP,
+		params := api.Params{
+			Visibility: api.VisibilityIAP,
 			WhitelistedIPS: []string{
 				"0.0.0.0/0",
 			},
@@ -1844,8 +1850,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsOverrideDefaultWhitelistToFalseIfVisibilityIsPrivate", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityPublic,
+		params := api.Params{
+			Visibility: api.VisibilityPublic,
 			WhitelistedIPS: []string{
 				"0.0.0.0/0",
 			},
@@ -1859,8 +1865,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsNginxIngressWhitelistToCommaSeparatedJoingOfWhitelistedIPS", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityPublicWhitelist,
+		params := api.Params{
+			Visibility: api.VisibilityPublicWhitelist,
 			WhitelistedIPS: []string{
 				"10.0.0.0/8",
 				"172.16.0.0/12",
@@ -1876,7 +1882,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsIncludeReplicasToTrueIfCurrentReplicasIsGreaterThanZero", func(t *testing.T) {
 
-		params := Params{}
+		params := api.Params{}
 
 		// act
 		templateData := generateTemplateData(params, 1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
@@ -1886,7 +1892,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsIncludeReplicasToFalseIfCurrentReplicasIsZeroOrLess", func(t *testing.T) {
 
-		params := Params{}
+		params := api.Params{}
 
 		// act
 		templateData := generateTemplateData(params, 0, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
@@ -1896,7 +1902,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsReplicasToCurrentReplicasIfGreaterThanZero", func(t *testing.T) {
 
-		params := Params{}
+		params := api.Params{}
 
 		// act
 		templateData := generateTemplateData(params, 15, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
@@ -1906,9 +1912,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsReplicasToReplicasParamIfCurrentReplicasIsZeroOrLessAndAutoscaleIsDisabled", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			Replicas: 1,
-			Autoscale: AutoscaleParams{
+			Autoscale: api.AutoscaleParams{
 				Enabled:     &falseValue,
 				MinReplicas: 3,
 			},
@@ -1922,9 +1928,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsReplicasToReplicasParamIfCurrentReplicasIsZeroOrLessAndReplicasParamIsLargerThanMinReplicas", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			Replicas: 5,
-			Autoscale: AutoscaleParams{
+			Autoscale: api.AutoscaleParams{
 				Enabled:     &falseValue,
 				MinReplicas: 3,
 			},
@@ -1938,8 +1944,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsReplicasToMinReplicasIfCurrentReplicasIsZeroOrLess", func(t *testing.T) {
 
-		params := Params{
-			Autoscale: AutoscaleParams{
+		params := api.Params{
+			Autoscale: api.AutoscaleParams{
 				MinReplicas: 3,
 			},
 		}
@@ -1952,7 +1958,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsScheduleToScheduleParam", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			Schedule: "*/5 * * * *",
 		}
 
@@ -1964,9 +1970,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsUseHpaScalerToAutoscalerSafetyEnabledParam", func(t *testing.T) {
 
-		params := Params{
-			Autoscale: AutoscaleParams{
-				Safety: AutoscaleSafetyParams{
+		params := api.Params{
+			Autoscale: api.AutoscaleParams{
+				Safety: api.AutoscaleSafetyParams{
 					Enabled: true,
 				},
 			},
@@ -1980,9 +1986,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsHpaScalerPromQueryToAutoscalerSafetyPromQueryParam", func(t *testing.T) {
 
-		params := Params{
-			Autoscale: AutoscaleParams{
-				Safety: AutoscaleSafetyParams{
+		params := api.Params{
+			Autoscale: api.AutoscaleParams{
+				Safety: api.AutoscaleSafetyParams{
 					PromQuery: "sum(rate(nginx_http_requests_total{app='my-app'}[5m])) by (app)",
 				},
 			},
@@ -1996,9 +2002,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsHpaScalerRequestsPerReplicaToAutoscalerSafetyPromQueryParam", func(t *testing.T) {
 
-		params := Params{
-			Autoscale: AutoscaleParams{
-				Safety: AutoscaleSafetyParams{
+		params := api.Params{
+			Autoscale: api.AutoscaleParams{
+				Safety: api.AutoscaleSafetyParams{
 					Ratio: "0.25",
 				},
 			},
@@ -2012,9 +2018,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsHpaScalerRequestsPerReplicaToAutoscalerSafetyPromQueryParam", func(t *testing.T) {
 
-		params := Params{
-			Autoscale: AutoscaleParams{
-				Safety: AutoscaleSafetyParams{
+		params := api.Params{
+			Autoscale: api.AutoscaleParams{
+				Safety: api.AutoscaleSafetyParams{
 					Delta: "-2.7584",
 				},
 			},
@@ -2028,9 +2034,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsHpaScalerRequestsPerReplicaToAutoscalerSafetyPromQueryParam", func(t *testing.T) {
 
-		params := Params{
-			Autoscale: AutoscaleParams{
-				Safety: AutoscaleSafetyParams{
+		params := api.Params{
+			Autoscale: api.AutoscaleParams{
+				Safety: api.AutoscaleSafetyParams{
 					ScaleDownRatio: "0.2",
 				},
 			},
@@ -2044,7 +2050,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsAllHostsToHostsAndInternalHostsAppended", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			Hosts: []string{
 				"ci.estafette.io",
 			},
@@ -2063,7 +2069,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsAllHostsJoinedToHostsAndInternalHostsAppendedSeparatedByComma", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			Hosts: []string{
 				"ci.estafette.io",
 			},
@@ -2080,7 +2086,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsAllHostsToHostsAndInternalHostsAppendedWhenOnlyHostsAreSet", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			Hosts: []string{
 				"ci.estafette.io",
 			},
@@ -2095,7 +2101,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsAllHostsJoinedToHostsAndInternalHostsAppendedSeparatedByCommaWhenOnlyHostsAreSet", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			Hosts: []string{
 				"ci.estafette.io",
 			},
@@ -2109,7 +2115,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsAllHostsToHostsAndInternalHostsAppendedWhenOnlyInternalHostsAreSet", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			InternalHosts: []string{
 				"ci.internal.estafette.io",
 			},
@@ -2124,7 +2130,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsAllHostsJoinedToHostsAndInternalHostsAppendedSeparatedByCommaWhenOnlyInternalHostsAreSet", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			InternalHosts: []string{
 				"ci.internal.estafette.io",
 			},
@@ -2138,8 +2144,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsNginxIngressProxyConnectTimeoutToRequestTimeoutParam", func(t *testing.T) {
 
-		params := Params{
-			Request: RequestParams{
+		params := api.Params{
+			Request: api.RequestParams{
 				Timeout: "75",
 			},
 		}
@@ -2152,8 +2158,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsNginxIngressProxyConnectTimeoutToRequestTimeoutParamWithSecondSuffix", func(t *testing.T) {
 
-		params := Params{
-			Request: RequestParams{
+		params := api.Params{
+			Request: api.RequestParams{
 				Timeout: "75s",
 			},
 		}
@@ -2166,8 +2172,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsNginxIngressProxyConnectTimeoutTo75IfRequestTimeoutParamIsLargerThan75", func(t *testing.T) {
 
-		params := Params{
-			Request: RequestParams{
+		params := api.Params{
+			Request: api.RequestParams{
 				Timeout: "180s",
 			},
 		}
@@ -2180,8 +2186,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsNginxIngressProxySendTimeoutToRequestTimeoutParam", func(t *testing.T) {
 
-		params := Params{
-			Request: RequestParams{
+		params := api.Params{
+			Request: api.RequestParams{
 				Timeout: "300",
 			},
 		}
@@ -2194,8 +2200,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsNginxIngressProxySendTimeoutToRequestTimeoutParamWithSecondSuffix", func(t *testing.T) {
 
-		params := Params{
-			Request: RequestParams{
+		params := api.Params{
+			Request: api.RequestParams{
 				Timeout: "300s",
 			},
 		}
@@ -2208,8 +2214,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsNginxIngressProxyReadTimeoutToRequestTimeoutParam", func(t *testing.T) {
 
-		params := Params{
-			Request: RequestParams{
+		params := api.Params{
+			Request: api.RequestParams{
 				Timeout: "300",
 			},
 		}
@@ -2222,8 +2228,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsNginxIngressProxyReadTimeoutToRequestTimeoutParamWithSecondSuffix", func(t *testing.T) {
 
-		params := Params{
-			Request: RequestParams{
+		params := api.Params{
+			Request: api.RequestParams{
 				Timeout: "300s",
 			},
 		}
@@ -2236,7 +2242,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsCertificateSecret", func(t *testing.T) {
 
-		params := Params{
+		params := api.Params{
 			CertificateSecret: "shared-wildcard-letsencrypt-certificate",
 		}
 
@@ -2248,8 +2254,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsServiceTypeToClusterIPIfVisibilityParamIsApigee", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityApigee,
+		params := api.Params{
+			Visibility: api.VisibilityApigee,
 		}
 
 		// act
@@ -2260,8 +2266,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsUseCloudflareProxyToTrueIfVisibilityParamIsApigee", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityApigee,
+		params := api.Params{
+			Visibility: api.VisibilityApigee,
 		}
 
 		// act
@@ -2272,8 +2278,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsUseGCEIngressToFalseIfVisibilityParamIsApigee", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityApigee,
+		params := api.Params{
+			Visibility: api.VisibilityApigee,
 		}
 
 		// act
@@ -2284,9 +2290,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsNginxAuthTLSSecretIfVisibilityParamIsApigee", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityApigee,
-			Request: RequestParams{
+		params := api.Params{
+			Visibility: api.VisibilityApigee,
+			Request: api.RequestParams{
 				AuthSecret: "protected/some-secret",
 			},
 		}
@@ -2299,9 +2305,9 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsVerifyDepthIfVisibilityParamIsApigee", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityApigee,
-			Request: RequestParams{
+		params := api.Params{
+			Visibility: api.VisibilityApigee,
+			Request: api.RequestParams{
 				VerifyDepth: 5,
 			},
 		}
@@ -2314,8 +2320,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsApigeeHostsIfVisibilityParamIsApigee", func(t *testing.T) {
 
-		params := Params{
-			Visibility: VisibilityApigee,
+		params := api.Params{
+			Visibility: api.VisibilityApigee,
 			Hosts:      []string{"google.com", "estafette.io", "test-app"},
 		}
 
