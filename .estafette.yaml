@@ -40,7 +40,7 @@ stages:
           && kubectl version --client \
           && mkdir -p ~/.kube
 
-      RUN "$(<kubectl.sha256)  /usr/bin/kubectl" \
+      RUN echo "$(<kubectl.sha256)  /usr/bin/kubectl" \
           && echo "$(<kubectl.sha256)  /usr/bin/kubectl" | sha256sum -c -
 
       RUN rm -rf /tmp/*
