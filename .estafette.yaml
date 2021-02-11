@@ -31,7 +31,7 @@ stages:
       ENV KUBECTL_VERSION="v1.20.2"
 
       RUN apk update \
-          && apk add curl diffutils \
+          && apk add curl diffutils colordiff \
           && rm /var/cache/apk/*
 
       RUN curl -L "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" --output /usr/bin/kubectl \
@@ -52,6 +52,7 @@ stages:
 
       COPY --from=0 /usr/bin/kubectl /usr/bin/kubectl
       COPY --from=0 /usr/bin/diff3 /usr/bin/diff3
+      COPY --from=0 /usr/bin/colordiff /usr/bin/colordiff
       COPY --from=0 /root/.kube /root/.kube
       COPY --from=0 /tmp /tmp
 
@@ -64,7 +65,7 @@ stages:
           PATH="/usr/bin:$PATH" \
           HOME="/root" \
           KUBECONFIG="/root/.kube/config" \
-          KUBECTL_EXTERNAL_DIFF="/usr/bin/diff3"
+          KUBECTL_EXTERNAL_DIFF="/usr/bin/colordiff"
 
       ENTRYPOINT ["/${ESTAFETTE_GIT_NAME}"]
     container: gke
