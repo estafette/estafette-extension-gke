@@ -36,12 +36,10 @@ stages:
 
       RUN curl -L "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" --output /usr/bin/kubectl \
           && curl -LO "https://dl.k8s.io/${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256" \
+          && echo "$(cat kubectl.sha256)  /usr/bin/kubectl" | sha256sum -c - \
           && chmod +x /usr/bin/kubectl \
           && kubectl version --client \
           && mkdir -p ~/.kube
-
-      RUN echo "$(cat kubectl.sha256)  /usr/bin/kubectl" \
-          && echo "$(cat kubectl.sha256)  /usr/bin/kubectl" | sha256sum -c -
 
       RUN rm -rf /tmp/*
 
@@ -51,6 +49,7 @@ stages:
             description="The ${ESTAFETTE_GIT_NAME} component is an Estafette extension to deploy applications to a Kubernetes Engine cluster"
 
       COPY --from=0 /usr/bin/kubectl /usr/bin/kubectl
+      COPY --from=0 /usr/bin/diff /usr/bin/diff
       COPY --from=0 /root/.kube /root/.kube
       COPY --from=0 /tmp /tmp
 
