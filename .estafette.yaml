@@ -42,7 +42,7 @@ stages:
           && mkdir -p ~/.kube
 
       RUN ls -latr /usr/bin
-      RUN ls -latr /usr/busybox
+      RUN ls -latr /bin/busybox
 
       RUN rm -rf /tmp/*
 
