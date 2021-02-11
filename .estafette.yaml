@@ -51,7 +51,9 @@ stages:
 
       ENV ESTAFETTE_LOG_FORMAT="console" \
           GOOGLE_APPLICATION_CREDENTIALS="/key-file.json" \
-          PATH="/usr/bin:$PATH"
+          PATH="/usr/bin:$PATH" \
+          HOME="/root" \
+          KUBECONFIG="/root/.kube/config"
 
       ENTRYPOINT ["/${ESTAFETTE_GIT_NAME}"]
     container: gke
