@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"runtime"
 
 	"github.com/estafette/estafette-extension-gke/api"
@@ -73,25 +74,8 @@ func (c *client) Init(ctx context.Context, paramsJSON, releaseName, credentialsP
 		return nil, fmt.Errorf("Credential with name %v does not exist", credentialsParam.Credentials)
 	}
 
-	// log.Info().Msg("Retrieving service account email from credentials...")
-	// var keyFileMap map[string]interface{}
-	// err = json.Unmarshal([]byte(credential.AdditionalProperties.ServiceAccountKeyfile), &keyFileMap)
-	// if err != nil {
-	// 	log.Fatal().Err(err).Msg("Failed unmarshalling service account keyfile")
-	// }
-	// var saClientEmail string
-	// if saClientEmailIntfc, ok := keyFileMap["client_email"]; !ok {
-	// 	log.Fatal().Msg("Field client_email missing from service account keyfile")
-	// } else {
-	// 	if t, aok := saClientEmailIntfc.(string); !aok {
-	// 		log.Fatal().Msg("Field client_email not of type string")
-	// 	} else {
-	// 		saClientEmail = t
-	// 	}
-	// }
-
-	log.Info().Msgf("Storing gke credential %v on disk...", credentialsParam.Credentials)
-	err = ioutil.WriteFile("/key-file.json", []byte(credential.AdditionalProperties.ServiceAccountKeyfile), 0600)
+	log.Info().Msgf("Storing gke credential %v on disk at path %v...", credentialsParam.Credentials, os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"))
+	err = ioutil.WriteFile(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"), []byte(credential.AdditionalProperties.ServiceAccountKeyfile), 0666)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed writing service account keyfile")
 	}
