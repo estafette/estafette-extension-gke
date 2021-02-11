@@ -52,9 +52,8 @@ stages:
             description="The ${ESTAFETTE_GIT_NAME} component is an Estafette extension to deploy applications to a Kubernetes Engine cluster"
 
       COPY --from=0 /usr/bin/kubectl /usr/bin/kubectl
-      COPY --from=0 /usr/bin/diff /usr/bin/diff
       COPY --from=0 /root/.kube /root/.kube
-      COPY --from=0 /tmp /tmp
+      # COPY --from=0 /tmp /tmp
 
       COPY ${ESTAFETTE_GIT_NAME} /
       COPY templates /templates
@@ -65,8 +64,6 @@ stages:
           PATH="/usr/bin:$PATH" \
           HOME="/root" \
           KUBECONFIG="/root/.kube/config"
-
-      RUN /usr/bin/diff --help
 
       ENTRYPOINT ["/${ESTAFETTE_GIT_NAME}"]
     container: gke
