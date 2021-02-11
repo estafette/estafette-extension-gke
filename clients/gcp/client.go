@@ -146,6 +146,8 @@ func (c *client) LoadGKEClusterKubeConfig(ctx context.Context, credential *api.G
 		currentConfig.Kind = "Config"
 	}
 
+	currentConfig.CurrentContext = kubeContextName
+
 	// write kube config file
 	err = clientcmd.WriteToFile(*currentConfig, kubeConfigPath)
 	if err != nil {
