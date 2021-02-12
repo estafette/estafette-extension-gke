@@ -207,6 +207,7 @@ func (c *client) DeployGoogleCloudEndpoints(ctx context.Context, params api.Para
 		return fmt.Errorf("File at path %v does not exist. Did you forget to use `clone: true` for your release?", params.EspOpenAPIYamlPath)
 	}
 
+	log.Info().Msgf("Checking if openapi spec at path %v exists...", params.EspOpenAPIYamlPath)
 	openapiSpecBytes, err := ioutil.ReadFile(params.EspOpenAPIYamlPath)
 	if err != nil {
 		return
@@ -216,6 +217,7 @@ func (c *client) DeployGoogleCloudEndpoints(ctx context.Context, params api.Para
 		Host string `yaml:"host"`
 	}
 
+	log.Info().Msg("Unmarshalling openapi spec to get service name...")
 	err = yaml.Unmarshal(openapiSpecBytes, &openapiSpec)
 	if err != nil {
 		return
@@ -226,7 +228,9 @@ func (c *client) DeployGoogleCloudEndpoints(ctx context.Context, params api.Para
 	}
 
 	serviceName := openapiSpec.Host
+	log.Info().Msgf("Found service name %v in openapi", serviceName)
 
+	log.Info().Msgf("Checking if service %v exists...", serviceName)
 	// GET https://servicemanagement.googleapis.com/v1/services/<servicename>
 	var service *servicemanagementv1.ManagedService
 	err = c.substituteErrorsWithPredefinedErrors(foundation.Retry(func() error {
@@ -242,6 +246,7 @@ func (c *client) DeployGoogleCloudEndpoints(ctx context.Context, params api.Para
 	}
 
 	if service == nil {
+		log.Info().Msgf("Creating service %v in project %v...", serviceName, params.EspEndpointsProjectID)
 		// create the service
 		// POST https://servicemanagement.googleapis.com/v1/services/<servicename>
 		service = &servicemanagementv1.ManagedService{
@@ -268,6 +273,7 @@ func (c *client) DeployGoogleCloudEndpoints(ctx context.Context, params api.Para
 		}
 	}
 
+	log.Info().Msgf("Submitting config for service %v in project %v...", serviceName, params.EspEndpointsProjectID)
 	// POST https://servicemanagement.googleapis.com/v1/services/<servicename>/configs:submit
 	var operation *servicemanagementv1.Operation
 	err = c.substituteErrorsWithPredefinedErrors(foundation.Retry(func() error {
@@ -297,6 +303,7 @@ func (c *client) DeployGoogleCloudEndpoints(ctx context.Context, params api.Para
 		return
 	}
 
+	log.Info().Msgf("Creating rollout for service %v in project %v...", serviceName, params.EspEndpointsProjectID)
 	// POST https://servicemanagement.googleapis.com/v1/services/<servicename>/rollouts
 	err = c.substituteErrorsWithPredefinedErrors(foundation.Retry(func() error {
 		// https://cloud.google.com/service-infrastructure/docs/service-management/reference/rest/v1/services.rollouts/create
@@ -318,6 +325,7 @@ func (c *client) DeployGoogleCloudEndpoints(ctx context.Context, params api.Para
 		return
 	}
 
+	log.Info().Msgf("Retrieving service %v in project %v after rollout has finished...", serviceName, params.EspEndpointsProjectID)
 	// GET https://servicemanagement.googleapis.com/v1/services/<servicename>
 	err = c.substituteErrorsWithPredefinedErrors(foundation.Retry(func() error {
 		// https://cloud.google.com/service-infrastructure/docs/service-management/reference/rest/v1/services/get
