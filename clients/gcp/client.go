@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"math"
@@ -45,6 +46,9 @@ var (
 
 	// ErrEntityNotActive is returned when cloud sql instance is not running and its databases cannot be fetched
 	ErrEntityNotActive = wrapError{msg: "Entity is not runactivening"}
+
+	// ErrServiceNotFound is returned when an a cloud endpoints service cannot be found
+	ErrServiceNotFound = wrapError{msg: "The cloud endpoints service is not found"}
 )
 
 //go:generate mockgen -package=gcp -destination ./mock.go -source=client.go
@@ -243,7 +247,7 @@ func (c *client) DeployGoogleCloudEndpoints(ctx context.Context, params api.Para
 		}
 		return nil
 	}, c.getRetryOptions()...))
-	if err != nil {
+	if err != nil && !errors.Is(err, ErrServiceNotFound) {
 		return fmt.Errorf("Can't get service %v for project %v: %w", serviceName, params.EspEndpointsProjectID, err)
 	}
 
@@ -366,6 +370,9 @@ func (c *client) substituteErrorsWithPredefinedErrors(err error) error {
 		return nil
 	}
 
+	if googleapiErr, ok := err.(*googleapi.Error); ok && googleapiErr.Code == http.StatusForbidden && strings.HasPrefix(err.Error(), "Can't get service") {
+		return ErrServiceNotFound.wrap(err)
+	}
 	if googleapiErr, ok := err.(*googleapi.Error); ok && googleapiErr.Code == http.StatusForbidden {
 		return ErrAPIForbidden.wrap(err)
 	}
@@ -384,6 +391,7 @@ func (c *client) substituteErrorsWithPredefinedErrors(err error) error {
 	if googleapiErr, ok := err.(*googleapi.Error); ok && googleapiErr.Code == http.StatusNotFound {
 		return ErrEntityNotFound.wrap(err)
 	}
+
 	if googleapiErr, ok := err.(*googleapi.Error); ok && googleapiErr.Code == http.StatusNoContent {
 		return ErrEntityNotFound.wrap(err)
 	}
