@@ -370,7 +370,7 @@ func (c *client) substituteErrorsWithPredefinedErrors(err error) error {
 		return nil
 	}
 
-	if googleapiErr, ok := err.(*googleapi.Error); ok && googleapiErr.Code == http.StatusForbidden && strings.HasPrefix(err.Error(), "Can't get service") {
+	if googleapiErr, ok := err.(*googleapi.Error); ok && googleapiErr.Code == http.StatusForbidden && strings.Contains(err.Error(), "Service") && strings.Contains(err.Error(), "not found or permission denied") {
 		return ErrServiceNotFound.wrap(err)
 	}
 	if googleapiErr, ok := err.(*googleapi.Error); ok && googleapiErr.Code == http.StatusForbidden {
