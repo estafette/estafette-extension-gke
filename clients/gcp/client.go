@@ -189,7 +189,7 @@ func (c *client) GetGKECluster(ctx context.Context, projectID, location, cluster
 }
 
 func (c *client) DeployGoogleCloudEndpoints(ctx context.Context, params api.Params) (err error) {
-	return foundation.RunCommandWithArgsExtended(ctx, "gcloud", []string{"endpoints", "--project", params.EspEndpointsProjectID, "services", "deploy", params.EspOpenAPIYamlPath})
+	return foundation.RunCommandWithArgsExtended(ctx, "gcloud", []string{"endpoints", "--project", params.EspEndpointsProjectID, "services", "deploy", params.EspOpenAPIYamlPath, "--log-http"})
 }
 
 func (c *client) substituteErrorsWithPredefinedErrors(err error) error {
