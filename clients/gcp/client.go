@@ -4,10 +4,13 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"io/ioutil"
+	"math"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/estafette/estafette-extension-gke/api"
 	foundation "github.com/estafette/estafette-foundation"
@@ -16,6 +19,8 @@ import (
 	containerv1 "google.golang.org/api/container/v1beta1"
 	"google.golang.org/api/googleapi"
 	iamv1 "google.golang.org/api/iam/v1"
+	servicemanagementv1 "google.golang.org/api/servicemanagement/v1"
+	"gopkg.in/yaml.v2"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
@@ -61,13 +66,20 @@ func NewClient(ctx context.Context) (Client, error) {
 		return nil, err
 	}
 
+	servicemanagementv1Service, err := servicemanagementv1.New(googleClient)
+	if err != nil {
+		return nil, err
+	}
+
 	return &client{
-		containerv1Service: containerv1Service,
+		containerv1Service:         containerv1Service,
+		servicemanagementv1Service: servicemanagementv1Service,
 	}, nil
 }
 
 type client struct {
-	containerv1Service *containerv1.Service
+	containerv1Service         *containerv1.Service
+	servicemanagementv1Service *servicemanagementv1.APIService
 }
 
 func (c *client) LoadGKEClusterKubeConfig(ctx context.Context, credential *api.GKECredentials) (kubeContextName string, err error) {
@@ -189,7 +201,138 @@ func (c *client) GetGKECluster(ctx context.Context, projectID, location, cluster
 }
 
 func (c *client) DeployGoogleCloudEndpoints(ctx context.Context, params api.Params) (err error) {
-	return foundation.RunCommandWithArgsExtended(ctx, "gcloud", []string{"endpoints", "--project", params.EspEndpointsProjectID, "services", "deploy", params.EspOpenAPIYamlPath, "--log-http"})
+
+	// get host from openapi file
+	if !foundation.FileExists(params.EspOpenAPIYamlPath) {
+		return fmt.Errorf("File at path %v does not exist. Did you forget to use `clone: true` for your release?", params.EspOpenAPIYamlPath)
+	}
+
+	openapiSpecBytes, err := ioutil.ReadFile(params.EspOpenAPIYamlPath)
+	if err != nil {
+		return
+	}
+
+	var openapiSpec struct {
+		Host string `yaml:"host"`
+	}
+
+	err = yaml.Unmarshal(openapiSpecBytes, &openapiSpec)
+	if err != nil {
+		return
+	}
+
+	if openapiSpec.Host == "" {
+		return fmt.Errorf("The host field in the openapi spec at %v is empty, please set it", params.EspOpenAPIYamlPath)
+	}
+
+	serviceName := openapiSpec.Host
+
+	// GET https://servicemanagement.googleapis.com/v1/services/<servicename>
+	var service *servicemanagementv1.ManagedService
+	err = c.substituteErrorsWithPredefinedErrors(foundation.Retry(func() error {
+		// https://cloud.google.com/service-infrastructure/docs/service-management/reference/rest/v1/services/get
+		service, err = c.servicemanagementv1Service.Services.Get(serviceName).Context(ctx).Do()
+		if err != nil {
+			return err
+		}
+		return nil
+	}, c.getRetryOptions()...))
+	if err != nil {
+		return fmt.Errorf("Can't get service %v for project %v: %w", serviceName, params.EspEndpointsProjectID, err)
+	}
+
+	if service == nil {
+		// create the service
+		// POST https://servicemanagement.googleapis.com/v1/services/<servicename>
+		service = &servicemanagementv1.ManagedService{
+			ProducerProjectId: params.EspEndpointsProjectID,
+			ServiceName:       serviceName,
+		}
+
+		var operation *servicemanagementv1.Operation
+		err = c.substituteErrorsWithPredefinedErrors(foundation.Retry(func() error {
+			// https://cloud.google.com/service-infrastructure/docs/service-management/reference/rest/v1/services/create
+			operation, err = c.servicemanagementv1Service.Services.Create(service).Context(ctx).Do()
+			if err != nil {
+				return err
+			}
+			return nil
+		}, c.getRetryOptions()...))
+		if err != nil {
+			return fmt.Errorf("Can't get service %v for project %v: %w", serviceName, params.EspEndpointsProjectID, err)
+		}
+
+		err = c.waitForServiceManagementV1Operation(ctx, params.EspEndpointsProjectID, operation)
+		if err != nil {
+			return
+		}
+	}
+
+	// POST https://servicemanagement.googleapis.com/v1/services/<servicename>/configs:submit
+	var operation *servicemanagementv1.Operation
+	err = c.substituteErrorsWithPredefinedErrors(foundation.Retry(func() error {
+		// https://cloud.google.com/service-infrastructure/docs/service-management/reference/rest/v1/services.configs/submit
+		operation, err = c.servicemanagementv1Service.Services.Configs.Submit(serviceName, &servicemanagementv1.SubmitConfigSourceRequest{
+			ConfigSource: &servicemanagementv1.ConfigSource{
+				Files: []*servicemanagementv1.ConfigFile{
+					{
+						FilePath: params.EspOpenAPIYamlPath,
+						FileType: "OPEN_API_YAML",
+					},
+				},
+			},
+		}).Context(ctx).Do()
+		if err != nil {
+			return err
+		}
+		return nil
+	}, c.getRetryOptions()...))
+	if err != nil {
+		return fmt.Errorf("Can't submit config for service %v for project %v: %w", serviceName, params.EspEndpointsProjectID, err)
+	}
+
+	// GET https://servicemanagement.googleapis.com/v1/operations/serviceConfigs.<servicename>%3<config id>
+	err = c.waitForServiceManagementV1Operation(ctx, params.EspEndpointsProjectID, operation)
+	if err != nil {
+		return
+	}
+
+	// POST https://servicemanagement.googleapis.com/v1/services/<servicename>/rollouts
+	err = c.substituteErrorsWithPredefinedErrors(foundation.Retry(func() error {
+		// https://cloud.google.com/service-infrastructure/docs/service-management/reference/rest/v1/services.rollouts/create
+		operation, err = c.servicemanagementv1Service.Services.Rollouts.Create(serviceName, &servicemanagementv1.Rollout{
+			ServiceName: serviceName,
+		}).Context(ctx).Do()
+		if err != nil {
+			return err
+		}
+		return nil
+	}, c.getRetryOptions()...))
+	if err != nil {
+		return fmt.Errorf("Can't create rollout for service %v for project %v: %w", serviceName, params.EspEndpointsProjectID, err)
+	}
+
+	// GET https://servicemanagement.googleapis.com/v1/operations/rollouts.<servicename>%3A9b4bc80c-94a5-49e8-8984-28631648a1d1
+	err = c.waitForServiceManagementV1Operation(ctx, params.EspEndpointsProjectID, operation)
+	if err != nil {
+		return
+	}
+
+	// GET https://servicemanagement.googleapis.com/v1/services/<servicename>
+	err = c.substituteErrorsWithPredefinedErrors(foundation.Retry(func() error {
+		// https://cloud.google.com/service-infrastructure/docs/service-management/reference/rest/v1/services/get
+		service, err = c.servicemanagementv1Service.Services.Get(serviceName).Context(ctx).Do()
+		if err != nil {
+			return err
+		}
+		return nil
+	}, c.getRetryOptions()...))
+	if err != nil {
+		return fmt.Errorf("Can't get service %v for project %v: %w", serviceName, params.EspEndpointsProjectID, err)
+	}
+
+	return nil
+	// return foundation.RunCommandWithArgsExtended(ctx, "gcloud", []string{"endpoints", "--project", params.EspEndpointsProjectID, "services", "deploy", params.EspOpenAPIYamlPath, "--log-http"})
 }
 
 func (c *client) substituteErrorsWithPredefinedErrors(err error) error {
@@ -258,4 +401,61 @@ func (c *client) isRetryableErrorCustomOption(extraRetryableStatuses ...int) fou
 			}
 		}
 	}
+}
+
+func (c *client) waitForServiceManagementV1Operation(ctx context.Context, projectID string, operation *servicemanagementv1.Operation) (err error) {
+
+	if operation != nil {
+		startTime := time.Now().UTC()
+		timeTakenSeconds := time.Now().UTC().Sub(startTime).Seconds()
+		operationName := operation.Name
+		for operation != nil && operationName != "" && !operation.Done {
+			log.Info().Msgf("Waiting for operation %v in project %v to finish (%vs)...", operationName, projectID, math.Round(timeTakenSeconds))
+
+			// sleep first, otherwise the check immediately follows the action
+			c.sleepForWait(startTime)
+
+			err = c.substituteErrorsWithPredefinedErrors(foundation.Retry(func() error {
+				// https://cloud.google.com/resource-manager/reference/rest/v1/operations/get
+				operation, err = c.servicemanagementv1Service.Operations.Get(operationName).Context(ctx).Do()
+				if err != nil {
+					return err
+				}
+
+				return nil
+			}, c.getRetryOptions()...))
+			if err != nil {
+				return
+			}
+			timeTakenSeconds = time.Now().UTC().Sub(startTime).Seconds()
+		}
+
+		// check if the operation ended with an error
+		if operation != nil && operation.Error != nil {
+			return fmt.Errorf("Operation %v finished with an error: %v", operationName, *operation.Error)
+		}
+
+		log.Info().Msgf("Done waiting for operation %v in project %v to finish (%vs)", operationName, projectID, math.Round(timeTakenSeconds))
+
+	} else {
+		log.Warn().Interface("operation", operation).Msgf("Cannot wait for compute operation in project %v, it's nil", projectID)
+	}
+
+	return nil
+}
+
+func (c *client) sleepForWait(startTime time.Time) {
+
+	sleepTimeSeconds := 5
+	secondsSinceStart := time.Now().UTC().Sub(startTime).Seconds()
+	if secondsSinceStart > 300 {
+		sleepTimeSeconds = 30
+	} else if secondsSinceStart > 120 {
+		sleepTimeSeconds = 15
+	} else if secondsSinceStart > 30 {
+		sleepTimeSeconds = 10
+	}
+
+	sleepTime := foundation.ApplyJitter(sleepTimeSeconds)
+	time.Sleep(time.Duration(sleepTime) * time.Second)
 }
