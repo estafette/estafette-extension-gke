@@ -282,7 +282,7 @@ func (c *client) DeployGoogleCloudEndpoints(ctx context.Context, params api.Para
 			ConfigSource: &servicemanagementv1.ConfigSource{
 				Files: []*servicemanagementv1.ConfigFile{
 					{
-						FileContents: string(openapiSpecBytes),
+						FileContents: base64.StdEncoding.EncodeToString(openapiSpecBytes),
 						FilePath:     params.EspOpenAPIYamlPath,
 						FileType:     "OPEN_API_YAML",
 					},
