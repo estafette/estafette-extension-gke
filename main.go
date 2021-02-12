@@ -445,7 +445,7 @@ func deployGoogleEndpointsServiceIfRequired(ctx context.Context, gcpClient gcp.C
 	if params.Kind == api.KindDeployment && params.Visibility == api.VisibilityESP && (params.Action == api.ActionDeploySimple || params.Action == api.ActionDeployCanary) {
 		err := gcpClient.DeployGoogleCloudEndpoints(ctx, params)
 		if err != nil {
-			log.Fatal().Err(err).Msgf("Failed deployeding endpoints service in project %v", params.EspEndpointsProjectID)
+			log.Fatal().Err(err).Msgf("Failed deploying endpoints service in project %v", params.EspEndpointsProjectID)
 		}
 	}
 }
