@@ -3,12 +3,14 @@ package gcp
 import (
 	"context"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"math"
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -283,11 +285,12 @@ func (c *client) DeployGoogleCloudEndpoints(ctx context.Context, params api.Para
 				Files: []*servicemanagementv1.ConfigFile{
 					{
 						FileContents: base64.StdEncoding.EncodeToString(openapiSpecBytes),
-						FilePath:     params.EspOpenAPIYamlPath,
+						FilePath:     filepath.Base(params.EspOpenAPIYamlPath),
 						FileType:     "OPEN_API_YAML",
 					},
 				},
 			},
+			ValidateOnly: false,
 		}).Context(ctx).Do()
 		if err != nil {
 			return err
@@ -304,12 +307,26 @@ func (c *client) DeployGoogleCloudEndpoints(ctx context.Context, params api.Para
 		return
 	}
 
-	log.Info().Msgf("Creating rollout for service %v in project %v...", serviceName, params.EspEndpointsProjectID)
+	var response servicemanagementv1.SubmitConfigSourceResponse
+	err = json.Unmarshal(operation.Response, &response)
+	if err != nil {
+		return
+	}
+
+	configID := response.ServiceConfig.Id
+	log.Info().Msgf("Submitted config with id %v for service %v in project %v", configID, serviceName, params.EspEndpointsProjectID)
+
+	log.Info().Msgf("Creating rollout for config with id %v for service %v in project %v...", configID, serviceName, params.EspEndpointsProjectID)
 	// POST https://servicemanagement.googleapis.com/v1/services/<servicename>/rollouts
 	err = c.substituteErrorsWithPredefinedErrors(foundation.Retry(func() error {
 		// https://cloud.google.com/service-infrastructure/docs/service-management/reference/rest/v1/services.rollouts/create
 		operation, err = c.servicemanagementv1Service.Services.Rollouts.Create(serviceName, &servicemanagementv1.Rollout{
 			ServiceName: serviceName,
+			TrafficPercentStrategy: &servicemanagementv1.TrafficPercentStrategy{
+				Percentages: map[string]float64{
+					configID: 100,
+				},
+			},
 		}).Context(ctx).Do()
 		if err != nil {
 			return err
