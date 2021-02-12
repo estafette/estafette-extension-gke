@@ -44,6 +44,7 @@ var (
 type Client interface {
 	LoadGKEClusterKubeConfig(ctx context.Context, credential *api.GKECredentials) (kubeContextName string, err error)
 	GetGKECluster(ctx context.Context, projectID, location, clusterID string) (cluster *containerv1.Cluster, err error)
+	DeployGoogleCloudEndpoints(ctx context.Context, params api.Params) (err error)
 }
 
 // NewClient returns a new gcp.Client
@@ -185,6 +186,10 @@ func (c *client) GetGKECluster(ctx context.Context, projectID, location, cluster
 	log.Debug().Msgf("Retrieved GKE cluster %v in location %v for project %v", clusterID, location, projectID)
 
 	return
+}
+
+func (c *client) DeployGoogleCloudEndpoints(ctx context.Context, params api.Params) (err error) {
+	return foundation.RunCommandWithArgsExtended(ctx, "gcloud", []string{"endpoints", "--project", params.EspEndpointsProjectID, "services", "deploy", params.EspOpenAPIYamlPath})
 }
 
 func (c *client) substituteErrorsWithPredefinedErrors(err error) error {

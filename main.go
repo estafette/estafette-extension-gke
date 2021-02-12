@@ -173,7 +173,7 @@ func main() {
 		paramsForTroubleshooting = params
 
 		if tmpl != nil {
-			deployGoogleEndpointsServiceIfRequired(ctx, params)
+			deployGoogleEndpointsServiceIfRequired(ctx, gcpClient, params)
 			removePoddisruptionBudgetIfRequired(ctx, params, templateData.NameWithTrack, templateData.Namespace)
 			removeIngressIfRequired(ctx, params, templateData, templateData.Name, templateData.Namespace)
 
@@ -441,10 +441,12 @@ func removeIngressIfRequired(ctx context.Context, params api.Params, templateDat
 	}
 }
 
-func deployGoogleEndpointsServiceIfRequired(ctx context.Context, params api.Params) {
+func deployGoogleEndpointsServiceIfRequired(ctx context.Context, gcpClient gcp.Client, params api.Params) {
 	if params.Kind == api.KindDeployment && params.Visibility == api.VisibilityESP && (params.Action == api.ActionDeploySimple || params.Action == api.ActionDeployCanary) {
-		log.Info().Msgf("Deploying endpoints service, endpoints project:  %v", params.EspEndpointsProjectID)
-		foundation.RunCommandWithArgs(ctx, "gcloud", []string{"endpoints", "--project", params.EspEndpointsProjectID, "services", "deploy", params.EspOpenAPIYamlPath})
+		err := gcpClient.DeployGoogleCloudEndpoints(ctx, params)
+		if err != nil {
+			log.Fatal().Err(err).Msgf("Failed deployeding endpoints service in project %v", params.EspEndpointsProjectID)
+		}
 	}
 }
 
