@@ -33,30 +33,16 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 	return m.recorder
 }
 
-// DryRun mocks base method
-func (m *MockService) DryRun(ctx context.Context) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DryRun", ctx)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// DryRun indicates an expected call of DryRun
-func (mr *MockServiceMockRecorder) DryRun(ctx interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DryRun", reflect.TypeOf((*MockService)(nil).DryRun), ctx)
-}
-
 // Run mocks base method
-func (m *MockService) Run(ctx context.Context) error {
+func (m *MockService) Run(ctx context.Context, paramsJSON, releaseName, credentialsPath, paramsYAML, gitSource, gitOwner, gitName, appLabel, buildVersion, releaseAction, releaseID, gitBranch, gitRevision, triggeredBy string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Run", ctx)
+	ret := m.ctrl.Call(m, "Run", ctx, paramsJSON, releaseName, credentialsPath, paramsYAML, gitSource, gitOwner, gitName, appLabel, buildVersion, releaseAction, releaseID, gitBranch, gitRevision, triggeredBy)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Run indicates an expected call of Run
-func (mr *MockServiceMockRecorder) Run(ctx interface{}) *gomock.Call {
+func (mr *MockServiceMockRecorder) Run(ctx, paramsJSON, releaseName, credentialsPath, paramsYAML, gitSource, gitOwner, gitName, appLabel, buildVersion, releaseAction, releaseID, gitBranch, gitRevision, triggeredBy interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Run", reflect.TypeOf((*MockService)(nil).Run), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Run", reflect.TypeOf((*MockService)(nil).Run), ctx, paramsJSON, releaseName, credentialsPath, paramsYAML, gitSource, gitOwner, gitName, appLabel, buildVersion, releaseAction, releaseID, gitBranch, gitRevision, triggeredBy)
 }

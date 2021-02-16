@@ -19,7 +19,7 @@ import (
 
 //go:generate mockgen -package=extension -destination ./mock.go -source=service.go
 type Service interface {
-	Run(ctx context.Context, paramsJSON, releaseName, credentialsPath, paramsYAML, gitSource, gitOwner, gitName, appLabel, buildVersion, releaseAction, releaseID, gitBranch, gitRevision, triggeredBy string) (err error)
+	Run(ctx context.Context, credential *api.GKECredentials, releaseName, paramsYAML, gitSource, gitOwner, gitName, appLabel, buildVersion, releaseAction, releaseID, gitBranch, gitRevision, triggeredBy string) (err error)
 }
 
 // NewService returns a new extension.Service
@@ -44,12 +44,7 @@ type service struct {
 	paramsForTroubleshooting     api.Params
 }
 
-func (s *service) Run(ctx context.Context, paramsJSON, releaseName, credentialsPath, paramsYAML, gitSource, gitOwner, gitName, appLabel, buildVersion, releaseAction, releaseID, gitBranch, gitRevision, triggeredBy string) (err error) {
-
-	credential, err := s.credentialsClient.Init(ctx, paramsJSON, releaseName, credentialsPath)
-	if err != nil {
-		log.Fatal().Err(err).Msg("Failed initializing credentials")
-	}
+func (s *service) Run(ctx context.Context, credential *api.GKECredentials, releaseName, paramsYAML, gitSource, gitOwner, gitName, appLabel, buildVersion, releaseAction, releaseID, gitBranch, gitRevision, triggeredBy string) (err error) {
 
 	params, err := s.parametersClient.Init(ctx, paramsYAML, credential, gitSource, gitOwner, gitName, appLabel, buildVersion, releaseName, releaseAction, releaseID)
 	if err != nil {

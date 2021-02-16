@@ -65,6 +65,11 @@ func main() {
 		log.Fatal().Err(err).Msg("Failed creating credentials.Client")
 	}
 
+	credential, err := credentialsClient.Init(ctx, *paramsJSON, *releaseName, *credentialsPath)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed initializing credentials")
+	}
+
 	parametersClient, err := parameters.NewClient(ctx)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed creating parameters.Client")
@@ -90,7 +95,7 @@ func main() {
 		log.Fatal().Err(err).Msg("Failed creating extension.Service")
 	}
 
-	err = extensionService.Run(ctx, *paramsJSON, *releaseName, *credentialsPath, *paramsYAML, *gitSource, *gitOwner, *gitName, *appLabel, *buildVersion, *releaseAction, *releaseID, *gitBranch, *gitRevision, *triggeredBy)
+	err = extensionService.Run(ctx, credential, *releaseName, *paramsYAML, *gitSource, *gitOwner, *gitName, *appLabel, *buildVersion, *releaseAction, *releaseID, *gitBranch, *gitRevision, *triggeredBy)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed running extension.Service")
 	}
