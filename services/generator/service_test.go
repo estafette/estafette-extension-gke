@@ -1,6 +1,7 @@
-package main
+package generator
 
 import (
+	"context"
 	"testing"
 
 	"github.com/estafette/estafette-extension-gke/api"
@@ -16,29 +17,41 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsNameToAppParam", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			App: "myapp",
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "myapp", templateData.Name)
 	})
 
 	t.Run("SetsNamespaceToNamespaceParam", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Namespace: "mynamespace",
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "mynamespace", templateData.Namespace)
 	})
 
 	t.Run("SetsLabelsToLabelsParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Labels: map[string]string{
@@ -48,7 +61,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 2, len(templateData.Labels))
 		assert.Equal(t, "myapp", templateData.Labels["app"])
@@ -57,17 +70,25 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsAppLabelSelectorToAppParam", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			App: "myapp",
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "myapp", templateData.AppLabelSelector)
 	})
 
 	t.Run("ReplacesAppLabelValueWithAppParamIfAppLabelExists", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Labels: map[string]string{
@@ -78,13 +99,17 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 2, len(templateData.Labels))
 		assert.Equal(t, "yourapp", templateData.Labels["app"])
 	})
 
 	t.Run("AddsAppLabelValueWithAppParamIfAppLabelDoesNotExists", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Labels: map[string]string{
@@ -94,13 +119,17 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 2, len(templateData.Labels))
 		assert.Equal(t, "yourapp", templateData.Labels["app"])
 	})
 
 	t.Run("SetsContainerRepositoryToImageRepositoryParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Container: api.ContainerParams{
@@ -109,12 +138,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "myproject", templateData.Container.Repository)
 	})
 
 	t.Run("SetsContainerNameToImageNameParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Container: api.ContainerParams{
@@ -123,12 +156,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "my-app", templateData.Container.Name)
 	})
 
 	t.Run("SetsContainerTagToImageTagParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Container: api.ContainerParams{
@@ -137,180 +174,240 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "1.0.0", templateData.Container.Tag)
 	})
 
 	t.Run("SetsServiceTypeToClusterIPIfVisibilityParamIsPrivate", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityPrivate,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "ClusterIP", templateData.ServiceType)
 	})
 
 	t.Run("SetsServiceTypeToClusterIPIfVisibilityParamIsPublicWhitelist", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityPublicWhitelist,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "ClusterIP", templateData.ServiceType)
 	})
 
 	t.Run("SetsServiceTypeToNodePortIfVisibilityParamIsIap", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityIAP,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "NodePort", templateData.ServiceType)
 	})
 
 	t.Run("SetsServiceTypeToLoadBalancerIfVisibilityParamIsPublic", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityPublic,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "LoadBalancer", templateData.ServiceType)
 	})
 
 	t.Run("SetsUseDNSAnnotationsOnIngressToTrueIfVisibilityParamIsPrivate", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityPrivate,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.UseDNSAnnotationsOnIngress)
 	})
 
 	t.Run("SetsUseDNSAnnotationsOnIngressToTrueIfVisibilityParamIsPublicWhitelist", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityPublicWhitelist,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.UseDNSAnnotationsOnIngress)
 	})
 
 	t.Run("SetsUseDNSAnnotationsOnIngressToFalseIfVisibilityParamIsPublic", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityPublic,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.UseDNSAnnotationsOnIngress)
 	})
 
 	t.Run("SetsUseDNSAnnotationsOnServiceToTrueIfVisibilityParamIsPublic", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityPublic,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.UseDNSAnnotationsOnService)
 	})
 
 	t.Run("SetsUseDNSAnnotationsOnServiceToFalseIfVisibilityParamIsPrivate", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityPrivate,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.UseDNSAnnotationsOnService)
 	})
 
 	t.Run("SetsUseDNSAnnotationsOnServiceToFalseIfVisibilityParamIsPublicWhitelist", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityPublicWhitelist,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.UseDNSAnnotationsOnService)
 	})
 
 	t.Run("SetsUseCloudflareProxyToTrueIfVisibilityParamIsPrivate", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityPrivate,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.UseCloudflareProxy)
 	})
 
 	t.Run("SetsUseCloudflareProxyToTrueIfVisibilityParamIsPublicWhitelist", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityPublicWhitelist,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.UseCloudflareProxy)
 	})
 
 	t.Run("SetsUseCloudflareProxyToTrueIfVisibilityParamIsPublic", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityPublic,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.UseCloudflareProxy)
 	})
 
 	t.Run("SetsUseCloudflareProxyToFalseIfVisibilityParamIsIAP", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityIAP,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.UseCloudflareProxy)
 	})
 
 	t.Run("SetsContainerCPURequestToCPURequestParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Container: api.ContainerParams{
@@ -321,12 +418,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "1200m", templateData.Container.CPURequest)
 	})
 
 	t.Run("SetsContainerCPULimitToCPULimitParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Container: api.ContainerParams{
@@ -337,12 +438,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "1500m", templateData.Container.CPULimit)
 	})
 
 	t.Run("SetsContainerMemoryRequestToMemoryRequestParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Container: api.ContainerParams{
@@ -353,12 +458,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "1024Mi", templateData.Container.MemoryRequest)
 	})
 
 	t.Run("SetsContainerMemoryLimitToMemoryLimitParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Container: api.ContainerParams{
@@ -369,12 +478,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "2048Mi", templateData.Container.MemoryLimit)
 	})
 
 	t.Run("SetsContainerPortToContainerPortParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Container: api.ContainerParams{
@@ -383,12 +496,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 3080, templateData.Container.Port)
 	})
 
 	t.Run("SetsHostsToHostsParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Hosts: []string{
@@ -398,7 +515,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 2, len(templateData.Hosts))
 		assert.Equal(t, "gke.estafette.io", templateData.Hosts[0])
@@ -407,6 +524,10 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsHostsJoinedToCommaSeparatedJoinOfHostsParam", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Hosts: []string{
 				"gke.estafette.io",
@@ -415,12 +536,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "gke.estafette.io,gke-deploy.estafette.io", templateData.HostsJoined)
 	})
 
 	t.Run("SetsInternalHostsToInternalHostsParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			InternalHosts: []string{
@@ -430,7 +555,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 2, len(templateData.InternalHosts))
 		assert.Equal(t, "gke.estafette.io", templateData.InternalHosts[0])
@@ -439,6 +564,10 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsInternalHostsJoinedToCommaSeparatedJoinOfInternalHostsParam", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			InternalHosts: []string{
 				"gke.estafette.io",
@@ -447,12 +576,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "gke.estafette.io,gke-deploy.estafette.io", templateData.InternalHostsJoined)
 	})
 
 	t.Run("SetsMinReplicasToAutoscaleMinReplicasParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Autoscale: api.AutoscaleParams{
@@ -461,12 +594,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 5, templateData.MinReplicas)
 	})
 
 	t.Run("SetsMaxReplicasToAutoscaleMaxReplicasParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Autoscale: api.AutoscaleParams{
@@ -475,108 +612,144 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 16, templateData.MaxReplicas)
 	})
 
 	t.Run("SetsUseNginxIngressToTrueIfVisibilityIsPrivate", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityPrivate,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.UseNginxIngress)
 	})
 
 	t.Run("SetsUseNginxIngressToTrueIfVisibilityIsPublicWhitelist", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityPublicWhitelist,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.UseNginxIngress)
 	})
 
 	t.Run("SetsUseNginxIngressToFalseIfVisibilityIsPublic", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityPublic,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.UseNginxIngress)
 	})
 
 	t.Run("SetsUseNginxIngressToFalseIfVisibilityIsIap", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityIAP,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.UseNginxIngress)
 	})
 
 	t.Run("SetsUseGCEIngressToTrueIfVisibilityIsIap", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityIAP,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.UseGCEIngress)
 	})
 
 	t.Run("SetsUseGCEIngressToFalseIfVisibilityIsPublic", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityPublic,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.UseGCEIngress)
 	})
 
 	t.Run("SetsUseGCEIngressToFalseIfVisibilityIsPrivate", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityPrivate,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.UseGCEIngress)
 	})
 
 	t.Run("SetsUseGCEIngressToFalseIfVisibilityIsPublicWhitelist", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityPublicWhitelist,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.UseGCEIngress)
 	})
 
 	t.Run("SetsLivenessPathToLivenessProbePathParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Container: api.ContainerParams{
@@ -587,12 +760,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "/liveness", templateData.Container.Liveness.Path)
 	})
 
 	t.Run("SetsLivenessPortToLivenessProbePortParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Container: api.ContainerParams{
@@ -603,12 +780,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 5001, templateData.Container.Liveness.Port)
 	})
 
 	t.Run("SetsLivenessInitialDelaySecondsToLivenessProbeInitialDelaySecondsParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Container: api.ContainerParams{
@@ -619,12 +800,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 30, templateData.Container.Liveness.InitialDelaySeconds)
 	})
 
 	t.Run("SetsLivenessTimeoutSecondsToLivenessProbeTimeoutSecondsParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Container: api.ContainerParams{
@@ -635,12 +820,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 1, templateData.Container.Liveness.TimeoutSeconds)
 	})
 
 	t.Run("SetsLivenessFailureThresholdToLivenessProbeFailureThresholdParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Container: api.ContainerParams{
@@ -651,12 +840,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 2, templateData.Container.Liveness.FailureThreshold)
 	})
 
 	t.Run("SetsLivenessSuccessThresholdToLivenessProbeSuccessThresholdParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Container: api.ContainerParams{
@@ -667,12 +860,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 7, templateData.Container.Liveness.SuccessThreshold)
 	})
 
 	t.Run("SetsReadinessPathToReadinessProbePathParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Container: api.ContainerParams{
@@ -683,12 +880,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "/readiness", templateData.Container.Readiness.Path)
 	})
 
 	t.Run("SetsReadinessPortToReadinessProbePortParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Container: api.ContainerParams{
@@ -699,12 +900,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 5002, templateData.Container.Readiness.Port)
 	})
 
 	t.Run("SetsReadinessInitialDelaySecondsToReadinessProbeInitialDelaySecondsParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Container: api.ContainerParams{
@@ -715,12 +920,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 30, templateData.Container.Readiness.InitialDelaySeconds)
 	})
 
 	t.Run("SetsReadinessTimeoutSecondsToReadinessProbeTimeoutSecondsParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Container: api.ContainerParams{
@@ -731,12 +940,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 1, templateData.Container.Readiness.TimeoutSeconds)
 	})
 
 	t.Run("SetsReadinessFailureThresholdToReadinessProbeFailureThresholdParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Container: api.ContainerParams{
@@ -747,12 +960,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 6, templateData.Container.Readiness.FailureThreshold)
 	})
 
 	t.Run("SetsReadinessSuccessThresholdToReadinessProbeSuccessThresholdParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Container: api.ContainerParams{
@@ -763,12 +980,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 3, templateData.Container.Readiness.SuccessThreshold)
 	})
 
 	t.Run("SetsEnvironmentVariablesToContainerEnvironmentVariablesParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Container: api.ContainerParams{
@@ -780,13 +1001,17 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "value1", templateData.Container.EnvironmentVariables["MY_CUSTOM_ENV"])
 		assert.Equal(t, "value2", templateData.Container.EnvironmentVariables["MY_OTHER_CUSTOM_ENV"])
 	})
 
 	t.Run("AddsJaegerServiceNameToEnvironmentVariables", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			App: "my-app",
@@ -796,12 +1021,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "my-app", templateData.Container.EnvironmentVariables["JAEGER_SERVICE_NAME"])
 	})
 
 	t.Run("SetsMetricsPathToMetricsProbePathParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Container: api.ContainerParams{
@@ -812,12 +1041,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "/readiness", templateData.Container.Metrics.Path)
 	})
 
 	t.Run("SetsMetricsPortToMetricsPortParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Container: api.ContainerParams{
@@ -828,12 +1061,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 3080, templateData.Container.Metrics.Port)
 	})
 
 	t.Run("SetsMetricsScrapeToMetricsScrapeParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Container: api.ContainerParams{
@@ -844,12 +1081,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, true, templateData.Container.Metrics.Scrape)
 	})
 
 	t.Run("SetsUseLifecyclePreStopSleepCommandToLifecyclePrestopSleepParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Container: api.ContainerParams{
@@ -860,12 +1101,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, true, templateData.Container.UseLifecyclePreStopSleepCommand)
 	})
 
 	t.Run("SetsPreStopSleepSecondsToLifecyclePrestopSleepSecondsParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		sleepValue := 25
 
@@ -878,13 +1123,17 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 25, templateData.Container.PreStopSleepSeconds)
 	})
 
 	t.Run("SidecarAddedToSidecarsCollection", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Sidecars: []*api.SidecarParams{
 				{
@@ -894,13 +1143,17 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 1, len(templateData.Sidecars))
 	})
 
 	t.Run("SetsSidecarTypeToSidecarTypeAsString", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Sidecars: []*api.SidecarParams{
 				{
@@ -910,12 +1163,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "openresty", templateData.Sidecars[0].Type)
 	})
 
 	t.Run("SetsSidecarImageToSidecarImageParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Sidecars: []*api.SidecarParams{
@@ -926,12 +1183,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "estafette/openresty-sidecar:1.13.6.1-alpine", templateData.Sidecars[0].Image)
 	})
 
 	t.Run("SetsSidecarHealthCheckPathToSidecarHealthCheckPathParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Sidecars: []*api.SidecarParams{
@@ -942,12 +1203,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "/readiness", templateData.Sidecars[0].SidecarSpecificProperties["healthcheckpath"])
 	})
 
 	t.Run("SetsSidecarCPURequestToSidecarCPURequestParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Sidecars: []*api.SidecarParams{
@@ -960,12 +1225,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "1200m", templateData.Sidecars[0].CPURequest)
 	})
 
 	t.Run("SetsSidecarCPULimitToSidecarCPULimitParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Sidecars: []*api.SidecarParams{
@@ -978,12 +1247,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "1500m", templateData.Sidecars[0].CPULimit)
 	})
 
 	t.Run("SetsSidecarMemoryRequestToSidecarMemoryRequestParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Sidecars: []*api.SidecarParams{
@@ -996,12 +1269,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "1024Mi", templateData.Sidecars[0].MemoryRequest)
 	})
 
 	t.Run("SetsSidecarMemoryLimitToSidecarMemoryLimitParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Sidecars: []*api.SidecarParams{
@@ -1014,12 +1291,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "2048Mi", templateData.Sidecars[0].MemoryLimit)
 	})
 
 	t.Run("SetsSidecarEnvironmentVariablesToSidecarEnvironmentVariablesParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Sidecars: []*api.SidecarParams{
@@ -1033,7 +1314,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		// assert.Equal(t, 2, len(templateData.Sidecar.EnvironmentVariables))
 		assert.Equal(t, "value1", templateData.Sidecars[0].EnvironmentVariables["MY_CUSTOM_ENV"])
@@ -1041,6 +1322,10 @@ func TestGenerateTemplateData(t *testing.T) {
 	})
 
 	t.Run("SetsCloudSQLProxySpecificArgsToSidecarSpecificProperties", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Sidecars: []*api.SidecarParams{
@@ -1054,7 +1339,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 4, len(templateData.Sidecars[0].SidecarSpecificProperties))
 		assert.Equal(t, "testHealthCheckPath", templateData.Sidecars[0].SidecarSpecificProperties["healthcheckpath"])
@@ -1065,6 +1350,10 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsSecretsToSecretsParam", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Secrets: api.SecretsParams{
 				Keys: map[string]interface{}{
@@ -1075,7 +1364,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 2, len(templateData.Secrets))
 		assert.Equal(t, "c29tZSBzZWNyZXQgdmFsdWU=", templateData.Secrets["secret-file-1.json"])
@@ -1084,6 +1373,10 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsMountApplicationSecretsToTrueIfSecretsParamLengthIsLargerThanZero", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Secrets: api.SecretsParams{
 				Keys: map[string]interface{}{
@@ -1094,12 +1387,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.MountApplicationSecrets)
 	})
 
 	t.Run("SetsMountApplicationSecretsToFalseIfSecretsParamLengthIsZero", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Secrets: api.SecretsParams{
@@ -1108,73 +1405,97 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.MountApplicationSecrets)
 	})
 
 	t.Run("SetsIngressPathToBasepathParam", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Basepath: "/",
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "/", templateData.IngressPath)
 	})
 
 	t.Run("AppendSlashToIngressPathIfBasepathParamDoesNotEndInSlash", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Basepath: "/api",
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "/api/", templateData.IngressPath)
 	})
 
 	t.Run("AppendSlashStarToIngressPathIfUseGCEIngressIsTrue", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Basepath:   "/api",
 			Visibility: api.VisibilityIAP,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "/api/*", templateData.IngressPath)
 	})
 
 	t.Run("SetsInternalIngressPathToBasepathParam", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Basepath: "/",
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "/", templateData.InternalIngressPath)
 	})
 
 	t.Run("AppendSlashToInternalIngressPathIfBasepathParamDoesNotEndInSlash", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Basepath: "/api",
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "/api/", templateData.InternalIngressPath)
 	})
 
 	t.Run("DoNotAppendSlashStarToInternalIngressPathIfUseGCEIngressIsTrue", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Basepath:   "/api",
@@ -1182,60 +1503,80 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "/api/", templateData.InternalIngressPath)
 	})
 
 	t.Run("SetsMountPayloadLoggingToTrueIfEnablePayloadLoggingParamIsTrue", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			EnablePayloadLogging: true,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.MountPayloadLogging)
 	})
 
 	t.Run("SetsMountPayloadLoggingToFalseIfEnablePayloadLoggingParamIsFalse", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			EnablePayloadLogging: false,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.MountPayloadLogging)
 	})
 
 	t.Run("SetsAddSafeToEvictAnnotationToTrueIfEnablePayloadLoggingParamIsTrue", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			EnablePayloadLogging: true,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.AddSafeToEvictAnnotation)
 	})
 
 	t.Run("SetsAddSafeToEvictAnnotationToFalseIfEnablePayloadLoggingParamIsFalse", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			EnablePayloadLogging: false,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.AddSafeToEvictAnnotation)
 	})
 
 	t.Run("SetsRollingUpdateMaxSurgeToRollingUpdateMaxSurgeParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			RollingUpdate: api.RollingUpdateParams{
@@ -1244,12 +1585,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "25%", templateData.RollingUpdateMaxSurge)
 	})
 
 	t.Run("SetsRollingUpdateMaxSurgeToRollingUpdateMaxSurgeParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			RollingUpdate: api.RollingUpdateParams{
@@ -1258,67 +1603,87 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "15%", templateData.RollingUpdateMaxUnavailable)
 	})
 
 	t.Run("AddsBuildVersionLabelSetToBuildVersionParam", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			BuildVersion: "1.2.3",
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "1.2.3", templateData.PodLabels["version"])
 	})
 
 	t.Run("SetsPreferPreemptiblesToTrueIfChaosProofParamIsTrue", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			ChaosProof: true,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.PreferPreemptibles)
 	})
 
 	t.Run("SetsPreferPreemptiblesToFalseIfChaosProofParamIsFalse", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			ChaosProof: false,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.PreferPreemptibles)
 	})
 
 	t.Run("SetsHasTolerationsToTrueIfChaosProofParamIsTrue", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			ChaosProof: true,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.HasTolerations)
 	})
 
 	t.Run("AddsPreemptibleTolerationToTolerationsIfChaosProofParamIsTrue", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			ChaosProof: true,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 1, len(templateData.Tolerations))
 		assert.Equal(t, &map[string]interface{}{
@@ -1330,6 +1695,10 @@ func TestGenerateTemplateData(t *testing.T) {
 	})
 
 	t.Run("AddsPreemptibleTolerationAndOtherTolerationsIfChaosProofParamIsTrueAndTolerationsAreSet", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			ChaosProof: true,
@@ -1344,7 +1713,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 2, len(templateData.Tolerations))
 		assert.Equal(t, &map[string]interface{}{
@@ -1363,6 +1732,10 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsMountConfigmapToTrueIfConfigFilesParamsLengthIsLargerThanZero", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Configs: api.ConfigsParams{
 				Files: []string{
@@ -1372,12 +1745,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.MountConfigmap)
 	})
 
 	t.Run("SetsMountConfigmapToTrueIfInlineFilesParamsLengthIsLargerThanZero", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Configs: api.ConfigsParams{
@@ -1388,12 +1765,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.MountConfigmap)
 	})
 
 	t.Run("SetsMountConfigmapToFalseIfConfigFilesAndInlineFilesParamsLengthAreZero", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Configs: api.ConfigsParams{
@@ -1403,12 +1784,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.MountConfigmap)
 	})
 
 	t.Run("SetsConfigMountPathToConfigMountPathParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Configs: api.ConfigsParams{
@@ -1417,12 +1802,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "/configs", templateData.ConfigMountPath)
 	})
 
 	t.Run("SetsSecretMountPathToSecretMountPathParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Secrets: api.SecretsParams{
@@ -1431,60 +1820,80 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "/secrets", templateData.SecretMountPath)
 	})
 
 	t.Run("SetsLimitTrustedIPRangesIfVisibilityParamIsPublic", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityPublic,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.LimitTrustedIPRanges)
 	})
 
 	t.Run("SetsLimitTrustedIPRangesToTrueIfVisibilityParamIsPublic", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityPublic,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.LimitTrustedIPRanges)
 	})
 
 	t.Run("SetsLimitTrustedIPRangesToFalseIfVisibilityParamIsIap", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityIAP,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.LimitTrustedIPRanges)
 	})
 
 	t.Run("SetsLimitTrustedIPRangesToFalseIfVisibilityParamIsPrivate", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityPrivate,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.LimitTrustedIPRanges)
 	})
 
 	t.Run("SetsTrustedIPRangesToTrustedIPRangesParams", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			TrustedIPRanges: []string{
@@ -1506,12 +1915,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 14, len(templateData.TrustedIPRanges))
 	})
 
 	t.Run("SetsLocalManifestDataToAllLocalManifestDataCombined", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Manifests: api.ManifestsParams{
@@ -1528,7 +1941,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 3, len(templateData.ManifestData))
 		assert.Equal(t, "value 1", templateData.ManifestData["property1"])
@@ -1538,18 +1951,26 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("AppendsCanaryToNameWithTrackIfParamsTypeIsCanary", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			App:    "myapp",
 			Action: api.ActionDeployCanary,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "myapp-canary", templateData.NameWithTrack)
 	})
 
 	t.Run("AppendsStableToNameWithTrackIfParamsTypeIsRollforward", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			App:    "myapp",
@@ -1557,12 +1978,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "myapp-stable", templateData.NameWithTrack)
 	})
 
 	t.Run("DoesNotAppendTrackToNameWithTrackIfParamsTypeIsSimple", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			App:    "myapp",
@@ -1570,12 +1995,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "myapp", templateData.NameWithTrack)
 	})
 
 	t.Run("DoesNotAddReleaseIDLabelToPodLabelsIfReleaseIDIsEmpty", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			App:    "myapp",
@@ -1584,12 +2013,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		releaseID := ""
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", releaseID, "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", releaseID, "")
 
 		assert.Equal(t, "", templateData.PodLabels["estafette.io/release-id"])
 	})
 
 	t.Run("AddsReleaseIDLabelToPodLabelsIfReleaseIDIsNotEmpty", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			App:    "myapp",
@@ -1598,12 +2031,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		releaseID := "1"
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", releaseID, "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", releaseID, "")
 
 		assert.Equal(t, "1", templateData.PodLabels["estafette.io/release-id"])
 	})
 
 	t.Run("SetsIncludeTriggeredByLabelToFalseIfTriggeredByIsEmpty", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			App:    "myapp",
@@ -1612,12 +2049,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		triggeredBy := ""
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", triggeredBy)
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", triggeredBy)
 
 		assert.Equal(t, "", templateData.PodLabels["estafette.io/triggered-by"])
 	})
 
 	t.Run("SetsIncludeTriggeredByLabelToTrueIfTriggeredByIsNotEmpty", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			App:    "myapp",
@@ -1626,12 +2067,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		triggeredBy := "user@estafette.io"
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", triggeredBy)
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", triggeredBy)
 
 		assert.Equal(t, "user-at-estafette.io", templateData.PodLabels["estafette.io/triggered-by"])
 	})
 
 	t.Run("SetsIncludeTrackLabelToFalseIfParamsTypeIsSimple", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			App:    "myapp",
@@ -1639,38 +2084,50 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.IncludeTrackLabel)
 	})
 
 	t.Run("SetsIncludeTrackLabelToTrueIfParamsTypeIsCanary", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			App:    "myapp",
 			Action: api.ActionDeployCanary,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.IncludeTrackLabel)
 	})
 
 	t.Run("SetsIncludeTrackLabelToTrueIfParamsTypeIsRollforward", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			App:    "myapp",
 			Action: api.ActionDeployStable,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.IncludeTrackLabel)
 	})
 
 	t.Run("SetsTrackLabelToCanaryIfParamsTypeIsCanary", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			App:    "myapp",
@@ -1678,12 +2135,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "canary", templateData.TrackLabel)
 	})
 
 	t.Run("SetsTrackLabelToStableIfParamsTypeIsRollforward", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			App:    "myapp",
@@ -1691,12 +2152,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "stable", templateData.TrackLabel)
 	})
 
 	t.Run("SetsAdditionalVolumeMountsToVolumeMountsParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			VolumeMounts: []api.VolumeMountParams{
@@ -1724,7 +2189,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 1, len(templateData.AdditionalVolumeMounts))
 		assert.Equal(t, "client-certs", templateData.AdditionalVolumeMounts[0].Name)
@@ -1733,6 +2198,10 @@ func TestGenerateTemplateData(t *testing.T) {
 	})
 
 	t.Run("SetsAdditionalContainerPortsToContainerAdditionalPortsParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Container: api.ContainerParams{
@@ -1754,12 +2223,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 2, len(templateData.AdditionalContainerPorts))
 	})
 
 	t.Run("SetsAdditionalServicePortsToContainerAdditionalPortsParamForPortsWithVisibilityEqualToVisibilityParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Visibility: api.VisibilityPrivate,
@@ -1782,7 +2255,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 1, len(templateData.AdditionalServicePorts))
 		assert.Equal(t, "grpc", templateData.AdditionalServicePorts[0].Name)
@@ -1792,6 +2265,10 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsOverrideDefaultWhitelistToTrueIfVisibilityEqualsPublicWhitelistAndWhitelistedIPSHasOneOrMoreItems", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityPublicWhitelist,
 			WhitelistedIPS: []string{
@@ -1800,12 +2277,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.OverrideDefaultWhitelist)
 	})
 
 	t.Run("SetsOverrideDefaultWhitelistToFalseIfVisibilityEqualsPublicWhitelistButWhitelistedIPSHasNoItems", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Visibility:     api.VisibilityPublicWhitelist,
@@ -1813,12 +2294,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.OverrideDefaultWhitelist)
 	})
 
 	t.Run("SetsOverrideDefaultWhitelistToFalseIfVisibilityIsPrivate", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Visibility: api.VisibilityPrivate,
@@ -1828,12 +2313,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.OverrideDefaultWhitelist)
 	})
 
 	t.Run("SetsOverrideDefaultWhitelistToFalseIfVisibilityIsPrivate", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Visibility: api.VisibilityIAP,
@@ -1843,12 +2332,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.OverrideDefaultWhitelist)
 	})
 
 	t.Run("SetsOverrideDefaultWhitelistToFalseIfVisibilityIsPrivate", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Visibility: api.VisibilityPublic,
@@ -1858,12 +2351,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.OverrideDefaultWhitelist)
 	})
 
 	t.Run("SetsNginxIngressWhitelistToCommaSeparatedJoingOfWhitelistedIPS", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Visibility: api.VisibilityPublicWhitelist,
@@ -1875,42 +2372,58 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16", templateData.NginxIngressWhitelist)
 	})
 
 	t.Run("SetsIncludeReplicasToTrueIfCurrentReplicasIsGreaterThanZero", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{}
 
 		// act
-		templateData := generateTemplateData(params, 1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, 1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.IncludeReplicas)
 	})
 
 	t.Run("SetsIncludeReplicasToFalseIfCurrentReplicasIsZeroOrLess", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{}
 
 		// act
-		templateData := generateTemplateData(params, 0, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, 0, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.False(t, templateData.IncludeReplicas)
 	})
 
 	t.Run("SetsReplicasToCurrentReplicasIfGreaterThanZero", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{}
 
 		// act
-		templateData := generateTemplateData(params, 15, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, 15, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 15, templateData.Replicas)
 	})
 
 	t.Run("SetsReplicasToReplicasParamIfCurrentReplicasIsZeroOrLessAndAutoscaleIsDisabled", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Replicas: 1,
@@ -1921,12 +2434,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 1, templateData.Replicas)
 	})
 
 	t.Run("SetsReplicasToReplicasParamIfCurrentReplicasIsZeroOrLessAndReplicasParamIsLargerThanMinReplicas", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Replicas: 5,
@@ -1937,12 +2454,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 5, templateData.Replicas)
 	})
 
 	t.Run("SetsReplicasToMinReplicasIfCurrentReplicasIsZeroOrLess", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Autoscale: api.AutoscaleParams{
@@ -1951,24 +2472,32 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, 0, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, 0, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 3, templateData.Replicas)
 	})
 
 	t.Run("SetsScheduleToScheduleParam", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Schedule: "*/5 * * * *",
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "*/5 * * * *", templateData.Schedule)
 	})
 
 	t.Run("SetsUseHpaScalerToAutoscalerSafetyEnabledParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Autoscale: api.AutoscaleParams{
@@ -1979,12 +2508,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.UseHpaScaler)
 	})
 
 	t.Run("SetsHpaScalerPromQueryToAutoscalerSafetyPromQueryParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Autoscale: api.AutoscaleParams{
@@ -1995,12 +2528,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "sum(rate(nginx_http_requests_total{app='my-app'}[5m])) by (app)", templateData.HpaScalerPromQuery)
 	})
 
 	t.Run("SetsHpaScalerRequestsPerReplicaToAutoscalerSafetyPromQueryParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Autoscale: api.AutoscaleParams{
@@ -2011,12 +2548,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "0.25", templateData.HpaScalerRequestsPerReplica)
 	})
 
 	t.Run("SetsHpaScalerRequestsPerReplicaToAutoscalerSafetyPromQueryParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Autoscale: api.AutoscaleParams{
@@ -2027,12 +2568,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "-2.7584", templateData.HpaScalerDelta)
 	})
 
 	t.Run("SetsHpaScalerRequestsPerReplicaToAutoscalerSafetyPromQueryParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Autoscale: api.AutoscaleParams{
@@ -2043,12 +2588,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "0.2", templateData.HpaScalerScaleDownMaxRatio)
 	})
 
 	t.Run("SetsAllHostsToHostsAndInternalHostsAppended", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Hosts: []string{
@@ -2060,7 +2609,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 2, len(templateData.AllHosts))
 		assert.Equal(t, "ci.estafette.io", templateData.AllHosts[0])
@@ -2069,6 +2618,10 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsAllHostsJoinedToHostsAndInternalHostsAppendedSeparatedByComma", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Hosts: []string{
 				"ci.estafette.io",
@@ -2079,12 +2632,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "ci.estafette.io,ci.internal.estafette.io", templateData.AllHostsJoined)
 	})
 
 	t.Run("SetsAllHostsToHostsAndInternalHostsAppendedWhenOnlyHostsAreSet", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Hosts: []string{
@@ -2093,7 +2650,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 1, len(templateData.AllHosts))
 		assert.Equal(t, "ci.estafette.io", templateData.AllHosts[0])
@@ -2101,6 +2658,10 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsAllHostsJoinedToHostsAndInternalHostsAppendedSeparatedByCommaWhenOnlyHostsAreSet", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Hosts: []string{
 				"ci.estafette.io",
@@ -2108,12 +2669,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "ci.estafette.io", templateData.AllHostsJoined)
 	})
 
 	t.Run("SetsAllHostsToHostsAndInternalHostsAppendedWhenOnlyInternalHostsAreSet", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			InternalHosts: []string{
@@ -2122,7 +2687,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 1, len(templateData.AllHosts))
 		assert.Equal(t, "ci.internal.estafette.io", templateData.AllHosts[0])
@@ -2130,6 +2695,10 @@ func TestGenerateTemplateData(t *testing.T) {
 
 	t.Run("SetsAllHostsJoinedToHostsAndInternalHostsAppendedSeparatedByCommaWhenOnlyInternalHostsAreSet", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			InternalHosts: []string{
 				"ci.internal.estafette.io",
@@ -2137,12 +2706,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "ci.internal.estafette.io", templateData.AllHostsJoined)
 	})
 
 	t.Run("SetsNginxIngressProxyConnectTimeoutToRequestTimeoutParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Request: api.RequestParams{
@@ -2151,12 +2724,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 75, templateData.NginxIngressProxyConnectTimeout)
 	})
 
 	t.Run("SetsNginxIngressProxyConnectTimeoutToRequestTimeoutParamWithSecondSuffix", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Request: api.RequestParams{
@@ -2165,12 +2742,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 75, templateData.NginxIngressProxyConnectTimeout)
 	})
 
 	t.Run("SetsNginxIngressProxyConnectTimeoutTo75IfRequestTimeoutParamIsLargerThan75", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Request: api.RequestParams{
@@ -2179,13 +2760,17 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 75, templateData.NginxIngressProxyConnectTimeout)
 	})
 
 	t.Run("SetsNginxIngressProxySendTimeoutToRequestTimeoutParam", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Request: api.RequestParams{
 				Timeout: "300",
@@ -2193,13 +2778,17 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 300, templateData.NginxIngressProxySendTimeout)
 	})
 
 	t.Run("SetsNginxIngressProxySendTimeoutToRequestTimeoutParamWithSecondSuffix", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Request: api.RequestParams{
 				Timeout: "300s",
@@ -2207,12 +2796,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 300, templateData.NginxIngressProxySendTimeout)
 	})
 
 	t.Run("SetsNginxIngressProxyReadTimeoutToRequestTimeoutParam", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Request: api.RequestParams{
@@ -2221,12 +2814,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 300, templateData.NginxIngressProxyReadTimeout)
 	})
 
 	t.Run("SetsNginxIngressProxyReadTimeoutToRequestTimeoutParamWithSecondSuffix", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Request: api.RequestParams{
@@ -2235,60 +2832,80 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 300, templateData.NginxIngressProxyReadTimeout)
 	})
 
 	t.Run("SetsCertificateSecret", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			CertificateSecret: "shared-wildcard-letsencrypt-certificate",
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.True(t, templateData.UseCertificateSecret)
 	})
 
 	t.Run("SetsServiceTypeToClusterIPIfVisibilityParamIsApigee", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityApigee,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "ClusterIP", templateData.ServiceType)
 	})
 
 	t.Run("SetsUseCloudflareProxyToTrueIfVisibilityParamIsApigee", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityApigee,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, true, templateData.UseCloudflareProxy)
 	})
 
 	t.Run("SetsUseGCEIngressToFalseIfVisibilityParamIsApigee", func(t *testing.T) {
 
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
 		params := api.Params{
 			Visibility: api.VisibilityApigee,
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, false, templateData.UseGCEIngress)
 	})
 
 	t.Run("SetsNginxAuthTLSSecretIfVisibilityParamIsApigee", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Visibility: api.VisibilityApigee,
@@ -2298,12 +2915,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, "protected/some-secret", templateData.NginxAuthTLSSecret)
 	})
 
 	t.Run("SetsVerifyDepthIfVisibilityParamIsApigee", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Visibility: api.VisibilityApigee,
@@ -2313,12 +2934,16 @@ func TestGenerateTemplateData(t *testing.T) {
 		}
 
 		// act
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, 5, templateData.NginxAuthTLSVerifyDepth)
 	})
 
 	t.Run("SetsApigeeHostsIfVisibilityParamIsApigee", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
 
 		params := api.Params{
 			Visibility: api.VisibilityApigee,
@@ -2327,7 +2952,7 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		// act
 		params.SetDefaults("github.com", "estafette", "estafette-extension-gke", "sample-app", "0.1.0", "test", "deploy", "", nil)
-		templateData := generateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
 		assert.Equal(t, []string{"google-apigee.com", "estafette-apigee.io", "test-app-apigee"}, templateData.ApigeeHosts)
 		assert.Equal(t, "google-apigee.com,estafette-apigee.io,test-app-apigee", templateData.ApigeeHostsJoined)

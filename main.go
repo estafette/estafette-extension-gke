@@ -13,6 +13,8 @@ import (
 	"github.com/estafette/estafette-extension-gke/clients/credentials"
 	"github.com/estafette/estafette-extension-gke/clients/gcp"
 	"github.com/estafette/estafette-extension-gke/clients/parameters"
+	"github.com/estafette/estafette-extension-gke/services/builder"
+	"github.com/estafette/estafette-extension-gke/services/generator"
 	foundation "github.com/estafette/estafette-foundation"
 	"github.com/rs/zerolog/log"
 )
@@ -86,24 +88,34 @@ func main() {
 		log.Fatal().Err(err).Msg("Failed creating gcp.Client")
 	}
 
+	builderService, err := builder.NewService(ctx)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed creating builder.Service")
+	}
+
+	generatorService, err := generator.NewService(ctx)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed creating generator.Service")
+	}
+
 	_, err = gcpClient.LoadGKEClusterKubeConfig(ctx, credential)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed creating kube config for gke cluster")
 	}
 
 	// combine templates
-	tmpl, err := buildTemplates(params, true)
+	tmpl, err := builderService.BuildTemplates(params, true)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed building templates")
 	}
 
-	tmplNoPDB, err := buildTemplates(params, false)
+	tmplNoPDB, err := builderService.BuildTemplates(params, false)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed building templates without poddisruptionbudget")
 	}
 
 	// pre-render config files if they exist
-	params.Configs.RenderedFileContent = renderConfig(params)
+	params.Configs.RenderedFileContent = builderService.RenderConfig(params)
 	if params.Kind == api.KindConfigToFile {
 		// write files to working directory
 		for filename, data := range params.Configs.RenderedFileContent {
@@ -120,14 +132,14 @@ func main() {
 	}
 
 	// generate the data required for rendering the templates
-	templateData := generateTemplateData(params, currentReplicas, *gitSource, *gitOwner, *gitName, *gitBranch, *gitRevision, *releaseID, *triggeredBy)
+	templateData := generatorService.GenerateTemplateData(params, currentReplicas, *gitSource, *gitOwner, *gitName, *gitBranch, *gitRevision, *releaseID, *triggeredBy)
 
 	// render the template
-	renderedTemplate, err := renderTemplate(tmpl, templateData, true)
+	renderedTemplate, err := builderService.RenderTemplate(tmpl, templateData, true)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed rendering templates")
 	}
-	renderedNoPDBTemplate, err := renderTemplate(tmplNoPDB, templateData, false)
+	renderedNoPDBTemplate, err := builderService.RenderTemplate(tmplNoPDB, templateData, false)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed rendering templates without poddisruptionbudget")
 	}
@@ -194,7 +206,7 @@ func main() {
 			assistTroubleshooting(ctx, templateData, err)
 		}
 
-		handleAtomicUpdate(ctx, params, templateData)
+		handleAtomicUpdate(ctx, builderService, params, templateData)
 
 		// clean up old stuff
 		switch params.Kind {
@@ -298,7 +310,7 @@ func main() {
 	}
 }
 
-func assistTroubleshooting(ctx context.Context, templateData TemplateData, err error) {
+func assistTroubleshooting(ctx context.Context, templateData api.TemplateData, err error) {
 	if assistTroubleshootingOnError {
 		log.Info().Msgf("Showing current ingresses, services, configmaps, secrets, deployments, jobs, cronjobs, poddisruptionbudgets, horizontalpodautoscalers, pods, endpoints for app=%v...", paramsForTroubleshooting.App)
 		err = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"get", "ing,svc,cm,secret,deploy,job,cronjob,sts,pdb,hpa,po,ep", "-l", fmt.Sprintf("app=%v", paramsForTroubleshooting.App), "-n", paramsForTroubleshooting.Namespace})
@@ -361,7 +373,7 @@ func deleteServiceAccountSecretForParamsChange(ctx context.Context, params api.P
 	}
 }
 
-func deleteIngressForVisibilityChange(ctx context.Context, templateData TemplateData, name, namespace string) {
+func deleteIngressForVisibilityChange(ctx context.Context, templateData api.TemplateData, name, namespace string) {
 	if !templateData.UseNginxIngress && !templateData.UseGCEIngress {
 		// public uses service of type loadbalancer and doesn't need ingress
 		log.Info().Msg("Deleting ingress if it exists, which is used for visibility private, iap or public-whitelist...")
@@ -369,7 +381,7 @@ func deleteIngressForVisibilityChange(ctx context.Context, templateData Template
 	}
 }
 
-func deleteBackendConfigAndIAPOauthSecret(ctx context.Context, templateData TemplateData, name, namespace string) {
+func deleteBackendConfigAndIAPOauthSecret(ctx context.Context, templateData api.TemplateData, name, namespace string) {
 	if !templateData.UseBackendConfigAnnotationOnService {
 		log.Info().Msg("Deleting iap oauth secret if it exists, because visibility is not set to iap...")
 		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "secret", fmt.Sprintf("%v--iap-oauth-credentials", name), "-n", namespace, "--ignore-not-found=true"})
@@ -407,7 +419,7 @@ func removePoddisruptionBudgetIfRequired(ctx context.Context, params api.Params,
 	}
 }
 
-func removeIngressIfRequired(ctx context.Context, params api.Params, templateData TemplateData, name, namespace string) {
+func removeIngressIfRequired(ctx context.Context, params api.Params, templateData api.TemplateData, name, namespace string) {
 	if params.Kind == api.KindDeployment && (params.Action == api.ActionDeploySimple || params.Action == api.ActionDeployCanary || params.Action == api.ActionDeployStable) {
 		if templateData.UseNginxIngress {
 			// check if ingress exists and has kubernetes.io/ingress.class: gce, then delete it because of https://github.com/kubernetes/ingress-gce/issues/481
@@ -450,7 +462,7 @@ func deployGoogleEndpointsServiceIfRequired(ctx context.Context, gcpClient gcp.C
 	}
 }
 
-func failIfCreatingNewPublicService(ctx context.Context, params api.Params, templateData TemplateData, name, namespace string) {
+func failIfCreatingNewPublicService(ctx context.Context, params api.Params, templateData api.TemplateData, name, namespace string) {
 	if params.Kind == api.KindDeployment && params.Visibility == api.VisibilityPublic {
 		serviceType, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "service", name, "-n", namespace, "-o=jsonpath={.spec.type}"})
 		// fail if creating new public service or updating to public
@@ -462,7 +474,7 @@ func failIfCreatingNewPublicService(ctx context.Context, params api.Params, temp
 	}
 }
 
-func patchServiceIfRequired(ctx context.Context, params api.Params, templateData TemplateData, name, namespace string) {
+func patchServiceIfRequired(ctx context.Context, params api.Params, templateData api.TemplateData, name, namespace string) {
 	if params.Kind == api.KindDeployment && templateData.ServiceType == "ClusterIP" {
 		serviceType, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "service", name, "-n", namespace, "-o=jsonpath={.spec.type}"})
 		if err != nil {
@@ -485,7 +497,7 @@ func patchServiceIfRequired(ctx context.Context, params api.Params, templateData
 	}
 }
 
-func cleanupJobIfRequired(ctx context.Context, params api.Params, templateData TemplateData, name, namespace string) {
+func cleanupJobIfRequired(ctx context.Context, params api.Params, templateData api.TemplateData, name, namespace string) {
 	if params.Kind == api.KindJob {
 		err := foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"delete", "job", name, "-n", namespace, "--ignore-not-found=true"})
 		if err != nil {
@@ -562,7 +574,7 @@ func patchDeploymentIfRequired(ctx context.Context, params api.Params, name, nam
 	}
 }
 
-func removeEstafetteCloudflareAnnotations(ctx context.Context, templateData TemplateData, name, namespace string) {
+func removeEstafetteCloudflareAnnotations(ctx context.Context, templateData api.TemplateData, name, namespace string) {
 	if !templateData.UseDNSAnnotationsOnService {
 		// ingress is used and has the estafette.io/cloudflare annotations, so they should be removed from the service
 		log.Info().Msg("Removing estafette.io/cloudflare annotations on the service if they exists, since they're now set on the ingress instead...")
@@ -573,7 +585,7 @@ func removeEstafetteCloudflareAnnotations(ctx context.Context, templateData Temp
 	}
 }
 
-func removeBackendConfigAnnotation(ctx context.Context, templateData TemplateData, name, namespace string) {
+func removeBackendConfigAnnotation(ctx context.Context, templateData api.TemplateData, name, namespace string) {
 	if !templateData.UseBackendConfigAnnotationOnService {
 		// iap is not used, so the beta.cloud.google.com/backend-config annotations should be removed from the service
 		log.Info().Msg("Removing beta.cloud.google.com/backend-config annotations on the service if they exists, since visibility is not set to iap...")
@@ -581,7 +593,7 @@ func removeBackendConfigAnnotation(ctx context.Context, templateData TemplateDat
 	}
 }
 
-func removeNegAnnotation(ctx context.Context, templateData TemplateData, name, namespace string) {
+func removeNegAnnotation(ctx context.Context, templateData api.TemplateData, name, namespace string) {
 	if !templateData.UseNegAnnotationOnService {
 		// cloud native load balancing is not used, so the beta.cloud.google.com/backend-config annotations should be removed from the service
 		log.Info().Msg("Removing cloud.google.com/neg annotations on the service if they exists, since visibility is not set to iap or containerNativeLoadBalancing is set to fals...")
@@ -596,19 +608,19 @@ func deleteHorizontalPodAutoscaler(ctx context.Context, params api.Params, name,
 	}
 }
 
-func handleAtomicUpdate(ctx context.Context, params api.Params, templateData TemplateData) {
+func handleAtomicUpdate(ctx context.Context, builderService builder.Service, params api.Params, templateData api.TemplateData) {
 	if params.StrategyType != api.StrategyTypeAtomicUpdate {
 		return
 	}
 
 	// update service in order to point to new deployment
 	log.Info().Msgf("Updating service selector to use the latest atomic id...")
-	atomicServiceTmpl, err := getAtomicUpdateServiceTemplate()
+	atomicServiceTmpl, err := builderService.GetAtomicUpdateServiceTemplate()
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed building service template")
 	}
 
-	renderedTemplate, err := renderTemplate(atomicServiceTmpl, templateData, true)
+	renderedTemplate, err := builderService.RenderTemplate(atomicServiceTmpl, templateData, true)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed rendering templates")
 	}

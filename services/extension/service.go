@@ -17,9 +17,34 @@ type service struct {
 }
 
 func (s *service) DryRun(ctx context.Context) (err error) {
+
+	err = s.prepare(ctx)
+	if err != nil {
+		return
+	}
+
 	return nil
 }
 
 func (s *service) Run(ctx context.Context) (err error) {
+
+	err = s.prepare(ctx)
+	if err != nil {
+		return
+	}
+
+	err = s.apply(ctx)
+	if err != nil {
+		return
+	}
+
+	return nil
+}
+
+func (s *service) prepare(ctx context.Context) (err error) {
+	return nil
+}
+
+func (s *service) apply(ctx context.Context) (err error) {
 	return nil
 }

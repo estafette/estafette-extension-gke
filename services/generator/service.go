@@ -1,7 +1,8 @@
-package main
+package generator
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"fmt"
 	"strconv"
@@ -12,9 +13,27 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-func generateTemplateData(params api.Params, currentReplicas int, gitSource, gitOwner, gitName, gitBranch, gitRevision, releaseID, triggeredBy string) TemplateData {
+//go:generate mockgen -package=generator -destination ./mock.go -source=service.go
+type Service interface {
+	GenerateTemplateData(params api.Params, currentReplicas int, gitSource, gitOwner, gitName, gitBranch, gitRevision, releaseID, triggeredBy string) api.TemplateData
+	BuildSidecar(sidecar *api.SidecarParams, params api.Params) api.SidecarData
+	AddEnvironmentVariableIfNotSet(environmentVariables map[string]interface{}, name, value string) map[string]interface{}
+	IsSimpleEnvvarValue(i interface{}) bool
+	ToYAML(v interface{}) string
+	RenderToYAML(v interface{}, data interface{}) string
+}
 
-	data := TemplateData{
+// NewService returns a new extension.Service
+func NewService(ctx context.Context) (Service, error) {
+	return &service{}, nil
+}
+
+type service struct {
+}
+
+func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, gitSource, gitOwner, gitName, gitBranch, gitRevision, releaseID, triggeredBy string) api.TemplateData {
+
+	data := api.TemplateData{
 		Name:                    params.App,
 		NameWithTrack:           params.App,
 		Namespace:               params.Namespace,
@@ -76,7 +95,7 @@ func generateTemplateData(params api.Params, currentReplicas int, gitSource, git
 		StorageSize:         params.StorageSize,
 		StorageMountPath:    params.StorageMountPath,
 
-		Container: ContainerData{
+		Container: api.ContainerData{
 			Repository: params.Container.ImageRepository,
 			Name:       params.Container.ImageName,
 			Tag:        params.Container.ImageTag,
@@ -89,7 +108,7 @@ func generateTemplateData(params api.Params, currentReplicas int, gitSource, git
 
 			EnvironmentVariables: params.Container.EnvironmentVariables,
 
-			Liveness: ProbeData{
+			Liveness: api.ProbeData{
 				Path:                params.Container.LivenessProbe.Path,
 				Port:                params.Container.LivenessProbe.Port,
 				InitialDelaySeconds: params.Container.LivenessProbe.InitialDelaySeconds,
@@ -99,7 +118,7 @@ func generateTemplateData(params api.Params, currentReplicas int, gitSource, git
 				SuccessThreshold:    params.Container.LivenessProbe.SuccessThreshold,
 				IncludeOnContainer:  params.Container.LivenessProbe.Enabled != nil && *params.Container.LivenessProbe.Enabled,
 			},
-			Readiness: ProbeData{
+			Readiness: api.ProbeData{
 				Path:                params.Container.ReadinessProbe.Path,
 				Port:                params.Container.ReadinessProbe.Port,
 				InitialDelaySeconds: params.Container.ReadinessProbe.InitialDelaySeconds,
@@ -108,16 +127,16 @@ func generateTemplateData(params api.Params, currentReplicas int, gitSource, git
 				FailureThreshold:    params.Container.ReadinessProbe.FailureThreshold,
 				SuccessThreshold:    params.Container.ReadinessProbe.SuccessThreshold,
 			},
-			Metrics: MetricsData{
+			Metrics: api.MetricsData{
 				Path: params.Container.Metrics.Path,
 				Port: params.Container.Metrics.Port,
 			},
 		},
 
 		// IsSimpleEnvvarValue returns true if a value should be wrapped in 'value: ""', otherwise the interface should be outputted as yaml
-		IsSimpleEnvvarValue: isSimpleEnvvarValue,
-		ToYAML:              toYAML,
-		RenderToYAML:        renderToYAML,
+		IsSimpleEnvvarValue: s.IsSimpleEnvvarValue,
+		ToYAML:              s.ToYAML,
+		RenderToYAML:        s.RenderToYAML,
 	}
 
 	if params.BackoffLimit != nil {
@@ -129,7 +148,7 @@ func generateTemplateData(params api.Params, currentReplicas int, gitSource, git
 	}
 
 	if data.MountServiceAccountSecret {
-		data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "GOOGLE_APPLICATION_CREDENTIALS", "/gcp-service-account/service-account-key.json")
+		data.Container.EnvironmentVariables = s.AddEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "GOOGLE_APPLICATION_CREDENTIALS", "/gcp-service-account/service-account-key.json")
 		if data.GoogleCloudCredentialsAppName != "" {
 			data.GoogleCloudCredentialsLabels["app"] = data.GoogleCloudCredentialsAppName
 		}
@@ -143,20 +162,20 @@ func generateTemplateData(params api.Params, currentReplicas int, gitSource, git
 	}
 
 	// set tracing service name
-	data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_SERVICE_NAME", params.App)
+	data.Container.EnvironmentVariables = s.AddEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_SERVICE_NAME", params.App)
 
 	if params.Action == api.ActionDeployCanary || params.Action == api.ActionDiffCanary {
-		data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_SAMPLER_TYPE", "probabilistic")
-		data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_SAMPLER_PARAM", "0.1")
-		data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_TAGS", "track=canary")
+		data.Container.EnvironmentVariables = s.AddEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_SAMPLER_TYPE", "probabilistic")
+		data.Container.EnvironmentVariables = s.AddEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_SAMPLER_PARAM", "0.1")
+		data.Container.EnvironmentVariables = s.AddEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_TAGS", "track=canary")
 	} else {
-		data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_SAMPLER_TYPE", "remote")
-		data.Container.EnvironmentVariables = addEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_SAMPLER_PARAM", "0.001")
+		data.Container.EnvironmentVariables = s.AddEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_SAMPLER_TYPE", "remote")
+		data.Container.EnvironmentVariables = s.AddEnvironmentVariableIfNotSet(data.Container.EnvironmentVariables, "JAEGER_SAMPLER_PARAM", "0.001")
 	}
 
 	data.HasOpenrestySidecar = false
 	for _, sidecarParams := range params.Sidecars {
-		sidecar := buildSidecar(sidecarParams, params)
+		sidecar := s.BuildSidecar(sidecarParams, params)
 		data.Sidecars = append(data.Sidecars, sidecar)
 		if sidecar.Type == string(api.SidecarTypeOpenresty) {
 			data.HasOpenrestySidecar = true
@@ -419,11 +438,11 @@ func generateTemplateData(params api.Params, currentReplicas int, gitSource, git
 
 	data.TrustedIPRanges = params.TrustedIPRanges
 
-	data.AdditionalVolumeMounts = []VolumeMountData{}
+	data.AdditionalVolumeMounts = []api.VolumeMountData{}
 	for _, vm := range params.VolumeMounts {
 		yamlBytes, err := yaml.Marshal(vm.Volume)
 		if err == nil {
-			data.AdditionalVolumeMounts = append(data.AdditionalVolumeMounts, VolumeMountData{
+			data.AdditionalVolumeMounts = append(data.AdditionalVolumeMounts, api.VolumeMountData{
 				Name:       vm.Name,
 				MountPath:  vm.MountPath,
 				VolumeYAML: string(yamlBytes),
@@ -432,10 +451,10 @@ func generateTemplateData(params api.Params, currentReplicas int, gitSource, git
 	}
 	data.MountAdditionalVolumes = len(data.AdditionalVolumeMounts) > 0
 
-	data.AdditionalContainerPorts = []AdditionalPortData{}
-	data.AdditionalServicePorts = []AdditionalPortData{}
+	data.AdditionalContainerPorts = []api.AdditionalPortData{}
+	data.AdditionalServicePorts = []api.AdditionalPortData{}
 	for _, ap := range params.Container.AdditionalPorts {
-		additionalPortData := AdditionalPortData{
+		additionalPortData := api.AdditionalPortData{
 			Name:     ap.Name,
 			Port:     ap.Port,
 			Protocol: ap.Protocol,
@@ -473,8 +492,8 @@ func generateTemplateData(params api.Params, currentReplicas int, gitSource, git
 	return data
 }
 
-func buildSidecar(sidecar *api.SidecarParams, params api.Params) SidecarData {
-	builtSidecar := SidecarData{
+func (s *service) BuildSidecar(sidecar *api.SidecarParams, params api.Params) api.SidecarData {
+	builtSidecar := api.SidecarData{
 		Type:                    string(sidecar.Type),
 		Image:                   sidecar.Image,
 		CPURequest:              sidecar.CPU.Request,
@@ -492,24 +511,24 @@ func buildSidecar(sidecar *api.SidecarParams, params api.Params) SidecarData {
 	}
 
 	if sidecar.Type == api.SidecarTypeOpenresty {
-		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "SEND_TIMEOUT", params.Request.Timeout)
-		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "CLIENT_BODY_TIMEOUT", params.Request.Timeout)
-		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "CLIENT_HEADER_TIMEOUT", params.Request.Timeout)
-		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "PROXY_CONNECT_TIMEOUT", params.Request.Timeout)
-		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "PROXY_SEND_TIMEOUT", params.Request.Timeout)
-		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "PROXY_READ_TIMEOUT", params.Request.Timeout)
-		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "CLIENT_MAX_BODY_SIZE", params.Request.MaxBodySize)
-		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "CLIENT_BODY_BUFFER_SIZE", params.Request.ClientBodyBufferSize)
-		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "PROXY_BUFFER_SIZE", params.Request.ProxyBufferSize)
-		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "PROXY_BUFFERS_SIZE", params.Request.ProxyBufferSize)
-		builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "PROXY_BUFFERS_NUMBER", strconv.Itoa(params.Request.ProxyBuffersNumber))
+		builtSidecar.EnvironmentVariables = s.AddEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "SEND_TIMEOUT", params.Request.Timeout)
+		builtSidecar.EnvironmentVariables = s.AddEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "CLIENT_BODY_TIMEOUT", params.Request.Timeout)
+		builtSidecar.EnvironmentVariables = s.AddEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "CLIENT_HEADER_TIMEOUT", params.Request.Timeout)
+		builtSidecar.EnvironmentVariables = s.AddEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "PROXY_CONNECT_TIMEOUT", params.Request.Timeout)
+		builtSidecar.EnvironmentVariables = s.AddEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "PROXY_SEND_TIMEOUT", params.Request.Timeout)
+		builtSidecar.EnvironmentVariables = s.AddEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "PROXY_READ_TIMEOUT", params.Request.Timeout)
+		builtSidecar.EnvironmentVariables = s.AddEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "CLIENT_MAX_BODY_SIZE", params.Request.MaxBodySize)
+		builtSidecar.EnvironmentVariables = s.AddEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "CLIENT_BODY_BUFFER_SIZE", params.Request.ClientBodyBufferSize)
+		builtSidecar.EnvironmentVariables = s.AddEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "PROXY_BUFFER_SIZE", params.Request.ProxyBufferSize)
+		builtSidecar.EnvironmentVariables = s.AddEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "PROXY_BUFFERS_SIZE", params.Request.ProxyBufferSize)
+		builtSidecar.EnvironmentVariables = s.AddEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "PROXY_BUFFERS_NUMBER", strconv.Itoa(params.Request.ProxyBuffersNumber))
 
 		if params.Container.Lifecycle.PrestopSleep != nil && *params.Container.Lifecycle.PrestopSleep && params.Container.Lifecycle.PrestopSleepSeconds != nil {
-			builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "GRACEFUL_SHUTDOWN_DELAY_SECONDS", strconv.Itoa(*params.Container.Lifecycle.PrestopSleepSeconds))
+			builtSidecar.EnvironmentVariables = s.AddEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "GRACEFUL_SHUTDOWN_DELAY_SECONDS", strconv.Itoa(*params.Container.Lifecycle.PrestopSleepSeconds))
 		}
 
 		if params.Visibility == api.VisibilityESP {
-			builtSidecar.EnvironmentVariables = addEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "ENFORCE_HTTPS", "false")
+			builtSidecar.EnvironmentVariables = s.AddEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "ENFORCE_HTTPS", "false")
 		}
 	}
 
@@ -524,7 +543,7 @@ func buildSidecar(sidecar *api.SidecarParams, params api.Params) SidecarData {
 	return builtSidecar
 }
 
-func addEnvironmentVariableIfNotSet(environmentVariables map[string]interface{}, name, value string) map[string]interface{} {
+func (s *service) AddEnvironmentVariableIfNotSet(environmentVariables map[string]interface{}, name, value string) map[string]interface{} {
 
 	if environmentVariables == nil {
 		environmentVariables = map[string]interface{}{}
@@ -536,7 +555,7 @@ func addEnvironmentVariableIfNotSet(environmentVariables map[string]interface{},
 	return environmentVariables
 }
 
-func isSimpleEnvvarValue(i interface{}) bool {
+func (s *service) IsSimpleEnvvarValue(i interface{}) bool {
 	switch i.(type) {
 	case int:
 		return true
@@ -551,7 +570,7 @@ func isSimpleEnvvarValue(i interface{}) bool {
 	return false
 }
 
-func toYAML(v interface{}) string {
+func (s *service) ToYAML(v interface{}) string {
 	data, err := yaml.Marshal(v)
 	if err != nil {
 		// Swallow errors inside of a template.
@@ -560,9 +579,9 @@ func toYAML(v interface{}) string {
 	return string(data)
 }
 
-func renderToYAML(v interface{}, data interface{}) string {
+func (s *service) RenderToYAML(v interface{}, data interface{}) string {
 
-	value := toYAML(v)
+	value := s.ToYAML(v)
 
 	tmpl, err := template.New("renderToYAML").Parse(value)
 	if err != nil {

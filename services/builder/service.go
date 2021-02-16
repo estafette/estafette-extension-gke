@@ -1,7 +1,8 @@
-package main
+package builder
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
@@ -13,10 +14,27 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func buildTemplates(params api.Params, includePodDisruptionBudget bool) (*template.Template, error) {
+//go:generate mockgen -package=builder -destination ./mock.go -source=service.go
+type Service interface {
+	BuildTemplates(params api.Params, includePodDisruptionBudget bool) (*template.Template, error)
+	GetTemplates(params api.Params, includePodDisruptionBudget bool) []string
+	GetAtomicUpdateServiceTemplate() (*template.Template, error)
+	RenderConfig(params api.Params) (renderedConfigFiles map[string]string)
+	RenderTemplate(tmpl *template.Template, templateData api.TemplateData, logTemplate bool) (bytes.Buffer, error)
+}
+
+// NewService returns a new extension.Service
+func NewService(ctx context.Context) (Service, error) {
+	return &service{}, nil
+}
+
+type service struct {
+}
+
+func (s *service) BuildTemplates(params api.Params, includePodDisruptionBudget bool) (*template.Template, error) {
 
 	// merge templates
-	templatesToMerge := getTemplates(params, includePodDisruptionBudget)
+	templatesToMerge := s.GetTemplates(params, includePodDisruptionBudget)
 
 	if len(templatesToMerge) == 0 {
 		return nil, nil
@@ -39,7 +57,7 @@ func buildTemplates(params api.Params, includePodDisruptionBudget bool) (*templa
 	return template.New("kubernetes.yaml").Funcs(sprig.TxtFuncMap()).Parse(templateString)
 }
 
-func getTemplates(params api.Params, includePodDisruptionBudget bool) []string {
+func (s *service) GetTemplates(params api.Params, includePodDisruptionBudget bool) []string {
 
 	if params.Action == api.ActionRollbackCanary || params.Action == api.ActionUnknown || params.Action == api.ActionRestartCanary || params.Action == api.ActionRestartStable || params.Action == api.ActionRestartSimple {
 		return []string{}
@@ -166,13 +184,13 @@ func getTemplates(params api.Params, includePodDisruptionBudget bool) []string {
 	return templatesToMerge
 }
 
-func getAtomicUpdateServiceTemplate() (*template.Template, error) {
+func (s *service) GetAtomicUpdateServiceTemplate() (*template.Template, error) {
 
 	// parse service template
 	return template.New("service.yaml").Funcs(sprig.TxtFuncMap()).ParseFiles("/templates/service.yaml")
 }
 
-func renderConfig(params api.Params) (renderedConfigFiles map[string]string) {
+func (s *service) RenderConfig(params api.Params) (renderedConfigFiles map[string]string) {
 
 	renderedConfigFiles = map[string]string{}
 
@@ -219,7 +237,7 @@ func renderConfig(params api.Params) (renderedConfigFiles map[string]string) {
 	return
 }
 
-func renderTemplate(tmpl *template.Template, templateData TemplateData, logTemplate bool) (bytes.Buffer, error) {
+func (s *service) RenderTemplate(tmpl *template.Template, templateData api.TemplateData, logTemplate bool) (bytes.Buffer, error) {
 
 	if tmpl == nil {
 		return bytes.Buffer{}, nil
