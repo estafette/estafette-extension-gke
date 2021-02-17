@@ -1,4 +1,4 @@
-package main
+package api
 
 // GKECredentials represents the credentials of type kubernetes-engine as defined in the server config and passed to this trusted image
 type GKECredentials struct {
@@ -17,14 +17,10 @@ type GKECredentialAdditionalProperties struct {
 	Defaults              *Params `json:"defaults,omitempty"`
 }
 
-// GetCredentialsByName returns a credential if the name exists
-func GetCredentialsByName(c []GKECredentials, credentialName string) *GKECredentials {
-
-	for _, cred := range c {
-		if cred.Name == credentialName {
-			return &cred
-		}
+func (c *GKECredentials) GetLocation() string {
+	if c.AdditionalProperties.Region != "" {
+		return c.AdditionalProperties.Region
 	}
 
-	return nil
+	return c.AdditionalProperties.Zone
 }

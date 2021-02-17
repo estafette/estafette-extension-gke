@@ -1,7 +1,8 @@
-package main
+package builder
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
@@ -9,13 +10,31 @@ import (
 	"text/template"
 
 	"github.com/Masterminds/sprig/v3"
+	"github.com/estafette/estafette-extension-gke/api"
 	"github.com/rs/zerolog/log"
 )
 
-func buildTemplates(params Params, includePodDisruptionBudget bool) (*template.Template, error) {
+//go:generate mockgen -package=builder -destination ./mock.go -source=service.go
+type Service interface {
+	BuildTemplates(params api.Params, includePodDisruptionBudget bool) (*template.Template, error)
+	GetTemplates(params api.Params, includePodDisruptionBudget bool) []string
+	GetAtomicUpdateServiceTemplate() (*template.Template, error)
+	RenderConfig(params api.Params) (renderedConfigFiles map[string]string)
+	RenderTemplate(tmpl *template.Template, templateData api.TemplateData, logTemplate bool) (bytes.Buffer, error)
+}
+
+// NewService returns a new extension.Service
+func NewService(ctx context.Context) (Service, error) {
+	return &service{}, nil
+}
+
+type service struct {
+}
+
+func (s *service) BuildTemplates(params api.Params, includePodDisruptionBudget bool) (*template.Template, error) {
 
 	// merge templates
-	templatesToMerge := getTemplates(params, includePodDisruptionBudget)
+	templatesToMerge := s.GetTemplates(params, includePodDisruptionBudget)
 
 	if len(templatesToMerge) == 0 {
 		return nil, nil
@@ -38,34 +57,34 @@ func buildTemplates(params Params, includePodDisruptionBudget bool) (*template.T
 	return template.New("kubernetes.yaml").Funcs(sprig.TxtFuncMap()).Parse(templateString)
 }
 
-func getTemplates(params Params, includePodDisruptionBudget bool) []string {
+func (s *service) GetTemplates(params api.Params, includePodDisruptionBudget bool) []string {
 
-	if params.Action == ActionRollbackCanary || params.Action == ActionUnknown || params.Action == ActionRestartCanary || params.Action == ActionRestartStable || params.Action == ActionRestartSimple {
+	if params.Action == api.ActionRollbackCanary || params.Action == api.ActionUnknown || params.Action == api.ActionRestartCanary || params.Action == api.ActionRestartStable || params.Action == api.ActionRestartSimple {
 		return []string{}
 	}
 
 	templatesToMerge := []string{}
 
 	switch params.Kind {
-	case KindConfig:
+	case api.KindConfig:
 		templatesToMerge = append(templatesToMerge, []string{
 			"namespace.yaml",
 		}...)
-	case KindJob:
+	case api.KindJob:
 		templatesToMerge = append(templatesToMerge, []string{
 			"namespace.yaml",
 			"serviceaccount.yaml",
 			"job.yaml",
 		}...)
 
-	case KindCronJob:
+	case api.KindCronJob:
 		templatesToMerge = append(templatesToMerge, []string{
 			"namespace.yaml",
 			"serviceaccount.yaml",
 			"cronjob.yaml",
 		}...)
 
-	case KindStatefulset:
+	case api.KindStatefulset:
 		templatesToMerge = append(templatesToMerge, []string{
 			"namespace.yaml",
 			"service.yaml",
@@ -77,14 +96,14 @@ func getTemplates(params Params, includePodDisruptionBudget bool) []string {
 			templatesToMerge = append(templatesToMerge, "certificate-secret.yaml")
 		}
 
-	case KindDeployment:
+	case api.KindDeployment:
 		templatesToMerge = append(templatesToMerge, []string{
 			"namespace.yaml",
 			"serviceaccount.yaml",
 			"deployment.yaml",
 		}...)
 
-		if params.StrategyType != StrategyTypeAtomicUpdate {
+		if params.StrategyType != api.StrategyTypeAtomicUpdate {
 			templatesToMerge = append(templatesToMerge, "service.yaml")
 		}
 
@@ -92,7 +111,7 @@ func getTemplates(params Params, includePodDisruptionBudget bool) []string {
 			templatesToMerge = append(templatesToMerge, "certificate-secret.yaml")
 		}
 
-	case KindHeadlessDeployment:
+	case api.KindHeadlessDeployment:
 		templatesToMerge = append(templatesToMerge, []string{
 			"namespace.yaml",
 			"serviceaccount.yaml",
@@ -102,31 +121,31 @@ func getTemplates(params Params, includePodDisruptionBudget bool) []string {
 
 	hasImagePullSecret := params.ImagePullSecretUser != "" && params.ImagePullSecretPassword != ""
 
-	if hasImagePullSecret && params.Kind != KindConfig && params.Kind != KindConfigToFile {
+	if hasImagePullSecret && params.Kind != api.KindConfig && params.Kind != api.KindConfigToFile {
 		templatesToMerge = append(templatesToMerge, []string{
 			"image-pull-secret.yaml",
 		}...)
 	}
 
-	if includePodDisruptionBudget && (params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment || params.Kind == KindStatefulset) && (params.Action == ActionDeploySimple || params.Action == ActionDeployStable || params.Action == ActionDiffSimple || params.Action == ActionDiffCanary || params.Action == ActionDiffStable) {
+	if includePodDisruptionBudget && (params.Kind == api.KindDeployment || params.Kind == api.KindHeadlessDeployment || params.Kind == api.KindStatefulset) && (params.Action == api.ActionDeploySimple || params.Action == api.ActionDeployStable || params.Action == api.ActionDiffSimple || params.Action == api.ActionDiffCanary || params.Action == api.ActionDiffStable) {
 		templatesToMerge = append(templatesToMerge, "poddisruptionbudget.yaml")
 	}
-	if (params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment) && params.Autoscale.Enabled != nil && *params.Autoscale.Enabled && params.StrategyType != "Recreate" && (params.Action == ActionDeploySimple || params.Action == ActionDeployStable || params.Action == ActionDiffSimple || params.Action == ActionDiffCanary || params.Action == ActionDiffStable) {
+	if (params.Kind == api.KindDeployment || params.Kind == api.KindHeadlessDeployment) && params.Autoscale.Enabled != nil && *params.Autoscale.Enabled && params.StrategyType != "Recreate" && (params.Action == api.ActionDeploySimple || params.Action == api.ActionDeployStable || params.Action == api.ActionDiffSimple || params.Action == api.ActionDiffCanary || params.Action == api.ActionDiffStable) {
 		templatesToMerge = append(templatesToMerge, "horizontalpodautoscaler.yaml")
 	}
-	if (params.Kind == KindDeployment || params.Kind == KindStatefulset) && (params.Visibility == VisibilityPrivate || params.Visibility == VisibilityIAP || params.Visibility == VisibilityPublicWhitelist) {
+	if (params.Kind == api.KindDeployment || params.Kind == api.KindStatefulset) && (params.Visibility == api.VisibilityPrivate || params.Visibility == api.VisibilityIAP || params.Visibility == api.VisibilityPublicWhitelist) {
 		templatesToMerge = append(templatesToMerge, "ingress.yaml")
 	}
 
-	if params.Kind == KindDeployment && params.Visibility == VisibilityApigee {
+	if params.Kind == api.KindDeployment && params.Visibility == api.VisibilityApigee {
 		templatesToMerge = append(templatesToMerge, "ingress-apigee.yaml")
 		templatesToMerge = append(templatesToMerge, "ingress.yaml")
 	}
 
-	if (params.Kind == KindDeployment || params.Kind == KindStatefulset) && params.Visibility == VisibilityIAP {
+	if (params.Kind == api.KindDeployment || params.Kind == api.KindStatefulset) && params.Visibility == api.VisibilityIAP {
 		templatesToMerge = append(templatesToMerge, "backend-config.yaml", "iap-oauth-credentials-secret.yaml")
 	}
-	if (params.Kind == KindDeployment || params.Kind == KindStatefulset) && len(params.InternalHosts) > 0 {
+	if (params.Kind == api.KindDeployment || params.Kind == api.KindStatefulset) && len(params.InternalHosts) > 0 {
 		templatesToMerge = append(templatesToMerge, "ingress-internal.yaml")
 	}
 	if len(params.Secrets.Keys) > 0 {
@@ -165,17 +184,17 @@ func getTemplates(params Params, includePodDisruptionBudget bool) []string {
 	return templatesToMerge
 }
 
-func getAtomicUpdateServiceTemplate() (*template.Template, error) {
+func (s *service) GetAtomicUpdateServiceTemplate() (*template.Template, error) {
 
 	// parse service template
 	return template.New("service.yaml").Funcs(sprig.TxtFuncMap()).ParseFiles("/templates/service.yaml")
 }
 
-func renderConfig(params Params) (renderedConfigFiles map[string]string) {
+func (s *service) RenderConfig(params api.Params) (renderedConfigFiles map[string]string) {
 
 	renderedConfigFiles = map[string]string{}
 
-	if params.Action != ActionRollbackCanary && (len(params.Configs.Files) > 0 || len(params.Configs.InlineFiles) > 0) {
+	if params.Action != api.ActionRollbackCanary && (len(params.Configs.Files) > 0 || len(params.Configs.InlineFiles) > 0) {
 		log.Info().Msg("Prerendering config files...")
 
 		// render files passed with configs.files property, replacing placeholders with values specified in configs.data property
@@ -218,7 +237,7 @@ func renderConfig(params Params) (renderedConfigFiles map[string]string) {
 	return
 }
 
-func renderTemplate(tmpl *template.Template, templateData TemplateData, logTemplate bool) (bytes.Buffer, error) {
+func (s *service) RenderTemplate(tmpl *template.Template, templateData api.TemplateData, logTemplate bool) (bytes.Buffer, error) {
 
 	if tmpl == nil {
 		return bytes.Buffer{}, nil

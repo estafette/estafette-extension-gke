@@ -1,4 +1,4 @@
-package main
+package api
 
 // TemplateData contains the root data for rendering the Kubernetes manifests
 type TemplateData struct {

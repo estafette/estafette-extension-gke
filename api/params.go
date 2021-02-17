@@ -1,9 +1,10 @@
-package main
+package api
 
 import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"os"
 	"regexp"
 	"strings"
 
@@ -300,8 +301,8 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 		pipeline := fmt.Sprintf("%v/%v/%v", gitSource, gitOwner, gitName)
 		pipelineBase64 := base64.StdEncoding.EncodeToString([]byte(pipeline))
 
-		p.Labels["estafette.io/pipeline"] = sanitizeLabel(pipeline)
-		p.Labels["estafette.io/pipeline-base64"] = sanitizeLabel(pipelineBase64)
+		p.Labels["estafette.io/pipeline"] = SanitizeLabel(pipeline)
+		p.Labels["estafette.io/pipeline-base64"] = SanitizeLabel(pipelineBase64)
 	}
 
 	// default visibility to private if no override in stage params
@@ -948,12 +949,17 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 
 	// openresty sidecar cannot be added in combination with port 443
 	if hasOpenrestySidecar && p.Container.Port == 443 {
-		errors = append(errors, fmt.Errorf("Container port can't be 443 if an openresty sidecar is injected."))
+		errors = append(errors, fmt.Errorf("Container port can't be 443 if an openresty sidecar is injected"))
 	}
 
 	// validate load balance algorithm
 	if p.Request.LoadBalanceAlgorithm != "" && p.Request.LoadBalanceAlgorithm != "ewma" && p.Request.LoadBalanceAlgorithm != "round_robin" {
 		errors = append(errors, fmt.Errorf("Load balance algorithm is invalid; leave it empty or set request.loadbalance property on this stage to 'ewma' or 'round_robin'"))
+	}
+
+	// check for visibility esp if openapi.yaml exists
+	if _, err := os.Stat(p.EspOpenAPIYamlPath); p.Visibility == VisibilityESP && os.IsNotExist(err) {
+		errors = append(errors, fmt.Errorf("When using visibility: esp make sure to set clone: true and have openapi.yaml available in the working directory"))
 	}
 
 	return len(errors) == 0, errors, warnings

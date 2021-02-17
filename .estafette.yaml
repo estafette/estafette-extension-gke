@@ -13,7 +13,7 @@ version:
 
 stages:
   build:
-    image: golang:1.15.3-alpine3.12
+    image: golang:1.15.8-alpine3.13
     env:
       CGO_ENABLED: 0
       GOOS: linux
@@ -26,23 +26,34 @@ stages:
     image: extensions/docker:dev
     action: build
     inline: |
-      FROM google/cloud-sdk:321.0.0-alpine
+      FROM alpine:3.13
+
+      ENV KUBECTL_VERSION="v1.20.2"
+
+      RUN apk update \
+          && apk add curl \
+          && rm /var/cache/apk/*
+
+      RUN curl -L "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" --output /usr/bin/kubectl \
+          && curl -LO "https://dl.k8s.io/${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256" \
+          && echo "$(cat kubectl.sha256)  /usr/bin/kubectl" | sha256sum -c - \
+          && chmod +x /usr/bin/kubectl \
+          && kubectl version --client
+
+      FROM alpine:3.13
 
       LABEL maintainer="estafette.io" \
             description="The ${ESTAFETTE_GIT_NAME} component is an Estafette extension to deploy applications to a Kubernetes Engine cluster"
 
-      RUN apk update \
-          && apk add --upgrade gnupg \
-          && rm /var/cache/apk/*
-
-      RUN curl https://storage.googleapis.com/kubernetes-release/release/v1.19.0/bin/linux/amd64/kubectl --output /google-cloud-sdk/bin/kubectl \
-          && chmod +x /google-cloud-sdk/bin/kubectl \
-          && kubectl version --client
-
+      COPY --from=0 /usr/bin/kubectl /usr/bin/kubectl
       COPY ${ESTAFETTE_GIT_NAME} /
       COPY templates /templates
 
-      ENV ESTAFETTE_LOG_FORMAT="console"
+      RUN mkdir -p ~/.kube
+
+      ENV ESTAFETTE_LOG_FORMAT="console" \
+          GOOGLE_APPLICATION_CREDENTIALS="/key-file.json" \
+          KUBECONFIG="/root/.kube/config"
 
       ENTRYPOINT ["/${ESTAFETTE_GIT_NAME}"]
     container: gke
@@ -51,6 +62,7 @@ stages:
     path: ./publish
     copy:
     - templates
+    - /etc/ssl/certs/ca-certificates.crt
 
   check-container:
     parallelStages:
@@ -65,6 +77,7 @@ stages:
         image: extensions/docker:dev
         action: trivy
         container: gke
+        severity: low
         repositories:
         - extensions
 
