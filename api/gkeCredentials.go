@@ -18,9 +18,9 @@ type GKECredentialAdditionalProperties struct {
 }
 
 func (c *GKECredentials) GetLocation() string {
-	if c.AdditionalProperties.Region != "" {
-		return c.AdditionalProperties.Region
+	if c.AdditionalProperties.Zone != "" {
+		return c.AdditionalProperties.Zone
 	}
 
-	return c.AdditionalProperties.Zone
+	return c.AdditionalProperties.Region
 }
