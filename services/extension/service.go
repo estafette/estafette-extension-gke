@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/estafette/estafette-extension-gke/api"
@@ -431,17 +432,26 @@ func (s *service) failIfCreatingNewPublicService(ctx context.Context, params api
 
 func (s *service) patchServiceIfRequired(ctx context.Context, params api.Params, templateData api.TemplateData, name, namespace string) {
 	if params.Kind == api.KindDeployment && templateData.ServiceType == "ClusterIP" {
-		serviceType, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "service", name, "-n", namespace, "-o=jsonpath={.spec.type}"})
+		output, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "service", name, "-n", namespace, "-o=jsonpath={.spec.type} {.spec.ports[*].nodePort}"})
 		if err != nil {
-			log.Info().Msgf("Failed retrieving service type: %v", err)
+			log.Info().Msgf("Failed retrieving service details: %v", err)
 		}
+		outputFields := strings.Fields(output)
+		serviceType := outputFields[0]
 		if err == nil && (serviceType == "NodePort" || serviceType == "LoadBalancer") {
 			log.Info().Msgf("Service is of type %v, patching it...", serviceType)
 
 			// brute force patch the service
-			err = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"patch", "service", name, "-n", namespace, "--type", "json", "--patch", "[{\"op\": \"remove\", \"path\": \"/spec/loadBalancerSourceRanges\"},{\"op\": \"remove\", \"path\": \"/spec/externalTrafficPolicy\"}, {\"op\": \"remove\", \"path\": \"/spec/ports/0/nodePort\"}, {\"op\": \"remove\", \"path\": \"/spec/ports/1/nodePort\"}, {\"op\": \"replace\", \"path\": \"/spec/type\", \"value\": \"ClusterIP\"}]"})
+			nodePortRemovePatchStr := ""
+			for i := 0; i < len(outputFields)-1; i++ {
+				nodePortRemovePatchStr += fmt.Sprintf("{\"op\": \"remove\", \"path\": \"/spec/ports/%d/nodePort\"}, ", i)
+			}
+
+			patchStr := "[{\"op\": \"remove\", \"path\": \"/spec/loadBalancerSourceRanges\"},{\"op\": \"remove\", \"path\": \"/spec/externalTrafficPolicy\"}, " + nodePortRemovePatchStr + "{\"op\": \"replace\", \"path\": \"/spec/type\", \"value\": \"ClusterIP\"}]"
+			err = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"patch", "service", name, "-n", namespace, "--type", "json", "--patch", patchStr})
 			if err != nil {
-				err = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"patch", "service", name, "-n", namespace, "--type", "json", "--patch", "[{\"op\": \"remove\", \"path\": \"/spec/externalTrafficPolicy\"}, {\"op\": \"remove\", \"path\": \"/spec/ports/0/nodePort\"}, {\"op\": \"remove\", \"path\": \"/spec/ports/1/nodePort\"}, {\"op\": \"replace\", \"path\": \"/spec/type\", \"value\": \"ClusterIP\"}]"})
+				patchStr := "[{\"op\": \"remove\", \"path\": \"/spec/externalTrafficPolicy\"}, {\"op\": \"remove\", \"path\": \"/spec/ports/0/nodePort\"}, " + nodePortRemovePatchStr + "{\"op\": \"replace\", \"path\": \"/spec/type\", \"value\": \"ClusterIP\"}]"
+				err = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"patch", "service", name, "-n", namespace, "--type", "json", "--patch", patchStr})
 			}
 			if err != nil {
 				log.Fatal().Err(err).Msg(fmt.Sprintf("Failed patching service to change from %v to ClusterIP", serviceType))
