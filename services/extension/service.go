@@ -450,7 +450,7 @@ func (s *service) patchServiceIfRequired(ctx context.Context, params api.Params,
 			patchStr := "[{\"op\": \"remove\", \"path\": \"/spec/loadBalancerSourceRanges\"},{\"op\": \"remove\", \"path\": \"/spec/externalTrafficPolicy\"}, " + nodePortRemovePatchStr + "{\"op\": \"replace\", \"path\": \"/spec/type\", \"value\": \"ClusterIP\"}]"
 			err = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"patch", "service", name, "-n", namespace, "--type", "json", "--patch", patchStr})
 			if err != nil {
-				patchStr := "[{\"op\": \"remove\", \"path\": \"/spec/externalTrafficPolicy\"}, {\"op\": \"remove\", \"path\": \"/spec/ports/0/nodePort\"}, " + nodePortRemovePatchStr + "{\"op\": \"replace\", \"path\": \"/spec/type\", \"value\": \"ClusterIP\"}]"
+				patchStr := "[{\"op\": \"remove\", \"path\": \"/spec/externalTrafficPolicy\"}, " + nodePortRemovePatchStr + "{\"op\": \"replace\", \"path\": \"/spec/type\", \"value\": \"ClusterIP\"}]"
 				err = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"patch", "service", name, "-n", namespace, "--type", "json", "--patch", patchStr})
 			}
 			if err != nil {
