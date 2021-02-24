@@ -48,7 +48,9 @@ type Params struct {
 	EspOpenAPIYamlPath                     string                    `json:"espOpenapiYamlPath,omitempty" yaml:"espOpenapiYamlPath,omitempty"`
 	WhitelistedIPS                         []string                  `json:"whitelist,omitempty" yaml:"whitelist,omitempty"`
 	Hosts                                  []string                  `json:"hosts,omitempty" yaml:"hosts,omitempty"`
+	HostsRouteOnly                         []string                  `json:"hostsrouteonly,omitempty" yaml:"hostsrouteonly,omitempty"`
 	InternalHosts                          []string                  `json:"internalhosts,omitempty" yaml:"internalhosts,omitempty"`
+	InternalHostsRouteOnly                 []string                  `json:"internalhostsrouteonly,omitempty" yaml:"internalhostsrouteonly,omitempty"`
 	ApigeeSuffix                           string                    `json:"apigeesuffix,omitempty" yaml:"apigeesuffix,omitempty"`
 	Basepath                               string                    `json:"basepath,omitempty" yaml:"basepath,omitempty"`
 	Autoscale                              AutoscaleParams           `json:"autoscale,omitempty" yaml:"autoscale,omitempty"`

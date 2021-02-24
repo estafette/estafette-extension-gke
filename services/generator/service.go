@@ -426,6 +426,10 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		data.OverrideDefaultWhitelist = false
 	}
 
+	// add extra hosts for routing in ingress, without setting their dns records
+	data.Hosts = append(data.Hosts, params.HostsRouteOnly...)
+	data.InternalHosts = append(data.InternalHosts, params.InternalHostsRouteOnly...)
+
 	if !strings.HasSuffix(data.IngressPath, "/") && !strings.HasSuffix(data.IngressPath, "*") {
 		data.IngressPath += "/"
 	}
