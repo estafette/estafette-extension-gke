@@ -463,6 +463,10 @@ spec:
             path: nginx.crt
           - key: ssl.key
             path: nginx.key
+          - key: ssl.crt
+            path: server.crt
+          - key: ssl.key
+            path: server.key
       {{- end }}
       {{- if .MountApplicationSecrets }}
       - name: app-secrets
