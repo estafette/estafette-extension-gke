@@ -410,7 +410,7 @@ func (s *service) removeIngressIfRequired(ctx context.Context, params api.Params
 }
 
 func (s *service) deployGoogleEndpointsServiceIfRequired(ctx context.Context, params api.Params) {
-	if params.Kind == api.KindDeployment && params.Visibility == api.VisibilityESP && (params.Action == api.ActionDeploySimple || params.Action == api.ActionDeployCanary) {
+	if params.Kind == api.KindDeployment && (params.Visibility == api.VisibilityESP || params.Visibility == api.VisibilityESPv2) && (params.Action == api.ActionDeploySimple || params.Action == api.ActionDeployCanary) {
 		err := s.gcpClient.DeployGoogleCloudEndpoints(ctx, params)
 		if err != nil {
 			log.Fatal().Err(err).Msgf("Failed deploying endpoints service in project %v", params.EspEndpointsProjectID)

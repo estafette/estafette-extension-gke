@@ -56,6 +56,7 @@ type TemplateData struct {
 	HasEspConfigID                       bool
 	EspConfigID                          string
 	EspService                           string
+	EspRequestTimeout                    int
 	MountVolumes                         bool
 	MountSslCertificate                  bool
 	MountApplicationSecrets              bool

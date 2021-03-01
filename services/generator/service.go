@@ -191,6 +191,7 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 	data.EspConfigID = params.EspConfigID
 	if (params.Visibility == api.VisibilityESP || params.Visibility == api.VisibilityESPv2) && len(params.Hosts) > 0 {
 		data.EspService = params.Hosts[0]
+
 	}
 
 	if data.PreferPreemptibles {
@@ -229,6 +230,7 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 
 	// set request params on the nginx ingress
 	requestTimeout, requestTimeoutConvertError := strconv.Atoi(strings.Trim(params.Request.Timeout, "s"))
+	data.EspRequestTimeout = requestTimeout
 
 	data.NginxIngressProxyConnectTimeout = requestTimeout
 	if requestTimeoutConvertError != nil {
