@@ -317,7 +317,7 @@ spec:
           "--service={{$deployment.EspService}}",
           "--service_account_key=/gcp-service-account/service-account-key.json",
           "--healthz=/healthz",
-          "--ssl_server_cert_path=/etc/ssl/certs",
+          "--ssl_server_cert_path=/etc/envoy/ssl",
           "--http_request_timeout_s={{$deployment.EspRequestTimeout}}",
           {{- if $deployment.HasEspConfigID }}
           "--version={{$deployment.EspConfigID}}"
@@ -341,7 +341,7 @@ spec:
           containerPort: 8090
         volumeMounts:
         - name: ssl-certificate-esp
-          mountPath: /etc/ssl/certs
+          mountPath: /etc/envoy/ssl
         - name: gcp-service-account
           mountPath: /gcp-service-account
         livenessProbe:
