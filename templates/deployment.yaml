@@ -337,8 +337,6 @@ spec:
         ports:
         - name: https
           containerPort: 8443
-        - name: esp-status
-          containerPort: 8090
         volumeMounts:
         - name: ssl-certificate-esp
           mountPath: /etc/envoy/ssl
@@ -347,7 +345,8 @@ spec:
         livenessProbe:
           httpGet:
             path: /healthz
-            port: esp-status
+            port: https
+            scheme: HTTPS
           initialDelaySeconds: 15
         {{- if .HasCustomProperties }}
 {{.CustomPropertiesYAML | indent 8}}
