@@ -455,8 +455,13 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 		p.Container.ReadinessProbe.SuccessThreshold = 1
 	}
 	if p.ProbeService == nil {
-		trueValue := true
-		p.ProbeService = &trueValue
+		if p.Visibility == VisibilityESP {
+			falseValue := false
+			p.ProbeService = &falseValue
+		} else {
+			trueValue := true
+			p.ProbeService = &trueValue
+		}
 	}
 
 	// set metrics defaults
