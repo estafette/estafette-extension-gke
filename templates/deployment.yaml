@@ -317,6 +317,7 @@ spec:
           "--service={{$deployment.EspService}}",
           "--service_account_key=/gcp-service-account/service-account-key.json",
           "--healthz=/healthz",
+          "--status_port=8090",
           "--ssl_server_cert_path=/etc/envoy/ssl",
           "--http_request_timeout_s={{$deployment.EspRequestTimeout}}",
           {{- if $deployment.HasEspConfigID }}
@@ -337,6 +338,8 @@ spec:
         ports:
         - name: https
           containerPort: 8443
+        - name: esp-status
+          containerPort: 8090
         volumeMounts:
         - name: ssl-certificate-esp
           mountPath: /etc/envoy/ssl
@@ -345,8 +348,7 @@ spec:
         livenessProbe:
           httpGet:
             path: /healthz
-            port: https
-            scheme: HTTPS
+            port: esp-status
           initialDelaySeconds: 15
         {{- if .HasCustomProperties }}
 {{.CustomPropertiesYAML | indent 8}}
