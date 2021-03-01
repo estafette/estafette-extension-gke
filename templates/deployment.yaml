@@ -312,17 +312,17 @@ spec:
         image: {{.Image}}
         imagePullPolicy: IfNotPresent
         args: [
-          "--listener_port", "8443",
-          "--backend", "127.0.0.1:80",
-          "--service", "{{$deployment.EspService}}",
-          "--service_account_key", "/gcp-service-account/service-account-key.json",
-          "--healthz", "/healthz",
-          "--ssl_server_cert_path", "/etc/ssl/certs",
-          "--http_request_timeout_s", "{{$deployment.EspRequestTimeout}}",
+          "--listener_port=8443",
+          "--backend=127.0.0.1:80",
+          "--service={{$deployment.EspService}}",
+          "--service_account_key=/gcp-service-account/service-account-key.json",
+          "--healthz=/healthz",
+          "--ssl_server_cert_path=/etc/ssl/certs",
+          "--http_request_timeout_s={{$deployment.EspRequestTimeout}}",
           {{- if $deployment.HasEspConfigID }}
-          "--version", "{{$deployment.EspConfigID}}"
+          "--version={{$deployment.EspConfigID}}"
           {{- else }}
-          "--rollout_strategy", "managed"
+          "--rollout_strategy=managed"
           {{- end }}
         ]
         resources:
