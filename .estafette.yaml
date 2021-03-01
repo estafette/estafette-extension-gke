@@ -351,6 +351,23 @@ stages:
         - gke.estafette.internal
         dryrun: true
 
+      test-visibility-espv2:
+        image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+        credentials: gke-dev-common
+        visibility: espv2
+        espEndpointsProjectID: some-project-id
+        espConfigID: 2019-04-24r0
+        espOpenapiYamlPath: test/openapi.yaml
+        container:
+          repository: extensions
+        useGoogleCloudCredentials: true
+        disableServiceAccountKeyRotation: true
+        hosts:
+        - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
+        dryrun: true
+
       test-kind-job:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
         credentials: gke-dev-common

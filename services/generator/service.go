@@ -186,10 +186,10 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		data.CustomSidecars = params.CustomSidecars
 	}
 
-	data.UseESP = params.Visibility == api.VisibilityESP
+	data.UseESP = params.Visibility == api.VisibilityESP || params.Visibility == api.VisibilityESPv2
 	data.HasEspConfigID = params.EspConfigID != ""
 	data.EspConfigID = params.EspConfigID
-	if params.Visibility == api.VisibilityESP && len(params.Hosts) > 0 {
+	if (params.Visibility == api.VisibilityESP || params.Visibility == api.VisibilityESPv2) && len(params.Hosts) > 0 {
 		data.EspService = params.Hosts[0]
 	}
 
@@ -405,7 +405,8 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		}
 		data.ApigeeHostsJoined = strings.Join(data.ApigeeHosts, ",")
 
-	case api.VisibilityESP:
+	case api.VisibilityESP,
+		api.VisibilityESPv2:
 		data.ServiceType = "LoadBalancer"
 		data.UseNginxIngress = false
 		data.UseGCEIngress = false
@@ -531,7 +532,7 @@ func (s *service) BuildSidecar(sidecar *api.SidecarParams, params api.Params) ap
 			builtSidecar.EnvironmentVariables = s.AddEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "GRACEFUL_SHUTDOWN_DELAY_SECONDS", strconv.Itoa(*params.Container.Lifecycle.PrestopSleepSeconds))
 		}
 
-		if params.Visibility == api.VisibilityESP {
+		if params.Visibility == api.VisibilityESP || params.Visibility == api.VisibilityESPv2 {
 			builtSidecar.EnvironmentVariables = s.AddEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "ENFORCE_HTTPS", "false")
 		}
 	}

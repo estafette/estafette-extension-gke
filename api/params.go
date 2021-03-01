@@ -82,6 +82,7 @@ type Params struct {
 	// set default image for sidecars
 	DefaultOpenrestySidecarImage     string `json:"defaultOpenrestySidecarImage,omitempty" yaml:"defaultOpenrestySidecarImage,omitempty"`
 	DefaultESPSidecarImage           string `json:"defaultESPSidecarImage,omitempty" yaml:"defaultESPSidecarImage,omitempty"`
+	DefaultESPv2SidecarImage         string `json:"defaultESPSidecarImage,omitempty" yaml:"defaultESPv2SidecarImage,omitempty"`
 	DefaultCloudSQLProxySidecarImage string `json:"defaultCloudSQLProxySidecarImage,omitempty" yaml:"defaultCloudSQLProxySidecarImage,omitempty"`
 
 	// params for image pull secret
@@ -455,7 +456,7 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 		p.Container.ReadinessProbe.SuccessThreshold = 1
 	}
 	if p.ProbeService == nil {
-		if p.Visibility == VisibilityESP {
+		if p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2 {
 			falseValue := false
 			p.ProbeService = &falseValue
 		} else {
@@ -517,22 +518,34 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 		p.Sidecars = append(p.Sidecars, &openrestySidecar)
 	}
 
-	if p.Visibility == VisibilityESP {
+	if p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2 {
 		if p.EspOpenAPIYamlPath == "" {
 			p.EspOpenAPIYamlPath = "openapi.yaml"
 		}
 
 		// check if an esp sidecar is in the list
 		espSidecarSpecifiedInList := false
+		espv2SidecarSpecifiedInList := false
 		for _, sidecar := range p.Sidecars {
 			if sidecar.Type == SidecarTypeESP {
 				espSidecarSpecifiedInList = true
+			}
+			if sidecar.Type == SidecarTypeESPv2 {
+				espv2SidecarSpecifiedInList = true
 			}
 		}
 
 		// inject an esp sidecar in the sidecars list if it isn't there yet for deployments
 		if *p.InjectHTTPProxySidecar && !espSidecarSpecifiedInList && p.Kind == KindDeployment {
 			espSidecar := SidecarParams{Type: SidecarTypeESP}
+			p.initializeSidecarDefaults(&espSidecar)
+
+			p.Sidecars = append(p.Sidecars, &espSidecar)
+		}
+
+		// inject an espv2 sidecar in the sidecars list if it isn't there yet for deployments
+		if *p.InjectHTTPProxySidecar && !espv2SidecarSpecifiedInList && p.Kind == KindDeployment {
+			espSidecar := SidecarParams{Type: SidecarTypeESPv2}
 			p.initializeSidecarDefaults(&espSidecar)
 
 			p.Sidecars = append(p.Sidecars, &espSidecar)
@@ -552,7 +565,10 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 		p.DefaultOpenrestySidecarImage = "estafette/openresty-sidecar@sha256:2aa9f2c8c3f506e0f6cc70871701b5ac81aa0f12e8574c7b8213e4d0379d2ddd"
 	}
 	if p.DefaultESPSidecarImage == "" {
-		p.DefaultESPSidecarImage = "gcr.io/endpoints-release/endpoints-runtime:1.50.0"
+		p.DefaultESPSidecarImage = "gcr.io/endpoints-release/endpoints-runtime:1"
+	}
+	if p.DefaultESPv2SidecarImage == "" {
+		p.DefaultESPv2SidecarImage = "gcr.io/endpoints-release/endpoints-runtime:2"
 	}
 	if p.DefaultCloudSQLProxySidecarImage == "" {
 		p.DefaultCloudSQLProxySidecarImage = "eu.gcr.io/cloudsql-docker/gce-proxy:1.17"
@@ -668,6 +684,10 @@ func (p *Params) initializeSidecarDefaults(sidecar *SidecarParams) {
 	case SidecarTypeESP:
 		if sidecar.Image == "" {
 			sidecar.Image = p.DefaultESPSidecarImage
+		}
+	case SidecarTypeESPv2:
+		if sidecar.Image == "" {
+			sidecar.Image = p.DefaultESPv2SidecarImage
 		}
 	case SidecarTypeCloudSQLProxy:
 		if sidecar.Image == "" {
@@ -800,7 +820,7 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 	}
 	// validate params with respect to incoming requests
 	if p.Kind == KindDeployment {
-		if p.Visibility == VisibilityUnknown || (p.Visibility != VisibilityPrivate && p.Visibility != VisibilityPublic && p.Visibility != VisibilityIAP && p.Visibility != VisibilityESP && p.Visibility != VisibilityPublicWhitelist && p.Visibility != VisibilityApigee) {
+		if p.Visibility == VisibilityUnknown || (p.Visibility != VisibilityPrivate && p.Visibility != VisibilityPublic && p.Visibility != VisibilityIAP && p.Visibility != VisibilityESP && p.Visibility != VisibilityESPv2 && p.Visibility != VisibilityPublicWhitelist && p.Visibility != VisibilityApigee) {
 			errors = append(errors, fmt.Errorf("Visibility property is required; set it via visibility property on this stage; allowed values are private, iap, esp, public-whitelist, public or apigee"))
 		}
 		if p.Visibility == VisibilityPublic {
@@ -813,19 +833,19 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 			errors = append(errors, fmt.Errorf("With visibility 'iap' property iapOauthClientSecret is required; set it via iapOauthClientSecret property on this stage"))
 		}
 
-		if p.Visibility == VisibilityESP && !p.UseGoogleCloudCredentials {
+		if (p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2) && !p.UseGoogleCloudCredentials {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property useGoogleCloudCredentials is required; set useGoogleCloudCredentials: true on this stage"))
 		}
-		if p.Visibility == VisibilityESP && (p.DisableServiceAccountKeyRotation == nil || !*p.DisableServiceAccountKeyRotation) {
+		if (p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2) && (p.DisableServiceAccountKeyRotation == nil || !*p.DisableServiceAccountKeyRotation) {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property disableServiceAccountKeyRotation is required; set disableServiceAccountKeyRotation: true on this stage"))
 		}
-		if p.Visibility == VisibilityESP && (p.EspEndpointsProjectID == "") {
+		if (p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2) && (p.EspEndpointsProjectID == "") {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property espEndpointsProjectID is required; provide id of the 'endpoints' project"))
 		}
-		if p.Visibility == VisibilityESP && p.EspOpenAPIYamlPath == "" {
+		if (p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2) && p.EspOpenAPIYamlPath == "" {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property espOpenapiYamlPath is required; set espOpenapiYamlPath to the path towards openapi.yaml"))
 		}
-		if p.Visibility == VisibilityESP && len(p.Hosts) < 1 {
+		if (p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2) && len(p.Hosts) < 1 {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property at least one host is required. Set it via hosts array property on this stage"))
 		}
 
@@ -965,7 +985,7 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 	}
 
 	// check for visibility esp if openapi.yaml exists
-	if _, err := os.Stat(p.EspOpenAPIYamlPath); p.Visibility == VisibilityESP && os.IsNotExist(err) {
+	if _, err := os.Stat(p.EspOpenAPIYamlPath); (p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2) && os.IsNotExist(err) {
 		errors = append(errors, fmt.Errorf("When using visibility: esp make sure to set clone: true and have openapi.yaml available in the working directory"))
 	}
 
