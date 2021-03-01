@@ -82,7 +82,7 @@ type Params struct {
 	// set default image for sidecars
 	DefaultOpenrestySidecarImage     string `json:"defaultOpenrestySidecarImage,omitempty" yaml:"defaultOpenrestySidecarImage,omitempty"`
 	DefaultESPSidecarImage           string `json:"defaultESPSidecarImage,omitempty" yaml:"defaultESPSidecarImage,omitempty"`
-	DefaultESPv2SidecarImage         string `json:"defaultESPSidecarImage,omitempty" yaml:"defaultESPv2SidecarImage,omitempty"`
+	DefaultESPv2SidecarImage         string `json:"defaultESPv2SidecarImage,omitempty" yaml:"defaultESPv2SidecarImage,omitempty"`
 	DefaultCloudSQLProxySidecarImage string `json:"defaultCloudSQLProxySidecarImage,omitempty" yaml:"defaultCloudSQLProxySidecarImage,omitempty"`
 
 	// params for image pull secret
@@ -536,7 +536,7 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 		}
 
 		// inject an esp sidecar in the sidecars list if it isn't there yet for deployments
-		if *p.InjectHTTPProxySidecar && !espSidecarSpecifiedInList && p.Kind == KindDeployment {
+		if *p.InjectHTTPProxySidecar && p.Visibility == VisibilityESP && !espSidecarSpecifiedInList && p.Kind == KindDeployment {
 			espSidecar := SidecarParams{Type: SidecarTypeESP}
 			p.initializeSidecarDefaults(&espSidecar)
 
@@ -544,7 +544,7 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 		}
 
 		// inject an espv2 sidecar in the sidecars list if it isn't there yet for deployments
-		if *p.InjectHTTPProxySidecar && !espv2SidecarSpecifiedInList && p.Kind == KindDeployment {
+		if *p.InjectHTTPProxySidecar && p.Visibility == VisibilityESPv2 && !espv2SidecarSpecifiedInList && p.Kind == KindDeployment {
 			espSidecar := SidecarParams{Type: SidecarTypeESPv2}
 			p.initializeSidecarDefaults(&espSidecar)
 
