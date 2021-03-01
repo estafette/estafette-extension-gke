@@ -191,7 +191,6 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 	data.EspConfigID = params.EspConfigID
 	if (params.Visibility == api.VisibilityESP || params.Visibility == api.VisibilityESPv2) && len(params.Hosts) > 0 {
 		data.EspService = params.Hosts[0]
-
 	}
 
 	if data.PreferPreemptibles {
