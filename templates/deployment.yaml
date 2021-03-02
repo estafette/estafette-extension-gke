@@ -251,7 +251,7 @@ spec:
         - name: {{ $key | quote }}
           valueFrom:
             secretKeyRef:
-              name: {{.NameWithTrack}}-secrets
+              name: {{$deployment.NameWithTrack}}-secrets
               key: {{ $key }}
         {{- end }}
         volumeMounts:
@@ -384,7 +384,7 @@ spec:
         - name: {{ $key | quote }}
           valueFrom:
             secretKeyRef:
-              name: {{.NameWithTrack}}-secrets
+              name: {{$deployment.NameWithTrack}}-secrets
               key: {{ $key }}
         {{- end }}
         {{- end }}
@@ -426,7 +426,7 @@ spec:
         - name: {{ $key | quote }}
           valueFrom:
             secretKeyRef:
-              name: {{.NameWithTrack}}-secrets
+              name: {{$deployment.NameWithTrack}}-secrets
               key: {{ $key }}
         {{- end }}
         {{- end }}
