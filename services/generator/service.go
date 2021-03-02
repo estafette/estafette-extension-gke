@@ -140,6 +140,10 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		RenderToYAML:        s.RenderToYAML,
 	}
 
+	if data.Secrets == nil {
+		data.Secrets = make(map[string]interface{}, 0)
+	}
+
 	// add SecretEnvironmentVariables to secrets map, but do base64 encode the values
 	for key, value := range params.Container.SecretEnvironmentVariables {
 		data.Secrets[key] = base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%v", value)))
