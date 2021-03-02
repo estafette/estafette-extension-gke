@@ -565,10 +565,10 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 		p.DefaultOpenrestySidecarImage = "estafette/openresty-sidecar@sha256:2aa9f2c8c3f506e0f6cc70871701b5ac81aa0f12e8574c7b8213e4d0379d2ddd"
 	}
 	if p.DefaultESPSidecarImage == "" {
-		p.DefaultESPSidecarImage = "gcr.io/endpoints-release/endpoints-runtime:1"
+		p.DefaultESPSidecarImage = "gcr.io/endpoints-release/endpoints-runtime:1.56.0"
 	}
 	if p.DefaultESPv2SidecarImage == "" {
-		p.DefaultESPv2SidecarImage = "gcr.io/endpoints-release/endpoints-runtime:2"
+		p.DefaultESPv2SidecarImage = "gcr.io/endpoints-release/endpoints-runtime:2.25.0"
 	}
 	if p.DefaultCloudSQLProxySidecarImage == "" {
 		p.DefaultCloudSQLProxySidecarImage = "eu.gcr.io/cloudsql-docker/gce-proxy:1.17"
