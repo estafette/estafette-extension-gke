@@ -1,3 +1,4 @@
+{{- $deployment := . -}}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -98,7 +99,7 @@ spec:
         - name: {{ $key | quote }}
           valueFrom:
             secretKeyRef:
-              name: {{.Name}}-secrets
+              name: {{$deployment.Name}}-secrets
               key: {{ $key }}
         {{- end }}
         resources:
@@ -171,7 +172,6 @@ spec:
               - /bin/sleep
               - {{.Container.PreStopSleepSeconds}}s
         {{- end}}
-      {{ $deployment := . }}
       {{- range .Sidecars}}
         {{- if eq .Type "openresty" }}
       - name: {{$deployment.Name}}-openresty
@@ -226,7 +226,7 @@ spec:
         - name: {{ $key | quote }}
           valueFrom:
             secretKeyRef:
-              name: {{.Name}}-secrets
+              name: {{$deployment.Name}}-secrets
               key: {{ $key }}
         {{- end }}
         volumeMounts:
@@ -267,7 +267,7 @@ spec:
         - name: {{ $key | quote }}
           valueFrom:
             secretKeyRef:
-              name: {{.Name}}-secrets
+              name: {{$deployment.Name}}-secrets
               key: {{ $key }}
         {{- end }}
         {{- end }}
@@ -322,7 +322,7 @@ spec:
       {{- if .MountApplicationSecrets }}
       - name: app-secrets
         secret:
-          secretName: {{.NameWithTrack}}-secrets
+          secretName: {{$deployment.NameWithTrack}}-secrets
       {{- end }}
       {{- if .MountConfigmap }}
       - name: app-configs

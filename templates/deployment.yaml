@@ -1,3 +1,4 @@
+{{- $deployment := . -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -117,7 +118,7 @@ spec:
         - name: {{ $key | quote }}
           valueFrom:
             secretKeyRef:
-              name: {{.NameWithTrack}}-secrets
+              name: {{$deployment.NameWithTrack}}-secrets
               key: {{ $key }}
         {{- end }}
         resources:
@@ -190,7 +191,6 @@ spec:
               - /bin/sleep
               - {{.Container.PreStopSleepSeconds}}s
         {{- end}}
-      {{ $deployment := . }}
       {{- range .Sidecars}}
         {{- if eq .Type "openresty" }}
       - name: {{$deployment.Name}}-openresty

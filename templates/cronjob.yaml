@@ -1,3 +1,4 @@
+{{- $deployment := . -}}
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
@@ -86,7 +87,7 @@ spec:
             - name: {{ $key | quote }}
               valueFrom:
                 secretKeyRef:
-                  name: {{.Name}}-secrets
+                  name: {{$deployment.Name}}-secrets
                   key: {{ $key }}
             {{- end }}
             resources:
