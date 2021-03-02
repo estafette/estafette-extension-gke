@@ -136,6 +136,7 @@ type ContainerData struct {
 	MemoryLimit                     string
 	Port                            int
 	EnvironmentVariables            map[string]interface{}
+	SecretEnvironmentVariables      map[string]interface{}
 	Liveness                        ProbeData
 	Readiness                       ProbeData
 	Metrics                         MetricsData
@@ -164,17 +165,18 @@ type MetricsData struct {
 
 // SidecarData configures the injected sidecar
 type SidecarData struct {
-	Type                      string
-	Image                     string
-	EnvironmentVariables      map[string]interface{}
-	HasEnvironmentVariables   bool
-	CPURequest                string
-	MemoryRequest             string
-	CPULimit                  string
-	MemoryLimit               string
-	SidecarSpecificProperties map[string]interface{}
-	HasCustomProperties       bool
-	CustomPropertiesYAML      string
+	Type                       string
+	Image                      string
+	EnvironmentVariables       map[string]interface{}
+	SecretEnvironmentVariables map[string]interface{}
+	HasEnvironmentVariables    bool
+	CPURequest                 string
+	MemoryRequest              string
+	CPULimit                   string
+	MemoryLimit                string
+	SidecarSpecificProperties  map[string]interface{}
+	HasCustomProperties        bool
+	CustomPropertiesYAML       string
 }
 
 // VolumeMountData configures additional volume mounts for shared secrets, existing volumes, etc

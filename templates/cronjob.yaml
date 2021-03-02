@@ -1,3 +1,4 @@
+{{- $deployment := . }}
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
@@ -81,6 +82,13 @@ spec:
               {{- else }}
 {{(call $.RenderToYAML $value $) | indent 14}}
               {{- end }}
+            {{- end }}
+            {{- range $key, $value := .Container.SecretEnvironmentVariables }}
+            - name: {{ $key | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{$deployment.Name}}-secrets
+                  key: {{ $key }}
             {{- end }}
             resources:
               requests:

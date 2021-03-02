@@ -148,7 +148,7 @@ func (s *service) GetTemplates(params api.Params, includePodDisruptionBudget boo
 	if (params.Kind == api.KindDeployment || params.Kind == api.KindStatefulset) && len(params.InternalHosts) > 0 {
 		templatesToMerge = append(templatesToMerge, "ingress-internal.yaml")
 	}
-	if len(params.Secrets.Keys) > 0 {
+	if params.HasSecrets() {
 		templatesToMerge = append(templatesToMerge, "application-secrets.yaml")
 	}
 	if params.UseGoogleCloudCredentials || params.LegacyGoogleCloudServiceAccountKeyFile != "" {

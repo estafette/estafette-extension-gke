@@ -1,3 +1,4 @@
+{{- $deployment := . }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -113,6 +114,13 @@ spec:
 {{(call $.RenderToYAML $value $) | indent 10}}
           {{- end }}
         {{- end }}
+        {{- range $key, $value := .Container.SecretEnvironmentVariables }}
+        - name: {{ $key | quote }}
+          valueFrom:
+            secretKeyRef:
+              name: {{$deployment.NameWithTrack}}-secrets
+              key: {{ $key }}
+        {{- end }}
         resources:
           requests:
             cpu: {{.Container.CPURequest}}
@@ -183,7 +191,6 @@ spec:
               - /bin/sleep
               - {{.Container.PreStopSleepSeconds}}s
         {{- end}}
-      {{ $deployment := . }}
       {{- range .Sidecars}}
         {{- if eq .Type "openresty" }}
       - name: {{$deployment.Name}}-openresty
@@ -239,6 +246,13 @@ spec:
           {{- else }}
 {{(call $.RenderToYAML $value $) | indent 10}}
           {{- end }}
+        {{- end }}
+        {{- range $key, $value := .SecretEnvironmentVariables }}
+        - name: {{ $key | quote }}
+          valueFrom:
+            secretKeyRef:
+              name: {{$deployment.NameWithTrack}}-secrets
+              key: {{ $key }}
         {{- end }}
         volumeMounts:
         - name: ssl-certificate
@@ -366,6 +380,13 @@ spec:
 {{(call $.RenderToYAML $value $) | indent 10}}
           {{- end }}
         {{- end }}
+        {{- range $key, $value := .SecretEnvironmentVariables }}
+        - name: {{ $key | quote }}
+          valueFrom:
+            secretKeyRef:
+              name: {{$deployment.NameWithTrack}}-secrets
+              key: {{ $key }}
+        {{- end }}
         {{- end }}
         resources:
           requests:
@@ -400,6 +421,13 @@ spec:
           {{- else }}
 {{(call $.RenderToYAML $value $) | indent 10}}
           {{- end }}
+        {{- end }}
+        {{- range $key, $value := .SecretEnvironmentVariables }}
+        - name: {{ $key | quote }}
+          valueFrom:
+            secretKeyRef:
+              name: {{$deployment.NameWithTrack}}-secrets
+              key: {{ $key }}
         {{- end }}
         {{- end }}
         resources:

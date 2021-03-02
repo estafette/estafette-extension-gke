@@ -316,7 +316,7 @@ func (s *service) deleteConfigsForParamsChange(ctx context.Context, params api.P
 }
 
 func (s *service) deleteSecretsForParamsChange(ctx context.Context, params api.Params, name, namespace string) {
-	if len(params.Secrets.Keys) == 0 {
+	if !params.HasSecrets() {
 		log.Info().Msg("Deleting application secrets if it exists, because no secrets are specified...")
 		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "secret", fmt.Sprintf("%v-secrets", name), "-n", namespace, "--ignore-not-found=true"})
 	}

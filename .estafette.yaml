@@ -119,6 +119,8 @@ stages:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.labels['app']
+          secretEnv:
+            MY_SECRET: mysecretvalue
           cpu:
             request: 100m
           memory:
@@ -157,6 +159,8 @@ stages:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.labels['app']
+          secretEnv:
+            MY_SIDECAR_SECRET: mysecondsecretvalue
           cpu:
             request: 10m
           memory:
@@ -190,6 +194,8 @@ stages:
                 secretKeyRef:
                   key: ClientCertificatePassword
                   name: '{{.NameWithTrack}}-secrets'
+          secretEnv:
+            MY_OTHER_SIDECAR_SECRET: myothersecretvalue
           cpu:
             request: 10m
           memory:
@@ -206,6 +212,8 @@ stages:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.labels['app']
+          secretEnv:
+            MY_CUSTOM_SIDECAR_SECRET: 123
           cpu:
             request: 10m
             limit: 50m
@@ -301,6 +309,19 @@ stages:
         credentials: gke-dev-common
         container:
           repository: extensions
+        hosts:
+        - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
+        dryrun: true
+
+      test-without-secret-but-with-secretenv:
+        image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+        credentials: gke-dev-common
+        container:
+          repository: extensions
+          secretEnv:
+            MY_SECRET: mysecretvalue
         hosts:
         - gke.estafette.io
         internalhosts:
