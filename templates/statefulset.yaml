@@ -322,7 +322,7 @@ spec:
       {{- if .MountApplicationSecrets }}
       - name: app-secrets
         secret:
-          secretName: {{$deployment.NameWithTrack}}-secrets
+          secretName: {{.NameWithTrack}}-secrets
       {{- end }}
       {{- if .MountConfigmap }}
       - name: app-configs
