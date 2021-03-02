@@ -92,11 +92,12 @@ type Params struct {
 
 // ContainerParams defines the container image to deploy
 type ContainerParams struct {
-	ImageRepository      string                 `json:"repository,omitempty" yaml:"repository,omitempty"`
-	ImageName            string                 `json:"name,omitempty" yaml:"name,omitempty"`
-	ImageTag             string                 `json:"tag,omitempty" yaml:"tag,omitempty"`
-	Port                 int                    `json:"port,omitempty" yaml:"port,omitempty"`
-	EnvironmentVariables map[string]interface{} `json:"env,omitempty" yaml:"env,omitempty"`
+	ImageRepository            string                 `json:"repository,omitempty" yaml:"repository,omitempty"`
+	ImageName                  string                 `json:"name,omitempty" yaml:"name,omitempty"`
+	ImageTag                   string                 `json:"tag,omitempty" yaml:"tag,omitempty"`
+	Port                       int                    `json:"port,omitempty" yaml:"port,omitempty"`
+	EnvironmentVariables       map[string]interface{} `json:"env,omitempty" yaml:"env,omitempty"`
+	SecretEnvironmentVariables map[string]interface{} `json:"secretEnv,omitempty" yaml:"secretEnv,omitempty"`
 
 	CPU            CPUParams       `json:"cpu,omitempty" yaml:"cpu,omitempty"`
 	Memory         MemoryParams    `json:"memory,omitempty" yaml:"memory,omitempty"`
@@ -188,6 +189,7 @@ type SidecarParams struct {
 	Type                              SidecarType            `json:"type,omitempty" yaml:"type,omitempty"`
 	Image                             string                 `json:"image,omitempty" yaml:"image,omitempty"`
 	EnvironmentVariables              map[string]interface{} `json:"env,omitempty" yaml:"env,omitempty"`
+	SecretEnvironmentVariables        map[string]interface{} `json:"secretEnv,omitempty" yaml:"secretEnv,omitempty"`
 	CPU                               CPUParams              `json:"cpu,omitempty" yaml:"cpu,omitempty"`
 	Memory                            MemoryParams           `json:"memory,omitempty" yaml:"memory,omitempty"`
 	HealthCheckPath                   string                 `json:"healthcheckpath,omitempty" yaml:"healthcheckpath,omitempty"`
@@ -670,6 +672,24 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 			p.StorageMountPath = "/data"
 		}
 	}
+}
+
+func (p *Params) HasSecrets() bool {
+	if len(p.Secrets.Keys) > 0 {
+		return true
+	}
+
+	if len(p.Container.SecretEnvironmentVariables) > 0 {
+		return true
+	}
+
+	for _, sc := range p.Sidecars {
+		if len(sc.SecretEnvironmentVariables) > 0 {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (p *Params) initializeSidecarDefaults(sidecar *SidecarParams) {

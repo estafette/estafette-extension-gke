@@ -75,6 +75,13 @@ spec:
 {{(call $.RenderToYAML $value $) | indent 10}}
           {{- end }}
         {{- end }}
+        {{- range $key, $value := .Container.SecretEnvironmentVariables }}
+        - name: {{ $key | quote }}
+          valueFrom:
+            secretKeyRef:
+              name: {{.Name}}-secrets
+              key: {{ $key }}
+        {{- end }}
         resources:
           requests:
             cpu: {{.Container.CPURequest}}

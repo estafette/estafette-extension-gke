@@ -113,6 +113,13 @@ spec:
 {{(call $.RenderToYAML $value $) | indent 10}}
           {{- end }}
         {{- end }}
+        {{- range $key, $value := .Container.SecretEnvironmentVariables }}
+        - name: {{ $key | quote }}
+          valueFrom:
+            secretKeyRef:
+              name: {{.NameWithTrack}}-secrets
+              key: {{ $key }}
+        {{- end }}
         resources:
           requests:
             cpu: {{.Container.CPURequest}}
@@ -240,6 +247,13 @@ spec:
 {{(call $.RenderToYAML $value $) | indent 10}}
           {{- end }}
         {{- end }}
+        {{- range $key, $value := .SecretEnvironmentVariables }}
+        - name: {{ $key | quote }}
+          valueFrom:
+            secretKeyRef:
+              name: {{.NameWithTrack}}-secrets
+              key: {{ $key }}
+        {{- end }}
         volumeMounts:
         - name: ssl-certificate
           mountPath: /etc/ssl/private
@@ -366,6 +380,13 @@ spec:
 {{(call $.RenderToYAML $value $) | indent 10}}
           {{- end }}
         {{- end }}
+        {{- range $key, $value := .SecretEnvironmentVariables }}
+        - name: {{ $key | quote }}
+          valueFrom:
+            secretKeyRef:
+              name: {{.NameWithTrack}}-secrets
+              key: {{ $key }}
+        {{- end }}
         {{- end }}
         resources:
           requests:
@@ -400,6 +421,13 @@ spec:
           {{- else }}
 {{(call $.RenderToYAML $value $) | indent 10}}
           {{- end }}
+        {{- end }}
+        {{- range $key, $value := .SecretEnvironmentVariables }}
+        - name: {{ $key | quote }}
+          valueFrom:
+            secretKeyRef:
+              name: {{.NameWithTrack}}-secrets
+              key: {{ $key }}
         {{- end }}
         {{- end }}
         resources:

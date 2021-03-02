@@ -71,7 +71,7 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 
 		Secrets:                 params.Secrets.Keys,
 		MountSslCertificate:     params.Kind == api.KindDeployment,
-		MountApplicationSecrets: len(params.Secrets.Keys) > 0,
+		MountApplicationSecrets: params.HasSecrets(),
 		SecretMountPath:         params.Secrets.MountPath,
 		MountConfigmap:          len(params.Configs.Files) > 0 || len(params.Configs.InlineFiles) > 0,
 		ConfigMountPath:         params.Configs.MountPath,
@@ -106,7 +106,8 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 			MemoryRequest: params.Container.Memory.Request,
 			MemoryLimit:   params.Container.Memory.Limit,
 
-			EnvironmentVariables: params.Container.EnvironmentVariables,
+			EnvironmentVariables:       params.Container.EnvironmentVariables,
+			SecretEnvironmentVariables: params.Container.SecretEnvironmentVariables,
 
 			Liveness: api.ProbeData{
 				Path:                params.Container.LivenessProbe.Path,
@@ -137,6 +138,17 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		IsSimpleEnvvarValue: s.IsSimpleEnvvarValue,
 		ToYAML:              s.ToYAML,
 		RenderToYAML:        s.RenderToYAML,
+	}
+
+	// add SecretEnvironmentVariables to secrets map, but do base64 encode the values
+	for key, value := range params.Container.SecretEnvironmentVariables {
+		data.Secrets[key] = base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%v", value)))
+	}
+	// add sidecar SecretEnvironmentVariables to secrets map, but do base64 encode the values
+	for _, sc := range params.Sidecars {
+		for key, value := range sc.SecretEnvironmentVariables {
+			data.Secrets[key] = base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%v", value)))
+		}
 	}
 
 	if params.BackoffLimit != nil {
@@ -500,14 +512,15 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 
 func (s *service) BuildSidecar(sidecar *api.SidecarParams, params api.Params) api.SidecarData {
 	builtSidecar := api.SidecarData{
-		Type:                    string(sidecar.Type),
-		Image:                   sidecar.Image,
-		CPURequest:              sidecar.CPU.Request,
-		CPULimit:                sidecar.CPU.Limit,
-		MemoryRequest:           sidecar.Memory.Request,
-		MemoryLimit:             sidecar.Memory.Limit,
-		EnvironmentVariables:    sidecar.EnvironmentVariables,
-		HasEnvironmentVariables: len(sidecar.EnvironmentVariables) > 0,
+		Type:                       string(sidecar.Type),
+		Image:                      sidecar.Image,
+		CPURequest:                 sidecar.CPU.Request,
+		CPULimit:                   sidecar.CPU.Limit,
+		MemoryRequest:              sidecar.Memory.Request,
+		MemoryLimit:                sidecar.Memory.Limit,
+		EnvironmentVariables:       sidecar.EnvironmentVariables,
+		SecretEnvironmentVariables: sidecar.SecretEnvironmentVariables,
+		HasEnvironmentVariables:    len(sidecar.EnvironmentVariables) > 0 || len(sidecar.SecretEnvironmentVariables) > 0,
 		SidecarSpecificProperties: map[string]interface{}{
 			"healthcheckpath":                   sidecar.HealthCheckPath,
 			"dbinstanceconnectionname":          sidecar.DbInstanceConnectionName,
