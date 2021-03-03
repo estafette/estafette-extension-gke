@@ -362,12 +362,14 @@ spec:
         livenessProbe:
           httpGet:
             path: /healthz
-            port: esp-status
+            port: https
+            scheme: HTTPS
           initialDelaySeconds: 15
         readinessProbe:
           httpGet:
             path: /healthz
-            port: esp-status
+            port: https
+            scheme: HTTPS
         {{- if .HasCustomProperties }}
 {{.CustomPropertiesYAML | indent 8}}
         {{- end }}
