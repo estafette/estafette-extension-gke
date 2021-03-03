@@ -364,6 +364,10 @@ spec:
             path: /healthz
             port: esp-status
           initialDelaySeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: esp-status
         {{- if .HasCustomProperties }}
 {{.CustomPropertiesYAML | indent 8}}
         {{- end }}
