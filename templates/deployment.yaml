@@ -330,8 +330,6 @@ spec:
           "--backend=http://127.0.0.1:80",
           "--service={{$deployment.EspService}}",
           "--service_account_key=/gcp-service-account/service-account-key.json",
-          "--healthz=/healthz",
-          "--status_port=8090",
           "--ssl_server_cert_path=/etc/envoy/ssl",
           "--http_request_timeout_s={{$deployment.EspRequestTimeout}}",
           {{- if $deployment.HasEspConfigID }}
@@ -359,17 +357,6 @@ spec:
           mountPath: /etc/envoy/ssl
         - name: gcp-service-account
           mountPath: /gcp-service-account
-        livenessProbe:
-          httpGet:
-            path: /healthz
-            port: https
-            scheme: HTTPS
-          initialDelaySeconds: 15
-        readinessProbe:
-          httpGet:
-            path: /healthz
-            port: https
-            scheme: HTTPS
         {{- if .HasCustomProperties }}
 {{.CustomPropertiesYAML | indent 8}}
         {{- end }}
