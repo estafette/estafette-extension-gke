@@ -322,7 +322,7 @@ spec:
 {{.CustomPropertiesYAML | indent 8}}
         {{- end }}
         {{- else if eq .Type "espv2" }}
-      - name: {{$deployment.Name}}-espv2
+      - name: {{$deployment.Name}}-esp
         image: {{.Image}}
         imagePullPolicy: IfNotPresent
         args: [
