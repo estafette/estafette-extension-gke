@@ -1,6 +1,10 @@
-# EXTENSIONS/GKE
+# Estafette CI GKE extension
 
 This extension makes it easy to deploy an application to GKE, and automatically handles getting the right credentials, implementing a number of best practices and more.
+
+* [Usage](#usage)
+* [Parameters](#parameters)
+* [Visibility](#visibility)
 
 # Usage
 
@@ -19,6 +23,8 @@ releases:
 ```
 
 But there's many more parameters to control the kind of resource it creates - deployment, cronjob, job, statefulset - and many other things to tune.
+
+# Parameters
 
 ## Global parameters
 
