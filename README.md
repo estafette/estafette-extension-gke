@@ -36,6 +36,9 @@ But there's many more parameters to control the kind of resource it creates - de
 | `app`                     | string                                                                                                                                                                  | `${ESTAFETTE_LABEL_APP}` if set, `${ESTAFETTE_GIT_NAME}` otherwise | The name used to deploy the application                                                                             |
 | `namespace`               | string                                                                                                                                                                  | empty, but usually set in the credential defaults                  | Sets the kubernetes namespace to deploy to                                                                          |
 
+
+
+
 Note: the `action` should preferably not be set directly on the stage, but as actions on the stage, so you can trigger every action from estafette using the same stage:
 
 ```yaml
@@ -53,6 +56,47 @@ releases:
         image: extensions/gke:stable
         kind: deployment
 ```
+
+## Application container parameters
+
+
+| Parameter                                 | Allowed values                                                                                                            | Default value                                     | Description                                                                                                                                                                  |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------| ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `container.repository`                    | docker repository without image name                                                                                      |                                                   | Path for the image repository minus the last part, for example `extensions` for `extensions/gke` image, or `gcr.io/<project id>`                                             |
+| `container.name`                          | docker image name                                                                                                         | `app` value                                       | The name of the container image, usually `${ESTAFETTE_LABEL_APP}` or `${ESTAFETTE_GIT_NAME}`                                                                                 |
+| `container.tag`                           | docker image tag                                                                                                          | `${ESTAFETTE_BUILD_VERSION}`                      | The container image tag, usually the build version                                                                                                                           |
+| `container.port`                          | int                                                                                                                       | 5000                                              | The port the main container listens on; preferably port 5000 so you don't have to explicitly set it                                                                          |
+| `container.env`                           | map of environment variable keys and values                                                                               |                                                   | A map of environment variable keys and values, passed on to the container                                                                                                    |
+| `container.secretEnv`                     | map of environment variable keys and secret values                                                                        |                                                   | Same as `env` but the values are stored in a secret instead and referenced with `secretKeyRef` automatically; no need to base64 encode                                       |
+| `container.cpu.request`                   | [kubernetes cpu spec][https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu]      | 100m                                              | The cpu request value; this ensures the application has at least the cpu required to operate under normal circumstances and is used for calculating the autoscaling cpu load |
+| `container.cpu.limit`                     | [kubernetes cpu spec][https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu]      |                                                   | The cpu limit; no need to set, it can lead to cpu throttling, but in case your application turns out to be a noisy neighbour can be set                                      |
+| `container.memory.request`                | [kubernetes memoy spec][https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-memory] | 128Mi                                             | The requested memory; setting it lower than the limit can lead to _out of memory kill_ before hitting the limit if the node it runs on is short on memory                    |
+| `container.memory.limit`                  | [kubernetes memoy spec][https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-memory] | 128Mi                                             | The memory limit; when a container hits this limit it's killed with an _out of memory kill_; set equal to request for guaranteed Quality of Service                          |
+| `container.liveness.enabled`              | boolean                                                                                                                   | true                                              | |
+| `container.liveness.path`                 | string                                                                                                                    | /liveness                                         | |
+| `container.liveness.port`                 | int                                                                                                                       | `container.port`                                  | |
+| `container.liveness.delay`                | int                                                                                                                       | 30                                                | |
+| `container.liveness.timeout`              | int                                                                                                                       | 1                                                 | |
+| `container.liveness.period`               | int                                                                                                                       | 10                                                | |
+| `container.liveness.failureThreshold`     | int                                                                                                                       | 3                                                 | |
+| `container.liveness.successThreshold`     | int                                                                                                                       | 1                                                 | |
+| `container.readiness.enabled`             | boolean                                                                                                                   | true                                              | |
+| `container.readiness.path`                | string                                                                                                                    | /readiness                                        | |
+| `container.readiness.port`                | int                                                                                                                       | `container.port`                                  | |
+| `container.readiness.delay`               | int                                                                                                                       | 0                                                 | |
+| `container.readiness.timeout`             | int                                                                                                                       | 1                                                 | |
+| `container.readiness.period`              | int                                                                                                                       | 10                                                | |
+| `container.readiness.failureThreshold`    | int                                                                                                                       | 3                                                 | |
+| `container.readiness.successThreshold`    | int                                                                                                                       | 1                                                 | |
+| `container.metrics.scrape`                | boolean                                                                                                                   | true                                              | |
+| `container.metrics.path`                  | string                                                                                                                    | /metrics                                          | |
+| `container.metrics.port`                  | int                                                                                                                       | `container.port`                                  | |
+| `container.lifecycle.prestopsleep`        | boolean                                                                                                                   | `true` for `os: linux`, `false` for `os: windows` | |
+| `container.lifecycle.prestopsleepseconds` | int                                                                                                                       | 20                                                | |
+| `container.additionalports[].name`        | string                                                                                                                    |                                                   | |
+| `container.additionalports[].port`        | int                                                                                                                       |                                                   | |
+| `container.additionalports[].protocol`    | `TCP` or `UDP`                                                                                                            | `TCP`                                             | |
+| `container.additionalports[].visibility`  | see `visibility`                                                                                                          | `visibility`                                      | |
 
 ## Deployment parameters
 
@@ -95,18 +139,13 @@ releases:
 | `schedule`                | an expression in cron format                                                                                                                        |                                                                | Sets the schedule at which the cronjob spawns a new job                                                             |
 | `concurrencypolicy`       | Allow, Forbid                                                                                                                                       | Allow                                                          | Indicates whether concurrent jobs are allowed or forbidden                                                          |
 
-## Job parameters
+## Cronjob/Job parameters
 
 | Parameter                 | Allowed values                                                                                                                                      | Default value                                                  | Description                                                                                                         |
 | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------| ---------------------------------------------------------------| ------------------------------------------------------------------------------------------------------------------- |
 | `completions`             | an expression in cron format                                                                                                                        |                                                                |                                                                                                                     |
 | `parallelism`             | an expression in cron format                                                                                                                        |                                                                |                                                                                                                     |
 | `backoffLimit`            | an expression in cron format                                                                                                                        |                                                                |                                                                                                                     |
-
-## Pod parameters
-
-| Parameter                 | Allowed values                                                                                                                                      | Default value                                                  | Description                                                                                                         |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------| ---------------------------------------------------------------| ------------------------------------------------------------------------------------------------------------------- |
 | `restartPolicy`           | Always, OnFailure                                                                                                                                   | OnFailure                                                      | Controls whether a container should be restarted when it stops                                                      |
 
 ## Miscellaneous parameters
@@ -119,46 +158,81 @@ releases:
 
 TODO:
 
-```
-manifests
-trustedips
-labels
-containerNativeLoadBalancing
-hosts
-hostsrouteonly
-internalhosts
-internalhostsrouteonly
-apigeesuffix
-basepath
-autoscale
-request
-secrets
-configs
-volumemounts
-certificatesecret
-allowhttp
-enablePayloadLogging
-useGoogleCloudCredentials
-disableServiceAccountKeyRotation
-legacyGoogleCloudServiceAccountKeyFile
-googleCloudCredentialsApp
-probeService
-tolerations
-container
-injecthttpproxysidecar
-initcontainers
-sidecar
-sidecars
-customsidecars
-strategytype
-rollingupdate
-defaultOpenrestySidecarImage
-defaultESPSidecarImage
-defaultESPv2SidecarImage
-defaultCloudSQLProxySidecarImage
-imagePullSecretUser
-imagePullSecretPassword
-```
+| Parameter                 | Allowed values                                                                                                                                      | Default value                                                  | Description                                                                                                         |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------| ---------------------------------------------------------------| ------------------------------------------------------------------------------------------------------------------- |
+| `manifests.files` | | |
+| `manifests.data` | | |
+| `trustedips` | | |
+| `labels` | | |
+| `containerNativeLoadBalancing` | | |
+| `hosts` | | |
+| `hostsrouteonly` | | |
+| `internalhosts` | | |
+| `internalhostsrouteonly` | | |
+| `apigeesuffix` | | |
+| `basepath` | | |
+| `autoscale.enabled` | | |
+| `autoscale.min` | | |
+| `autoscale.max` | | |
+| `autoscale.cpu` | | |
+| `autoscale.safety.enabled` | | |
+| `autoscale.safety.promquery` | | |
+| `autoscale.safety.ratio` | | |
+| `autoscale.safety.delta` | | |
+| `autoscale.safety.scaledownratio` | | |
+| `request.timeout` | | |
+| `request.maxbodysize` | | |
+| `request.proxybuffersize` | | |
+| `request.proxybuffersnumber` | | |
+| `request.clientbodybuffersize` | | |
+| `request.loadbalance` | | |
+| `request.authsecret` | | |
+| `request.verifydepth` | | |
+| `secrets.keys` | | |
+| `secrets.mountpath` | | |
+| `configs.files` | | |
+| `configs.data` | | |
+| `configs.inline` | | |
+| `configs.mountpath` | | |
+| `volumemounts[].name` | | |
+| `volumemounts[].mountpath` | | |
+| `volumemounts[].volume` | | |
+| `certificatesecret` | | |
+| `allowhttp` | | |
+| `enablePayloadLogging` | | |
+| `useGoogleCloudCredentials` | | |
+| `disableServiceAccountKeyRotation` | | |
+| `legacyGoogleCloudServiceAccountKeyFile` | | |
+| `googleCloudCredentialsApp` | | |
+| `probeService` | | |
+| `tolerations` | | |
+| `container` | | |
+| `injecthttpproxysidecar` | | |
+| `initcontainers` | | |
+| `sidecar` | *deprecated*, use sidecars instead | |
+| `sidecars[].type` | | |
+| `sidecars[].image` | | |
+| `sidecars[].env` | | |
+| `sidecars[].secretEnv` | | |
+| `sidecars[].cpu.request` | | |
+| `sidecars[].cpu.limit` | | |
+| `sidecars[].memory.request` | | |
+| `sidecars[].memory.limit` | | |
+| `sidecars[].healthcheckpath` | | |
+| `sidecars[].dbinstanceconnectionname` | | |
+| `sidecars[].sqlproxyport` | | |
+| `sidecars[].sqlproxyterminationtimeoutseconds` | | |
+| `customsidecars` | | |
+| `strategytype` | `RollingUpdate`, `Recreate`, `AtomicUpdate` | |
+| `rollingupdate.maxsurge` | | |
+| `rollingupdate.maxunavailable` | | |
+| `rollingupdate.timeout` | | |
+| `defaultOpenrestySidecarImage` | | |
+| `defaultESPSidecarImage` | | |
+| `defaultESPv2SidecarImage` | | |
+| `defaultCloudSQLProxySidecarImage` | | |
+| `imagePullSecretUser` | | |
+| `imagePullSecretPassword` | | |
 
 # Visibility
 
