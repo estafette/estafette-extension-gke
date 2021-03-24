@@ -98,7 +98,7 @@ spec:
       containers:
       - name: {{.Name}}
         image: {{.Container.Repository}}/{{.Container.Name}}:{{.Container.Tag}}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: {{.Container.ImagePullPolicy}}
         env:
         - name: "JAEGER_AGENT_HOST"
           valueFrom:

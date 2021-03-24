@@ -30,6 +30,7 @@ var (
 			ImageRepository: "estafette",
 			ImageName:       "my-app",
 			ImageTag:        "1.0.0",
+			ImagePullPolicy: "IfNotPresent",
 			Port:            5000,
 
 			CPU: CPUParams{
@@ -262,6 +263,34 @@ func TestSetDefaults(t *testing.T) {
 		params.SetDefaults("", "", "", "", buildVersion, "", "", "", map[string]string{})
 
 		assert.Equal(t, "1.0.0", params.Container.ImageTag)
+	})
+
+	t.Run("KeepsImagePullPolicyIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				ImagePullPolicy: "Always",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, "Always", params.Container.ImagePullPolicy)
+	})
+
+	t.Run("DefaultsImagePullPolicyToIfNotPresentIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				ImagePullPolicy: "",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, "IfNotPresent", params.Container.ImagePullPolicy)
 	})
 
 	t.Run("KeepsImageTagIfNotEmpty", func(t *testing.T) {

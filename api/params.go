@@ -95,6 +95,7 @@ type ContainerParams struct {
 	ImageRepository            string                 `json:"repository,omitempty" yaml:"repository,omitempty"`
 	ImageName                  string                 `json:"name,omitempty" yaml:"name,omitempty"`
 	ImageTag                   string                 `json:"tag,omitempty" yaml:"tag,omitempty"`
+	ImagePullPolicy            string                 `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"`
 	Port                       int                    `json:"port,omitempty" yaml:"port,omitempty"`
 	EnvironmentVariables       map[string]interface{} `json:"env,omitempty" yaml:"env,omitempty"`
 	SecretEnvironmentVariables map[string]interface{} `json:"secretEnv,omitempty" yaml:"secretEnv,omitempty"`
@@ -287,6 +288,11 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	// default image tag to estafette build version if no override in stage params
 	if p.Container.ImageTag == "" && buildVersion != "" {
 		p.Container.ImageTag = buildVersion
+	}
+
+	// default image pull policy to IfNotPresent
+	if p.Container.ImagePullPolicy == "" {
+		p.Container.ImagePullPolicy = "IfNotPresent"
 	}
 
 	// default labels to estafette labels if no override in stage params
@@ -777,6 +783,9 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 	}
 	if p.Container.ImageTag == "" {
 		errors = append(errors, fmt.Errorf("Image tag is required; set it via container.tag property on this stage"))
+	}
+	if p.Container.ImagePullPolicy == "" {
+		errors = append(errors, fmt.Errorf("Image pull policy is required; set it via container.imagePullPolicy property on this stage; allowed values are IfNotPresent or Always"))
 	}
 
 	// validate cpu params

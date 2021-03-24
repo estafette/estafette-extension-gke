@@ -130,6 +130,7 @@ type ContainerData struct {
 	Repository                      string
 	Name                            string
 	Tag                             string
+	ImagePullPolicy                 string
 	CPURequest                      string
 	MemoryRequest                   string
 	CPULimit                        string
