@@ -96,10 +96,11 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		StorageMountPath:    params.StorageMountPath,
 
 		Container: api.ContainerData{
-			Repository: params.Container.ImageRepository,
-			Name:       params.Container.ImageName,
-			Tag:        params.Container.ImageTag,
-			Port:       params.Container.Port,
+			Repository:      params.Container.ImageRepository,
+			Name:            params.Container.ImageName,
+			Tag:             params.Container.ImageTag,
+			ImagePullPolicy: params.Container.ImagePullPolicy,
+			Port:            params.Container.Port,
 
 			CPURequest:    params.Container.CPU.Request,
 			CPULimit:      params.Container.CPU.Limit,
