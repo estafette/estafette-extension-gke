@@ -235,6 +235,8 @@ spec:
           value: "{{$deployment.Namespace}}"
         - name: "HEALT_CHECK_PATH"
           value: "{{index .SidecarSpecificProperties "healthcheckpath"}}"
+        - name: "GRACEFUL_SHUTDOWN_DELAY_SECONDS"
+          value: "{{$deployment.Container.PreStopSleepSeconds}}"
         {{- if $deployment.AllowHTTP }}
         - name: "ENFORCE_HTTPS"
           value: "false"
@@ -318,6 +320,12 @@ spec:
             path: /healthz
             port: esp-status
           initialDelaySeconds: 15
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sleep
+              - {{$deployment.Container.PreStopSleepSeconds}}s
         {{- if .HasCustomProperties }}
 {{.CustomPropertiesYAML | indent 8}}
         {{- end }}
@@ -357,6 +365,12 @@ spec:
           mountPath: /etc/envoy/ssl
         - name: gcp-service-account
           mountPath: /gcp-service-account
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sleep
+              - {{$deployment.Container.PreStopSleepSeconds}}s
         {{- if .HasCustomProperties }}
 {{.CustomPropertiesYAML | indent 8}}
         {{- end }}
