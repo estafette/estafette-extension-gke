@@ -12,6 +12,7 @@ const (
 	ActionDiffSimple    ActionType = "diff-simple"
 	ActionDiffCanary    ActionType = "diff-canary"
 	ActionDiffStable    ActionType = "diff-stable"
+	ActionDelete        ActionType = "delete"
 
 	ActionRollbackCanary ActionType = "rollback-canary"
 
