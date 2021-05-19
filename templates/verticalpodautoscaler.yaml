@@ -10,7 +10,7 @@ metadata:
 spec:
   targetRef:
     apiVersion: apps/v1
-    kind:       Deployment
+    kind: Deployment
     name: {{.NameWithTrack}}
   updatePolicy:
     updateMode: "{{.VpaUpdateMode}}"
