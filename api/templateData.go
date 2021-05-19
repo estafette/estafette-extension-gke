@@ -43,6 +43,7 @@ type TemplateData struct {
 	HpaScalerRequestsPerReplica          string
 	HpaScalerDelta                       string
 	HpaScalerScaleDownMaxRatio           string
+	VpaUpdateMode                        string
 	PreferPreemptibles                   bool
 	UseWindowsNodes                      bool
 	Container                            ContainerData

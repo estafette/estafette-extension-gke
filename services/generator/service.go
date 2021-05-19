@@ -69,6 +69,8 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		HpaScalerDelta:              params.Autoscale.Safety.Delta,
 		HpaScalerScaleDownMaxRatio:  params.Autoscale.Safety.ScaleDownRatio,
 
+		VpaUpdateMode: string(params.VerticalPodAutoscaler.UpdateMode),
+
 		Secrets:                 params.Secrets.Keys,
 		MountSslCertificate:     params.Kind == api.KindDeployment,
 		MountApplicationSecrets: params.HasSecrets(),
