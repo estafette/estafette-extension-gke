@@ -230,6 +230,9 @@ stages:
             ratio: 2.5
             delta: -0.5
             scaledownratio: 0.2
+        vpa:
+          enabled: false
+          updateMode: "Off"
         request:
           timeout: 60s
           maxbodysize: 128m
@@ -648,6 +651,20 @@ stages:
         - gke.internal.estafette.io
         dryrun: true
         legacyGoogleCloudServiceAccountKeyFile: YWJjCg==
+
+      test-vertical-pod-autoscaler:
+        image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+        credentials: gke-dev-common
+        container:
+          repository: extensions
+        vpa:
+          enabled: true
+          updateMode: "Auto"
+        hosts:
+        - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
+        dryrun: true
 
   push-to-docker-hub:
     image: extensions/docker:dev

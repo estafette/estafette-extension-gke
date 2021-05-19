@@ -969,6 +969,63 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, "0.2", params.Autoscale.Safety.ScaleDownRatio)
 	})
 
+	t.Run("DefaultsVerticalPodAutoscalerEnabledToFalse", func(t *testing.T) {
+
+		params := Params{
+			VerticalPodAutoscaler: VPAParams{
+				Enabled: nil,
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, false, *params.VerticalPodAutoscaler.Enabled)
+	})
+
+	t.Run("KeepsVerticalPodAutoscalerEnabled", func(t *testing.T) {
+
+		trueValue := true
+		params := Params{
+			VerticalPodAutoscaler: VPAParams{
+				Enabled: &trueValue,
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, true, *params.VerticalPodAutoscaler.Enabled)
+	})
+
+	t.Run("DefaultsVerticalPodAutoscalerUpdateModeToOff", func(t *testing.T) {
+
+		params := Params{
+			VerticalPodAutoscaler: VPAParams{
+				UpdateMode: UpdateModeUnknown,
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, UpdateModeOff, params.VerticalPodAutoscaler.UpdateMode)
+	})
+
+	t.Run("KeepsVerticalPodAutoscalerUpdateMode", func(t *testing.T) {
+
+		params := Params{
+			VerticalPodAutoscaler: VPAParams{
+				UpdateMode: UpdateModeAuto,
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, UpdateModeAuto, params.VerticalPodAutoscaler.UpdateMode)
+	})
+
 	t.Run("DefaultsRequestTimeoutTo60sIfEmpty", func(t *testing.T) {
 
 		params := Params{

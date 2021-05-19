@@ -54,6 +54,7 @@ type Params struct {
 	ApigeeSuffix                           string                    `json:"apigeesuffix,omitempty" yaml:"apigeesuffix,omitempty"`
 	Basepath                               string                    `json:"basepath,omitempty" yaml:"basepath,omitempty"`
 	Autoscale                              AutoscaleParams           `json:"autoscale,omitempty" yaml:"autoscale,omitempty"`
+	VerticalPodAutoscaler                  VPAParams                 `json:"vpa,omitempty" yaml:"vpa,omitempty"`
 	Request                                RequestParams             `json:"request,omitempty" yaml:"request,omitempty"`
 	Secrets                                SecretsParams             `json:"secrets,omitempty" yaml:"secrets,omitempty"`
 	Configs                                ConfigsParams             `json:"configs,omitempty" yaml:"configs,omitempty"`
@@ -137,6 +138,11 @@ type AutoscaleParams struct {
 	MaxReplicas   int                   `json:"max,omitempty" yaml:"max,omitempty"`
 	CPUPercentage int                   `json:"cpu,omitempty" yaml:"cpu,omitempty"`
 	Safety        AutoscaleSafetyParams `json:"safety,omitempty" yaml:"safety,omitempty"`
+}
+
+type VPAParams struct {
+	Enabled    *bool      `json:"enabled,omitempty" yaml:"enabled,omitempty"`
+	UpdateMode UpdateMode `json:"updateMode,omitempty" yaml:"updateMode,omitempty"`
 }
 
 // AutoscaleSafetyParams configures the autoscaler to use estafette-hpa-scaler as a safety net
@@ -388,6 +394,15 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	}
 	if p.Autoscale.Safety.ScaleDownRatio == "" {
 		p.Autoscale.Safety.ScaleDownRatio = "1"
+	}
+
+	// set vpa defaults
+	if p.VerticalPodAutoscaler.Enabled == nil {
+		falseValue := false
+		p.VerticalPodAutoscaler.Enabled = &falseValue
+	}
+	if p.VerticalPodAutoscaler.UpdateMode == UpdateModeUnknown {
+		p.VerticalPodAutoscaler.UpdateMode = UpdateModeOff
 	}
 
 	// set request defaults
