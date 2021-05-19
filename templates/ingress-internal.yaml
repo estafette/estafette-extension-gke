@@ -1,4 +1,4 @@
-apiVersion: networking.k8s.io/v1
+apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{.Name}}-internal
@@ -48,14 +48,11 @@ spec:
     http:
       paths:
       - path: {{$.InternalIngressPath}}
-        pathType: Prefix
         backend:
-          service:
-            name: {{$.Name}}
-            port:
-              {{- if $.HasOpenrestySidecar }}
-              name: https
-              {{- else }}
-              name: web
-              {{- end }}
+          serviceName: {{$.Name}}
+          {{- if $.HasOpenrestySidecar }}
+          servicePort: https
+          {{- else }}
+          servicePort: web
+          {{- end }}
   {{- end}}
