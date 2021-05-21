@@ -453,7 +453,7 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, VisibilityPublic, params.Visibility)
 	})
 
-	t.Run("DefaultsWorkloadIdentityToTrueIfEmpty", func(t *testing.T) {
+	t.Run("DefaultsWorkloadIdentityToFalseIfEmpty", func(t *testing.T) {
 
 		params := Params{
 			WorkloadIdentity: nil,
@@ -462,19 +462,19 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", "", "", "", "", map[string]string{})
 
-		assert.Equal(t, true, *params.WorkloadIdentity)
+		assert.Equal(t, false, *params.WorkloadIdentity)
 	})
 
 	t.Run("KeepsWorkloadIdentityIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
-			WorkloadIdentity: &falseValue,
+			WorkloadIdentity: &trueValue,
 		}
 
 		// act
 		params.SetDefaults("", "", "", "", "", "", "", "", map[string]string{})
 
-		assert.Equal(t, false, *params.WorkloadIdentity)
+		assert.Equal(t, true, *params.WorkloadIdentity)
 	})
 
 	t.Run("DefaultsCpuRequestTo100MIfBothRequestAndLimitAreEmpty", func(t *testing.T) {

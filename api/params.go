@@ -331,8 +331,8 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 
 	// set default workloadIdentity
 	if p.WorkloadIdentity == nil {
-		trueVaule := true
-		p.WorkloadIdentity = &trueVaule
+		falseVaule := false
+		p.WorkloadIdentity = &falseVaule
 	}
 
 	// set cpu defaults
