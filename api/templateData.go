@@ -54,6 +54,7 @@ type TemplateData struct {
 	InitContainers                       []*map[string]interface{}
 	HasOpenrestySidecar                  bool
 	UseESP                               bool
+	UseWorkloadIdentity                  bool
 	HasEspConfigID                       bool
 	EspConfigID                          string
 	EspService                           string

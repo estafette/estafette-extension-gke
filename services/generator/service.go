@@ -447,6 +447,10 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		data.OverrideDefaultWhitelist = false
 	}
 
+	if params.WorkloadIdentity != nil {
+		data.UseWorkloadIdentity = *params.WorkloadIdentity
+	}
+
 	// add extra hosts for routing in ingress, without setting their dns records
 	data.Hosts = append(data.Hosts, params.HostsRouteOnly...)
 	data.InternalHosts = append(data.InternalHosts, params.InternalHostsRouteOnly...)

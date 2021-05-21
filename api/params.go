@@ -25,44 +25,46 @@ type Params struct {
 	TrustedIPRanges         []string        `json:"trustedips,omitempty" yaml:"trustedips,omitempty"`
 
 	// app params
-	App                                    string                    `json:"app,omitempty" yaml:"app,omitempty"`
-	Namespace                              string                    `json:"namespace,omitempty" yaml:"namespace,omitempty"`
-	Schedule                               string                    `json:"schedule,omitempty" yaml:"schedule,omitempty"`
-	RestartPolicy                          string                    `json:"restartPolicy,omitempty" yaml:"restartPolicy,omitempty"`
-	Completions                            int                       `json:"completions,omitempty" yaml:"completions,omitempty"`
-	Parallelism                            int                       `json:"parallelism,omitempty" yaml:"parallelism,omitempty"`
-	BackoffLimit                           *int                      `json:"backoffLimit,omitempty" yaml:"backoffLimit,omitempty"`
-	ConcurrencyPolicy                      string                    `json:"concurrencypolicy,omitempty" yaml:"concurrencypolicy,omitempty"`
-	PodManagementPolicy                    string                    `json:"podManagementpolicy,omitempty" yaml:"podManagementpolicy,omitempty"`
-	Replicas                               int                       `json:"replicas,omitempty" yaml:"replicas,omitempty"`
-	StorageClass                           string                    `json:"storageclass,omitempty" yaml:"storageclass,omitempty"`
-	StorageSize                            string                    `json:"storagesize,omitempty" yaml:"storagesize,omitempty"`
-	StorageMountPath                       string                    `json:"storagemountpath,omitempty" yaml:"storagemountpath,omitempty"`
-	Labels                                 map[string]string         `json:"labels,omitempty" yaml:"labels,omitempty"`
-	Visibility                             Visibility                `json:"visibility,omitempty" yaml:"visibility,omitempty"`
-	ContainerNativeLoadBalancing           bool                      `json:"containerNativeLoadBalancing,omitempty" yaml:"containerNativeLoadBalancing,omitempty"`
-	IapOauthCredentialsClientID            string                    `json:"iapOauthClientID,omitempty" yaml:"iapOauthClientID,omitempty"`
-	IapOauthCredentialsClientSecret        string                    `json:"iapOauthClientSecret,omitempty" yaml:"iapOauthClientSecret,omitempty"`
-	EspEndpointsProjectID                  string                    `json:"espEndpointsProjectID,omitempty" yaml:"espEndpointsProjectID,omitempty"`
-	EspConfigID                            string                    `json:"espConfigID,omitempty" yaml:"espConfigID,omitempty"`
-	EspOpenAPIYamlPath                     string                    `json:"espOpenapiYamlPath,omitempty" yaml:"espOpenapiYamlPath,omitempty"`
-	WhitelistedIPS                         []string                  `json:"whitelist,omitempty" yaml:"whitelist,omitempty"`
-	Hosts                                  []string                  `json:"hosts,omitempty" yaml:"hosts,omitempty"`
-	HostsRouteOnly                         []string                  `json:"hostsrouteonly,omitempty" yaml:"hostsrouteonly,omitempty"`
-	InternalHosts                          []string                  `json:"internalhosts,omitempty" yaml:"internalhosts,omitempty"`
-	InternalHostsRouteOnly                 []string                  `json:"internalhostsrouteonly,omitempty" yaml:"internalhostsrouteonly,omitempty"`
-	ApigeeSuffix                           string                    `json:"apigeesuffix,omitempty" yaml:"apigeesuffix,omitempty"`
-	Basepath                               string                    `json:"basepath,omitempty" yaml:"basepath,omitempty"`
-	Autoscale                              AutoscaleParams           `json:"autoscale,omitempty" yaml:"autoscale,omitempty"`
-	VerticalPodAutoscaler                  VPAParams                 `json:"vpa,omitempty" yaml:"vpa,omitempty"`
-	Request                                RequestParams             `json:"request,omitempty" yaml:"request,omitempty"`
-	Secrets                                SecretsParams             `json:"secrets,omitempty" yaml:"secrets,omitempty"`
-	Configs                                ConfigsParams             `json:"configs,omitempty" yaml:"configs,omitempty"`
-	VolumeMounts                           []VolumeMountParams       `json:"volumemounts,omitempty" yaml:"volumemounts,omitempty"`
-	CertificateSecret                      string                    `json:"certificatesecret,omitempty" yaml:"certificatesecret,omitempty"`
-	AllowHTTP                              bool                      `json:"allowhttp,omitempty" yaml:"allowhttp,omitempty"`
-	EnablePayloadLogging                   bool                      `json:"enablePayloadLogging,omitempty" yaml:"enablePayloadLogging,omitempty"`
-	UseGoogleCloudCredentials              bool                      `json:"useGoogleCloudCredentials,omitempty" yaml:"useGoogleCloudCredentials,omitempty"`
+	App                             string              `json:"app,omitempty" yaml:"app,omitempty"`
+	Namespace                       string              `json:"namespace,omitempty" yaml:"namespace,omitempty"`
+	Schedule                        string              `json:"schedule,omitempty" yaml:"schedule,omitempty"`
+	RestartPolicy                   string              `json:"restartPolicy,omitempty" yaml:"restartPolicy,omitempty"`
+	Completions                     int                 `json:"completions,omitempty" yaml:"completions,omitempty"`
+	Parallelism                     int                 `json:"parallelism,omitempty" yaml:"parallelism,omitempty"`
+	BackoffLimit                    *int                `json:"backoffLimit,omitempty" yaml:"backoffLimit,omitempty"`
+	ConcurrencyPolicy               string              `json:"concurrencypolicy,omitempty" yaml:"concurrencypolicy,omitempty"`
+	PodManagementPolicy             string              `json:"podManagementpolicy,omitempty" yaml:"podManagementpolicy,omitempty"`
+	Replicas                        int                 `json:"replicas,omitempty" yaml:"replicas,omitempty"`
+	StorageClass                    string              `json:"storageclass,omitempty" yaml:"storageclass,omitempty"`
+	StorageSize                     string              `json:"storagesize,omitempty" yaml:"storagesize,omitempty"`
+	StorageMountPath                string              `json:"storagemountpath,omitempty" yaml:"storagemountpath,omitempty"`
+	Labels                          map[string]string   `json:"labels,omitempty" yaml:"labels,omitempty"`
+	Visibility                      Visibility          `json:"visibility,omitempty" yaml:"visibility,omitempty"`
+	ContainerNativeLoadBalancing    bool                `json:"containerNativeLoadBalancing,omitempty" yaml:"containerNativeLoadBalancing,omitempty"`
+	IapOauthCredentialsClientID     string              `json:"iapOauthClientID,omitempty" yaml:"iapOauthClientID,omitempty"`
+	IapOauthCredentialsClientSecret string              `json:"iapOauthClientSecret,omitempty" yaml:"iapOauthClientSecret,omitempty"`
+	EspEndpointsProjectID           string              `json:"espEndpointsProjectID,omitempty" yaml:"espEndpointsProjectID,omitempty"`
+	EspConfigID                     string              `json:"espConfigID,omitempty" yaml:"espConfigID,omitempty"`
+	EspOpenAPIYamlPath              string              `json:"espOpenapiYamlPath,omitempty" yaml:"espOpenapiYamlPath,omitempty"`
+	WhitelistedIPS                  []string            `json:"whitelist,omitempty" yaml:"whitelist,omitempty"`
+	Hosts                           []string            `json:"hosts,omitempty" yaml:"hosts,omitempty"`
+	HostsRouteOnly                  []string            `json:"hostsrouteonly,omitempty" yaml:"hostsrouteonly,omitempty"`
+	InternalHosts                   []string            `json:"internalhosts,omitempty" yaml:"internalhosts,omitempty"`
+	InternalHostsRouteOnly          []string            `json:"internalhostsrouteonly,omitempty" yaml:"internalhostsrouteonly,omitempty"`
+	ApigeeSuffix                    string              `json:"apigeesuffix,omitempty" yaml:"apigeesuffix,omitempty"`
+	Basepath                        string              `json:"basepath,omitempty" yaml:"basepath,omitempty"`
+	Autoscale                       AutoscaleParams     `json:"autoscale,omitempty" yaml:"autoscale,omitempty"`
+	VerticalPodAutoscaler           VPAParams           `json:"vpa,omitempty" yaml:"vpa,omitempty"`
+	Request                         RequestParams       `json:"request,omitempty" yaml:"request,omitempty"`
+	Secrets                         SecretsParams       `json:"secrets,omitempty" yaml:"secrets,omitempty"`
+	Configs                         ConfigsParams       `json:"configs,omitempty" yaml:"configs,omitempty"`
+	VolumeMounts                    []VolumeMountParams `json:"volumemounts,omitempty" yaml:"volumemounts,omitempty"`
+	CertificateSecret               string              `json:"certificatesecret,omitempty" yaml:"certificatesecret,omitempty"`
+	AllowHTTP                       bool                `json:"allowhttp,omitempty" yaml:"allowhttp,omitempty"`
+	EnablePayloadLogging            bool                `json:"enablePayloadLogging,omitempty" yaml:"enablePayloadLogging,omitempty"`
+	UseGoogleCloudCredentials       bool                `json:"useGoogleCloudCredentials,omitempty" yaml:"useGoogleCloudCredentials,omitempty"`
+	WorkloadIdentity                *bool               `json:"worloadIdentity,omitempty" yaml:"worloadIdentity,omitempty"`
+
 	DisableServiceAccountKeyRotation       *bool                     `json:"disableServiceAccountKeyRotation,omitempty" yaml:"disableServiceAccountKeyRotation,omitempty"`
 	LegacyGoogleCloudServiceAccountKeyFile string                    `json:"legacyGoogleCloudServiceAccountKeyFile,omitempty" yaml:"legacyGoogleCloudServiceAccountKeyFile,omitempty"`
 	GoogleCloudCredentialsApp              string                    `json:"googleCloudCredentialsApp,omitempty" yaml:"googleCloudCredentialsApp,omitempty"`
@@ -325,6 +327,12 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	// default visibility to private if no override in stage params
 	if p.Visibility == VisibilityUnknown {
 		p.Visibility = VisibilityPrivate
+	}
+
+	// set default workloadIdentity
+	if p.WorkloadIdentity == nil {
+		trueVaule := true
+		p.WorkloadIdentity = &trueVaule
 	}
 
 	// set cpu defaults
