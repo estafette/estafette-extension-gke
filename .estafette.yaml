@@ -74,7 +74,7 @@ stages:
         - extensions
 
       vulnerability-scan:
-        image: extensions/docker:dev
+        image: extensions/docker:stable
         action: trivy
         container: gke
         severity: low
