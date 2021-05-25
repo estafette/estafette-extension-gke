@@ -95,12 +95,12 @@ spec:
       initContainers:
       {{- if .UseWorkloadIdentity }}
       - image:  gcr.io/google.com/cloudsdktool/cloud-sdk:326.0.0-alpine
-          name: {{$deployment.Name}}-workload-identity
-          command:
-          - '/bin/bash'
-          - '-c'
-          - |
-            curl -s -H 'Metadata-Flavor: Google' 'http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token' --retry 30 --retry-connrefused --retry-max-time 30 > /dev/null || exit 1
+        name: {{$deployment.Name}}-workload-identity
+        command:
+        - '/bin/bash'
+        - '-c'
+        - |
+          curl -s -H 'Metadata-Flavor: Google' 'http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token' --retry 30 --retry-connrefused --retry-max-time 30 > /dev/null || exit 1
       {{- end}}
       {{- if .HasInitContainers }}
 {{(call $.ToYAML .InitContainers) | indent 6}}
