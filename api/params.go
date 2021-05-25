@@ -63,7 +63,7 @@ type Params struct {
 	AllowHTTP                       bool                `json:"allowhttp,omitempty" yaml:"allowhttp,omitempty"`
 	EnablePayloadLogging            bool                `json:"enablePayloadLogging,omitempty" yaml:"enablePayloadLogging,omitempty"`
 	UseGoogleCloudCredentials       bool                `json:"useGoogleCloudCredentials,omitempty" yaml:"useGoogleCloudCredentials,omitempty"`
-	WorkloadIdentity                *bool               `json:"worloadIdentity,omitempty" yaml:"worloadIdentity,omitempty"`
+	WorkloadIdentity                *bool               `json:"workloadIdentity,omitempty" yaml:"worloadIdentity,omitempty"`
 
 	DisableServiceAccountKeyRotation       *bool                     `json:"disableServiceAccountKeyRotation,omitempty" yaml:"disableServiceAccountKeyRotation,omitempty"`
 	LegacyGoogleCloudServiceAccountKeyFile string                    `json:"legacyGoogleCloudServiceAccountKeyFile,omitempty" yaml:"legacyGoogleCloudServiceAccountKeyFile,omitempty"`
