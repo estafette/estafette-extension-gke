@@ -181,7 +181,7 @@ spec:
         - name: app-configs
           mountPath: {{.ConfigMountPath}}
         {{- end }}
-        {{- if or .MountServiceAccountSecret }}
+        {{- if $deployment.MountServiceAccountSecret }}
         - name: gcp-service-account
           mountPath: /gcp-service-account
         {{- end }}
@@ -300,7 +300,9 @@ spec:
           "--ssl_port", "8443",
           "--backend", "127.0.0.1:80",
           "--service", "{{$deployment.EspService}}",
+          {{- if not $deployment.MountServiceAccountSecret }}
           "--service_account_key", "/gcp-service-account/service-account-key.json",
+          {{-end }}
           {{- if $deployment.HasEspConfigID }}
           "--version","{{$deployment.EspConfigID}}"
           {{- else }}
@@ -324,8 +326,10 @@ spec:
         volumeMounts:
         - name: ssl-certificate-esp
           mountPath: /etc/nginx/ssl
+        {{- if $deployment.MountServiceAccountSecret }}
         - name: gcp-service-account
           mountPath: /gcp-service-account
+        {{-end }}
         livenessProbe:
           httpGet:
             path: /healthz
@@ -348,7 +352,9 @@ spec:
           "--listener_port=8443",
           "--backend=http://127.0.0.1:80",
           "--service={{$deployment.EspService}}",
+          {{- if not $deployment.MountServiceAccountSecret }}
           "--service_account_key=/gcp-service-account/service-account-key.json",
+          {{- end }}
           "--ssl_server_cert_path=/etc/envoy/ssl",
           "--http_request_timeout_s={{$deployment.EspRequestTimeout}}",
           {{- if $deployment.HasEspConfigID }}
@@ -374,8 +380,10 @@ spec:
         volumeMounts:
         - name: ssl-certificate-esp
           mountPath: /etc/envoy/ssl
+        {{- if $deployment.MountServiceAccountSecret }}
         - name: gcp-service-account
           mountPath: /gcp-service-account
+        {{- end }}
         lifecycle:
           preStop:
             exec:
@@ -417,9 +425,11 @@ spec:
             memory: {{.MemoryLimit}}
         command: ["/cloud_sql_proxy",
                   "-instances={{ index .SidecarSpecificProperties "dbinstanceconnectionname" }}=tcp:{{ index .SidecarSpecificProperties "sqlproxyport" }}",
+                  {{- if not $deployment.MountServiceAccountSecret }}
                   "-credential_file=/gcp-service-account/service-account-key.json",
+                  {{- end }}
                   "-term_timeout={{ index .SidecarSpecificProperties "sqlproxyterminationtimeoutseconds" }}s"]
-          {{- if or $deployment.MountServiceAccountSecret }}
+          {{- if $deployment.MountServiceAccountSecret }}
         volumeMounts:
           - name: gcp-service-account
             mountPath: /gcp-service-account
@@ -524,7 +534,7 @@ spec:
         configMap:
           name: {{.NameWithTrack}}-configs
       {{- end }}
-      {{- if or .MountServiceAccountSecret }}
+      {{- if $deployment.MountServiceAccountSecret }}
       - name: gcp-service-account
         secret:
           secretName: {{.GoogleCloudCredentialsAppName}}-gcp-service-account

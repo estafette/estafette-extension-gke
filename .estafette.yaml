@@ -369,6 +369,7 @@ stages:
         container:
           repository: extensions
         useGoogleCloudCredentials: true
+        workloadIdentity: true
         disableServiceAccountKeyRotation: true
         hosts:
         - gke.estafette.io

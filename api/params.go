@@ -885,10 +885,10 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 			errors = append(errors, fmt.Errorf("With visibility 'iap' property iapOauthClientSecret is required; set it via iapOauthClientSecret property on this stage"))
 		}
 
-		if (p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2) && !p.UseGoogleCloudCredentials {
-			errors = append(errors, fmt.Errorf("With visibility 'esp' property useGoogleCloudCredentials is required; set useGoogleCloudCredentials: true on this stage"))
+		if (p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2) && (!p.UseGoogleCloudCredentials && !*p.WorkloadIdentity) {
+			errors = append(errors, fmt.Errorf("With visibility 'esp' property useGoogleCloudCredentials or workloadIdentity is required; set useGoogleCloudCredentials: true or workloadIdenitity: true on this stage"))
 		}
-		if (p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2) && (p.DisableServiceAccountKeyRotation == nil || !*p.DisableServiceAccountKeyRotation) {
+		if (p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2) && ((p.DisableServiceAccountKeyRotation == nil || !*p.DisableServiceAccountKeyRotation) && !*p.WorkloadIdentity) {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property disableServiceAccountKeyRotation is required; set disableServiceAccountKeyRotation: true on this stage"))
 		}
 		if (p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2) && (p.EspEndpointsProjectID == "") {
