@@ -300,7 +300,7 @@ spec:
           "--ssl_port", "8443",
           "--backend", "127.0.0.1:80",
           "--service", "{{$deployment.EspService}}",
-          {{- if not $deployment.MountServiceAccountSecret }}
+          {{- if $deployment.MountServiceAccountSecret }}
           "--service_account_key", "/gcp-service-account/service-account-key.json",
           {{- end }}
           {{- if $deployment.HasEspConfigID }}
@@ -352,7 +352,7 @@ spec:
           "--listener_port=8443",
           "--backend=http://127.0.0.1:80",
           "--service={{$deployment.EspService}}",
-          {{- if not $deployment.MountServiceAccountSecret }}
+          {{- if $deployment.MountServiceAccountSecret }}
           "--service_account_key=/gcp-service-account/service-account-key.json",
           {{- end }}
           "--ssl_server_cert_path=/etc/envoy/ssl",
@@ -425,7 +425,7 @@ spec:
             memory: {{.MemoryLimit}}
         command: ["/cloud_sql_proxy",
                   "-instances={{ index .SidecarSpecificProperties "dbinstanceconnectionname" }}=tcp:{{ index .SidecarSpecificProperties "sqlproxyport" }}",
-                  {{- if not $deployment.MountServiceAccountSecret }}
+                  {{- if $deployment.MountServiceAccountSecret }}
                   "-credential_file=/gcp-service-account/service-account-key.json",
                   {{- end }}
                   "-term_timeout={{ index .SidecarSpecificProperties "sqlproxyterminationtimeoutseconds" }}s"]
