@@ -302,7 +302,7 @@ spec:
           "--service", "{{$deployment.EspService}}",
           {{- if not $deployment.MountServiceAccountSecret }}
           "--service_account_key", "/gcp-service-account/service-account-key.json",
-          {{-end }}
+          {{- end }}
           {{- if $deployment.HasEspConfigID }}
           "--version","{{$deployment.EspConfigID}}"
           {{- else }}
@@ -329,7 +329,7 @@ spec:
         {{- if $deployment.MountServiceAccountSecret }}
         - name: gcp-service-account
           mountPath: /gcp-service-account
-        {{-end }}
+        {{- end }}
         livenessProbe:
           httpGet:
             path: /healthz
