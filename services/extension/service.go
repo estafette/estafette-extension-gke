@@ -90,7 +90,7 @@ func (s *service) Run(ctx context.Context, credential *api.GKECredentials, relea
 
 	if params.Action == api.ActionDelete {
 		log.Info().Msgf("Deleting all resources with label app=%v in namespace %v...", templateData.AppLabelSelector, templateData.Namespace)
-		args := []string{"delete", "svc,ing,deploy,sts,cronjob,job,cm,secret,hpa,pdb,sa,backendconfig,serviceaccount", "-l", fmt.Sprintf("app=%v", templateData.AppLabelSelector), "-n", templateData.Namespace, "--ignore-not-found=true"}
+		args := []string{"delete", "svc,ing,deploy,sts,cronjob,job,cm,secret,hpa,pdb,sa,backendconfig", "-l", fmt.Sprintf("app=%v", templateData.AppLabelSelector), "-n", templateData.Namespace, "--ignore-not-found=true"}
 		if params.DryRun {
 			args = append(args, "--dry-run=client")
 		}

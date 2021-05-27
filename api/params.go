@@ -331,8 +331,8 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 
 	// set default workloadIdentity
 	if p.WorkloadIdentity == nil {
-		falseVaule := false
-		p.WorkloadIdentity = &falseVaule
+		falseValue := false
+		p.WorkloadIdentity = &falseValue
 	}
 
 	// set cpu defaults
@@ -886,7 +886,7 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 		}
 
 		if (p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2) && (!p.UseGoogleCloudCredentials && (p.WorkloadIdentity == nil || !*p.WorkloadIdentity)) {
-			errors = append(errors, fmt.Errorf("With visibility 'esp' property useGoogleCloudCredentials or workloadIdentity is required; set useGoogleCloudCredentials: true or workloadIdenitity: true on this stage"))
+			errors = append(errors, fmt.Errorf("With visibility 'esp' property useGoogleCloudCredentials or workloadIdentity is required; set useGoogleCloudCredentials: true or workloadIdentity: true on this stage"))
 		}
 		if (p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2) && ((p.DisableServiceAccountKeyRotation == nil || !*p.DisableServiceAccountKeyRotation) && (p.WorkloadIdentity == nil || !*p.WorkloadIdentity)) {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property disableServiceAccountKeyRotation is required; set disableServiceAccountKeyRotation: true on this stage"))
