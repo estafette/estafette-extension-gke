@@ -394,18 +394,6 @@ stages:
         - gke.estafette.internal
         dryrun: true
 
-      test-workloadIdentity:
-        image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-        credentials: gke-dev-common
-        workloadIdentity: true
-        container:
-          repository: extensions
-        hosts:
-        - gke.estafette.io
-        internalhosts:
-        - gke.estafette.internal
-        dryrun: true
-
       test-kind-job:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
         credentials: gke-dev-common
