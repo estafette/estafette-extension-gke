@@ -76,6 +76,21 @@ spec:
                 - "true"
           {{- end}}
         {{- end}}
+      {{- if or .HasInitContainers .UseWorkloadIdentity}}
+      initContainers:
+      {{- if .UseWorkloadIdentity }}
+      - image:  gcr.io/google.com/cloudsdktool/cloud-sdk:326.0.0-alpine
+        name: {{$deployment.Name}}-workload-identity
+        command:
+        - '/bin/bash'
+        - '-c'
+        - |
+          curl -s -H 'Metadata-Flavor: Google' 'http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token' --retry 30 --retry-connrefused --retry-max-time 30 > /dev/null || exit 1
+      {{- end}}
+      {{- if .HasInitContainers }}
+{{(call $.ToYAML .InitContainers) | indent 6}}
+      {{- end}}
+      {{- end}}
       containers:
       - name: {{.Name}}
         image: {{.Container.Repository}}/{{.Container.Name}}:{{.Container.Tag}}
@@ -152,7 +167,7 @@ spec:
         - name: app-configs
           mountPath: {{.ConfigMountPath}}
         {{- end }}
-        {{- if .MountServiceAccountSecret }}
+        {{- if $deployment.MountServiceAccountSecret }}
         - name: gcp-service-account
           mountPath: /gcp-service-account
         {{- end }}
@@ -329,7 +344,7 @@ spec:
         configMap:
           name: {{.NameWithTrack}}-configs
       {{- end }}
-      {{- if .MountServiceAccountSecret }}
+      {{- if $deployment.MountServiceAccountSecret }}
       - name: gcp-service-account
         secret:
           secretName: {{.GoogleCloudCredentialsAppName}}-gcp-service-account

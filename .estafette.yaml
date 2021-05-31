@@ -91,6 +91,7 @@ stages:
         app: gke
         namespace: estafette
         visibility: public-whitelist
+        workloadIdentity: true
         whitelist:
         - 10.0.0.0/8
         - 172.16.0.0/12
@@ -368,6 +369,7 @@ stages:
         container:
           repository: extensions
         useGoogleCloudCredentials: true
+        workloadIdentity: true
         disableServiceAccountKeyRotation: true
         hosts:
         - gke.estafette.io

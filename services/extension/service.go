@@ -189,6 +189,7 @@ func (s *service) Run(ctx context.Context, credential *api.GKECredentials, relea
 				s.deleteSecretsForParamsChange(ctx, params, templateData.NameWithTrack, templateData.Namespace)
 				s.deleteServiceAccountSecretForParamsChange(ctx, params, templateData.GoogleCloudCredentialsAppName, templateData.Namespace)
 				s.deleteIngressForVisibilityChange(ctx, templateData, templateData.Name, templateData.Namespace)
+				s.removeWorkloadIdentityAnnotationForParamsChange(ctx, params, templateData, templateData.Name, templateData.Namespace)
 				s.removeEstafetteCloudflareAnnotations(ctx, templateData, templateData.Name, templateData.Namespace)
 				s.removeBackendConfigAnnotation(ctx, templateData, templateData.Name, templateData.Namespace)
 				s.removeNegAnnotation(ctx, templateData, templateData.Name, templateData.Namespace)
@@ -214,6 +215,7 @@ func (s *service) Run(ctx context.Context, credential *api.GKECredentials, relea
 				s.deleteSecretsForParamsChange(ctx, params, templateData.Name, templateData.Namespace)
 				s.deleteServiceAccountSecretForParamsChange(ctx, params, templateData.GoogleCloudCredentialsAppName, templateData.Namespace)
 				s.deleteIngressForVisibilityChange(ctx, templateData, templateData.Name, templateData.Namespace)
+				s.removeWorkloadIdentityAnnotationForParamsChange(ctx, params, templateData, templateData.Name, templateData.Namespace)
 				s.removeEstafetteCloudflareAnnotations(ctx, templateData, templateData.Name, templateData.Namespace)
 				s.removeBackendConfigAnnotation(ctx, templateData, templateData.Name, templateData.Namespace)
 				s.removeNegAnnotation(ctx, templateData, templateData.Name, templateData.Namespace)
@@ -236,6 +238,7 @@ func (s *service) Run(ctx context.Context, credential *api.GKECredentials, relea
 				s.deleteConfigsForParamsChange(ctx, params, templateData.NameWithTrack, templateData.Namespace)
 				s.deleteSecretsForParamsChange(ctx, params, templateData.NameWithTrack, templateData.Namespace)
 				s.deleteServiceAccountSecretForParamsChange(ctx, params, templateData.GoogleCloudCredentialsAppName, templateData.Namespace)
+				s.removeWorkloadIdentityAnnotationForParamsChange(ctx, params, templateData, templateData.Name, templateData.Namespace)
 				s.deleteHorizontalPodAutoscaler(ctx, params, templateData.NameWithTrack, templateData.Namespace)
 				break
 			case api.ActionRollbackCanary:
@@ -256,6 +259,7 @@ func (s *service) Run(ctx context.Context, credential *api.GKECredentials, relea
 				s.deleteConfigsForParamsChange(ctx, params, templateData.Name, templateData.Namespace)
 				s.deleteSecretsForParamsChange(ctx, params, templateData.Name, templateData.Namespace)
 				s.deleteServiceAccountSecretForParamsChange(ctx, params, templateData.GoogleCloudCredentialsAppName, templateData.Namespace)
+				s.removeWorkloadIdentityAnnotationForParamsChange(ctx, params, templateData, templateData.Name, templateData.Namespace)
 				s.deleteHorizontalPodAutoscaler(ctx, params, templateData.Name, templateData.Namespace)
 				break
 			}
@@ -265,6 +269,7 @@ func (s *service) Run(ctx context.Context, credential *api.GKECredentials, relea
 			s.deleteSecretsForParamsChange(ctx, params, templateData.Name, templateData.Namespace)
 			s.deleteServiceAccountSecretForParamsChange(ctx, params, templateData.GoogleCloudCredentialsAppName, templateData.Namespace)
 			s.deleteIngressForVisibilityChange(ctx, templateData, templateData.Name, templateData.Namespace)
+			s.removeWorkloadIdentityAnnotationForParamsChange(ctx, params, templateData, templateData.Name, templateData.Namespace)
 			s.removeEstafetteCloudflareAnnotations(ctx, templateData, templateData.Name, templateData.Namespace)
 			s.removeBackendConfigAnnotation(ctx, templateData, templateData.Name, templateData.Namespace)
 			s.deleteBackendConfigAndIAPOauthSecret(ctx, templateData, templateData.Name, templateData.Namespace)
@@ -337,6 +342,13 @@ func (s *service) deleteServiceAccountSecretForParamsChange(ctx context.Context,
 	if !params.UseGoogleCloudCredentials && params.LegacyGoogleCloudServiceAccountKeyFile == "" {
 		log.Info().Msg("Deleting service account secret if it exists, because no use of service account is specified...")
 		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "secret", fmt.Sprintf("%v-gcp-service-account", name), "-n", namespace, "--ignore-not-found=true"})
+	}
+}
+
+func (s *service) removeWorkloadIdentityAnnotationForParamsChange(ctx context.Context, params api.Params, templateData api.TemplateData, name, namespace string) {
+	if !*params.WorkloadIdentity {
+		log.Info().Msg("Removing iam.gke.io/gcp-service-account annotations on the serviceaccount if it exists")
+		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"annotate", "serviceaccount", name, "-n", namespace, "iam.gke.io/gcp-service-account-"})
 	}
 }
 
