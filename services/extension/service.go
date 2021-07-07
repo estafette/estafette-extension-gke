@@ -88,10 +88,10 @@ func (s *service) Run(ctx context.Context, credential *api.GKECredentials, relea
 	// generate the data required for rendering the templates
 	templateData := s.generatorService.GenerateTemplateData(params, currentReplicas, gitSource, gitOwner, gitName, gitBranch, gitRevision, releaseID, triggeredBy)
 
-	if params.Action == api.ActionDelete {
+	if params.Action == api.ActionDelete || params.Action == api.ActionDiffDelete {
 		log.Info().Msgf("Deleting all resources with label app=%v in namespace %v...", templateData.AppLabelSelector, templateData.Namespace)
 		args := []string{"delete", "svc,ing,deploy,sts,cronjob,job,cm,secret,hpa,pdb,sa,backendconfig", "-l", fmt.Sprintf("app=%v", templateData.AppLabelSelector), "-n", templateData.Namespace, "--ignore-not-found=true"}
-		if params.DryRun {
+		if params.DryRun || params.Action == api.ActionDiffDelete {
 			args = append(args, "--dry-run=client")
 		}
 		foundation.RunCommandWithArgs(ctx, "kubectl", args)
