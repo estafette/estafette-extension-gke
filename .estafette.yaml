@@ -642,7 +642,18 @@ stages:
         - gke.estafette.internal
         dryrun: true
 
-      test-legacy-gcp-service-account:
+      test-action-diff-delete:
+        image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+        credentials: gke-dev-common
+        action: diff-delete
+        container:
+          repository: extensions
+        hosts:
+        - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
+
+        test-legacy-gcp-service-account:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
         credentials: gke-dev-common
         container:
