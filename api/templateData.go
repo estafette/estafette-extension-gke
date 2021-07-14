@@ -52,6 +52,7 @@ type TemplateData struct {
 	CustomSidecars                       []*map[string]interface{}
 	HasInitContainers                    bool
 	InitContainers                       []*map[string]interface{}
+	PodSecurityContext                   map[string]interface{}
 	HasOpenrestySidecar                  bool
 	UseESP                               bool
 	UseWorkloadIdentity                  bool

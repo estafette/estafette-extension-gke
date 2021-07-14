@@ -34,6 +34,9 @@ spec:
       {{- end}}
       restartPolicy: {{.RestartPolicy}}
       serviceAccount: {{.Name}}
+      {{- if .PodSecurityContext }}
+{{(call $.ToYAML .PodSecurityContext) | indent 6}}
+      {{- end }}
       {{- if or .PreferPreemptibles .UseWindowsNodes}}
       affinity:
         nodeAffinity:

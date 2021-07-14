@@ -57,6 +57,9 @@ spec:
       - name: {{.Name}}-image-pull-secret
       {{- end}}
       serviceAccount: {{.Name}}
+      {{- if .PodSecurityContext }}
+{{(call $.ToYAML .PodSecurityContext) | indent 6}}
+      {{- end }}
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
