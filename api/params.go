@@ -112,6 +112,8 @@ type ContainerParams struct {
 	Lifecycle      LifecycleParams `json:"lifecycle,omitempty" yaml:"lifecycle,omitempty"`
 
 	AdditionalPorts []*AdditionalPortParams `json:"additionalports,omitempty" yaml:"additionalports,omitempty"`
+
+	ContainerSecurityContext map[string]interface{} `json:"securityContext,omitempty" yaml:"securityContext,omitempty"`
 }
 
 // AdditionalPortParams provides information about any additional ports exposed and accessible via a service

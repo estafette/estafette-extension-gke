@@ -86,6 +86,9 @@ spec:
           - name: {{.Name}}
             image: {{.Container.Repository}}/{{.Container.Name}}:{{.Container.Tag}}
             imagePullPolicy: {{.Container.ImagePullPolicy}}
+            {{- if .Container.ContainerSecurityContext }}
+{{(call $.ToYAML .Container.ContainerSecurityContext) | indent 12}}
+            {{- end }}
             env:
             - name: "JAEGER_AGENT_HOST"
               valueFrom:

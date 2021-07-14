@@ -113,6 +113,8 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 			EnvironmentVariables:       params.Container.EnvironmentVariables,
 			SecretEnvironmentVariables: params.Container.SecretEnvironmentVariables,
 
+			ContainerSecurityContext: params.Container.ContainerSecurityContext,
+
 			Liveness: api.ProbeData{
 				Path:                params.Container.LivenessProbe.Path,
 				Port:                params.Container.LivenessProbe.Port,
