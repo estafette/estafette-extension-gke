@@ -43,7 +43,8 @@ spec:
       {{- end}}
       serviceAccount: {{.Name}}
       {{- if .PodSecurityContext }}
-{{(call $.ToYAML .PodSecurityContext) | indent 6}}
+      securityContext:
+{{(call $.ToYAML .PodSecurityContext) | indent 8}}
       {{- end }}
       affinity:
         podAntiAffinity:
@@ -99,7 +100,8 @@ spec:
         image: {{.Container.Repository}}/{{.Container.Name}}:{{.Container.Tag}}
         imagePullPolicy: {{.Container.ImagePullPolicy}}
         {{- if .Container.ContainerSecurityContext }}
-{{(call $.ToYAML .Container.ContainerSecurityContext) | indent 8}}
+        securityContext:
+{{(call $.ToYAML .Container.ContainerSecurityContext) | indent 12}}
         {{- end }}
         env:
         - name: "JAEGER_AGENT_HOST"
