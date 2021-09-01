@@ -592,12 +592,12 @@ func getExistingNumberOfReplicas(ctx context.Context, params Params) int {
 	if params.Kind == KindDeployment || params.Kind == KindHeadlessDeployment {
 		deploymentName := ""
 		if params.Action == ActionDeploySimple || params.Action == ActionDiffSimple {
-			deploymentName = params.App + "-stable"
-		} else if params.Action == ActionDeployStable || params.Action == ActionDiffStable {
 			deploymentName = params.App
+		} else if params.Action == ActionDeployStable || params.Action == ActionDiffStable {
+			deploymentName = params.App + "-stable"
 		}
 		if deploymentName != "" {
-			replicas, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "deploy", deploymentName, "-n", params.Namespace, "-o=jsonpath={.spec.replicas}"})
+			replicas, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "deploy", deploymentName, "-n", params.Namespace, "-o=\"jsonpath={.spec.replicas}\""})
 			if err != nil {
 				log.Info().Msgf("Failed retrieving replicas for %v: %v ignoring setting replicas since there's no switch for deployment type...", deploymentName, err)
 				return -1
