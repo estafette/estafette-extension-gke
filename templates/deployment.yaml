@@ -95,7 +95,7 @@ spec:
                 - "true"
           {{- end}}
         {{- end}}
-      {{- if or .HasInitContainers .UseWorkloadIdentity}}
+      {{- if or .HasInitContainers .UseWorkloadIdentity .MountPayloadLogging}}
       initContainers:
       {{- if .UseWorkloadIdentity }}
       - image:  gcr.io/google.com/cloudsdktool/cloud-sdk:326.0.0-alpine
