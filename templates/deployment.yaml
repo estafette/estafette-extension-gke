@@ -106,6 +106,15 @@ spec:
         - |
           curl -s -H 'Metadata-Flavor: Google' 'http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token' --retry 30 --retry-connrefused --retry-max-time 30 > /dev/null || exit 1
       {{- end}}
+      {{- if .MountPayloadLogging }}
+      - name: fix-payload-logger-permissions
+        image: busybox:1.33.1
+        command:
+          - "chown 1000 /var/log/fluentd-payload-logger/{{.Name}}"
+        volumeMounts:
+          - mountPath: /var/log
+            name: var-log
+      {{- end}}
       {{- if .HasInitContainers }}
 {{(call $.ToYAML .InitContainers) | indent 6}}
       {{- end}}
