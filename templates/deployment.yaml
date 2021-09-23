@@ -110,10 +110,11 @@ spec:
       - name: fix-payload-logger-permissions
         image: busybox:1.33.1
         command:
-          - "chown 1000 /var/log/fluentd-payload-logger/{{.Name}}"
+          - "chown 1000 /var/log/travix/fluentd-payload-logger/{{.Name}}"
         volumeMounts:
-          - mountPath: /var/log
+          - mountPath: /var/log/travix/fluentd-payload-logger
             name: var-log
+            subPath: fluentd-payload-logger
       {{- end}}
       {{- if .HasInitContainers }}
 {{(call $.ToYAML .InitContainers) | indent 6}}
