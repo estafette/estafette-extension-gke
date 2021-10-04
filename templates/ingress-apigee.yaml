@@ -30,29 +30,29 @@ metadata:
     nginx.ingress.kubernetes.io/auth-tls-verify-depth: "{{.NginxAuthTLSVerifyDepth}}"
 spec:
   tls:
-    - hosts:
-      {{- range .ApigeeHosts}}
-      - {{.}}
-      {{- end}}
-      {{- if .UseCertificateSecret }}
-      secretName: {{.CertificateSecretName}}
-      {{- else }}
-      secretName: {{.Name}}-letsencrypt-certificate
-      {{- end }}
+  - hosts:
+    {{- range .ApigeeHosts}}
+    - {{.}}
+    {{- end}}
+    {{- if .UseCertificateSecret }}
+    secretName: {{.CertificateSecretName}}
+    {{- else }}
+    secretName: {{.Name}}-letsencrypt-certificate
+    {{- end }}
   rules:
   {{- range .ApigeeHosts}}
   - host: {{.}}
     http:
       paths:
-        - path: {{$.IngressPath}}
-          pathType: {{$.PathType}}
-          backend:
-            service:
-              name: {{$.Name}}
-              port:
-                {{- if $.HasOpenrestySidecar }}
-                name: https
-                {{- else }}
-                name: web
-                {{- end }}
+      - path: {{$.IngressPath}}
+        pathType: {{$.PathType}}
+        backend:
+          service:
+            name: {{$.Name}}
+            port:
+              {{- if $.HasOpenrestySidecar }}
+              name: https
+              {{- else }}
+              name: web
+              {{- end }}
   {{- end}}

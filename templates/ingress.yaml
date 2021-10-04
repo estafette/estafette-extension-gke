@@ -42,29 +42,29 @@ metadata:
     {{- end}}
 spec:
   tls:
-    - hosts:
-      {{- range .Hosts}}
-      - {{.}}
-      {{- end}}
-      {{- if .UseCertificateSecret }}
-      secretName: {{.CertificateSecretName}}
-      {{- else }}
-      secretName: {{.Name}}-letsencrypt-certificate
-      {{- end }}
+  - hosts:
+    {{- range .Hosts}}
+    - {{.}}
+    {{- end}}
+    {{- if .UseCertificateSecret }}
+    secretName: {{.CertificateSecretName}}
+    {{- else }}
+    secretName: {{.Name}}-letsencrypt-certificate
+    {{- end }}
   rules:
   {{- range .Hosts}}
   - host: {{.}}
     http:
       paths:
-        - path: {{$.IngressPath}}
-          pathType: {{$.PathType}}
-          backend:
-            service:
-              name: {{$.Name}}
-              port:
-                {{- if $.HasOpenrestySidecar }}
-                name: https
-                {{- else }}
-                name: web
-                {{- end }}
+      - path: {{$.IngressPath}}
+        pathType: {{$.PathType}}
+        backend:
+          service:
+            name: {{$.Name}}
+            port:
+              {{- if $.HasOpenrestySidecar }}
+              name: https
+              {{- else }}
+              name: web
+              {{- end }}
   {{- end}}

@@ -33,29 +33,29 @@ metadata:
     estafette.io/cloudflare-hostnames: "{{.InternalHostsJoined}}"
 spec:
   tls:
-    - hosts:
-      {{- range .InternalHosts}}
-      - {{.}}
-      {{- end}}
-      {{- if .UseCertificateSecret }}
-      secretName: {{.CertificateSecretName}}
-      {{- else }}
-      secretName: {{.Name}}-letsencrypt-certificate
-      {{- end }}
+  - hosts:
+    {{- range .InternalHosts}}
+    - {{.}}
+    {{- end}}
+    {{- if .UseCertificateSecret }}
+    secretName: {{.CertificateSecretName}}
+    {{- else }}
+    secretName: {{.Name}}-letsencrypt-certificate
+    {{- end }}
   rules:
   {{- range .InternalHosts}}
   - host: {{.}}
     http:
       paths:
-        - path: {{$.InternalIngressPath}}
-          pathType: {{$.PathType}}
-          backend:
-            service:
-              name: {{$.Name}}
-              port:
-                {{- if $.HasOpenrestySidecar }}
-                name: https
-                {{- else }}
-                name: web
-                {{- end }}
+      - path: {{$.InternalIngressPath}}
+        pathType: {{$.PathType}}
+        backend:
+          service:
+            name: {{$.Name}}
+            port:
+              {{- if $.HasOpenrestySidecar }}
+              name: https
+              {{- else }}
+              name: web
+              {{- end }}
   {{- end}}
