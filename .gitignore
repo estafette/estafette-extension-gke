@@ -1,0 +1,50 @@
+# OSX
+._*
+.DS_Store
+
+# intellij files
+.idea/*
+
+# Eclipse files
+.classpath
+.project
+.settings/**
+
+# visual studio code
+.vscode/*
+
+# Emacs save files
+*~
+\#*\#
+.\#*
+
+# Vim-related files
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
+*.un~
+Session.vim
+.netrwhist
+
+# mkdocs
+site
+
+# temporal github pages
+gh-pages
+
+# Docker-based builds
+test/binaries
+
+# coverage artifacts
+.coverprofile
+gover.coverprofile
+
+e2e-tests
+coverage.txt
+test/e2e/e2e\.test
+.env
+.gocache/
+bin
+test/e2e-image/wait-for-nginx.sh
+.cache
+.modcache
+cover.out
