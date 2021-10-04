@@ -80,6 +80,12 @@ func (c *client) Init(ctx context.Context, paramsJSON, releaseName, credentialsP
 		log.Fatal().Err(err).Msg("Failed writing service account keyfile")
 	}
 
+	var serviceAccountKeyFile struct {
+		ClientEmail string `json:"client_email"`
+	}
+	json.Unmarshal([]byte(credential.AdditionalProperties.ServiceAccountKeyfile), &serviceAccountKeyFile)
+	log.Info().Msgf("Using service account %v...", serviceAccountKeyFile.ClientEmail)
+
 	return
 }
 
