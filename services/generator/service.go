@@ -54,6 +54,7 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		AllHosts:            append(params.Hosts, params.InternalHosts...),
 		AllHostsJoined:      strings.Join(append(params.Hosts, params.InternalHosts...), ","),
 		IngressPath:         params.Basepath,
+		PathType:            params.Basepath,
 		InternalIngressPath: params.Basepath,
 		AllowHTTP:           params.AllowHTTP,
 
