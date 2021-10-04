@@ -48,7 +48,7 @@ spec:
     http:
       paths:
         - path: {{$.InternalIngressPath}}
-          pathType: Prefix
+          pathType: ImplementationSpecific
           backend:
             service:
               name: {{$.Name}}
