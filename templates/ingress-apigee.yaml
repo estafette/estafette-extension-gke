@@ -45,7 +45,7 @@ spec:
     http:
       paths:
         - path: {{$.IngressPath}}
-          pathType: ImplementationSpecific
+          pathType: {{.PathType}}
           backend:
             service:
               name: {{$.Name}}

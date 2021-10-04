@@ -28,6 +28,7 @@ type TemplateData struct {
 	UseIngress                           bool
 	UseNginxIngress                      bool
 	UseGCEIngress                        bool
+	PathType                             string
 	UseDNSAnnotationsOnIngress           bool
 	UseCloudflareProxy                   bool
 	UseDNSAnnotationsOnService           bool

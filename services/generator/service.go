@@ -464,6 +464,10 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 	if data.UseGCEIngress && !strings.HasSuffix(data.IngressPath, "*") {
 		data.IngressPath += "*"
 	}
+	data.PathType = "Prefix"
+	if data.UseGCEIngress {
+		data.PathType = "ImplementationSpecific"
+	}
 	if !strings.HasSuffix(data.InternalIngressPath, "/") && !strings.HasSuffix(data.InternalIngressPath, "*") {
 		data.InternalIngressPath += "/"
 	}
