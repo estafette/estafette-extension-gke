@@ -1,12 +1,12 @@
-apiVersion: networking.k8s.io/v1
+apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{.Name}}-internal
   namespace: {{.Namespace}}
   labels:
     {{- range $key, $value := .Labels}}
-    {{ $key | quote }}: {{ $value | quote }}
-    {{- end}}
+      {{ $key | quote }}: {{ $value | quote }}
+      {{- end}}
   annotations:
     kubernetes.io/ingress.class: "nginx-internal"
     {{- if .UseHTTPS }}
@@ -33,29 +33,26 @@ metadata:
     estafette.io/cloudflare-hostnames: "{{.InternalHostsJoined}}"
 spec:
   tls:
-  - hosts:
-    {{- range .InternalHosts}}
-    - {{.}}
-    {{- end}}
-    {{- if .UseCertificateSecret }}
-    secretName: {{.CertificateSecretName}}
-    {{- else }}
-    secretName: {{.Name}}-letsencrypt-certificate
-    {{- end }}
+    - hosts:
+      {{- range .InternalHosts}}
+      - {{.}}
+      {{- end}}
+      {{- if .UseCertificateSecret }}
+      secretName: {{.CertificateSecretName}}
+      {{- else }}
+      secretName: {{.Name}}-letsencrypt-certificate
+      {{- end }}
   rules:
   {{- range .InternalHosts}}
   - host: {{.}}
     http:
       paths:
-      - path: {{$.InternalIngressPath}}
-        pathType: Prefix
-        backend:
-          service:
-            name: {{$.Name}}
-            port:
-              { { - if $.HasOpenrestySidecar } }
-              name: https
-              { { - else } }
-              name: web
-              { { - end } }
+        - path: {{$.InternalIngressPath}}
+          backend:
+            serviceName: {{$.Name}}
+            {{- if $.HasOpenrestySidecar }}
+            servicePort: https
+            {{- else }}
+            servicePort: web
+            {{- end }}
   {{- end}}

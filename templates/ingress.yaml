@@ -1,12 +1,12 @@
-apiVersion: networking.k8s.io/v1
+apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{.Name}}
   namespace: {{.Namespace}}
   labels:
     {{- range $key, $value := .Labels}}
-    {{ $key | quote }}: {{ $value | quote }}
-    {{- end}}
+      {{ $key | quote }}: {{ $value | quote }}
+      {{- end}}
   annotations:
     {{- if .UseNginxIngress}}
     kubernetes.io/ingress.class: "nginx-office"
@@ -35,36 +35,33 @@ metadata:
     kubernetes.io/ingress.class: "gce"
     kubernetes.io/ingress.allow-http: "false"
     {{- end}}
-    {{- if .UseDNSAnnotationsOnIngress}}  
+    {{- if .UseDNSAnnotationsOnIngress}}
     estafette.io/cloudflare-dns: "true"
     estafette.io/cloudflare-proxy: "{{.UseCloudflareProxy}}"
     estafette.io/cloudflare-hostnames: "{{.HostsJoined}}"
     {{- end}}
 spec:
   tls:
-  - hosts:
-    {{- range .Hosts}}
-    - {{.}}
-    {{- end}}
-    {{- if .UseCertificateSecret }}
-    secretName: {{.CertificateSecretName}}
-    {{- else }}
-    secretName: {{.Name}}-letsencrypt-certificate
-    {{- end }}
+    - hosts:
+      {{- range .Hosts}}
+      - {{.}}
+      {{- end}}
+      {{- if .UseCertificateSecret }}
+      secretName: {{.CertificateSecretName}}
+      {{- else }}
+      secretName: {{.Name}}-letsencrypt-certificate
+      {{- end }}
   rules:
   {{- range .Hosts}}
   - host: {{.}}
     http:
       paths:
-      - path: {{$.IngressPath}}
-        pathType: Prefix
-        backend:
-          service:
-            name: {{$.Name}}
-            port:
-              { { - if $.HasOpenrestySidecar } }
-              name: https
-              { { - else } }
-              name: web
-              { { - end } }
+        - path: {{$.IngressPath}}
+          backend:
+            serviceName: {{$.Name}}
+            {{- if $.HasOpenrestySidecar }}
+            servicePort: https
+            {{- else }}
+            servicePort: web
+            {{- end }}
   {{- end}}
