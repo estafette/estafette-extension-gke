@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{.Name}}
@@ -35,7 +35,7 @@ metadata:
     kubernetes.io/ingress.class: "gce"
     kubernetes.io/ingress.allow-http: "false"
     {{- end}}
-    {{- if .UseDNSAnnotationsOnIngress}}  
+    {{- if .UseDNSAnnotationsOnIngress}}
     estafette.io/cloudflare-dns: "true"
     estafette.io/cloudflare-proxy: "{{.UseCloudflareProxy}}"
     estafette.io/cloudflare-hostnames: "{{.HostsJoined}}"
@@ -57,11 +57,14 @@ spec:
     http:
       paths:
       - path: {{$.IngressPath}}
+        pathType: {{$.PathType}}
         backend:
-          serviceName: {{$.Name}}
-          {{- if $.HasOpenrestySidecar }}
-          servicePort: https
-          {{- else }}
-          servicePort: web
-          {{- end }}
+          service:
+            name: {{$.Name}}
+            port:
+              {{- if $.HasOpenrestySidecar }}
+              name: https
+              {{- else }}
+              name: web
+              {{- end }}
   {{- end}}
