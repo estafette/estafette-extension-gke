@@ -54,7 +54,7 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		AllHosts:            append(params.Hosts, params.InternalHosts...),
 		AllHostsJoined:      strings.Join(append(params.Hosts, params.InternalHosts...), ","),
 		IngressPath:         params.Basepath,
-		PathType:            params.Basepath,
+		PathType:            "Prefix",
 		InternalIngressPath: params.Basepath,
 		AllowHTTP:           params.AllowHTTP,
 
@@ -465,7 +465,7 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 	if data.UseGCEIngress && !strings.HasSuffix(data.IngressPath, "*") {
 		data.IngressPath += "*"
 	}
-	data.PathType = "Prefix"
+	
 	if data.UseGCEIngress {
 		data.PathType = "ImplementationSpecific"
 	}
