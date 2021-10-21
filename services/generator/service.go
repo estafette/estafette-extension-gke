@@ -116,6 +116,8 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 
 			ContainerSecurityContext: params.Container.ContainerSecurityContext,
 
+			ContainerLifeCycle: params.Container.ContainerLifeCycle,
+
 			Liveness: api.ProbeData{
 				Path:                params.Container.LivenessProbe.Path,
 				Port:                params.Container.LivenessProbe.Port,
@@ -465,7 +467,7 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 	if data.UseGCEIngress && !strings.HasSuffix(data.IngressPath, "*") {
 		data.IngressPath += "*"
 	}
-	
+
 	if data.UseGCEIngress {
 		data.PathType = "ImplementationSpecific"
 	}

@@ -148,6 +148,7 @@ type ContainerData struct {
 	UseLifecyclePreStopSleepCommand bool
 	PreStopSleepSeconds             int
 	ContainerSecurityContext        map[string]interface{}
+	ContainerLifeCycle              map[string]interface{}
 }
 
 // ProbeData has data specific to liveness and readiness probes

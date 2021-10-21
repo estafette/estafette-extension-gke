@@ -202,7 +202,7 @@ spec:
           mountPath: {{.MountPath}}
         {{- end}}
         {{- end }}
-        {{- if .Container.UseLifecyclePreStopSleepCommand }}
+        {{- if and $deployment.Container.UseLifecyclePreStopSleepCommand not $deployment.Container.ContainerLifeCycle}}
         lifecycle:
           preStop:
             exec:
@@ -210,6 +210,9 @@ spec:
               - /bin/sleep
               - {{.Container.PreStopSleepSeconds}}s
         {{- end}}
+        {{- if $deployment.Container.ContainerLifeCycle }}
+        lifecycle:
+{{(call $.ToYAML $deployment.Container.ContainerLifeCycle) | indent 10}}
       {{- range .Sidecars}}
         {{- if eq .Type "openresty" }}
       - name: {{$deployment.Name}}-openresty

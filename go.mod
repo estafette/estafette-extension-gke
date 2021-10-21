@@ -7,7 +7,7 @@ require (
 	github.com/alecthomas/kingpin v2.2.6+incompatible
 	github.com/estafette/estafette-foundation v0.0.69
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
-	github.com/golang/mock v1.4.4
+	github.com/golang/mock v1.6.0
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/mitchellh/copystructure v1.1.1 // indirect
 	github.com/rs/zerolog v1.17.2
@@ -58,12 +58,12 @@ require (
 	go.uber.org/atomic v1.5.1 // indirect
 	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83 // indirect
 	golang.org/x/lint v0.0.0-20201208152925-83fdc39ff7b5 // indirect
-	golang.org/x/net v0.0.0-20210224082022-3d97a244fca7 // indirect
-	golang.org/x/sys v0.0.0-20210225134936-a50acf3fe073 // indirect
+	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4 // indirect
+	golang.org/x/sys v0.0.0-20210510120138-977fb7262007 // indirect
 	golang.org/x/term v0.0.0-20210220032956-6a3ed077a48d // indirect
 	golang.org/x/text v0.3.4 // indirect
 	golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba // indirect
-	golang.org/x/tools v0.0.0-20210106214847-113979e3529a // indirect
+	golang.org/x/tools v0.1.1 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20201214200347-8c77b98c765d // indirect
 	google.golang.org/grpc v1.34.0 // indirect
