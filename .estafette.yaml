@@ -715,8 +715,9 @@ stages:
         container:
           repository: extensions
         containerLifecycle:
-          exec:
-            command: ["/bin/sh", "-c", "echo Hello from the postStart handler > /usr/share/message"]       
+          preStop:
+            exec:
+              command: ["/bin/sh", "-c", "echo Hello from the postStart handler > /usr/share/message"]       
         hosts:
         - gke.estafette.io
         internalhosts:
