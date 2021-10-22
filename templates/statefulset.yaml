@@ -187,7 +187,7 @@ spec:
         - name: {{.Name}}
           mountPath: {{.MountPath}}
         {{- end}}
-        {{- if and $deployment.Container.UseLifecyclePreStopSleepCommand not $deployment.Container.ContainerLifeCycle}}
+        {{- if and $deployment.Container.UseLifecyclePreStopSleepCommand (not $deployment.Container.ContainerLifeCycle)}}
         lifecycle:
           preStop:
             exec:
