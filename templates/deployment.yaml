@@ -213,6 +213,7 @@ spec:
         {{- if $deployment.Container.ContainerLifeCycle }}
         lifecycle:
 {{(call $.ToYAML $deployment.Container.ContainerLifeCycle) | indent 10}}
+        {{- end}}
       {{- range .Sidecars}}
         {{- if eq .Type "openresty" }}
       - name: {{$deployment.Name}}-openresty

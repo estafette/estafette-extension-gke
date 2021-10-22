@@ -709,6 +709,20 @@ stages:
         - gke.estafette.internal
         dryrun: true
 
+      test-container-lifecycle-hook:
+        image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+        credentials: gke-dev-common
+        container:
+          repository: extensions
+        containerLifecycle:
+          exec:
+            command: ["/bin/sh", "-c", "echo Hello from the postStart handler > /usr/share/message"]       
+        hosts:
+        - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
+        dryrun: true
+
   push-to-docker-hub:
     image: extensions/docker:dev
     action: push
