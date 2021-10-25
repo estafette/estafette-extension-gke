@@ -187,13 +187,17 @@ spec:
         - name: {{.Name}}
           mountPath: {{.MountPath}}
         {{- end}}
-        {{- if .Container.UseLifecyclePreStopSleepCommand }}
+        {{- if and $deployment.Container.UseLifecyclePreStopSleepCommand (not $deployment.Container.ContainerLifeCycle)}}
         lifecycle:
           preStop:
             exec:
               command:
               - /bin/sleep
               - {{.Container.PreStopSleepSeconds}}s
+        {{- end}}
+        {{- if $deployment.Container.ContainerLifeCycle }}
+        lifecycle:
+{{(call $.ToYAML $deployment.Container.ContainerLifeCycle) | indent 10}}
         {{- end}}
       {{- range .Sidecars}}
         {{- if eq .Type "openresty" }}

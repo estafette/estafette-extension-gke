@@ -114,6 +114,8 @@ type ContainerParams struct {
 	AdditionalPorts []*AdditionalPortParams `json:"additionalports,omitempty" yaml:"additionalports,omitempty"`
 
 	ContainerSecurityContext map[string]interface{} `json:"securityContext,omitempty" yaml:"securityContext,omitempty"`
+
+	ContainerLifeCycle map[string]interface{} `json:"containerLifecycle,omitempty" yaml:"containerLifecycle,omitempty"`
 }
 
 // AdditionalPortParams provides information about any additional ports exposed and accessible via a service
@@ -524,6 +526,12 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	if p.Container.Lifecycle.PrestopSleepSeconds == nil {
 		defaultSleepValue := 20
 		p.Container.Lifecycle.PrestopSleepSeconds = &defaultSleepValue
+	}
+
+	if p.Container.ContainerLifeCycle != nil {
+		p.Container.Lifecycle.PrestopSleep = nil
+		p.Container.Lifecycle.PrestopSleepSeconds = nil
+		p.Container.Lifecycle = LifecycleParams{}
 	}
 
 	if p.InjectHTTPProxySidecar == nil {

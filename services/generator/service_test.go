@@ -1348,6 +1348,34 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, 16, templateData.Sidecars[0].SidecarSpecificProperties["sqlproxyterminationtimeoutseconds"])
 	})
 
+	t.Run("SetsContainerLifecycle", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
+		params := api.Params{
+			Container: api.ContainerParams{
+				ContainerLifeCycle: map[string]interface{}{
+					"preStop": map[string]interface{}{
+						"exec": map[string]interface{}{
+							"command": []string{
+								"/bin/sh",
+								"-c",
+								"echo Hello from the preStop handler > /usr/share/message",
+							},
+						},
+					},
+				},
+			},
+		}
+
+		// act
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.Equal(t, map[string]interface{}{"preStop": map[string]interface{}{"exec": map[string]interface{}{"command": []string{"/bin/sh", "-c", "echo Hello from the preStop handler > /usr/share/message"}}}}, templateData.Container.ContainerLifeCycle)
+	})
+
 	t.Run("SetsSecretsToSecretsParam", func(t *testing.T) {
 
 		ctx := context.Background()

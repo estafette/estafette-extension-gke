@@ -91,6 +91,10 @@ spec:
             securityContext:
 {{(call $.ToYAML .Container.ContainerSecurityContext) | indent 14}}
             {{- end }}
+            {{- if .Container.ContainerLifeCycle }}
+            lifecycle:
+{{(call $.ToYAML .Container.ContainerLifeCycle) | indent 14}}
+            {{- end }}
             env:
             - name: "JAEGER_AGENT_HOST"
               valueFrom:

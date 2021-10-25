@@ -6,36 +6,37 @@ package builder
 
 import (
 	bytes "bytes"
-	api "github.com/estafette/estafette-extension-gke/api"
-	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
 	template "text/template"
+
+	api "github.com/estafette/estafette-extension-gke/api"
+	gomock "github.com/golang/mock/gomock"
 )
 
-// MockService is a mock of Service interface
+// MockService is a mock of Service interface.
 type MockService struct {
 	ctrl     *gomock.Controller
 	recorder *MockServiceMockRecorder
 }
 
-// MockServiceMockRecorder is the mock recorder for MockService
+// MockServiceMockRecorder is the mock recorder for MockService.
 type MockServiceMockRecorder struct {
 	mock *MockService
 }
 
-// NewMockService creates a new mock instance
+// NewMockService creates a new mock instance.
 func NewMockService(ctrl *gomock.Controller) *MockService {
 	mock := &MockService{ctrl: ctrl}
 	mock.recorder = &MockServiceMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockService) EXPECT() *MockServiceMockRecorder {
 	return m.recorder
 }
 
-// BuildTemplates mocks base method
+// BuildTemplates mocks base method.
 func (m *MockService) BuildTemplates(params api.Params, includePodDisruptionBudget bool) (*template.Template, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "BuildTemplates", params, includePodDisruptionBudget)
@@ -44,27 +45,13 @@ func (m *MockService) BuildTemplates(params api.Params, includePodDisruptionBudg
 	return ret0, ret1
 }
 
-// BuildTemplates indicates an expected call of BuildTemplates
+// BuildTemplates indicates an expected call of BuildTemplates.
 func (mr *MockServiceMockRecorder) BuildTemplates(params, includePodDisruptionBudget interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BuildTemplates", reflect.TypeOf((*MockService)(nil).BuildTemplates), params, includePodDisruptionBudget)
 }
 
-// GetTemplates mocks base method
-func (m *MockService) GetTemplates(params api.Params, includePodDisruptionBudget bool) []string {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetTemplates", params, includePodDisruptionBudget)
-	ret0, _ := ret[0].([]string)
-	return ret0
-}
-
-// GetTemplates indicates an expected call of GetTemplates
-func (mr *MockServiceMockRecorder) GetTemplates(params, includePodDisruptionBudget interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTemplates", reflect.TypeOf((*MockService)(nil).GetTemplates), params, includePodDisruptionBudget)
-}
-
-// GetAtomicUpdateServiceTemplate mocks base method
+// GetAtomicUpdateServiceTemplate mocks base method.
 func (m *MockService) GetAtomicUpdateServiceTemplate() (*template.Template, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAtomicUpdateServiceTemplate")
@@ -73,13 +60,27 @@ func (m *MockService) GetAtomicUpdateServiceTemplate() (*template.Template, erro
 	return ret0, ret1
 }
 
-// GetAtomicUpdateServiceTemplate indicates an expected call of GetAtomicUpdateServiceTemplate
+// GetAtomicUpdateServiceTemplate indicates an expected call of GetAtomicUpdateServiceTemplate.
 func (mr *MockServiceMockRecorder) GetAtomicUpdateServiceTemplate() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAtomicUpdateServiceTemplate", reflect.TypeOf((*MockService)(nil).GetAtomicUpdateServiceTemplate))
 }
 
-// RenderConfig mocks base method
+// GetTemplates mocks base method.
+func (m *MockService) GetTemplates(params api.Params, includePodDisruptionBudget bool) []string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTemplates", params, includePodDisruptionBudget)
+	ret0, _ := ret[0].([]string)
+	return ret0
+}
+
+// GetTemplates indicates an expected call of GetTemplates.
+func (mr *MockServiceMockRecorder) GetTemplates(params, includePodDisruptionBudget interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTemplates", reflect.TypeOf((*MockService)(nil).GetTemplates), params, includePodDisruptionBudget)
+}
+
+// RenderConfig mocks base method.
 func (m *MockService) RenderConfig(params api.Params) map[string]string {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RenderConfig", params)
@@ -87,13 +88,13 @@ func (m *MockService) RenderConfig(params api.Params) map[string]string {
 	return ret0
 }
 
-// RenderConfig indicates an expected call of RenderConfig
+// RenderConfig indicates an expected call of RenderConfig.
 func (mr *MockServiceMockRecorder) RenderConfig(params interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RenderConfig", reflect.TypeOf((*MockService)(nil).RenderConfig), params)
 }
 
-// RenderTemplate mocks base method
+// RenderTemplate mocks base method.
 func (m *MockService) RenderTemplate(tmpl *template.Template, templateData api.TemplateData, logTemplate bool) (bytes.Buffer, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RenderTemplate", tmpl, templateData, logTemplate)
@@ -102,7 +103,7 @@ func (m *MockService) RenderTemplate(tmpl *template.Template, templateData api.T
 	return ret0, ret1
 }
 
-// RenderTemplate indicates an expected call of RenderTemplate
+// RenderTemplate indicates an expected call of RenderTemplate.
 func (mr *MockServiceMockRecorder) RenderTemplate(tmpl, templateData, logTemplate interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RenderTemplate", reflect.TypeOf((*MockService)(nil).RenderTemplate), tmpl, templateData, logTemplate)
