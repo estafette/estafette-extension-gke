@@ -528,6 +528,12 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 		p.Container.Lifecycle.PrestopSleepSeconds = &defaultSleepValue
 	}
 
+	if p.Container.ContainerLifeCycle != nil {
+		p.Container.Lifecycle.PrestopSleep = nil
+		p.Container.Lifecycle.PrestopSleepSeconds = nil
+		p.Container.Lifecycle = LifecycleParams{}
+	}
+
 	if p.InjectHTTPProxySidecar == nil {
 		trueValue := true
 		p.InjectHTTPProxySidecar = &trueValue
