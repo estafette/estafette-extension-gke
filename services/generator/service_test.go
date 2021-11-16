@@ -243,6 +243,22 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "LoadBalancer", templateData.ServiceType)
 	})
 
+	t.Run("SetsServiceTypeToLoadBalancerIfVisibilityParamIsESP", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
+		params := api.Params{
+			Visibility: api.VisibilityESP,
+		}
+
+		// act
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
+
+		assert.Equal(t, "LoadBalancer", templateData.ServiceType)
+	})
+
 	t.Run("SetsUseDNSAnnotationsOnIngressToTrueIfVisibilityParamIsPrivate", func(t *testing.T) {
 
 		ctx := context.Background()
