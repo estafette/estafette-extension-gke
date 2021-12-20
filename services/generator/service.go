@@ -433,11 +433,11 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 
 	case api.VisibilityESP,
 		api.VisibilityESPv2:
-		data.ServiceType = "LoadBalancer"
-		data.UseNginxIngress = false
+		data.ServiceType = "ClusterIP"
+		data.UseNginxIngress = true
 		data.UseGCEIngress = false
-		data.UseDNSAnnotationsOnIngress = false
-		data.UseDNSAnnotationsOnService = true
+		data.UseDNSAnnotationsOnIngress = true
+		data.UseDNSAnnotationsOnService = false
 		data.UseCloudflareProxy = true
 		data.LimitTrustedIPRanges = true
 		data.OverrideDefaultWhitelist = false
