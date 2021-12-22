@@ -439,7 +439,7 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		data.UseDNSAnnotationsOnIngress = true
 		data.UseDNSAnnotationsOnService = false
 		data.UseCloudflareProxy = true
-		data.LimitTrustedIPRanges = true
+		data.LimitTrustedIPRanges = false
 		data.OverrideDefaultWhitelist = false
 
 	case api.VisibilityPublic:
