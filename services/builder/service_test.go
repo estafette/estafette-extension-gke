@@ -287,6 +287,24 @@ func TestGetTemplates(t *testing.T) {
 		assert.True(t, stringArrayContains(templates, "/templates/ingress-apigee.yaml"))
 		assert.True(t, stringArrayContains(templates, "/templates/ingress.yaml"))
 	})
+
+	t.Run("IncludesIngressEspIfVisibilityIsESP", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
+		params := api.Params{
+			Action:     api.ActionDeploySimple,
+			Visibility: api.VisibilityESPv2,
+			Kind:       api.KindDeployment,
+		}
+
+		// act
+		templates := service.GetTemplates(params, true)
+
+		assert.True(t, stringArrayContains(templates, "/templates/ingress-esp.yaml"))
+	})
 }
 
 func TestInjectSteps(t *testing.T) {
