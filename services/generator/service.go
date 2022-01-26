@@ -431,8 +431,7 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		}
 		data.ApigeeHostsJoined = strings.Join(data.ApigeeHosts, ",")
 
-	case api.VisibilityESP,
-		api.VisibilityESPv2:
+	case api.VisibilityESP, api.VisibilityESPv2:
 		data.ServiceType = "ClusterIP"
 		data.UseNginxIngress = true
 		data.UseGCEIngress = false
