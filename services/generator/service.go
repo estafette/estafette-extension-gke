@@ -441,7 +441,7 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		//data.LimitTrustedIPRanges = false
 		//data.OverrideDefaultWhitelist = false
 		data.ServiceType = "LoadBalancer"
-		data.UseNginxIngress = false
+		data.UseNginxIngress = true
 		data.UseGCEIngress = false
 		data.UseDNSAnnotationsOnIngress = false
 		data.UseDNSAnnotationsOnService = true

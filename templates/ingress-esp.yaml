@@ -41,7 +41,7 @@ spec:
         pathType: {{$.PathType}}
         backend:
           service:
-            name: {{$.Name}}
+            name: {{$.Name}}-cluster-ip
             port:
               name: https
   {{- end}}
