@@ -255,7 +255,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		// act
 		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
-		assert.Equal(t, "ClusterIP", templateData.ServiceType)
+		assert.Equal(t, "LoadBalancer", templateData.ServiceType)
+		//assert.Equal(t, "ClusterIP", templateData.ServiceType)
 	})
 
 	t.Run("SetsUseDNSAnnotationsOnIngressToTrueIfVisibilityParamIsPrivate", func(t *testing.T) {

@@ -146,6 +146,7 @@ func (s *service) GetTemplates(params api.Params, includePodDisruptionBudget boo
 	}
 	if params.Kind == api.KindDeployment && (params.Visibility == api.VisibilityESP || params.Visibility == api.VisibilityESPv2) {
 		templatesToMerge = append(templatesToMerge, "ingress-esp.yaml")
+		templatesToMerge = append(templatesToMerge, "service-clusterip.yaml")
 	}
 
 	if (params.Kind == api.KindDeployment || params.Kind == api.KindStatefulset) && params.Visibility == api.VisibilityIAP {

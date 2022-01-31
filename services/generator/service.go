@@ -432,13 +432,21 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		data.ApigeeHostsJoined = strings.Join(data.ApigeeHosts, ",")
 
 	case api.VisibilityESP, api.VisibilityESPv2:
-		data.ServiceType = "ClusterIP"
-		data.UseNginxIngress = true
+		//data.ServiceType = "ClusterIP"
+		//data.UseNginxIngress = true
+		//data.UseGCEIngress = false
+		//data.UseDNSAnnotationsOnIngress = true
+		//data.UseDNSAnnotationsOnService = false
+		//data.UseCloudflareProxy = true
+		//data.LimitTrustedIPRanges = false
+		//data.OverrideDefaultWhitelist = false
+		data.ServiceType = "LoadBalancer"
+		data.UseNginxIngress = false
 		data.UseGCEIngress = false
-		data.UseDNSAnnotationsOnIngress = true
-		data.UseDNSAnnotationsOnService = false
+		data.UseDNSAnnotationsOnIngress = false
+		data.UseDNSAnnotationsOnService = true
 		data.UseCloudflareProxy = true
-		data.LimitTrustedIPRanges = false
+		data.LimitTrustedIPRanges = true
 		data.OverrideDefaultWhitelist = false
 
 	case api.VisibilityPublic:
