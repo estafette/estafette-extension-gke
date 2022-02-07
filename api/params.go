@@ -46,6 +46,8 @@ type Params struct {
 	EspEndpointsProjectID           string                 `json:"espEndpointsProjectID,omitempty" yaml:"espEndpointsProjectID,omitempty"`
 	EspConfigID                     string                 `json:"espConfigID,omitempty" yaml:"espConfigID,omitempty"`
 	EspOpenAPIYamlPath              string                 `json:"espOpenapiYamlPath,omitempty" yaml:"espOpenapiYamlPath,omitempty"`
+	EspServiceTypeMain              ServiceType            `json:"espServiceTypeMain,omitempty" yaml:"espServiceTypeMain,omitempty"`
+	EspServiceTypeExtra             ServiceType            `json:"espServiceTypeExtra,omitempty" yaml:"espServiceTypeExtra,omitempty"`
 	WhitelistedIPS                  []string               `json:"whitelist,omitempty" yaml:"whitelist,omitempty"`
 	Hosts                           []string               `json:"hosts,omitempty" yaml:"hosts,omitempty"`
 	HostsRouteOnly                  []string               `json:"hostsrouteonly,omitempty" yaml:"hostsrouteonly,omitempty"`
@@ -908,6 +910,15 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 		if (p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2) && p.EspOpenAPIYamlPath == "" {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property espOpenapiYamlPath is required; set espOpenapiYamlPath to the path towards openapi.yaml"))
 		}
+		if p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2 {
+			if p.EspServiceTypeMain == ServiceTypeLoadBalancer || p.EspServiceTypeMain == ServiceTypeClusterIP || p.EspServiceTypeMain == ServiceTypeUnknown {
+				errors = append(errors, fmt.Errorf("With visibility 'esp' property EspServiceTypeMain choices: 'LoadBalancer' or 'ClusterIP'. Leave empty to set to default (ClusterIP)"))
+			}
+			if p.EspServiceTypeMain == p.EspServiceTypeExtra && p.EspServiceTypeMain != ServiceTypeUnknown {
+				errors = append(errors, fmt.Errorf("You cannot set main and backup service to the same type"))
+			}
+		}
+
 		if (p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2) && len(p.Hosts) < 1 {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property at least one host is required. Set it via hosts array property on this stage"))
 		}
