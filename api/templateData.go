@@ -135,6 +135,7 @@ type TemplateData struct {
 // ServiceData has data specific to service
 type ServiceData struct {
 	ServiceType                         ServiceType
+	Name                                string
 	UseDNSAnnotationsOnService          bool   `default:"false"`
 	UseBackendConfigAnnotationOnService bool   `default:"false"`
 	UseNegAnnotationOnService           bool   `default:"false"`

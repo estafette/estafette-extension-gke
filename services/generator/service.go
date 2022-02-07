@@ -377,6 +377,7 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 	case api.VisibilityPrivate:
 		data.Services[0] = api.ServiceData{
 			ServiceType:                         api.ServiceTypeClusterIP,
+			Name:                                params.App,
 			UseDNSAnnotationsOnService:          false,
 			UseBackendConfigAnnotationOnService: false,
 			UseNegAnnotationOnService:           false,
@@ -397,6 +398,7 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 	case api.VisibilityIAP:
 		data.Services[0] = api.ServiceData{
 			ServiceType:                         api.ServiceTypeNodePort,
+			Name:                                params.App,
 			UseDNSAnnotationsOnService:          false,
 			UseBackendConfigAnnotationOnService: true,
 			UseNegAnnotationOnService:           params.ContainerNativeLoadBalancing,
@@ -419,6 +421,7 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 	case api.VisibilityPublicWhitelist:
 		data.Services[0] = api.ServiceData{
 			ServiceType:                         api.ServiceTypeClusterIP,
+			Name:                                params.App,
 			UseDNSAnnotationsOnService:          false,
 			UseBackendConfigAnnotationOnService: false,
 			UseNegAnnotationOnService:           false,
@@ -439,6 +442,7 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 	case api.VisibilityApigee:
 		data.Services[0] = api.ServiceData{
 			ServiceType:                         api.ServiceTypeClusterIP,
+			Name:                                params.App,
 			UseDNSAnnotationsOnService:          false,
 			UseBackendConfigAnnotationOnService: false,
 			UseNegAnnotationOnService:           false,
@@ -462,6 +466,7 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		if params.EspServiceTypeMain == api.ServiceTypeClusterIP || params.EspServiceTypeMain == api.ServiceTypeUnknown {
 			data.Services[0] = api.ServiceData{
 				ServiceType: api.ServiceTypeClusterIP,
+				Name:        params.App + "-cluster-ip",
 				MainService: true,
 			}
 			data.UseNginxIngress = true
@@ -473,6 +478,7 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		} else if params.EspServiceTypeMain == api.ServiceTypeLoadBalancer {
 			data.Services[0] = api.ServiceData{
 				ServiceType:                         api.ServiceTypeLoadBalancer,
+				Name:                                params.App,
 				UseDNSAnnotationsOnService:          true,
 				UseBackendConfigAnnotationOnService: false,
 				UseNegAnnotationOnService:           false,
@@ -490,6 +496,7 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 	case api.VisibilityPublic:
 		data.Services[0] = api.ServiceData{
 			ServiceType:                api.ServiceTypeLoadBalancer,
+			Name:                       params.App,
 			UseDNSAnnotationsOnService: true,
 			MainService:                true,
 		}
