@@ -1,5 +1,6 @@
 {{- $root := . -}}
 {{- range .Services }}
+--
 apiVersion: v1
 kind: Service
 metadata:
@@ -28,7 +29,7 @@ metadata:
     {{- end}}
 spec:
   type: {{.ServiceType}}
-  {{- if $root.LimitTrustedIPRanges}}
+  {{- if .LimitTrustedIPRanges}}
   loadBalancerSourceRanges:
   {{- range $root.TrustedIPRanges}}
   - {{.}}

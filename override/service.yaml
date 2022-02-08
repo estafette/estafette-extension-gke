@@ -1,29 +1,32 @@
+{{- $root := . -}}
+{{- range .Services }}
+--
 apiVersion: v1
 kind: Service
 metadata:
   name: {{.Name}}
-  namespace: {{.Namespace}}
+  namespace: {{ $root.Namespace}}
   labels:
-    {{- range $key, $value := .Labels}}
+    {{- range $key, $value := $root.Labels}}
     {{ $key | quote }}: {{ $value | quote }}
     {{- end}}
-    anotherlabel: {{.ManifestData.property3}}
+    anotherlabel: {{$root.ManifestData.property3}}
   annotations:
-    {{- if .UsePrometheusProbe}}
+    {{- if $root.UsePrometheusProbe}}
     prometheus.io/probe: "true"
-    prometheus.io/probe-path: "{{.Container.Readiness.Path}}"
+    prometheus.io/probe-path: "{{$root.Container.Readiness.Path}}"
     {{- end}}
     service.alpha.kubernetes.io/app-protocols: '{"https":"HTTPS"}'
     {{- if .UseDNSAnnotationsOnService}}
     estafette.io/cloudflare-dns: "true"
     estafette.io/cloudflare-proxy: "true"
-    estafette.io/cloudflare-hostnames: "{{.HostsJoined}}"
+    estafette.io/cloudflare-hostnames: "{{ $root.HostsJoined}}"
     {{- end}}
 spec:
   type: {{.ServiceType}}
   {{- if .LimitTrustedIPRanges}}
   loadBalancerSourceRanges:
-  {{- range .TrustedIPRanges}}
+  {{- range $root.TrustedIPRanges}}
   - {{.}}
   {{- end}}
   {{- end}}
@@ -37,4 +40,5 @@ spec:
     targetPort: https
     protocol: TCP
   selector:
-    app: {{.AppLabelSelector}}
+    app: {{ $root.AppLabelSelector}}
+{{- end}}
