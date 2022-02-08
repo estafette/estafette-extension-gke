@@ -192,7 +192,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		// act
 		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
-		assert.Equal(t, "ClusterIP", templateData.ServiceType)
+		assert.Equal(t, "ClusterIP", templateData.Services[0].ServiceType)
 	})
 
 	t.Run("SetsServiceTypeToClusterIPIfVisibilityParamIsPublicWhitelist", func(t *testing.T) {
@@ -208,7 +208,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		// act
 		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
-		assert.Equal(t, "ClusterIP", templateData.ServiceType)
+		assert.Equal(t, "ClusterIP", templateData.Services[0].ServiceType)
 	})
 
 	t.Run("SetsServiceTypeToNodePortIfVisibilityParamIsIap", func(t *testing.T) {
@@ -224,7 +224,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		// act
 		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
-		assert.Equal(t, "NodePort", templateData.ServiceType)
+		assert.Equal(t, "NodePort", templateData.Services[0].ServiceType)
 	})
 
 	t.Run("SetsServiceTypeToLoadBalancerIfVisibilityParamIsPublic", func(t *testing.T) {
@@ -240,7 +240,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		// act
 		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
-		assert.Equal(t, "LoadBalancer", templateData.ServiceType)
+		assert.Equal(t, "LoadBalancer", templateData.Services[0].ServiceType)
 	})
 
 	t.Run("SetsServiceTypeToClusterIpIfVisibilityParamIsESP", func(t *testing.T) {
@@ -255,8 +255,8 @@ func TestGenerateTemplateData(t *testing.T) {
 
 		// act
 		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
-		assert.Equal(t, "LoadBalancer", templateData.ServiceType)
-		//assert.Equal(t, "ClusterIP", templateData.ServiceType)
+		//assert.Equal(t, "LoadBalancer", templateData.Services[0].ServiceType)
+		assert.Equal(t, "ClusterIP", templateData.Services[0].ServiceType)
 	})
 
 	t.Run("SetsUseDNSAnnotationsOnIngressToTrueIfVisibilityParamIsPrivate", func(t *testing.T) {
@@ -320,7 +320,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		// act
 		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
-		assert.True(t, templateData.UseDNSAnnotationsOnService)
+		assert.True(t, templateData.Services[0].UseDNSAnnotationsOnService)
 	})
 
 	t.Run("SetsUseDNSAnnotationsOnServiceToFalseIfVisibilityParamIsPrivate", func(t *testing.T) {
@@ -336,7 +336,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		// act
 		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
-		assert.False(t, templateData.UseDNSAnnotationsOnService)
+		assert.False(t, templateData.Services[0].UseDNSAnnotationsOnService)
 	})
 
 	t.Run("SetsUseDNSAnnotationsOnServiceToFalseIfVisibilityParamIsPublicWhitelist", func(t *testing.T) {
@@ -352,7 +352,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		// act
 		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
-		assert.False(t, templateData.UseDNSAnnotationsOnService)
+		assert.False(t, templateData.Services[0].UseDNSAnnotationsOnService)
 	})
 
 	t.Run("SetsUseCloudflareProxyToTrueIfVisibilityParamIsPrivate", func(t *testing.T) {
@@ -2910,7 +2910,7 @@ func TestGenerateTemplateData(t *testing.T) {
 		// act
 		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "")
 
-		assert.Equal(t, "ClusterIP", templateData.ServiceType)
+		assert.Equal(t, "ClusterIP", templateData.Services[0].ServiceType)
 	})
 
 	t.Run("SetsUseCloudflareProxyToTrueIfVisibilityParamIsApigee", func(t *testing.T) {
