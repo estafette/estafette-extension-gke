@@ -911,7 +911,7 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property espOpenapiYamlPath is required; set espOpenapiYamlPath to the path towards openapi.yaml"))
 		}
 		if p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2 {
-			if p.EspServiceTypeMain == ServiceTypeLoadBalancer || p.EspServiceTypeMain == ServiceTypeClusterIP || p.EspServiceTypeMain == ServiceTypeUnknown {
+			if p.EspServiceTypeMain != ServiceTypeLoadBalancer && p.EspServiceTypeMain != ServiceTypeClusterIP && p.EspServiceTypeMain != ServiceTypeUnknown {
 				errors = append(errors, fmt.Errorf("With visibility 'esp' property EspServiceTypeMain choices: 'LoadBalancer' or 'ClusterIP'. Leave empty to set to default (ClusterIP)"))
 			}
 			if p.EspServiceTypeMain == p.EspServiceTypeExtra && p.EspServiceTypeMain != ServiceTypeUnknown {
