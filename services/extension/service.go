@@ -459,7 +459,7 @@ func (s *service) patchServiceIfRequired(ctx context.Context, params api.Params,
 	if params.Kind == api.KindDeployment {
 		for _, service := range templateData.Services {
 			if service.ServiceType == "ClusterIP" {
-				output, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "service", name, "-n", namespace, "-o=jsonpath={.spec.type} {.spec.ports[*].nodePort}"})
+				output, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "service", service.Name, "-n", namespace, "-o=jsonpath={.spec.type} {.spec.ports[*].nodePort}"})
 				if err != nil {
 					log.Info().Msgf("Failed retrieving service details: %v", err)
 				}
