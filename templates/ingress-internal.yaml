@@ -51,7 +51,7 @@ spec:
         pathType: {{$.PathType}}
         backend:
           service:
-            {{- range .Services }}
+            {{- range $.Services }}
             {{- if .MainService }}
             name: {{.Name}}
             {{- end }}
