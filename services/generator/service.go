@@ -105,6 +105,7 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 			Tag:             params.Container.ImageTag,
 			ImagePullPolicy: params.Container.ImagePullPolicy,
 			Port:            params.Container.Port,
+			PortGrpc:        params.Container.PortGrpc,
 
 			CPURequest:    params.Container.CPU.Request,
 			CPULimit:      params.Container.CPU.Limit,

@@ -32,6 +32,7 @@ var (
 			ImageTag:        "1.0.0",
 			ImagePullPolicy: "IfNotPresent",
 			Port:            5000,
+			PortGrpc:        5001,
 
 			CPU: CPUParams{
 				Request: "100m",
@@ -707,6 +708,34 @@ func TestSetDefaults(t *testing.T) {
 		params.SetDefaults("", "", "", "", "", "", "", "", map[string]string{})
 
 		assert.Equal(t, 3000, params.Container.Port)
+	})
+
+	t.Run("KeepsContainerPortGrpc0IfZero", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				PortGrpc: 0,
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, 0, params.Container.PortGrpc)
+	})
+
+	t.Run("KeepsContainerPortGrpcIfLargerThanZero", func(t *testing.T) {
+
+		params := Params{
+			Container: ContainerParams{
+				PortGrpc: 3001,
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, 3001, params.Container.PortGrpc)
 	})
 
 	t.Run("DefaultsAdditionalPortProtocolToTCPIfEmpty", func(t *testing.T) {
@@ -1908,7 +1937,7 @@ func TestSetDefaults(t *testing.T) {
 		params.SetDefaults("", "", "", "", "", "", "", "", map[string]string{})
 
 		// digest for estafette/openresty-sidecar:1.5.8.2
-		assert.Equal(t, "estafette/openresty-sidecar@sha256:2aa9f2c8c3f506e0f6cc70871701b5ac81aa0f12e8574c7b8213e4d0379d2ddd", params.Sidecars[0].Image)
+		assert.Equal(t, "estafette/openresty-sidecar@sha256:f13a8412ed89cb8fe3a5fe2f1955e1f16665f7d7bfadc83c94d7880301dd3e32", params.Sidecars[0].Image)
 	})
 
 	t.Run("IfNoOpenrestySidecarPresentThenCustomSidecarsKeptAndOpenrestySidecarAdded", func(t *testing.T) {

@@ -141,6 +141,7 @@ type ContainerData struct {
 	CPULimit                        string
 	MemoryLimit                     string
 	Port                            int
+	PortGrpc                        int
 	EnvironmentVariables            map[string]interface{}
 	SecretEnvironmentVariables      map[string]interface{}
 	Liveness                        ProbeData

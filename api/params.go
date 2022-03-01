@@ -101,6 +101,7 @@ type ContainerParams struct {
 	ImageTag                   string                 `json:"tag,omitempty" yaml:"tag,omitempty"`
 	ImagePullPolicy            string                 `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"`
 	Port                       int                    `json:"port,omitempty" yaml:"port,omitempty"`
+	PortGrpc                   int                    `json:"portGrpc,omitempty" yaml:"portGrpc,omitempty"`
 	EnvironmentVariables       map[string]interface{} `json:"env,omitempty" yaml:"env,omitempty"`
 	SecretEnvironmentVariables map[string]interface{} `json:"secretEnv,omitempty" yaml:"secretEnv,omitempty"`
 
@@ -373,6 +374,11 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 		p.Container.Port = 5000
 	}
 
+	if p.Container.PortGrpc <= 0 {
+		// gRPC is optional, we have to opt-in by setting the portgrpc field of the deployment.
+		p.Container.PortGrpc = 0
+	}
+
 	// set additional ports defaults
 	if len(p.Container.AdditionalPorts) > 0 {
 		for _, ap := range p.Container.AdditionalPorts {
@@ -608,7 +614,7 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	}
 
 	if p.DefaultOpenrestySidecarImage == "" {
-		p.DefaultOpenrestySidecarImage = "estafette/openresty-sidecar@sha256:2aa9f2c8c3f506e0f6cc70871701b5ac81aa0f12e8574c7b8213e4d0379d2ddd"
+		p.DefaultOpenrestySidecarImage = "estafette/openresty-sidecar@sha256:f13a8412ed89cb8fe3a5fe2f1955e1f16665f7d7bfadc83c94d7880301dd3e32"
 	}
 	if p.DefaultESPSidecarImage == "" {
 		p.DefaultESPSidecarImage = "gcr.io/endpoints-release/endpoints-runtime:1.57.0"
