@@ -235,6 +235,7 @@ stages:
           enabled: false
           updateMode: "Off"
         request:
+          ingressbackendprotocol: HTTPS
           timeout: 60s
           maxbodysize: 128m
           proxybuffersize: 4k

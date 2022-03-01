@@ -163,14 +163,15 @@ type AutoscaleSafetyParams struct {
 
 // RequestParams controls timeouts, max body size, etc
 type RequestParams struct {
-	Timeout              string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
-	MaxBodySize          string `json:"maxbodysize,omitempty" yaml:"maxbodysize,omitempty"`
-	ProxyBufferSize      string `json:"proxybuffersize,omitempty" yaml:"proxybuffersize,omitempty"`
-	ProxyBuffersNumber   int    `json:"proxybuffersnumber,omitempty" yaml:"proxybuffersnumber,omitempty"`
-	ClientBodyBufferSize string `json:"clientbodybuffersize,omitempty" yaml:"clientbodybuffersize,omitempty"`
-	LoadBalanceAlgorithm string `json:"loadbalance,omitempty" yaml:"loadbalance,omitempty"`
-	AuthSecret           string `json:"authsecret,omitempty" yaml:"authsecret,omitempty"`
-	VerifyDepth          int    `json:"verifydepth,omitempty" yaml:"verifydepth,omitempty"`
+	IngressBackendProtocol string `json:"ingressbackendprotocol,omitempty" yaml:"ingressbackendprotocol,omitempty"`
+	Timeout                string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	MaxBodySize            string `json:"maxbodysize,omitempty" yaml:"maxbodysize,omitempty"`
+	ProxyBufferSize        string `json:"proxybuffersize,omitempty" yaml:"proxybuffersize,omitempty"`
+	ProxyBuffersNumber     int    `json:"proxybuffersnumber,omitempty" yaml:"proxybuffersnumber,omitempty"`
+	ClientBodyBufferSize   string `json:"clientbodybuffersize,omitempty" yaml:"clientbodybuffersize,omitempty"`
+	LoadBalanceAlgorithm   string `json:"loadbalance,omitempty" yaml:"loadbalance,omitempty"`
+	AuthSecret             string `json:"authsecret,omitempty" yaml:"authsecret,omitempty"`
+	VerifyDepth            int    `json:"verifydepth,omitempty" yaml:"verifydepth,omitempty"`
 }
 
 // ProbeParams sets params for liveness or readiness probe
@@ -419,6 +420,9 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	}
 
 	// set request defaults
+	if p.Request.IngressBackendProtocol == "" {
+		p.Request.Timeout = "HTTPS"
+	}
 	if p.Request.Timeout == "" {
 		p.Request.Timeout = "60s"
 	}
