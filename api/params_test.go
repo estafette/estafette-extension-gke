@@ -1050,6 +1050,34 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, UpdateModeAuto, params.VerticalPodAutoscaler.UpdateMode)
 	})
 
+	t.Run("DefaultsRequestIngressBackendProtocolToHTTPSIfEmpty", func(t *testing.T) {
+
+		params := Params{
+			Request: RequestParams{
+				IngressBackendProtocol: "",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, "HTTPS", params.Request.IngressBackendProtocol)
+	})
+
+	t.Run("KeepsIngressBackendProtocolIfNotEmpty", func(t *testing.T) {
+
+		params := Params{
+			Request: RequestParams{
+				IngressBackendProtocol: "GRPCS",
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, "GRPCS", params.Request.IngressBackendProtocol)
+	})
+
 	t.Run("DefaultsRequestTimeoutTo60sIfEmpty", func(t *testing.T) {
 
 		params := Params{
