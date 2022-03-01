@@ -421,7 +421,7 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 
 	// set request defaults
 	if p.Request.IngressBackendProtocol == "" {
-		p.Request.Timeout = "HTTPS"
+		p.Request.IngressBackendProtocol = "HTTPS"
 	}
 	if p.Request.Timeout == "" {
 		p.Request.Timeout = "60s"
