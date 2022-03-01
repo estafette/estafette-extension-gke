@@ -152,9 +152,11 @@ spec:
         ports:
         - name: web
           containerPort: {{.Container.Port}}
+        {{- if not (eq .Container.PortGrpc 0)}}
         - name: grpc
           containerPort: {{.Container.PortGrpc}}
           protocol: TCP
+        {{- end}}
         {{- range .AdditionalContainerPorts}}
         - name: {{.Name}}
           containerPort: {{.Port}}
