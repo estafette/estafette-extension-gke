@@ -259,8 +259,10 @@ spec:
           value: "127.0.0.1"
         - name: "OFFLOAD_TO_PORT"
           value: "{{$deployment.Container.Port}}"
+        {{- if not (eq $deployment.Container.PortGrpc 0) }}
         - name: "OFFLOAD_TO_PORT_GRPC"
           value: "{{$deployment.Container.PortGrpc}}"
+        {{- end }}
         - name: "SERVICE_NAME"
           value: "{{$deployment.Name}}"
         - name: "NAMESPACE"
