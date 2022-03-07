@@ -10,7 +10,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: "nginx-internal"
     {{- if .UseHTTPS }}
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    nginx.ingress.kubernetes.io/backend-protocol: "{{.NginxIngressBackendProtocol}}"
     nginx.ingress.kubernetes.io/proxy-ssl-verify: "on"
     {{- end }}
     {{- if .AllowHTTP }}
