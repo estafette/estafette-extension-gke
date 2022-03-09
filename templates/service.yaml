@@ -1,24 +1,22 @@
-{{- $root := . -}}
-{{- range .Services }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{.Name}}
-  namespace: {{ $root.Namespace}}
+  name: {{.Name}}{{- if .UseESP }}-cluster-ip{{- end}}
+  namespace: {{.Namespace}}
   labels:
-    {{- range $key, $value := $root.Labels}}
+    {{- range $key, $value := .Labels}}
     {{ $key | quote }}: {{ $value | quote }}
     {{- end}}
   annotations:
-    {{- if $root.UsePrometheusProbe}}
+    {{- if .UsePrometheusProbe}}
     prometheus.io/probe: "true"
-    prometheus.io/probe-path: "{{ $root.Container.Readiness.Path}}"
+    prometheus.io/probe-path: "{{.Container.Readiness.Path}}"
     {{- end}}
     service.alpha.kubernetes.io/app-protocols: '{"https":"HTTPS"}'
     {{- if .UseDNSAnnotationsOnService}}
     estafette.io/cloudflare-dns: "true"
-    estafette.io/cloudflare-proxy: "{{ $root.UseCloudflareProxy}}"
-    estafette.io/cloudflare-hostnames: "{{ $root.HostsJoined}}"
+    estafette.io/cloudflare-proxy: "{{.UseCloudflareProxy}}"
+    estafette.io/cloudflare-hostnames: "{{.HostsJoined}}"
     {{- end}}
     {{- if .UseBackendConfigAnnotationOnService}}
     beta.cloud.google.com/backend-config: '{"default": "{{.Name}}"}'
@@ -28,15 +26,15 @@ metadata:
     {{- end}}
 spec:
   type: {{.ServiceType}}
-  {{- if $root.LimitTrustedIPRanges}}
+  {{- if .LimitTrustedIPRanges}}
   loadBalancerSourceRanges:
-  {{- range $root.TrustedIPRanges}}
+  {{- range .TrustedIPRanges}}
   - {{.}}
   {{- end}}
   {{- end}}
   ports:
-  {{- if $root.HasOpenrestySidecar }}
-  {{- if not $root.UseESP }}
+  {{- if .HasOpenrestySidecar }}
+  {{- if not .UseESP }}
   - name: http
     port: 80
     targetPort: http
@@ -48,20 +46,18 @@ spec:
     protocol: TCP
   {{- else }}
   - name: web
-    port: {{ $root.Container.Port}}
+    port: {{.Container.Port}}
     targetPort: web
     protocol: TCP
   {{- end}}
-  {{- range $root.AdditionalServicePorts}}
+  {{- range .AdditionalServicePorts}}
   - name: {{.Name}}
     port: {{.Port}}
     targetPort: {{.Name}}
     protocol: {{.Protocol}}
   {{- end}}
   selector:
-    "app": {{ $root.AppLabelSelector | quote }}
-    {{- if $root.IncludeAtomicIDSelector }}
-    "estafette.io/atomic-id": {{ $root.AtomicID | quote }}
+    "app": {{ .AppLabelSelector | quote }}
+    {{- if .IncludeAtomicIDSelector }}
+    "estafette.io/atomic-id": {{ .AtomicID | quote }}
     {{- end}}
-{{- end}}
-{{- end}}
