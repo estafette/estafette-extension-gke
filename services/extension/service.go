@@ -361,13 +361,11 @@ func (s *service) deleteIngressForVisibilityChange(ctx context.Context, template
 }
 
 func (s *service) deleteBackendConfigAndIAPOauthSecret(ctx context.Context, templateData api.TemplateData, name, namespace string) {
-	for _, service := range templateData.Services {
-		if !service.UseBackendConfigAnnotationOnService {
-			log.Info().Msg("Deleting iap oauth secret if it exists, because visibility is not set to iap...")
-			foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "secret", fmt.Sprintf("%v--iap-oauth-credentials", service.Name), "-n", namespace, "--ignore-not-found=true"})
-			log.Info().Msg("Deleting iap backend config if it exists, because visibility is not set to iap...")
-			foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "backendconfig", service.Name, "-n", namespace, "--ignore-not-found=true"})
-		}
+	if !templateData.Service.UseBackendConfigAnnotationOnService {
+		log.Info().Msg("Deleting iap oauth secret if it exists, because visibility is not set to iap...")
+		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "secret", fmt.Sprintf("%v--iap-oauth-credentials", name), "-n", namespace, "--ignore-not-found=true"})
+		log.Info().Msg("Deleting iap backend config if it exists, because visibility is not set to iap...")
+		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "backendconfig", name, "-n", namespace, "--ignore-not-found=true"})
 	}
 }
 
@@ -456,37 +454,32 @@ func (s *service) failIfCreatingNewPublicService(ctx context.Context, params api
 }
 
 func (s *service) patchServiceIfRequired(ctx context.Context, params api.Params, templateData api.TemplateData, name, namespace string) {
-	if params.Kind == api.KindDeployment {
-		for _, service := range templateData.Services {
-			if service.ServiceType == "ClusterIP" {
-				output, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "service", name, "-n", namespace, "-o=jsonpath={.spec.type} {.spec.ports[*].nodePort}"})
-				if err != nil {
-					log.Info().Msgf("Failed retrieving service details: %v", err)
-				}
-				outputFields := strings.Fields(output)
-				serviceType := outputFields[0]
-				if err == nil && (serviceType == "NodePort" || serviceType == "LoadBalancer") {
-					log.Info().Msgf("Service is of type %v, patching it...", serviceType)
+	if params.Kind == api.KindDeployment && templateData.Service.ServiceType == "ClusterIP" {
+		output, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "service", templateData.Service.Name, "-n", namespace, "-o=jsonpath={.spec.type} {.spec.ports[*].nodePort}"})
+		if err != nil {
+			log.Info().Msgf("Failed retrieving service details: %v", err)
+		}
+		outputFields := strings.Fields(output)
+		serviceType := outputFields[0]
+		if err == nil && (serviceType == "NodePort" || serviceType == "LoadBalancer") {
+			log.Info().Msgf("Service is of type %v, patching it...", serviceType)
 
-					// brute force patch the service
-					nodePortRemovePatchStr := ""
-					for i := 0; i < len(outputFields)-1; i++ {
-						nodePortRemovePatchStr += fmt.Sprintf("{\"op\": \"remove\", \"path\": \"/spec/ports/%d/nodePort\"}, ", i)
-					}
-
-					patchStr := "[{\"op\": \"remove\", \"path\": \"/spec/loadBalancerSourceRanges\"},{\"op\": \"remove\", \"path\": \"/spec/externalTrafficPolicy\"}, " + nodePortRemovePatchStr + "{\"op\": \"replace\", \"path\": \"/spec/type\", \"value\": \"ClusterIP\"}]"
-					err = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"patch", "service", service.Name, "-n", namespace, "--type", "json", "--patch", patchStr})
-					if err != nil {
-						patchStr := "[{\"op\": \"remove\", \"path\": \"/spec/externalTrafficPolicy\"}, " + nodePortRemovePatchStr + "{\"op\": \"replace\", \"path\": \"/spec/type\", \"value\": \"ClusterIP\"}]"
-						err = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"patch", "service", service.Name, "-n", namespace, "--type", "json", "--patch", patchStr})
-					}
-					if err != nil {
-						log.Fatal().Err(err).Msg(fmt.Sprintf("Failed patching service to change from %v to ClusterIP", serviceType))
-					}
-				} else {
-					log.Info().Msgf("Service is of type %v, no need to patch it", serviceType)
-				}
+			// brute force patch the service
+			nodePortRemovePatchStr := ""
+			for i := 0; i < len(outputFields)-1; i++ {
+				nodePortRemovePatchStr += fmt.Sprintf("{\"op\": \"remove\", \"path\": \"/spec/ports/%d/nodePort\"}, ", i)
 			}
+			patchStr := "[{\"op\": \"remove\", \"path\": \"/spec/loadBalancerSourceRanges\"},{\"op\": \"remove\", \"path\": \"/spec/externalTrafficPolicy\"}, " + nodePortRemovePatchStr + "{\"op\": \"replace\", \"path\": \"/spec/type\", \"value\": \"ClusterIP\"}]"
+			err = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"patch", "service", templateData.Service.Name, "-n", namespace, "--type", "json", "--patch", patchStr})
+			if err != nil {
+				patchStr := "[{\"op\": \"remove\", \"path\": \"/spec/externalTrafficPolicy\"}, " + nodePortRemovePatchStr + "{\"op\": \"replace\", \"path\": \"/spec/type\", \"value\": \"ClusterIP\"}]"
+				err = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"patch", "service", templateData.Service.Name, "-n", namespace, "--type", "json", "--patch", patchStr})
+			}
+			if err != nil {
+				log.Fatal().Err(err).Msg(fmt.Sprintf("Failed patching service to change from %v to ClusterIP", serviceType))
+			}
+		} else {
+			log.Info().Msgf("Service is of type %v, no need to patch it", serviceType)
 		}
 	}
 }
@@ -569,36 +562,29 @@ func (s *service) patchDeploymentIfRequired(ctx context.Context, params api.Para
 }
 
 func (s *service) removeEstafetteCloudflareAnnotations(ctx context.Context, templateData api.TemplateData, name, namespace string) {
-	for _, service := range templateData.Services {
-		if !service.UseDNSAnnotationsOnService {
-			// ingress is used and has the estafette.io/cloudflare annotations, so they should be removed from the service
-			log.Info().Msg("Removing estafette.io/cloudflare annotations on the service if they exists, since they're now set on the ingress instead...")
-			foundation.RunCommandWithArgs(ctx, "kubectl", []string{"annotate", "svc", service.Name, "-n", namespace, "estafette.io/cloudflare-dns-"})
-			foundation.RunCommandWithArgs(ctx, "kubectl", []string{"annotate", "svc", service.Name, "-n", namespace, "estafette.io/cloudflare-proxy-"})
-			foundation.RunCommandWithArgs(ctx, "kubectl", []string{"annotate", "svc", service.Name, "-n", namespace, "estafette.io/cloudflare-hostnames-"})
-			foundation.RunCommandWithArgs(ctx, "kubectl", []string{"annotate", "svc", service.Name, "-n", namespace, "estafette.io/cloudflare-state-"})
-		}
+	if !templateData.Service.UseDNSAnnotationsOnService {
+		// ingress is used and has the estafette.io/cloudflare annotations, so they should be removed from the service
+		log.Info().Msg("Removing estafette.io/cloudflare annotations on the service if they exists, since they're now set on the ingress instead...")
+		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"annotate", "svc", templateData.Service.Name, "-n", namespace, "estafette.io/cloudflare-dns-"})
+		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"annotate", "svc", templateData.Service.Name, "-n", namespace, "estafette.io/cloudflare-proxy-"})
+		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"annotate", "svc", templateData.Service.Name, "-n", namespace, "estafette.io/cloudflare-hostnames-"})
+		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"annotate", "svc", templateData.Service.Name, "-n", namespace, "estafette.io/cloudflare-state-"})
 	}
-
 }
 
 func (s *service) removeBackendConfigAnnotation(ctx context.Context, templateData api.TemplateData, name, namespace string) {
-	for _, service := range templateData.Services {
-		if !service.UseBackendConfigAnnotationOnService {
-			// iap is not used, so the beta.cloud.google.com/backend-config annotations should be removed from the service
-			log.Info().Msg("Removing beta.cloud.google.com/backend-config annotations on the service if they exists, since visibility is not set to iap...")
-			foundation.RunCommandWithArgs(ctx, "kubectl", []string{"annotate", "svc", service.Name, "-n", namespace, "beta.cloud.google.com/backend-config-"})
-		}
+	if !templateData.Service.UseBackendConfigAnnotationOnService {
+		// iap is not used, so the beta.cloud.google.com/backend-config annotations should be removed from the service
+		log.Info().Msg("Removing beta.cloud.google.com/backend-config annotations on the service if they exists, since visibility is not set to iap...")
+		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"annotate", "svc", templateData.Service.Name, "-n", namespace, "beta.cloud.google.com/backend-config-"})
 	}
 }
 
 func (s *service) removeNegAnnotation(ctx context.Context, templateData api.TemplateData, name, namespace string) {
-	for _, service := range templateData.Services {
-		if !service.UseNegAnnotationOnService {
-			// cloud native load balancing is not used, so the beta.cloud.google.com/backend-config annotations should be removed from the service
-			log.Info().Msg("Removing cloud.google.com/neg annotations on the service if they exists, since visibility is not set to iap or containerNativeLoadBalancing is set to fals...")
-			foundation.RunCommandWithArgs(ctx, "kubectl", []string{"annotate", "svc", service.Name, "-n", namespace, "cloud.google.com/neg-"})
-		}
+	if !templateData.Service.UseNegAnnotationOnService {
+		// cloud native load balancing is not used, so the beta.cloud.google.com/backend-config annotations should be removed from the service
+		log.Info().Msg("Removing cloud.google.com/neg annotations on the service if they exists, since visibility is not set to iap or containerNativeLoadBalancing is set to fals...")
+		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"annotate", "svc", templateData.Service.Name, "-n", namespace, "cloud.google.com/neg-"})
 	}
 }
 

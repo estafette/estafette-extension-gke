@@ -295,9 +295,10 @@ func TestGetTemplates(t *testing.T) {
 		assert.Nil(t, err)
 
 		params := api.Params{
-			Action:     api.ActionDeploySimple,
-			Visibility: api.VisibilityESP,
-			Kind:       api.KindDeployment,
+			Action:                  api.ActionDeploySimple,
+			Visibility:              api.VisibilityESP,
+			Kind:                    api.KindDeployment,
+			EspServiceTypeClusterIP: true,
 		}
 
 		// act
@@ -313,9 +314,10 @@ func TestGetTemplates(t *testing.T) {
 		assert.Nil(t, err)
 
 		params := api.Params{
-			Action:     api.ActionDeploySimple,
-			Visibility: api.VisibilityESPv2,
-			Kind:       api.KindDeployment,
+			Action:                  api.ActionDeploySimple,
+			Visibility:              api.VisibilityESPv2,
+			Kind:                    api.KindDeployment,
+			EspServiceTypeClusterIP: true,
 		}
 
 		// act
