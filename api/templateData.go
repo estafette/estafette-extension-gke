@@ -32,12 +32,8 @@ type TemplateData struct {
 	UseDNSAnnotationsOnIngress bool
 	UseCloudflareProxy         bool
 
-	Services []ServiceData
-	//UseDNSAnnotationsOnService           bool
-	//UseBackendConfigAnnotationOnService  bool
-	//UseNegAnnotationOnService            bool
+	Service            ServiceData
 	UsePrometheusProbe bool
-	//ServiceType                          string
 
 	MinReplicas                          int
 	MaxReplicas                          int
@@ -135,7 +131,6 @@ type TemplateData struct {
 // ServiceData has data specific to service
 type ServiceData struct {
 	ServiceType                         ServiceType
-	Name                                string
 	UseDNSAnnotationsOnService          bool   `default:"false"`
 	UseBackendConfigAnnotationOnService bool   `default:"false"`
 	UseNegAnnotationOnService           bool   `default:"false"`
