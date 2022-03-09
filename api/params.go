@@ -909,7 +909,9 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 		if (p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2) && p.EspOpenAPIYamlPath == "" {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property espOpenapiYamlPath is required; set espOpenapiYamlPath to the path towards openapi.yaml"))
 		}
-
+		if p.EspServiceTypeClusterIP && (p.Visibility != VisibilityESP && p.Visibility != VisibilityESPv2) {
+			errors = append(errors, fmt.Errorf("With EspServiceTypeClusterIP set to true, visibility needs to be set to 'esp' or 'espv2'"))
+		}
 		if (p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2) && len(p.Hosts) < 1 {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property at least one host is required. Set it via hosts array property on this stage"))
 		}
