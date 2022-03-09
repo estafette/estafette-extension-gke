@@ -376,14 +376,22 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 	switch params.Visibility {
 	case api.VisibilityPrivate:
 		data.Services = append(data.Services, api.ServiceData{
-			ServiceType: string(api.ServiceTypeClusterIP),
-			Name:        params.App,
-			MainService: true,
+			ServiceType:                         string(api.ServiceTypeClusterIP),
+			Name:                                params.App,
+			UseDNSAnnotationsOnService:          false,
+			UseBackendConfigAnnotationOnService: false,
+			UseNegAnnotationOnService:           false,
+			LimitTrustedIPRanges:                false,
+			MainService:                         true,
 		})
+		//data.ServiceType = "ClusterIP"
 		data.UseNginxIngress = true
 		data.UseGCEIngress = false
 		data.UseDNSAnnotationsOnIngress = true
+		//data.UseDNSAnnotationsOnService = false
 		data.UseCloudflareProxy = true
+		//data.UseBackendConfigAnnotationOnService = false
+		//data.UseNegAnnotationOnService = false
 		data.LimitTrustedIPRanges = false
 		data.OverrideDefaultWhitelist = false
 
@@ -391,14 +399,20 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		data.Services = append(data.Services, api.ServiceData{
 			ServiceType:                         string(api.ServiceTypeNodePort),
 			Name:                                params.App,
+			UseDNSAnnotationsOnService:          false,
 			UseBackendConfigAnnotationOnService: true,
 			UseNegAnnotationOnService:           params.ContainerNativeLoadBalancing,
+			LimitTrustedIPRanges:                false,
 			MainService:                         true,
 		})
+		//data.ServiceType = "NodePort"
 		data.UseNginxIngress = false
 		data.UseGCEIngress = true
 		data.UseDNSAnnotationsOnIngress = true
+		//data.UseDNSAnnotationsOnService = false
 		data.UseCloudflareProxy = false
+		//data.UseBackendConfigAnnotationOnService = true
+		//data.UseNegAnnotationOnService = params.ContainerNativeLoadBalancing
 		data.LimitTrustedIPRanges = false
 		data.OverrideDefaultWhitelist = false
 		data.IapOauthCredentialsClientID = params.IapOauthCredentialsClientID
@@ -406,23 +420,34 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 
 	case api.VisibilityPublicWhitelist:
 		data.Services = append(data.Services, api.ServiceData{
-			ServiceType: string(api.ServiceTypeClusterIP),
-			Name:        params.App,
-			MainService: true,
+			ServiceType:                         string(api.ServiceTypeClusterIP),
+			Name:                                params.App,
+			UseDNSAnnotationsOnService:          false,
+			UseBackendConfigAnnotationOnService: false,
+			UseNegAnnotationOnService:           false,
+			LimitTrustedIPRanges:                false,
+			MainService:                         true,
 		})
 		data.UseNginxIngress = true
 		data.UseGCEIngress = false
 		data.UseDNSAnnotationsOnIngress = true
+		//data.UseDNSAnnotationsOnService = false
 		data.UseCloudflareProxy = true
+		//data.UseBackendConfigAnnotationOnService = false
+		//data.UseNegAnnotationOnService = false
 		data.LimitTrustedIPRanges = false
 		data.OverrideDefaultWhitelist = len(params.WhitelistedIPS) > 0
 		data.NginxIngressWhitelist = strings.Join(params.WhitelistedIPS, ",")
 
 	case api.VisibilityApigee:
 		data.Services = append(data.Services, api.ServiceData{
-			ServiceType: string(api.ServiceTypeClusterIP),
-			Name:        params.App,
-			MainService: true,
+			ServiceType:                         string(api.ServiceTypeClusterIP),
+			Name:                                params.App,
+			UseDNSAnnotationsOnService:          false,
+			UseBackendConfigAnnotationOnService: false,
+			UseNegAnnotationOnService:           false,
+			LimitTrustedIPRanges:                false,
+			MainService:                         true,
 		})
 		data.UseNginxIngress = true
 		data.UseGCEIngress = false
