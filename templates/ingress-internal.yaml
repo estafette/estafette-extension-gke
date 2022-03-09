@@ -51,11 +51,7 @@ spec:
         pathType: {{$.PathType}}
         backend:
           service:
-            {{- range .Services }}
-            {{- if .MainService }}
-            name: {{.Name}}
-            {{- end }}
-            {{- end }}
+            name: {{$.Name}}
             port:
               {{- if $.HasOpenrestySidecar }}
               name: https
