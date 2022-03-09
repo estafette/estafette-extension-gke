@@ -132,11 +132,10 @@ type TemplateData struct {
 type ServiceData struct {
 	ServiceType                         ServiceType
 	Name                                string
-	UseDNSAnnotationsOnService          bool   `default:"false"`
-	UseBackendConfigAnnotationOnService bool   `default:"false"`
-	UseNegAnnotationOnService           bool   `default:"false"`
-	LimitTrustedIPRanges                bool   `default:"false"`
-	NameSuffix                          string `default:""`
+	UseDNSAnnotationsOnService          bool `default:"false"`
+	UseBackendConfigAnnotationOnService bool `default:"false"`
+	UseNegAnnotationOnService           bool `default:"false"`
+	LimitTrustedIPRanges                bool `default:"false"`
 }
 
 // ContainerData has data specific to the application container

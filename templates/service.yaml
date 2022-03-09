@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{.Name}}{{.Service.NameSuffix}}
+  name: {{.Service.Name}}
   namespace: {{.Namespace}}
   labels:
     {{- range $key, $value := .Labels}}
@@ -26,7 +26,7 @@ metadata:
     {{- end}}
 spec:
   type: {{.Service.ServiceType}}
-  {{- if .LimitTrustedIPRanges}}
+  {{- if .Service.LimitTrustedIPRanges}}
   loadBalancerSourceRanges:
   {{- range .TrustedIPRanges}}
   - {{.}}
