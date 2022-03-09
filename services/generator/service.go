@@ -442,7 +442,15 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		data.UseCloudflareProxy = true
 		data.OverrideDefaultWhitelist = false
 
-		if params.EspServiceTypeMain == api.ServiceTypeLoadBalancer || params.EspServiceTypeMain == api.ServiceTypeUnknown {
+		if params.EspServiceTypeMain == api.ServiceTypeClusterIP || params.EspServiceTypeMain == api.ServiceTypeUnknown {
+			data.Services = append(data.Services, api.ServiceData{
+				ServiceType: string(api.ServiceTypeClusterIP),
+				Name:        params.App + "-cluster-ip",
+				MainService: true,
+			})
+			data.UseNginxIngress = true
+			data.UseDNSAnnotationsOnIngress = true
+		} else if params.EspServiceTypeMain == api.ServiceTypeLoadBalancer {
 			data.Services = append(data.Services, api.ServiceData{
 				ServiceType:                         string(api.ServiceTypeLoadBalancer),
 				Name:                                params.App,
@@ -452,14 +460,6 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 			})
 			data.UseNginxIngress = false
 			data.UseDNSAnnotationsOnIngress = false
-		} else if params.EspServiceTypeMain == api.ServiceTypeClusterIP {
-			data.Services = append(data.Services, api.ServiceData{
-				ServiceType: string(api.ServiceTypeClusterIP),
-				Name:        params.App + "-cluster-ip",
-				MainService: true,
-			})
-			data.UseNginxIngress = true
-			data.UseDNSAnnotationsOnIngress = true
 		}
 
 		switch params.EspServiceTypeExtra {

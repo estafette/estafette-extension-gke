@@ -912,7 +912,7 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 		}
 		if p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2 {
 			if p.EspServiceTypeMain != ServiceTypeLoadBalancer && p.EspServiceTypeMain != ServiceTypeClusterIP && p.EspServiceTypeMain != ServiceTypeUnknown {
-				errors = append(errors, fmt.Errorf("With visibility 'esp' property EspServiceTypeMain choices: 'LoadBalancer' or 'ClusterIP'. Leave empty to set to default (LoadBalancer)"))
+				errors = append(errors, fmt.Errorf("With visibility 'esp' property EspServiceTypeMain choices: 'LoadBalancer' or 'ClusterIP'. Leave empty to set to default (ClusterIP)"))
 			}
 			if p.EspServiceTypeMain == p.EspServiceTypeExtra && p.EspServiceTypeMain != ServiceTypeUnknown {
 				errors = append(errors, fmt.Errorf("You cannot set main and backup service to the same type"))
