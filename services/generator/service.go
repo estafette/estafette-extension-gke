@@ -375,15 +375,15 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 
 	switch params.Visibility {
 	case api.VisibilityPrivate:
-		data.Services = append(data.Services, api.ServiceData{
-			ServiceType:                         string(api.ServiceTypeClusterIP),
+		data.Services[0] = api.ServiceData{
+			ServiceType:                         api.ServiceTypeClusterIP,
 			Name:                                params.App,
 			UseDNSAnnotationsOnService:          false,
 			UseBackendConfigAnnotationOnService: false,
 			UseNegAnnotationOnService:           false,
 			LimitTrustedIPRanges:                false,
 			MainService:                         true,
-		})
+		}
 		//data.ServiceType = "ClusterIP"
 		data.UseNginxIngress = true
 		data.UseGCEIngress = false
@@ -396,15 +396,15 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		data.OverrideDefaultWhitelist = false
 
 	case api.VisibilityIAP:
-		data.Services = append(data.Services, api.ServiceData{
-			ServiceType:                         string(api.ServiceTypeNodePort),
+		data.Services[0] = api.ServiceData{
+			ServiceType:                         api.ServiceTypeNodePort,
 			Name:                                params.App,
 			UseDNSAnnotationsOnService:          false,
 			UseBackendConfigAnnotationOnService: true,
 			UseNegAnnotationOnService:           params.ContainerNativeLoadBalancing,
 			LimitTrustedIPRanges:                false,
 			MainService:                         true,
-		})
+		}
 		//data.ServiceType = "NodePort"
 		data.UseNginxIngress = false
 		data.UseGCEIngress = true
@@ -419,15 +419,15 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		data.IapOauthCredentialsClientSecret = params.IapOauthCredentialsClientSecret
 
 	case api.VisibilityPublicWhitelist:
-		data.Services = append(data.Services, api.ServiceData{
-			ServiceType:                         string(api.ServiceTypeClusterIP),
+		data.Services[0] = api.ServiceData{
+			ServiceType:                         api.ServiceTypeClusterIP,
 			Name:                                params.App,
 			UseDNSAnnotationsOnService:          false,
 			UseBackendConfigAnnotationOnService: false,
 			UseNegAnnotationOnService:           false,
 			LimitTrustedIPRanges:                false,
 			MainService:                         true,
-		})
+		}
 		data.UseNginxIngress = true
 		data.UseGCEIngress = false
 		data.UseDNSAnnotationsOnIngress = true
@@ -440,15 +440,15 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		data.NginxIngressWhitelist = strings.Join(params.WhitelistedIPS, ",")
 
 	case api.VisibilityApigee:
-		data.Services = append(data.Services, api.ServiceData{
-			ServiceType:                         string(api.ServiceTypeClusterIP),
+		data.Services[0] = api.ServiceData{
+			ServiceType:                         api.ServiceTypeClusterIP,
 			Name:                                params.App,
 			UseDNSAnnotationsOnService:          false,
 			UseBackendConfigAnnotationOnService: false,
 			UseNegAnnotationOnService:           false,
 			LimitTrustedIPRanges:                false,
 			MainService:                         true,
-		})
+		}
 		data.UseNginxIngress = true
 		data.UseGCEIngress = false
 		data.UseDNSAnnotationsOnIngress = true
@@ -464,11 +464,11 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 
 	case api.VisibilityESP, api.VisibilityESPv2:
 		if params.EspServiceTypeMain == api.ServiceTypeClusterIP || params.EspServiceTypeMain == api.ServiceTypeUnknown {
-			data.Services = append(data.Services, api.ServiceData{
-				ServiceType: string(api.ServiceTypeClusterIP),
+			data.Services[0] = api.ServiceData{
+				ServiceType: api.ServiceTypeClusterIP,
 				Name:        params.App + "-cluster-ip",
 				MainService: true,
-			})
+			}
 			data.UseNginxIngress = true
 			data.UseGCEIngress = false
 			data.UseDNSAnnotationsOnIngress = true
@@ -476,15 +476,15 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 			data.LimitTrustedIPRanges = false
 			data.OverrideDefaultWhitelist = false
 		} else if params.EspServiceTypeMain == api.ServiceTypeLoadBalancer {
-			data.Services = append(data.Services, api.ServiceData{
-				ServiceType:                         string(api.ServiceTypeLoadBalancer),
+			data.Services[0] = api.ServiceData{
+				ServiceType:                         api.ServiceTypeLoadBalancer,
 				Name:                                params.App,
 				UseDNSAnnotationsOnService:          true,
 				UseBackendConfigAnnotationOnService: false,
 				UseNegAnnotationOnService:           false,
 				LimitTrustedIPRanges:                false,
 				MainService:                         true,
-			})
+			}
 			data.UseNginxIngress = false
 			data.UseGCEIngress = false
 			data.UseDNSAnnotationsOnIngress = false
@@ -494,12 +494,12 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		}
 
 	case api.VisibilityPublic:
-		data.Services = append(data.Services, api.ServiceData{
-			ServiceType:                string(api.ServiceTypeLoadBalancer),
+		data.Services[0] = api.ServiceData{
+			ServiceType:                api.ServiceTypeLoadBalancer,
 			Name:                       params.App,
 			UseDNSAnnotationsOnService: true,
 			MainService:                true,
-		})
+		}
 		data.UseNginxIngress = false
 		data.UseGCEIngress = false
 		data.UseDNSAnnotationsOnIngress = false
