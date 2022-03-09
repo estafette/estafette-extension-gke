@@ -105,6 +105,7 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 			Tag:             params.Container.ImageTag,
 			ImagePullPolicy: params.Container.ImagePullPolicy,
 			Port:            params.Container.Port,
+			PortGrpc:        params.Container.PortGrpc,
 
 			CPURequest:    params.Container.CPU.Request,
 			CPULimit:      params.Container.CPU.Limit,
@@ -271,6 +272,7 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 	if requestTimeoutConvertError != nil {
 		data.NginxIngressProxyReadTimeout = 60
 	}
+	data.NginxIngressBackendProtocol = params.Request.IngressBackendProtocol
 	data.NginxIngressProxyBodySize = params.Request.MaxBodySize
 	data.NginxIngressClientBodyBufferSize = params.Request.ClientBodyBufferSize
 	data.NginxIngressProxyBufferSize = params.Request.ProxyBufferSize

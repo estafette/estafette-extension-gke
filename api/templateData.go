@@ -89,6 +89,7 @@ type TemplateData struct {
 	AdditionalContainerPorts             []AdditionalPortData
 	AdditionalServicePorts               []AdditionalPortData
 	OverrideDefaultWhitelist             bool
+	NginxIngressBackendProtocol          string
 	NginxIngressWhitelist                string
 	NginxIngressClientBodyBufferSize     string
 	NginxIngressProxyConnectTimeout      int
@@ -148,6 +149,7 @@ type ContainerData struct {
 	CPULimit                        string
 	MemoryLimit                     string
 	Port                            int
+	PortGrpc                        int
 	EnvironmentVariables            map[string]interface{}
 	SecretEnvironmentVariables      map[string]interface{}
 	Liveness                        ProbeData
