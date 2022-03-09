@@ -463,10 +463,6 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		data.ApigeeHostsJoined = strings.Join(data.ApigeeHosts, ",")
 
 	case api.VisibilityESP, api.VisibilityESPv2:
-		data.UseGCEIngress = false
-		data.UseCloudflareProxy = true
-		data.OverrideDefaultWhitelist = false
-
 		if params.EspServiceTypeMain == api.ServiceTypeClusterIP || params.EspServiceTypeMain == api.ServiceTypeUnknown {
 			data.Services = append(data.Services, api.ServiceData{
 				ServiceType: string(api.ServiceTypeClusterIP),
@@ -474,31 +470,27 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 				MainService: true,
 			})
 			data.UseNginxIngress = true
+			data.UseGCEIngress = false
 			data.UseDNSAnnotationsOnIngress = true
+			data.UseCloudflareProxy = true
+			data.LimitTrustedIPRanges = false
+			data.OverrideDefaultWhitelist = false
 		} else if params.EspServiceTypeMain == api.ServiceTypeLoadBalancer {
 			data.Services = append(data.Services, api.ServiceData{
 				ServiceType:                         string(api.ServiceTypeLoadBalancer),
 				Name:                                params.App,
 				UseDNSAnnotationsOnService:          true,
-				UseBackendConfigAnnotationOnService: true,
+				UseBackendConfigAnnotationOnService: false,
+				UseNegAnnotationOnService:           false,
+				LimitTrustedIPRanges:                false,
 				MainService:                         true,
 			})
 			data.UseNginxIngress = false
+			data.UseGCEIngress = false
 			data.UseDNSAnnotationsOnIngress = false
-		}
-
-		switch params.EspServiceTypeExtra {
-		case api.ServiceTypeClusterIP:
-			data.Services = append(data.Services, api.ServiceData{
-				ServiceType: string(api.ServiceTypeClusterIP),
-				Name:        params.App + "-cluster-ip",
-			})
-		case api.ServiceTypeLoadBalancer:
-			data.Services = append(data.Services, api.ServiceData{
-				ServiceType:                         string(api.ServiceTypeLoadBalancer),
-				Name:                                params.App,
-				UseBackendConfigAnnotationOnService: true,
-			})
+			data.UseCloudflareProxy = true
+			data.LimitTrustedIPRanges = true
+			data.OverrideDefaultWhitelist = false
 		}
 
 	case api.VisibilityPublic:
