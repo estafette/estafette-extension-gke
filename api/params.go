@@ -46,7 +46,7 @@ type Params struct {
 	EspEndpointsProjectID           string                 `json:"espEndpointsProjectID,omitempty" yaml:"espEndpointsProjectID,omitempty"`
 	EspConfigID                     string                 `json:"espConfigID,omitempty" yaml:"espConfigID,omitempty"`
 	EspOpenAPIYamlPath              string                 `json:"espOpenapiYamlPath,omitempty" yaml:"espOpenapiYamlPath,omitempty"`
-	EspServiceTypeClusterIP         bool                   `json:"espServiceTypeMain,omitempty" yaml:"espServiceTypeMain,omitempty"`
+	EspServiceTypeClusterIP         bool                   `json:"espServiceTypeClusterIP,omitempty" yaml:"espServiceTypeClusterIP,omitempty"`
 	WhitelistedIPS                  []string               `json:"whitelist,omitempty" yaml:"whitelist,omitempty"`
 	Hosts                           []string               `json:"hosts,omitempty" yaml:"hosts,omitempty"`
 	HostsRouteOnly                  []string               `json:"hostsrouteonly,omitempty" yaml:"hostsrouteonly,omitempty"`
