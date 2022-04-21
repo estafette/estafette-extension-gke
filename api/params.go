@@ -46,6 +46,8 @@ type Params struct {
 	EspEndpointsProjectID           string                 `json:"espEndpointsProjectID,omitempty" yaml:"espEndpointsProjectID,omitempty"`
 	EspConfigID                     string                 `json:"espConfigID,omitempty" yaml:"espConfigID,omitempty"`
 	EspOpenAPIYamlPath              string                 `json:"espOpenapiYamlPath,omitempty" yaml:"espOpenapiYamlPath,omitempty"`
+	EspGrpcConfigYamlPath           string                 `json:"espGrpcConfigYamlPath,omitempty" yaml:"espGrpcConfigYamlPath,omitempty"`
+	EspGrpcProtoDescriptorPath      string                 `json:"espGrpcProtoDescriptorPath,omitempty" yaml:"espGrpcProtoDescriptorPath,omitempty"`
 	WhitelistedIPS                  []string               `json:"whitelist,omitempty" yaml:"whitelist,omitempty"`
 	Hosts                           []string               `json:"hosts,omitempty" yaml:"hosts,omitempty"`
 	HostsRouteOnly                  []string               `json:"hostsrouteonly,omitempty" yaml:"hostsrouteonly,omitempty"`
@@ -571,7 +573,7 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	}
 
 	if p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2 {
-		if p.EspOpenAPIYamlPath == "" {
+		if p.EspOpenAPIYamlPath == "" && p.EspGrpcProtoDescriptorPath == "" && p.EspGrpcConfigYamlPath == "" {
 			p.EspOpenAPIYamlPath = "openapi.yaml"
 		}
 
@@ -915,8 +917,8 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 		if (p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2) && (p.EspEndpointsProjectID == "") {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property espEndpointsProjectID is required; provide id of the 'endpoints' project"))
 		}
-		if (p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2) && p.EspOpenAPIYamlPath == "" {
-			errors = append(errors, fmt.Errorf("With visibility 'esp' property espOpenapiYamlPath is required; set espOpenapiYamlPath to the path towards openapi.yaml"))
+		if (p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2) && (p.EspOpenAPIYamlPath == "" && p.EspGrpcProtoDescriptorPath == "" && p.EspGrpcConfigYamlPath == "") {
+			errors = append(errors, fmt.Errorf("With visibility 'esp', either the property espOpenapiYamlPath, or the espGrpcProtoDescriptorPath and espGrpcConfigYamlPath are required; Either set espOpenapiYamlPath to the path of the openapi.yaml spec, or set espGrpcProtoDescriptorPath to the path of the compiled Proto descriptor and espGrpcConfigYamlPath to the path of the gRPC service config."))
 		}
 		if (p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2) && len(p.Hosts) < 1 {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property at least one host is required. Set it via hosts array property on this stage"))
@@ -1058,8 +1060,24 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 	}
 
 	// check for visibility esp if openapi.yaml exists
-	if _, err := os.Stat(p.EspOpenAPIYamlPath); (p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2) && os.IsNotExist(err) {
-		errors = append(errors, fmt.Errorf("When using visibility: esp make sure to set clone: true and have openapi.yaml available in the working directory"))
+	if p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2 {
+		if p.EspOpenAPIYamlPath != "" {
+			if _, err := os.Stat(p.EspOpenAPIYamlPath); os.IsNotExist(err) {
+				errors = append(errors, fmt.Errorf("When using visibility: esp make sure to set clone: true and set espOpenAPIYamlPath to the correct path of the OpenApi YAML spec file"))
+			}
+		}
+
+		if p.EspGrpcProtoDescriptorPath != "" {
+			if _, err := os.Stat(p.EspGrpcProtoDescriptorPath); os.IsNotExist(err) {
+				errors = append(errors, fmt.Errorf("When using visibility: esp make sure to set clone: true and set espGrpcProtoDescriptorPath to the correct path of the compiled Proto descriptor file"))
+			}
+		}
+
+		if p.EspGrpcConfigYamlPath != "" {
+			if _, err := os.Stat(p.EspGrpcConfigYamlPath); os.IsNotExist(err) {
+				errors = append(errors, fmt.Errorf("When using visibility: esp make sure to set clone: true and set espGrpcConfigYamlPath to the correct path of the compiled gRPC service spec file"))
+			}
+		}
 	}
 
 	return len(errors) == 0, errors, warnings
