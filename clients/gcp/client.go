@@ -207,13 +207,20 @@ func (c *client) GetGKECluster(ctx context.Context, projectID, location, cluster
 }
 
 func (c *client) DeployGoogleCloudEndpoints(ctx context.Context, params api.Params) (err error) {
+	if params.EspOpenAPIYamlPath != "" {
+		return c.deployGoogleCloudEndpointsWithOpenApi(ctx, params)
+	} else {
+		return c.deployGoogleCloudEndpointsWithGrpc(ctx, params)
+	}
+}
 
+func (c *client) deployGoogleCloudEndpointsWithOpenApi(ctx context.Context, params api.Params) (err error) {
+	log.Info().Msgf("Checking if openapi spec at path %v exists...", params.EspOpenAPIYamlPath)
 	// get host from openapi file
 	if !foundation.FileExists(params.EspOpenAPIYamlPath) {
 		return fmt.Errorf("File at path %v does not exist. Did you forget to use `clone: true` for your release?", params.EspOpenAPIYamlPath)
 	}
 
-	log.Info().Msgf("Checking if openapi spec at path %v exists...", params.EspOpenAPIYamlPath)
 	openapiSpecBytes, err := ioutil.ReadFile(params.EspOpenAPIYamlPath)
 	if err != nil {
 		return
@@ -236,6 +243,104 @@ func (c *client) DeployGoogleCloudEndpoints(ctx context.Context, params api.Para
 	serviceName := openapiSpec.Host
 	log.Info().Msgf("Found service name %v in openapi", serviceName)
 
+	if err = c.createService(ctx, serviceName, params); err != nil {
+		return err
+	}
+
+	configID, err := c.submitServiceConfiguration(
+		ctx,
+		params,
+		serviceName,
+		[]*servicemanagementv1.ConfigFile{
+			{
+				FileContents: base64.StdEncoding.EncodeToString(openapiSpecBytes),
+				FilePath:     filepath.Base(params.EspOpenAPIYamlPath),
+				FileType:     "OPEN_API_YAML",
+			},
+		})
+
+	if err != nil {
+		return err
+	}
+
+	if err = c.rolloutService(ctx, params, serviceName, configID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *client) deployGoogleCloudEndpointsWithGrpc(ctx context.Context, params api.Params) (err error) {
+	log.Info().Msgf("Checking if gRPC service config file at path %v exists...", params.EspGrpcConfigYamlPath)
+	if !foundation.FileExists(params.EspGrpcConfigYamlPath) {
+		return fmt.Errorf("File at path %v does not exist. Did you forget to use `clone: true` for your release?", params.EspGrpcConfigYamlPath)
+	}
+
+	log.Info().Msgf("Checking if the Proto descriptor file at path %v exists...", params.EspGrpcProtoDescriptorPath)
+	if !foundation.FileExists(params.EspGrpcProtoDescriptorPath) {
+		return fmt.Errorf("File at path %v does not exist. Did you forget to use `clone: true` for your release?", params.EspGrpcProtoDescriptorPath)
+	}
+
+	grpcServiceConfigBytes, err := ioutil.ReadFile(params.EspGrpcConfigYamlPath)
+	if err != nil {
+		return
+	}
+
+	grpcProtoDescriptorBytes, err := ioutil.ReadFile(params.EspGrpcProtoDescriptorPath)
+	if err != nil {
+		return
+	}
+
+	var grpcServiceConfig struct {
+		Name string `yaml:"name"`
+	}
+
+	log.Info().Msg("Unmarshalling the gRPC config spec to get the service name...")
+	err = yaml.Unmarshal(grpcServiceConfigBytes, &grpcServiceConfig)
+	if err != nil {
+		return
+	}
+
+	if grpcServiceConfig.Name == "" {
+		return fmt.Errorf("The name field in the gRPC config spec at %v is empty, please set it", params.EspGrpcConfigYamlPath)
+	}
+
+	serviceName := grpcServiceConfig.Name
+	log.Info().Msgf("Found service name %v in the gRPC config", serviceName)
+
+	if err = c.createService(ctx, serviceName, params); err != nil {
+		return err
+	}
+
+	configID, err := c.submitServiceConfiguration(
+		ctx,
+		params,
+		serviceName,
+		[]*servicemanagementv1.ConfigFile{
+			{
+				FileContents: base64.StdEncoding.EncodeToString(grpcProtoDescriptorBytes),
+				FilePath:     filepath.Base(params.EspGrpcProtoDescriptorPath),
+				FileType:     "FILE_DESCRIPTOR_SET_PROTO",
+			},
+			{
+				FileContents: base64.StdEncoding.EncodeToString(grpcServiceConfigBytes),
+				FilePath:     filepath.Base(params.EspGrpcConfigYamlPath),
+				FileType:     "SERVICE_CONFIG_YAML",
+			},
+		})
+
+	if err != nil {
+		return err
+	}
+
+	if err = c.rolloutService(ctx, params, serviceName, configID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *client) createService(ctx context.Context, serviceName string, params api.Params) (err error) {
 	log.Info().Msgf("Checking if service %v exists...", serviceName)
 	// GET https://servicemanagement.googleapis.com/v1/services/<servicename>
 	var service *servicemanagementv1.ManagedService
@@ -279,6 +384,10 @@ func (c *client) DeployGoogleCloudEndpoints(ctx context.Context, params api.Para
 		}
 	}
 
+	return
+}
+
+func (c *client) submitServiceConfiguration(ctx context.Context, params api.Params, serviceName string, configFiles []*servicemanagementv1.ConfigFile) (configID string, err error) {
 	log.Info().Msgf("Submitting config for service %v in project %v...", serviceName, params.EspEndpointsProjectID)
 	// POST https://servicemanagement.googleapis.com/v1/services/<servicename>/configs:submit
 	var operation *servicemanagementv1.Operation
@@ -286,13 +395,7 @@ func (c *client) DeployGoogleCloudEndpoints(ctx context.Context, params api.Para
 		// https://cloud.google.com/service-infrastructure/docs/service-management/reference/rest/v1/services.configs/submit
 		operation, err = c.servicemanagementv1Service.Services.Configs.Submit(serviceName, &servicemanagementv1.SubmitConfigSourceRequest{
 			ConfigSource: &servicemanagementv1.ConfigSource{
-				Files: []*servicemanagementv1.ConfigFile{
-					{
-						FileContents: base64.StdEncoding.EncodeToString(openapiSpecBytes),
-						FilePath:     filepath.Base(params.EspOpenAPIYamlPath),
-						FileType:     "OPEN_API_YAML",
-					},
-				},
+				Files: configFiles,
 			},
 			ValidateOnly: false,
 		}).Context(ctx).Do()
@@ -302,26 +405,31 @@ func (c *client) DeployGoogleCloudEndpoints(ctx context.Context, params api.Para
 		return nil
 	}, c.getRetryOptions()...))
 	if err != nil {
-		return fmt.Errorf("Can't submit config for service %v for project %v: %w", serviceName, params.EspEndpointsProjectID, err)
+		return "", fmt.Errorf("Can't submit config for service %v for project %v: %w", serviceName, params.EspEndpointsProjectID, err)
 	}
 
 	// GET https://servicemanagement.googleapis.com/v1/operations/serviceConfigs.<servicename>%3<config id>
 	err = c.waitForServiceManagementV1Operation(ctx, params.EspEndpointsProjectID, operation)
 	if err != nil {
-		return
+		return "", err
 	}
 
 	var response servicemanagementv1.SubmitConfigSourceResponse
 	err = json.Unmarshal(operation.Response, &response)
 	if err != nil {
-		return
+		return "", err
 	}
 
-	configID := response.ServiceConfig.Id
+	configID = response.ServiceConfig.Id
 	log.Info().Msgf("Submitted config with id %v for service %v in project %v", configID, serviceName, params.EspEndpointsProjectID)
 
+	return configID, nil
+}
+
+func (c *client) rolloutService(ctx context.Context, params api.Params, serviceName string, configID string) (err error) {
 	log.Info().Msgf("Creating rollout for config with id %v for service %v in project %v...", configID, serviceName, params.EspEndpointsProjectID)
 	// POST https://servicemanagement.googleapis.com/v1/services/<servicename>/rollouts
+	var operation *servicemanagementv1.Operation
 	err = c.substituteErrorsWithPredefinedErrors(foundation.Retry(func() error {
 		// https://cloud.google.com/service-infrastructure/docs/service-management/reference/rest/v1/services.rollouts/create
 		operation, err = c.servicemanagementv1Service.Services.Rollouts.Create(serviceName, &servicemanagementv1.Rollout{
@@ -351,7 +459,7 @@ func (c *client) DeployGoogleCloudEndpoints(ctx context.Context, params api.Para
 	// GET https://servicemanagement.googleapis.com/v1/services/<servicename>
 	err = c.substituteErrorsWithPredefinedErrors(foundation.Retry(func() error {
 		// https://cloud.google.com/service-infrastructure/docs/service-management/reference/rest/v1/services/get
-		service, err = c.servicemanagementv1Service.Services.Get(serviceName).Context(ctx).Do()
+		_, err = c.servicemanagementv1Service.Services.Get(serviceName).Context(ctx).Do()
 		if err != nil {
 			return err
 		}
@@ -361,8 +469,7 @@ func (c *client) DeployGoogleCloudEndpoints(ctx context.Context, params api.Para
 		return fmt.Errorf("Can't get service %v for project %v: %w", serviceName, params.EspEndpointsProjectID, err)
 	}
 
-	return nil
-	// return foundation.RunCommandWithArgsExtended(ctx, "gcloud", []string{"endpoints", "--project", params.EspEndpointsProjectID, "services", "deploy", params.EspOpenAPIYamlPath, "--log-http"})
+	return
 }
 
 func (c *client) substituteErrorsWithPredefinedErrors(err error) error {
