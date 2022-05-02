@@ -2,40 +2,39 @@ package api
 
 // TemplateData contains the root data for rendering the Kubernetes manifests
 type TemplateData struct {
-	Name                                 string
-	NameWithTrack                        string
-	Namespace                            string
-	Schedule                             string
-	RestartPolicy                        string
-	Completions                          int
-	Parallelism                          int
-	BackoffLimit                         int
-	ProgressDeadlineSeconds              int
-	ConcurrencyPolicy                    string
-	Labels                               map[string]string
-	PodLabels                            map[string]string
-	AppLabelSelector                     string
-	Hosts                                []string
-	HostsJoined                          string
-	InternalHosts                        []string
-	InternalHostsJoined                  string
-	AllHosts                             []string
-	AllHostsJoined                       string
-	ApigeeHosts                          []string
-	ApigeeHostsJoined                    string
-	IngressPath                          string
-	InternalIngressPath                  string
-	UseIngress                           bool
-	UseNginxIngress                      bool
-	UseGCEIngress                        bool
-	PathType                             string
-	UseDNSAnnotationsOnIngress           bool
-	UseCloudflareProxy                   bool
-	UseDNSAnnotationsOnService           bool
-	UseBackendConfigAnnotationOnService  bool
-	UseNegAnnotationOnService            bool
-	UsePrometheusProbe                   bool
-	ServiceType                          string
+	Name                       string
+	NameWithTrack              string
+	Namespace                  string
+	Schedule                   string
+	RestartPolicy              string
+	Completions                int
+	Parallelism                int
+	BackoffLimit               int
+	ProgressDeadlineSeconds    int
+	ConcurrencyPolicy          string
+	Labels                     map[string]string
+	PodLabels                  map[string]string
+	AppLabelSelector           string
+	Hosts                      []string
+	HostsJoined                string
+	InternalHosts              []string
+	InternalHostsJoined        string
+	AllHosts                   []string
+	AllHostsJoined             string
+	ApigeeHosts                []string
+	ApigeeHostsJoined          string
+	IngressPath                string
+	InternalIngressPath        string
+	UseIngress                 bool
+	UseNginxIngress            bool
+	UseGCEIngress              bool
+	PathType                   string
+	UseDNSAnnotationsOnIngress bool
+	UseCloudflareProxy         bool
+
+	Service            ServiceData
+	UsePrometheusProbe bool
+
 	MinReplicas                          int
 	MaxReplicas                          int
 	TargetCPUPercentage                  int
@@ -128,6 +127,15 @@ type TemplateData struct {
 
 	IncludeAtomicIDSelector bool
 	AtomicID                string
+}
+
+// ServiceData has data specific to service
+type ServiceData struct {
+	ServiceType                         string
+	Name                                string
+	UseDNSAnnotationsOnService          bool `default:"false"`
+	UseBackendConfigAnnotationOnService bool `default:"false"`
+	UseNegAnnotationOnService           bool `default:"false"`
 }
 
 // ContainerData has data specific to the application container

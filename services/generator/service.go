@@ -377,53 +377,55 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 
 	switch params.Visibility {
 	case api.VisibilityPrivate:
-		data.ServiceType = "ClusterIP"
+		data.Service = api.ServiceData{
+			ServiceType: string(api.ServiceTypeClusterIP),
+			Name:        params.App,
+		}
 		data.UseNginxIngress = true
 		data.UseGCEIngress = false
 		data.UseDNSAnnotationsOnIngress = true
-		data.UseDNSAnnotationsOnService = false
 		data.UseCloudflareProxy = true
-		data.UseBackendConfigAnnotationOnService = false
-		data.UseNegAnnotationOnService = false
 		data.LimitTrustedIPRanges = false
 		data.OverrideDefaultWhitelist = false
 
 	case api.VisibilityIAP:
-		data.ServiceType = "NodePort"
+		data.Service = api.ServiceData{
+			ServiceType:                         string(api.ServiceTypeNodePort),
+			Name:                                params.App,
+			UseBackendConfigAnnotationOnService: true,
+			UseNegAnnotationOnService:           params.ContainerNativeLoadBalancing,
+		}
 		data.UseNginxIngress = false
 		data.UseGCEIngress = true
 		data.UseDNSAnnotationsOnIngress = true
-		data.UseDNSAnnotationsOnService = false
 		data.UseCloudflareProxy = false
-		data.UseBackendConfigAnnotationOnService = true
-		data.UseNegAnnotationOnService = params.ContainerNativeLoadBalancing
 		data.LimitTrustedIPRanges = false
 		data.OverrideDefaultWhitelist = false
 		data.IapOauthCredentialsClientID = params.IapOauthCredentialsClientID
 		data.IapOauthCredentialsClientSecret = params.IapOauthCredentialsClientSecret
 
 	case api.VisibilityPublicWhitelist:
-		data.ServiceType = "ClusterIP"
+		data.Service = api.ServiceData{
+			ServiceType: string(api.ServiceTypeClusterIP),
+			Name:        params.App,
+		}
 		data.UseNginxIngress = true
 		data.UseGCEIngress = false
 		data.UseDNSAnnotationsOnIngress = true
-		data.UseDNSAnnotationsOnService = false
 		data.UseCloudflareProxy = true
-		data.UseBackendConfigAnnotationOnService = false
-		data.UseNegAnnotationOnService = false
 		data.LimitTrustedIPRanges = false
 		data.OverrideDefaultWhitelist = len(params.WhitelistedIPS) > 0
 		data.NginxIngressWhitelist = strings.Join(params.WhitelistedIPS, ",")
 
 	case api.VisibilityApigee:
-		data.ServiceType = "ClusterIP"
+		data.Service = api.ServiceData{
+			ServiceType: string(api.ServiceTypeClusterIP),
+			Name:        params.App,
+		}
 		data.UseNginxIngress = true
 		data.UseGCEIngress = false
 		data.UseDNSAnnotationsOnIngress = true
-		data.UseDNSAnnotationsOnService = false
 		data.UseCloudflareProxy = true // For private ingress. For Apigee it is hard-coded to be false.
-		data.UseBackendConfigAnnotationOnService = false
-		data.UseNegAnnotationOnService = false
 		data.LimitTrustedIPRanges = false
 		data.OverrideDefaultWhitelist = false
 		for _, h := range params.Hosts {
@@ -433,23 +435,40 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		}
 		data.ApigeeHostsJoined = strings.Join(data.ApigeeHosts, ",")
 
-	case api.VisibilityESP,
-		api.VisibilityESPv2:
-		data.ServiceType = "LoadBalancer"
-		data.UseNginxIngress = false
-		data.UseGCEIngress = false
-		data.UseDNSAnnotationsOnIngress = false
-		data.UseDNSAnnotationsOnService = true
-		data.UseCloudflareProxy = true
-		data.LimitTrustedIPRanges = true
-		data.OverrideDefaultWhitelist = false
+	case api.VisibilityESP, api.VisibilityESPv2:
+		if params.EspServiceTypeClusterIP {
+			data.Service = api.ServiceData{
+				ServiceType: string(api.ServiceTypeClusterIP),
+				Name:        params.App + "-cluster-ip",
+			}
+			data.UseNginxIngress = true
+			data.UseDNSAnnotationsOnIngress = true
+			data.UseCloudflareProxy = true
+			data.LimitTrustedIPRanges = false
+			data.OverrideDefaultWhitelist = false
+		} else {
+			data.Service = api.ServiceData{
+				ServiceType:                string(api.ServiceTypeLoadBalancer),
+				Name:                       params.App,
+				UseDNSAnnotationsOnService: true,
+			}
+			data.UseNginxIngress = false
+			data.UseGCEIngress = false
+			data.UseDNSAnnotationsOnIngress = false
+			data.UseCloudflareProxy = true
+			data.LimitTrustedIPRanges = true
+			data.OverrideDefaultWhitelist = false
+		}
 
 	case api.VisibilityPublic:
-		data.ServiceType = "LoadBalancer"
+		data.Service = api.ServiceData{
+			ServiceType:                string(api.ServiceTypeLoadBalancer),
+			Name:                       params.App,
+			UseDNSAnnotationsOnService: true,
+		}
 		data.UseNginxIngress = false
 		data.UseGCEIngress = false
 		data.UseDNSAnnotationsOnIngress = false
-		data.UseDNSAnnotationsOnService = true
 		data.UseCloudflareProxy = true
 		data.LimitTrustedIPRanges = true
 		data.OverrideDefaultWhitelist = false

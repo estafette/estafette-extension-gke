@@ -144,6 +144,9 @@ func (s *service) GetTemplates(params api.Params, includePodDisruptionBudget boo
 		templatesToMerge = append(templatesToMerge, "ingress-apigee.yaml")
 		templatesToMerge = append(templatesToMerge, "ingress.yaml")
 	}
+	if params.Kind == api.KindDeployment && (params.Visibility == api.VisibilityESP || params.Visibility == api.VisibilityESPv2) && params.EspServiceTypeClusterIP {
+		templatesToMerge = append(templatesToMerge, "ingress-esp.yaml")
+	}
 
 	if (params.Kind == api.KindDeployment || params.Kind == api.KindStatefulset) && params.Visibility == api.VisibilityIAP {
 		templatesToMerge = append(templatesToMerge, "backend-config.yaml", "iap-oauth-credentials-secret.yaml")
