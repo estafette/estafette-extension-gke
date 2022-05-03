@@ -64,7 +64,7 @@ spec:
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
+          - weight: 70
             podAffinityTerm:
               labelSelector:
                 matchExpressions:
@@ -73,6 +73,15 @@ spec:
                   values:
                   - {{.Name}}
               topologyKey: kubernetes.io/hostname
+          - weight: 30
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - {{.Name}}
+              topologyKey: topology.kubernetes.io/zone    
         {{- if or .PreferPreemptibles .UseWindowsNodes}}
         nodeAffinity:
           {{- if .UseWindowsNodes}}
