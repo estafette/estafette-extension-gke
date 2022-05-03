@@ -46,6 +46,7 @@ type Params struct {
 	EspEndpointsProjectID           string                 `json:"espEndpointsProjectID,omitempty" yaml:"espEndpointsProjectID,omitempty"`
 	EspConfigID                     string                 `json:"espConfigID,omitempty" yaml:"espConfigID,omitempty"`
 	EspOpenAPIYamlPath              string                 `json:"espOpenapiYamlPath,omitempty" yaml:"espOpenapiYamlPath,omitempty"`
+	EspServiceTypeClusterIP         bool                   `json:"espServiceTypeClusterIP,omitempty" yaml:"espServiceTypeClusterIP,omitempty"`
 	WhitelistedIPS                  []string               `json:"whitelist,omitempty" yaml:"whitelist,omitempty"`
 	Hosts                           []string               `json:"hosts,omitempty" yaml:"hosts,omitempty"`
 	HostsRouteOnly                  []string               `json:"hostsrouteonly,omitempty" yaml:"hostsrouteonly,omitempty"`
@@ -917,6 +918,9 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 		}
 		if (p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2) && p.EspOpenAPIYamlPath == "" {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property espOpenapiYamlPath is required; set espOpenapiYamlPath to the path towards openapi.yaml"))
+		}
+		if p.EspServiceTypeClusterIP && (p.Visibility != VisibilityESP && p.Visibility != VisibilityESPv2) {
+			errors = append(errors, fmt.Errorf("With EspServiceTypeClusterIP set to true, visibility needs to be set to 'esp' or 'espv2'"))
 		}
 		if (p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2) && len(p.Hosts) < 1 {
 			errors = append(errors, fmt.Errorf("With visibility 'esp' property at least one host is required. Set it via hosts array property on this stage"))

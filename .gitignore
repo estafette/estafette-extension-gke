@@ -48,3 +48,4 @@ test/e2e-image/wait-for-nginx.sh
 .cache
 .modcache
 cover.out
+estafette-extension-gke
