@@ -514,7 +514,7 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	}
 	if p.TopologyAwareHints == nil {
 		trueValue := true
-		p.ProbeService = &trueValue
+		p.TopologyAwareHints = &trueValue
 	}
 
 	// set metrics defaults
