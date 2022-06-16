@@ -512,6 +512,10 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 			p.ProbeService = &trueValue
 		}
 	}
+	if p.TopologyAwareHints == nil {
+		trueValue := true
+		p.ProbeService = &trueValue
+	}
 
 	// set metrics defaults
 	if p.Container.Metrics.Path == "" {
