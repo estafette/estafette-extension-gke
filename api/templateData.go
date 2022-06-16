@@ -32,8 +32,9 @@ type TemplateData struct {
 	UseDNSAnnotationsOnIngress bool
 	UseCloudflareProxy         bool
 
-	Service            ServiceData
-	UsePrometheusProbe bool
+	Service               ServiceData
+	UsePrometheusProbe    bool
+	UseTopologyAwareHints bool
 
 	MinReplicas                          int
 	MaxReplicas                          int

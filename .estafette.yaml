@@ -297,6 +297,7 @@ stages:
         useGoogleCloudCredentials: true
         disableServiceAccountKeyRotation: false
         probeService: true
+        topologyAwareHints: true
         googleCloudCredentialsApp: gke
         chaosproof: true
         rollingupdate:

@@ -71,6 +71,7 @@ type Params struct {
 	LegacyGoogleCloudServiceAccountKeyFile string                    `json:"legacyGoogleCloudServiceAccountKeyFile,omitempty" yaml:"legacyGoogleCloudServiceAccountKeyFile,omitempty"`
 	GoogleCloudCredentialsApp              string                    `json:"googleCloudCredentialsApp,omitempty" yaml:"googleCloudCredentialsApp,omitempty"`
 	ProbeService                           *bool                     `json:"probeService,omitempty" yaml:"probeService,omitempty"`
+	TopologyAwareHints                     *bool                     `json:"topologyAwareHints,omitempty" yaml:"topologyAwareHints,omitempty"`
 	Tolerations                            []*map[string]interface{} `json:"tolerations,omitempty" yaml:"tolerations,omitempty"`
 
 	// container params

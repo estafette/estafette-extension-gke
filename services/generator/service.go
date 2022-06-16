@@ -291,6 +291,9 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 	if params.ProbeService != nil {
 		data.UsePrometheusProbe = *params.ProbeService
 	}
+	if params.TopologyAwareHints != nil {
+		data.UseTopologyAwareHints = *params.TopologyAwareHints
+	}
 	if params.Container.Metrics.Scrape != nil {
 		data.Container.Metrics.Scrape = *params.Container.Metrics.Scrape
 	}
