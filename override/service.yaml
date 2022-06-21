@@ -13,6 +13,9 @@ metadata:
     prometheus.io/probe: "true"
     prometheus.io/probe-path: "{{.Container.Readiness.Path}}"
     {{- end}}
+    {{- if .UseTopologyAwareHints}}
+    service.kubernetes.io/topology-aware-hints: auto
+    {{- end}}
     service.alpha.kubernetes.io/app-protocols: '{"https":"HTTPS"}'
     {{- if .Service.UseDNSAnnotationsOnService}}
     estafette.io/cloudflare-dns: "true"
