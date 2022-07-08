@@ -26,6 +26,9 @@ metadata:
     {{- if .OverrideDefaultWhitelist}}
     nginx.ingress.kubernetes.io/whitelist-source-range: "{{.NginxIngressWhitelist}}"
     {{- end}}
+    {{- if .UseTopologyAwareHints}}
+    nginx.ingress.kubernetes.io/service-upstream: "true"
+    {{- end}}
     {{- if .SetsNginxIngressLoadBalanceAlgorithm }}
     nginx.ingress.kubernetes.io/load-balance: "{{.NginxIngressLoadBalanceAlgorithm}}"
     {{- end }}

@@ -25,6 +25,9 @@ metadata:
     {{- if .SetsNginxIngressLoadBalanceAlgorithm }}
     nginx.ingress.kubernetes.io/load-balance: "{{.NginxIngressLoadBalanceAlgorithm}}"
     {{- end }}
+    {{- if .UseTopologyAwareHints}}
+    nginx.ingress.kubernetes.io/service-upstream: "true"
+    {{- end}}
     # estafette.io/google-cloud-dns: "true"
     # estafette.io/google-cloud-dns-hostnames: "{{.InternalHostsJoined}}"
     estafette.io/cloudflare-dns: "true"
