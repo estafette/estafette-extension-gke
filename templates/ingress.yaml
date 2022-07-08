@@ -9,7 +9,6 @@ metadata:
     {{- end}}
   annotations:
     {{- if .UseNginxIngress}}
-    kubernetes.io/ingress.class: "nginx-office"
     {{- if .UseHTTPS }}
     nginx.ingress.kubernetes.io/backend-protocol: "{{.NginxIngressBackendProtocol}}"
     nginx.ingress.kubernetes.io/proxy-ssl-verify: "on"
@@ -32,7 +31,6 @@ metadata:
     {{- end }}
     {{- end}}
     {{- if .UseGCEIngress}}
-    kubernetes.io/ingress.class: "gce"
     kubernetes.io/ingress.allow-http: "false"
     {{- end}}
     {{- if .UseDNSAnnotationsOnIngress}}
@@ -41,6 +39,12 @@ metadata:
     estafette.io/cloudflare-hostnames: "{{.HostsJoined}}"
     {{- end}}
 spec:
+  {{- if .UseNginxIngress }}
+  ingressClassName: nginx-office
+  {{- end }}
+  {{- if .UseGCEIngress}}
+  ingressClassName: gce
+  {{- end }}
   tls:
   - hosts:
     {{- range .Hosts}}

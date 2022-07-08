@@ -8,7 +8,6 @@ metadata:
     {{ $key | quote }}: {{ $value | quote }}
     {{- end}}
   annotations:
-    kubernetes.io/ingress.class: "nginx-public"
     nginx.ingress.kubernetes.io/backend-protocol: "{{.NginxIngressBackendProtocol}}"
     nginx.ingress.kubernetes.io/proxy-ssl-verify: "on"
     nginx.ingress.kubernetes.io/client-body-buffer-size: "{{.NginxIngressClientBodyBufferSize}}"
@@ -22,6 +21,7 @@ metadata:
     estafette.io/cloudflare-proxy: "{{.UseCloudflareProxy}}"
     estafette.io/cloudflare-hostnames: "{{.HostsJoined}}"
 spec:
+  ingressClassName: nginx-public
   tls:
   - hosts:
     {{- range .Hosts}}
