@@ -416,17 +416,17 @@ func (s *service) removeIngressIfRequired(ctx context.Context, params api.Params
 			}
 		} else if templateData.UseGCEIngress {
 			// check if ingress exists and has kubernetes.io/ingress.class: gce, then delete it to ensure there's no nginx ingress annotations lingering around
-			ingressClass, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "ing", name, "-n", namespace, "-o=go-template={{index .metadata.annotations \"kubernetes.io/ingress.class\"}}"})
+			ingressClass, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "ing", name, "-n", namespace, "-o=go-template={{ .spec.ingressClassName }}"})
 			if err == nil {
 				if ingressClass == "nginx" {
 					// delete the ingress so all related nginx ingress config gets deleted
 					log.Info().Msg("Deleting ingress so the nginx ingress controller removes related config...")
 					foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "ingress", name, "-n", namespace, "--ignore-not-found=true"})
 				} else {
-					log.Info().Msgf("Ingress %v already has kubernetes.io/ingress.class: %v annotation, no need to delete the ingress", name, ingressClass)
+					log.Info().Msgf("Ingress %v already has ingressClassName: %v already set, no need to delete the ingress", name, ingressClass)
 				}
 			} else {
-				log.Info().Msgf("Ingress %v or kubernetes.io/ingress.class annotation doesn't exist, no need to delete the ingress: %v", name, err)
+				log.Info().Msgf("Ingress %v or ingressClassName doesn't exist, no need to delete the ingress: %v", name, err)
 			}
 		}
 	}
