@@ -26,9 +26,9 @@ stages:
     image: extensions/docker:dev
     action: build
     inline: |
-      FROM alpine:3.13
+      FROM alpine:3.16
 
-      ENV KUBECTL_VERSION="v1.20.2"
+      ENV KUBECTL_VERSION="v1.24.3"
 
       RUN apk update \
           && apk add curl \
@@ -40,7 +40,7 @@ stages:
           && chmod +x /usr/bin/kubectl \
           && kubectl version --client
 
-      FROM alpine:3.13
+      FROM alpine:3.16
 
       LABEL maintainer="estafette.io" \
             description="The ${ESTAFETTE_GIT_NAME} component is an Estafette extension to deploy applications to a Kubernetes Engine cluster"
@@ -719,7 +719,7 @@ stages:
         containerLifecycle:
           preStop:
             exec:
-              command: ["/bin/sh", "-c", "echo Hello from the postStart handler > /usr/share/message"]       
+              command: ["/bin/sh", "-c", "echo Hello from the postStart handler > /usr/share/message"]
         hosts:
         - gke.estafette.io
         internalhosts:
