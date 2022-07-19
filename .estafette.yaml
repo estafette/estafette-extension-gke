@@ -40,7 +40,7 @@ stages:
           && chmod +x /usr/bin/kubectl \
           && kubectl version --client
 
-      FROM alpine:3.16
+      FROM google/cloud-sdk:392.0.0-alpine
 
       RUN apk add --update --upgrade --no-cache \
             libcrypto1.1=1.1.1q-r0 \
