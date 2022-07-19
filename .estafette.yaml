@@ -40,12 +40,17 @@ stages:
           && chmod +x /usr/bin/kubectl \
           && kubectl version --client
 
-      FROM alpine:3.16
+      FROM google/cloud-sdk:392.0.0-alpine
 
       RUN apk add --update --upgrade --no-cache \
             libcrypto1.1=1.1.1q-r0 \
             libssl1.1=1.1.1q-r0 \
+            curl=7.80.0-r2 \
+            libcurl=7.80.0-r2 \
+            git=2.34.4-r0 \
           && rm -rf /var/cache/apk/*
+
+      RUN gcloud components install gke-gcloud-auth-plugin
 
       LABEL maintainer="estafette.io" \
             description="The ${ESTAFETTE_GIT_NAME} component is an Estafette extension to deploy applications to a Kubernetes Engine cluster"

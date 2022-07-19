@@ -141,8 +141,10 @@ func (c *client) LoadGKEClusterKubeConfig(ctx context.Context, credential *api.G
 	// add authinfo if it doesn't exist
 	if _, exists := currentConfig.AuthInfos[kubeContextName]; !exists {
 		currentConfig.AuthInfos[kubeContextName] = &clientcmdapi.AuthInfo{
-			AuthProvider: &clientcmdapi.AuthProviderConfig{
-				Name: "gcp",
+			Exec: &clientcmdapi.ExecConfig{
+				Command:            "gke-gcloud-auth-plugin",
+				APIVersion:         "client.authentication.k8s.io/v1beta1",
+				ProvideClusterInfo: true,
 			},
 		}
 	}

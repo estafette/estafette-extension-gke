@@ -80,6 +80,11 @@ func (c *client) Init(ctx context.Context, paramsJSON, releaseName, credentialsP
 		log.Fatal().Err(err).Msg("Failed writing service account keyfile")
 	}
 
+	err = c.authWithGcloud(ctx, os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"))
+	if err != nil {
+		return nil, fmt.Errorf("Failed to authenticate with credentials %v", os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"))
+	}
+
 	var serviceAccountKeyFile struct {
 		ClientEmail string `json:"client_email"`
 	}
@@ -96,5 +101,15 @@ func (c *client) GetCredentialsByName(creds []api.GKECredentials, credentialName
 		}
 	}
 
+	return nil
+}
+
+func (c *client) authWithGcloud(ctx context.Context, path string) error {
+	log.Debug().Msgf("Authenticating to GCP using keyfile %v", path)
+
+	err := foundation.RunCommandExtended(ctx, "gcloud auth activate-service-account --key-file %v", path)
+	if err != nil {
+		return err
+	}
 	return nil
 }
