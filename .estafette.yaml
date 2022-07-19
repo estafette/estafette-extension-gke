@@ -50,6 +50,8 @@ stages:
             git=2.34.4-r0 \
           && rm -rf /var/cache/apk/*
 
+      RUN gcloud components install gke-gcloud-auth-plugin
+
       LABEL maintainer="estafette.io" \
             description="The ${ESTAFETTE_GIT_NAME} component is an Estafette extension to deploy applications to a Kubernetes Engine cluster"
 
