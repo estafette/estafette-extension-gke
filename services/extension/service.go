@@ -408,6 +408,7 @@ func (s *service) removeIngressIfRequired(ctx context.Context, params api.Params
 					// delete the ingress so all related load balancers, etc get deleted
 					log.Info().Msg("Deleting ingress so the gce ingress controller removes the related load balancer...")
 					foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "ingress", name, "-n", namespace, "--ignore-not-found=true"})
+					foundation.RunCommandWithArgs(ctx, "kubectl", []string{"wait", "--for=delete", "ingress/" + name, "-n", namespace, "--timeout=3s"})
 				} else {
 					log.Info().Msgf("Ingress %v already has kubernetes.io/ingress.class: %v annotation, no need to delete the ingress", name, ingressClass)
 				}
@@ -422,6 +423,7 @@ func (s *service) removeIngressIfRequired(ctx context.Context, params api.Params
 					// delete the ingress so all related nginx ingress config gets deleted
 					log.Info().Msg("Deleting ingress so the nginx ingress controller removes related config...")
 					foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "ingress", name, "-n", namespace, "--ignore-not-found=true"})
+					foundation.RunCommandWithArgs(ctx, "kubectl", []string{"wait", "--for=delete", "ingress/" + name, "-n", namespace, "--timeout=3s"})
 				} else {
 					log.Info().Msgf("Ingress %v already has ingressClassName: %v already set, no need to delete the ingress", name, ingressClass)
 				}
