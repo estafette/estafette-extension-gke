@@ -419,7 +419,7 @@ func (s *service) removeIngressIfRequired(ctx context.Context, params api.Params
 			// check if ingress exists and has kubernetes.io/ingress.class: gce, then delete it to ensure there's no nginx ingress annotations lingering around
 			ingressClass, err := foundation.GetCommandWithArgsOutput(ctx, "kubectl", []string{"get", "ing", name, "-n", namespace, "-o=go-template={{ .spec.ingressClassName }}"})
 			if err == nil {
-				if ingressClass == "nginx" {
+				if ingressClass == "nginx-office" {
 					// delete the ingress so all related nginx ingress config gets deleted
 					log.Info().Msg("Deleting ingress so the nginx ingress controller removes related config...")
 					foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "ingress", name, "-n", namespace, "--ignore-not-found=true"})
