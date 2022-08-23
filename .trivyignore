@@ -1,2 +1,4 @@
 # ncurses-libs vulnerability resolved in 6.3_p20211120-r1 regarding violation in convert_strings
 CVE-2022-29458
+# helm package as part of google-cloud-sdk  
+CVE-2021-32690
