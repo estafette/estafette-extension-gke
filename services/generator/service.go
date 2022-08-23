@@ -94,6 +94,9 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		GoogleCloudCredentialsAppName: params.GoogleCloudCredentialsApp,
 		GoogleCloudCredentialsLabels:  api.SanitizeLabels(params.Labels),
 
+		UseCloudflareEstafetteExtension: params.DNSParams.UseCloudflareEstafetteExtension,
+		UseExternalDNS:                  params.DNSParams.UseExternalDNS,
+
 		PodManagementPolicy: params.PodManagementPolicy,
 		StorageClass:        params.StorageClass,
 		StorageSize:         params.StorageSize,
