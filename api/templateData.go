@@ -2,35 +2,37 @@ package api
 
 // TemplateData contains the root data for rendering the Kubernetes manifests
 type TemplateData struct {
-	Name                       string
-	NameWithTrack              string
-	Namespace                  string
-	Schedule                   string
-	RestartPolicy              string
-	Completions                int
-	Parallelism                int
-	BackoffLimit               int
-	ProgressDeadlineSeconds    int
-	ConcurrencyPolicy          string
-	Labels                     map[string]string
-	PodLabels                  map[string]string
-	AppLabelSelector           string
-	Hosts                      []string
-	HostsJoined                string
-	InternalHosts              []string
-	InternalHostsJoined        string
-	AllHosts                   []string
-	AllHostsJoined             string
-	ApigeeHosts                []string
-	ApigeeHostsJoined          string
-	IngressPath                string
-	InternalIngressPath        string
-	UseIngress                 bool
-	UseNginxIngress            bool
-	UseGCEIngress              bool
-	PathType                   string
-	UseDNSAnnotationsOnIngress bool
-	UseCloudflareProxy         bool
+	Name                            string
+	NameWithTrack                   string
+	Namespace                       string
+	Schedule                        string
+	RestartPolicy                   string
+	Completions                     int
+	Parallelism                     int
+	BackoffLimit                    int
+	ProgressDeadlineSeconds         int
+	ConcurrencyPolicy               string
+	Labels                          map[string]string
+	PodLabels                       map[string]string
+	AppLabelSelector                string
+	Hosts                           []string
+	HostsJoined                     string
+	InternalHosts                   []string
+	InternalHostsJoined             string
+	AllHosts                        []string
+	AllHostsJoined                  string
+	ApigeeHosts                     []string
+	ApigeeHostsJoined               string
+	IngressPath                     string
+	InternalIngressPath             string
+	UseIngress                      bool
+	UseNginxIngress                 bool
+	UseGCEIngress                   bool
+	PathType                        string
+	UseDNSAnnotationsOnIngress      bool
+	UseCloudflareProxy              bool
+	UseCloudflareEstafetteExtension bool
+	UseExternalDNS                  bool
 
 	Service               ServiceData
 	UsePrometheusProbe    bool

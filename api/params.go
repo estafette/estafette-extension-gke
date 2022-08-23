@@ -66,6 +66,7 @@ type Params struct {
 	UseGoogleCloudCredentials       bool                   `json:"useGoogleCloudCredentials,omitempty" yaml:"useGoogleCloudCredentials,omitempty"`
 	WorkloadIdentity                *bool                  `json:"workloadIdentity,omitempty" yaml:"workloadIdentity,omitempty"`
 	PodSecurityContext              map[string]interface{} `json:"securityContext,omitempty" yaml:"securityContext,omitempty"`
+	DNSParams                       DNSParams              `json:"dns,omitempty" yaml:"dns,omitempty"`
 
 	DisableServiceAccountKeyRotation       *bool                     `json:"disableServiceAccountKeyRotation,omitempty" yaml:"disableServiceAccountKeyRotation,omitempty"`
 	LegacyGoogleCloudServiceAccountKeyFile string                    `json:"legacyGoogleCloudServiceAccountKeyFile,omitempty" yaml:"legacyGoogleCloudServiceAccountKeyFile,omitempty"`
@@ -250,6 +251,12 @@ type VolumeMountParams struct {
 	Name      string                 `json:"name,omitempty" yaml:"name,omitempty"`
 	MountPath string                 `json:"mountpath,omitempty" yaml:"mountpath,omitempty"`
 	Volume    map[string]interface{} `json:"volume,omitempty" yaml:"volume,omitempty"`
+}
+
+// DNSParams allows additional mounts for already existing volumes, secrets, etc
+type DNSParams struct {
+	UseCloudflareEstafetteExtension bool `json:"useCloudflareEstafetteExtension,omitempty" yaml:"useCloudflareEstafetteExtension,omitempty"`
+	UseExternalDNS                  bool `json:"useExternalDNS,omitempty" yaml:"useExternalDNS,omitempty"`
 }
 
 // SetDefaults fills in empty fields with convention-based defaults
@@ -728,6 +735,12 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 			p.StorageMountPath = "/data"
 		}
 	}
+
+	// default dns annotations added
+	if !p.DNSParams.UseCloudflareEstafetteExtension || !p.DNSParams.UseExternalDNS {
+		p.DNSParams.UseExternalDNS = true
+	}
+
 }
 
 func (p *Params) HasSecrets() bool {

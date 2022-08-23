@@ -38,9 +38,15 @@ metadata:
     kubernetes.io/ingress.allow-http: "false"
     {{- end}}
     {{- if .UseDNSAnnotationsOnIngress}}
+    {{- if .UseCloudflareEstafetteExtension}}
     estafette.io/cloudflare-dns: "true"
     estafette.io/cloudflare-proxy: "{{.UseCloudflareProxy}}"
     estafette.io/cloudflare-hostnames: "{{.HostsJoined}}"
+    {{- end }}
+    {{- if .UseExternalDNS }}
+    external-dns.alpha.kubernetes.io/enabled: "true"
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: "{{.UseCloudflareProxy}}"
+    {{- end }}
     {{- end}}
 spec:
   {{- if .UseNginxIngress }}
