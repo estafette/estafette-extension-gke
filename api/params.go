@@ -253,7 +253,7 @@ type VolumeMountParams struct {
 	Volume    map[string]interface{} `json:"volume,omitempty" yaml:"volume,omitempty"`
 }
 
-// DNSParams allows additional mounts for already existing volumes, secrets, etc
+// DNSParams allows setting of annotations for DNS management by external tool
 type DNSParams struct {
 	UseCloudflareEstafetteExtension bool `json:"useCloudflareEstafetteExtension,omitempty" yaml:"useCloudflareEstafetteExtension,omitempty"`
 	UseExternalDNS                  bool `json:"useExternalDNS,omitempty" yaml:"useExternalDNS,omitempty"`
