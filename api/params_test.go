@@ -4085,16 +4085,16 @@ func TestReplaceSidecarTagsWithDigest(t *testing.T) {
 	t.Run("DefaultsDNSAnnotationsIfDNSFlagNotSet", func(t *testing.T) {
 
 		params := Params{
-			DNSParams: DNSParams{
-				UseCloudflareEstafetteExtension: false,
-				UseExternalDNS:                  false,
+			DNS: DNSParams{
+				UseCloudflareEstafetteExtension: nil,
+				UseExternalDNS:                  nil,
 			},
 		}
 
 		// act
 		params.SetDefaults("", "", "", "", "", "", "", "", map[string]string{})
 
-		assert.Equal(t, true, params.DNSParams.UseCloudflareEstafetteExtension)
-		assert.Equal(t, false, params.DNSParams.UseExternalDNS)
+		assert.Equal(t, true, *params.DNS.UseCloudflareEstafetteExtension)
+		assert.Equal(t, false, *params.DNS.UseExternalDNS)
 	})
 }

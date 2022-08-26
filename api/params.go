@@ -66,7 +66,7 @@ type Params struct {
 	UseGoogleCloudCredentials       bool                   `json:"useGoogleCloudCredentials,omitempty" yaml:"useGoogleCloudCredentials,omitempty"`
 	WorkloadIdentity                *bool                  `json:"workloadIdentity,omitempty" yaml:"workloadIdentity,omitempty"`
 	PodSecurityContext              map[string]interface{} `json:"securityContext,omitempty" yaml:"securityContext,omitempty"`
-	DNSParams                       DNSParams              `json:"dns,omitempty" yaml:"dns,omitempty"`
+	DNS                             DNSParams              `json:"dns,omitempty" yaml:"dns,omitempty"`
 
 	DisableServiceAccountKeyRotation       *bool                     `json:"disableServiceAccountKeyRotation,omitempty" yaml:"disableServiceAccountKeyRotation,omitempty"`
 	LegacyGoogleCloudServiceAccountKeyFile string                    `json:"legacyGoogleCloudServiceAccountKeyFile,omitempty" yaml:"legacyGoogleCloudServiceAccountKeyFile,omitempty"`
@@ -737,8 +737,11 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	}
 
 	// default dns annotations added
-	if !p.DNSParams.UseCloudflareEstafetteExtension || !p.DNSParams.UseExternalDNS {
-		p.DNSParams.UseCloudflareEstafetteExtension = true
+	if p.DNS.UseCloudflareEstafetteExtension == nil || p.DNS.UseExternalDNS == nil {
+		trueValue := true
+		falseValue := false
+		p.DNS.UseCloudflareEstafetteExtension = &trueValue
+		p.DNS.UseExternalDNS = &falseValue
 	}
 
 }

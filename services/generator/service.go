@@ -94,9 +94,6 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		GoogleCloudCredentialsAppName: params.GoogleCloudCredentialsApp,
 		GoogleCloudCredentialsLabels:  api.SanitizeLabels(params.Labels),
 
-		UseCloudflareEstafetteExtension: params.DNSParams.UseCloudflareEstafetteExtension,
-		UseExternalDNS:                  params.DNSParams.UseExternalDNS,
-
 		PodManagementPolicy: params.PodManagementPolicy,
 		StorageClass:        params.StorageClass,
 		StorageSize:         params.StorageSize,
@@ -484,6 +481,13 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		data.UseWorkloadIdentity = *params.WorkloadIdentity
 	}
 
+	if params.DNS.UseCloudflareEstafetteExtension != nil {
+		data.UseCloudflareEstafetteExtension = *params.DNS.UseCloudflareEstafetteExtension
+	}
+
+	if params.DNS.UseExternalDNS != nil {
+		data.UseExternalDNS = *params.DNS.UseExternalDNS
+	}
 	// add extra hosts for routing in ingress, without setting their dns records
 	data.Hosts = append(data.Hosts, params.HostsRouteOnly...)
 	data.InternalHosts = append(data.InternalHosts, params.InternalHostsRouteOnly...)
