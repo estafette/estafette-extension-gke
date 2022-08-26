@@ -255,8 +255,8 @@ type VolumeMountParams struct {
 
 // DNSParams allows setting of annotations for DNS management by external tool
 type DNSParams struct {
-	UseCloudflareEstafetteExtension bool `json:"useCloudflareEstafetteExtension,omitempty" yaml:"useCloudflareEstafetteExtension,omitempty"`
-	UseExternalDNS                  bool `json:"useExternalDNS,omitempty" yaml:"useExternalDNS,omitempty"`
+	UseCloudflareEstafetteExtension *bool `json:"useCloudflareEstafetteExtension,omitempty" yaml:"useCloudflareEstafetteExtension,omitempty"`
+	UseExternalDNS                  *bool `json:"useExternalDNS,omitempty" yaml:"useExternalDNS,omitempty"`
 }
 
 // SetDefaults fills in empty fields with convention-based defaults
