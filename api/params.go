@@ -738,7 +738,7 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 
 	// default dns annotations added
 	if !p.DNSParams.UseCloudflareEstafetteExtension || !p.DNSParams.UseExternalDNS {
-		p.DNSParams.UseExternalDNS = true
+		p.DNSParams.UseCloudflareEstafetteExtension = true
 	}
 
 }
