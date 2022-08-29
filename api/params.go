@@ -262,6 +262,10 @@ type DNSParams struct {
 // SetDefaults fills in empty fields with convention-based defaults
 func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersion, releaseName string, releaseAction ActionType, releaseID string, estafetteLabels map[string]string) {
 
+	// true & flase to be used as pointers
+	trueValue := true
+	falseValue := false
+
 	p.BuildVersion = buildVersion
 
 	// default action to deploy-simple unless it's either specified on the stage or passed in as a release action
@@ -295,7 +299,6 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 
 	// default DisableServiceAccountKeyRotation to true for avoiding unintended side-effects of key rotation
 	if p.DisableServiceAccountKeyRotation == nil {
-		trueValue := true
 		p.DisableServiceAccountKeyRotation = &trueValue
 	}
 
@@ -347,7 +350,6 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 
 	// set default workloadIdentity
 	if p.WorkloadIdentity == nil {
-		falseValue := false
 		p.WorkloadIdentity = &falseValue
 	}
 
@@ -402,7 +404,6 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 
 	// set autoscale defaults
 	if p.Autoscale.Enabled == nil {
-		trueValue := true
 		p.Autoscale.Enabled = &trueValue
 	}
 	if p.Autoscale.MinReplicas <= 0 {
@@ -427,7 +428,6 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 
 	// set vpa defaults
 	if p.VerticalPodAutoscaler.Enabled == nil {
-		falseValue := false
 		p.VerticalPodAutoscaler.Enabled = &falseValue
 	}
 	if p.VerticalPodAutoscaler.UpdateMode == UpdateModeUnknown {
@@ -457,7 +457,6 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 
 	// set liveness probe defaults
 	if p.Container.LivenessProbe.Enabled == nil {
-		trueValue := true
 		p.Container.LivenessProbe.Enabled = &trueValue
 	}
 	if p.Container.LivenessProbe.Path == "" {
@@ -485,10 +484,8 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	// set readiness probe defaults
 	if p.Container.ReadinessProbe.Enabled == nil {
 		if p.Kind == KindHeadlessDeployment {
-			falseValue := false
 			p.Container.ReadinessProbe.Enabled = &falseValue
 		} else {
-			trueValue := true
 			p.Container.ReadinessProbe.Enabled = &trueValue
 		}
 	}
@@ -512,15 +509,12 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	}
 	if p.ProbeService == nil {
 		if p.Visibility == VisibilityESP || p.Visibility == VisibilityESPv2 {
-			falseValue := false
 			p.ProbeService = &falseValue
 		} else {
-			trueValue := true
 			p.ProbeService = &trueValue
 		}
 	}
 	if p.TopologyAwareHints == nil {
-		trueValue := true
 		p.TopologyAwareHints = &trueValue
 	}
 
@@ -532,17 +526,14 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 		p.Container.Metrics.Port = p.Container.Port
 	}
 	if p.Container.Metrics.Scrape == nil {
-		trueValue := true
 		p.Container.Metrics.Scrape = &trueValue
 	}
 
 	// set lifecycle defaults
 	if p.Container.Lifecycle.PrestopSleep == nil {
 		if p.OperatingSystem == OperatingSystemWindows {
-			falseValue := false
 			p.Container.Lifecycle.PrestopSleep = &falseValue
 		} else {
-			trueValue := true
 			p.Container.Lifecycle.PrestopSleep = &trueValue
 		}
 	}
@@ -558,7 +549,6 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	}
 
 	if p.InjectHTTPProxySidecar == nil {
-		trueValue := true
 		p.InjectHTTPProxySidecar = &trueValue
 	}
 
@@ -738,8 +728,6 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 
 	// default dns annotations added
 	if p.DNS.UseCloudflareEstafetteExtension == nil || p.DNS.UseExternalDNS == nil {
-		trueValue := true
-		falseValue := false
 		p.DNS.UseCloudflareEstafetteExtension = &trueValue
 		p.DNS.UseExternalDNS = &falseValue
 	}
