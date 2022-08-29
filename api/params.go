@@ -732,6 +732,10 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 		p.DNS.UseExternalDNS = &falseValue
 	}
 
+	if p.DNS.UseCloudflareEstafetteExtension == nil && *p.DNS.UseExternalDNS {
+		p.DNS.UseCloudflareEstafetteExtension = &falseValue
+	}
+
 }
 
 func (p *Params) HasSecrets() bool {
