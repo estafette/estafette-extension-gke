@@ -17,9 +17,15 @@ metadata:
     {{- end}}
     service.alpha.kubernetes.io/app-protocols: '{"https":"HTTPS"}'
     {{- if .Service.UseDNSAnnotationsOnService}}
+    {{- if .UseCloudflareEstafetteExtension}}
     estafette.io/cloudflare-dns: "true"
     estafette.io/cloudflare-proxy: "{{.UseCloudflareProxy}}"
     estafette.io/cloudflare-hostnames: "{{.HostsJoined}}"
+    {{- end }}
+    {{- if .UseExternalDNS }}
+    external-dns.alpha.kubernetes.io/enabled: "true"
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: "{{.UseCloudflareProxy}}"
+    {{- end }}
     {{- end}}
     {{- if .Service.UseBackendConfigAnnotationOnService}}
     beta.cloud.google.com/backend-config: '{"default": "{{.Name}}"}'

@@ -153,6 +153,7 @@ func (s *service) Run(ctx context.Context, credential *api.GKECredentials, relea
 			s.deployGoogleEndpointsServiceIfRequired(ctx, params)
 			s.removePoddisruptionBudgetIfRequired(ctx, params, templateData.NameWithTrack, templateData.Namespace)
 			s.removeIngressIfRequired(ctx, params, templateData, templateData.Name, templateData.Namespace)
+			s.removeExtensionCloudFlareExtensionStateAnnotation(ctx, params, templateData.Name, templateData.Namespace)
 
 			log.Info().Msg("Applying the manifests for real...")
 			foundation.RunCommandWithArgs(ctx, "kubectl", []string{"apply", "-f", "/kubernetes.yaml", "-n", templateData.Namespace})
@@ -397,7 +398,6 @@ func (s *service) removePoddisruptionBudgetIfRequired(ctx context.Context, param
 		}
 	}
 }
-
 func (s *service) removeIngressIfRequired(ctx context.Context, params api.Params, templateData api.TemplateData, name, namespace string) {
 	if params.Kind == api.KindDeployment && (params.Action == api.ActionDeploySimple || params.Action == api.ActionDeployCanary || params.Action == api.ActionDeployStable) {
 		if templateData.UseNginxIngress {
@@ -571,6 +571,23 @@ func (s *service) removeEstafetteCloudflareAnnotations(ctx context.Context, temp
 		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"annotate", "svc", templateData.Service.Name, "-n", namespace, "estafette.io/cloudflare-proxy-"})
 		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"annotate", "svc", templateData.Service.Name, "-n", namespace, "estafette.io/cloudflare-hostnames-"})
 		foundation.RunCommandWithArgs(ctx, "kubectl", []string{"annotate", "svc", templateData.Service.Name, "-n", namespace, "estafette.io/cloudflare-state-"})
+	}
+}
+
+func (s *service) removeExtensionCloudFlareExtensionStateAnnotation(ctx context.Context, params api.Params, name string, namespace string) {
+	if *params.DNS.UseExternalDNS && !*params.DNS.UseCloudflareEstafetteExtension {
+
+		log.Info().Msg("Removing CloudFlare extension DNS state ingress annotation ...")
+		_ = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"annotate", "ing", name, "-n", namespace, "estafette.io/cloudflare-state-"})
+		if params.Visibility == api.VisibilityApigee {
+			_ = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"annotate", "ing", name + "-apigee", "-n", namespace, "estafette.io/cloudflare-state-"})
+		}
+		if len(params.InternalHosts) > 0 {
+			_ = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"annotate", "ing", name + "-internal", "-n", namespace, "estafette.io/cloudflare-state-"})
+		}
+
+		log.Info().Msg("Removing CloudFlare extension DNS state service annotation ...")
+		_ = foundation.RunCommandWithArgsExtended(ctx, "kubectl", []string{"annotate", "svc", name, "-n", namespace, "estafette.io/cloudflare-state-"})
 	}
 }
 

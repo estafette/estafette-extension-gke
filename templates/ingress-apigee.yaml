@@ -23,9 +23,15 @@ metadata:
     {{- if .UseTopologyAwareHints}}
     nginx.ingress.kubernetes.io/service-upstream: "true"
     {{- end}}
+    {{- if .UseCloudflareEstafetteExtension}}
     estafette.io/cloudflare-dns: "true"
     estafette.io/cloudflare-proxy: "false"
     estafette.io/cloudflare-hostnames: "{{.ApigeeHostsJoined}}"
+    {{- end }}
+    {{- if .UseExternalDNS }}
+    external-dns.alpha.kubernetes.io/enabled: "true"
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
+    {{- end }}
     nginx.ingress.kubernetes.io/auth-tls-pass-certificate-to-upstream: "true"
     nginx.ingress.kubernetes.io/auth-tls-secret: "{{.NginxAuthTLSSecret}}"
     nginx.ingress.kubernetes.io/auth-tls-verify-client: "on"

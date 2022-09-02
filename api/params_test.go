@@ -4082,4 +4082,19 @@ func TestReplaceSidecarTagsWithDigest(t *testing.T) {
 		assert.Equal(t, SidecarTypeCloudSQLProxy, params.Sidecars[0].Type)
 		assert.Equal(t, 45, params.Sidecars[0].SQLProxyTerminationTimeoutSeconds)
 	})
+	t.Run("DefaultsDNSAnnotationsIfDNSFlagNotSet", func(t *testing.T) {
+
+		params := Params{
+			DNS: DNSParams{
+				UseCloudflareEstafetteExtension: nil,
+				UseExternalDNS:                  nil,
+			},
+		}
+
+		// act
+		params.SetDefaults("", "", "", "", "", "", "", "", map[string]string{})
+
+		assert.Equal(t, true, *params.DNS.UseCloudflareEstafetteExtension)
+		assert.Equal(t, false, *params.DNS.UseExternalDNS)
+	})
 }

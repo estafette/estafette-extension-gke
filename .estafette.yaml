@@ -40,15 +40,10 @@ stages:
           && chmod +x /usr/bin/kubectl \
           && kubectl version --client
 
-      FROM google/cloud-sdk:392.0.0-alpine
+      FROM google/cloud-sdk:400.0.0-alpine
 
       RUN apk add --update --upgrade --no-cache \
-            libcrypto1.1=1.1.1q-r0 \
-            libssl1.1=1.1.1q-r0 \
-            curl=7.80.0-r2 \
-            libcurl=7.80.0-r2 \
-            git=2.34.4-r0 \
-          && rm -rf /var/cache/apk/*
+          && rm -rf /var/cache/apk/* 
 
       RUN gcloud components install gke-gcloud-auth-plugin
 
