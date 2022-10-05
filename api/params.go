@@ -343,6 +343,9 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 		p.Labels["estafette.io/pipeline-base64"] = SanitizeLabel(pipelineBase64)
 	}
 
+	// add label for tracking deployment extension
+	p.Labels["app.kubernetes.io/managed-by"] = "estafette-extension-gke"
+
 	// default visibility to private if no override in stage params
 	if p.Visibility == VisibilityUnknown {
 		p.Visibility = VisibilityPrivate
