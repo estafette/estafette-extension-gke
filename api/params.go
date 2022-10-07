@@ -346,6 +346,9 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	// add label for tracking deployment extension
 	p.Labels["app.kubernetes.io/managed-by"] = "estafette-extension-gke"
 
+	log.Info().Msgf("%v", p.Manifests.Data)
+	log.Info().Msgf("%v", p.Manifests.Files)
+
 	// default visibility to private if no override in stage params
 	if p.Visibility == VisibilityUnknown {
 		p.Visibility = VisibilityPrivate
