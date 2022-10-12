@@ -347,7 +347,7 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	p.Labels["app.kubernetes.io/managed-by"] = "estafette-extension-gke"
 
 	if len(p.Manifests.Files) > 0 {
-		p.Labels["estafette.io/manifests-type"] = "files"
+		p.Labels["estafette.io/manifests-type"] = "custom"
 	} else {
 		p.Labels["estafette.io/manifests-type"] = "default"
 	}
