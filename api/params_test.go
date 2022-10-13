@@ -324,10 +324,12 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", "", "", "", "", estafetteLabels)
 
-		assert.Equal(t, 3, len(params.Labels))
+		assert.Equal(t, 5, len(params.Labels))
 		assert.Equal(t, "myapp", params.Labels["app"])
 		assert.Equal(t, "myteam", params.Labels["team"])
 		assert.Equal(t, "golang", params.Labels["language"])
+		assert.Equal(t, "estafette-extension-gke", params.Labels["app.kubernetes.io/managed-by"])
+		assert.Equal(t, "default", params.Labels["estafette.io/manifests-type"])
 	})
 
 	t.Run("KeepsLabelsIfNotEmpty", func(t *testing.T) {
@@ -347,9 +349,11 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", "", "", "", "", estafetteLabels)
 
-		assert.Equal(t, 2, len(params.Labels))
+		assert.Equal(t, 4, len(params.Labels))
 		assert.Equal(t, "yourapp", params.Labels["app"])
 		assert.Equal(t, "yourteam", params.Labels["team"])
+		assert.Equal(t, "estafette-extension-gke", params.Labels["app.kubernetes.io/managed-by"])
+		assert.Equal(t, "default", params.Labels["estafette.io/manifests-type"])
 	})
 
 	t.Run("AddsAppLabelToLabelsIfNotSet", func(t *testing.T) {
@@ -369,9 +373,11 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", appLabel, "", "", "", "", estafetteLabels)
 
-		assert.Equal(t, 2, len(params.Labels))
+		assert.Equal(t, 4, len(params.Labels))
 		assert.Equal(t, "myapp", params.Labels["app"])
 		assert.Equal(t, "yourteam", params.Labels["team"])
+		assert.Equal(t, "estafette-extension-gke", params.Labels["app.kubernetes.io/managed-by"])
+		assert.Equal(t, "default", params.Labels["estafette.io/manifests-type"])
 	})
 
 	t.Run("AddsEstafettePipelineLabel", func(t *testing.T) {
@@ -389,6 +395,8 @@ func TestSetDefaults(t *testing.T) {
 		params.SetDefaults("github.com", "estafette", "estafette-extensions-gke", "", "", "", "", "", estafetteLabels)
 
 		assert.Equal(t, "github.com-estafette-estafette-extensions-gke", params.Labels["estafette.io/pipeline"])
+		assert.Equal(t, "estafette-extension-gke", params.Labels["app.kubernetes.io/managed-by"])
+		assert.Equal(t, "default", params.Labels["estafette.io/manifests-type"])
 	})
 
 	t.Run("AddsEstafettePipelineBase64Label", func(t *testing.T) {
@@ -425,10 +433,12 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", appLabel, "", "", "", "", estafetteLabels)
 
-		assert.Equal(t, 3, len(params.Labels))
+		assert.Equal(t, 5, len(params.Labels))
 		assert.Equal(t, "yourapp", params.Labels["app"])
 		assert.Equal(t, "myteam", params.Labels["team"])
 		assert.Equal(t, "golang", params.Labels["language"])
+		assert.Equal(t, "estafette-extension-gke", params.Labels["app.kubernetes.io/managed-by"])
+		assert.Equal(t, "default", params.Labels["estafette.io/manifests-type"])
 	})
 
 	t.Run("DefaultsVisibilityToPrivateIfEmpty", func(t *testing.T) {
