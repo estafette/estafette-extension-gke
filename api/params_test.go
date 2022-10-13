@@ -4104,7 +4104,7 @@ func TestReplaceSidecarTagsWithDigest(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", "", "", "", "", map[string]string{})
 
-		assert.Equal(t, true, *params.DNS.UseCloudflareEstafetteExtension)
-		assert.Equal(t, false, *params.DNS.UseExternalDNS)
+		assert.Equal(t, false, *params.DNS.UseCloudflareEstafetteExtension)
+		assert.Equal(t, true, *params.DNS.UseExternalDNS)
 	})
 }

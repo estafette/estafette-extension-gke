@@ -736,13 +736,13 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	}
 
 	// default dns annotations added
-	if p.DNS.UseCloudflareEstafetteExtension == nil && (p.DNS.UseExternalDNS == nil || !*p.DNS.UseExternalDNS) {
-		p.DNS.UseCloudflareEstafetteExtension = &trueValue
-		p.DNS.UseExternalDNS = &falseValue
+	if p.DNS.UseExternalDNS == nil && (p.DNS.UseCloudflareEstafetteExtension == nil || !*p.DNS.UseCloudflareEstafetteExtension) {
+		p.DNS.UseExternalDNS = &trueValue
+		p.DNS.UseCloudflareEstafetteExtension = &falseValue
 	}
 
-	if p.DNS.UseCloudflareEstafetteExtension == nil && *p.DNS.UseExternalDNS {
-		p.DNS.UseCloudflareEstafetteExtension = &falseValue
+	if p.DNS.UseExternalDNS == nil && *p.DNS.UseCloudflareEstafetteExtension {
+		p.DNS.UseExternalDNS = &falseValue
 	}
 
 }
