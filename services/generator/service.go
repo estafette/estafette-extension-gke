@@ -582,6 +582,7 @@ func (s *service) BuildSidecar(sidecar *api.SidecarParams, params api.Params) ap
 	}
 
 	if sidecar.Type == api.SidecarTypeOpenresty {
+		builtSidecar.EnvironmentVariables = s.AddEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "KEEPALIVE_TIMEOUT", params.Request.KeepaliveTimeout)
 		builtSidecar.EnvironmentVariables = s.AddEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "SEND_TIMEOUT", params.Request.Timeout)
 		builtSidecar.EnvironmentVariables = s.AddEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "CLIENT_BODY_TIMEOUT", params.Request.Timeout)
 		builtSidecar.EnvironmentVariables = s.AddEnvironmentVariableIfNotSet(builtSidecar.EnvironmentVariables, "CLIENT_HEADER_TIMEOUT", params.Request.Timeout)
