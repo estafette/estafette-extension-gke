@@ -169,6 +169,7 @@ type AutoscaleSafetyParams struct {
 type RequestParams struct {
 	IngressBackendProtocol string `json:"ingressbackendprotocol,omitempty" yaml:"ingressbackendprotocol,omitempty"`
 	Timeout                string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	KeepaliveTimeout       string `json:"keepaliveTimeout,omitempty" yaml:"keepaliveTimeout,omitempty"`
 	MaxBodySize            string `json:"maxbodysize,omitempty" yaml:"maxbodysize,omitempty"`
 	ProxyBufferSize        string `json:"proxybuffersize,omitempty" yaml:"proxybuffersize,omitempty"`
 	ProxyBuffersNumber     int    `json:"proxybuffersnumber,omitempty" yaml:"proxybuffersnumber,omitempty"`
@@ -449,6 +450,9 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	}
 	if p.Request.Timeout == "" {
 		p.Request.Timeout = "60s"
+	}
+	if p.Request.KeepaliveTimeout == "" {
+		p.Request.KeepaliveTimeout = "20s"
 	}
 	if p.Request.MaxBodySize == "" {
 		p.Request.MaxBodySize = "128m"
