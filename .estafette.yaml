@@ -13,7 +13,7 @@ version:
 
 stages:
   build:
-    image: golang:1.17-alpine
+    image: golang:1.19-alpine
     env:
       CGO_ENABLED: 0
       GOOS: linux
@@ -660,7 +660,7 @@ stages:
         internalhosts:
         - gke.estafette.internal
 
-        test-legacy-gcp-service-account:
+      test-legacy-gcp-service-account:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
         credentials: gke-dev-common
         container:
