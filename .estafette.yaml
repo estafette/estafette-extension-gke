@@ -13,7 +13,7 @@ version:
 
 stages:
   build:
-    image: golang:1.17-alpine
+    image: golang:1.19-alpine
     env:
       CGO_ENABLED: 0
       GOOS: linux
@@ -26,7 +26,7 @@ stages:
     image: extensions/docker:dev
     action: build
     inline: |
-      FROM alpine:3.16
+      FROM alpine:3.17.0
 
       ENV KUBECTL_VERSION="v1.24.3"
 
@@ -40,7 +40,7 @@ stages:
           && chmod +x /usr/bin/kubectl \
           && kubectl version --client
 
-      FROM google/cloud-sdk:406.0.0-alpine
+      FROM google/cloud-sdk:410.0.0-alpine
 
       RUN apk add --update --upgrade --no-cache \
           && rm -rf /var/cache/apk/* 
@@ -660,7 +660,7 @@ stages:
         internalhosts:
         - gke.estafette.internal
 
-        test-legacy-gcp-service-account:
+      test-legacy-gcp-service-account:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
         credentials: gke-dev-common
         container:
