@@ -104,7 +104,7 @@ spec:
                 - "true"
           {{- end}}
         {{- end}}
-      {{- if or .HasInitContainers .UseWorkloadIdentity}}
+      {{- if or .HasInitContainers .UseWorkloadIdentity .MountPayloadLogging}}
       initContainers:
       {{- if .UseWorkloadIdentity }}
       - image:  gcr.io/google.com/cloudsdktool/cloud-sdk:326.0.0-alpine
@@ -114,6 +114,16 @@ spec:
         - '-c'
         - |
           curl -s -H 'Metadata-Flavor: Google' 'http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token' --retry 30 --retry-connrefused --retry-max-time 30 > /dev/null || exit 1
+      {{- end}}
+      {{- if .MountPayloadLogging }}
+      - name: fix-payload-logger-permissions
+        image: busybox:1.33.1
+        command:
+          - "chown 1000 /var/log/travix/fluentd-payload-logger/{{.Name}}"
+        volumeMounts:
+          - mountPath: /var/log/travix/fluentd-payload-logger
+            name: var-log
+            subPath: fluentd-payload-logger
       {{- end}}
       {{- if .HasInitContainers }}
 {{(call $.ToYAML .InitContainers) | indent 6}}
