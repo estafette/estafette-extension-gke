@@ -331,10 +331,14 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		data.PodLabels["estafette.io/git-revision"] = api.SanitizeLabel(gitRevision)
 	}
 	if builderImageSHA != "" {
-		data.Labels["estafette.io/builder-image-sha"] = api.SanitizeLabel(builderImageSHA)
+		// grab only first 20 char of hash since it is not necessary to go beyond that
+		data.Labels["estafette.io/builder-image-sha"] = api.SanitizeLabel(builderImageSHA)[0:19]
 	}
 	if builderImageDate != "" {
-		data.Labels["estafette.io/builder-image-date"] = api.SanitizeLabel(builderImageDate)
+		builderImageDateTrimmed, err := api.GetTrimmedDate(builderImageDate)
+		if err == nil {
+			data.Labels["estafette.io/builder-image-date"] = api.SanitizeLabel(builderImageDateTrimmed)
+		}
 	}
 
 	switch params.Action {

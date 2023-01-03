@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -114,4 +115,12 @@ func httpRequestBody(method, url string, headers map[string]string) string {
 	}
 
 	return string(body)
+}
+
+func GetTrimmedDate(date string) (string, error) {
+	t, err := time.Parse(time.RFC3339, date)
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprint(t.Format("2006-01-02 15:04:05")), nil
 }
