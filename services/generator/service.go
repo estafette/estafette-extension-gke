@@ -15,7 +15,7 @@ import (
 
 //go:generate mockgen -package=generator -destination ./mock.go -source=service.go
 type Service interface {
-	GenerateTemplateData(params api.Params, currentReplicas int, gitSource, gitOwner, gitName, gitBranch, gitRevision, releaseID, triggeredBy string) api.TemplateData
+	GenerateTemplateData(params api.Params, currentReplicas int, gitSource, gitOwner, gitName, gitBranch, gitRevision, releaseID, builderImageSHA, builderImageDate, triggeredBy string) api.TemplateData
 	BuildSidecar(sidecar *api.SidecarParams, params api.Params) api.SidecarData
 	AddEnvironmentVariableIfNotSet(environmentVariables map[string]interface{}, name, value string) map[string]interface{}
 	IsSimpleEnvvarValue(i interface{}) bool
@@ -31,7 +31,7 @@ func NewService(ctx context.Context) (Service, error) {
 type service struct {
 }
 
-func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, gitSource, gitOwner, gitName, gitBranch, gitRevision, releaseID, triggeredBy string) api.TemplateData {
+func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, gitSource, gitOwner, gitName, gitBranch, gitRevision, releaseID, builderImageSHA, builderImageDate, triggeredBy string) api.TemplateData {
 
 	data := api.TemplateData{
 		Name:                    params.App,
@@ -329,6 +329,12 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 	}
 	if gitRevision != "" {
 		data.PodLabels["estafette.io/git-revision"] = api.SanitizeLabel(gitRevision)
+	}
+	if builderImageSHA != "" {
+		data.PodLabels["estafette.io/builder-image-sha"] = api.SanitizeLabel(builderImageSHA)
+	}
+	if builderImageDate != "" {
+		data.PodLabels["estafette.io/builder-image-date"] = api.SanitizeLabel(builderImageDate)
 	}
 
 	switch params.Action {

@@ -33,17 +33,19 @@ var (
 	credentialsPath = kingpin.Flag("credentials-path", "Path to GKE credentials configured at service level, passed in to this trusted extension.").Default("/credentials/kubernetes_engine.json").String()
 
 	// optional flags
-	gitSource     = kingpin.Flag("git-source", "Repository source.").Envar("ESTAFETTE_GIT_SOURCE").String()
-	gitOwner      = kingpin.Flag("git-owner", "Repository owner.").Envar("ESTAFETTE_GIT_OWNER").String()
-	gitName       = kingpin.Flag("git-name", "Repository name, used as application name if not passed explicitly and app label not being set.").Envar("ESTAFETTE_GIT_NAME").String()
-	gitBranch     = kingpin.Flag("git-branch", "Repository commit branch.").Envar("ESTAFETTE_GIT_BRANCH").String()
-	gitRevision   = kingpin.Flag("git-revision", "Repository commit revisition.").Envar("ESTAFETTE_GIT_REVISION").String()
-	appLabel      = kingpin.Flag("app-name", "App label, used as application name if not passed explicitly.").Envar("ESTAFETTE_LABEL_APP").String()
-	buildVersion  = kingpin.Flag("build-version", "Version number, used if not passed explicitly.").Envar("ESTAFETTE_BUILD_VERSION").String()
-	releaseName   = kingpin.Flag("release-name", "Name of the release section, which is used by convention to resolve the credentials.").Envar("ESTAFETTE_RELEASE_NAME").String()
-	releaseAction = kingpin.Flag("release-action", "Name of the release action, to control the type of release.").Envar("ESTAFETTE_RELEASE_ACTION").String()
-	releaseID     = kingpin.Flag("release-id", "ID of the release, to use as a label.").Envar("ESTAFETTE_RELEASE_ID").String()
-	triggeredBy   = kingpin.Flag("triggered-by", "The user id of the person triggering the release.").Envar("ESTAFETTE_TRIGGER_MANUAL_USER_ID").String()
+	gitSource        = kingpin.Flag("git-source", "Repository source.").Envar("ESTAFETTE_GIT_SOURCE").String()
+	gitOwner         = kingpin.Flag("git-owner", "Repository owner.").Envar("ESTAFETTE_GIT_OWNER").String()
+	gitName          = kingpin.Flag("git-name", "Repository name, used as application name if not passed explicitly and app label not being set.").Envar("ESTAFETTE_GIT_NAME").String()
+	gitBranch        = kingpin.Flag("git-branch", "Repository commit branch.").Envar("ESTAFETTE_GIT_BRANCH").String()
+	gitRevision      = kingpin.Flag("git-revision", "Repository commit revisition.").Envar("ESTAFETTE_GIT_REVISION").String()
+	appLabel         = kingpin.Flag("app-name", "App label, used as application name if not passed explicitly.").Envar("ESTAFETTE_LABEL_APP").String()
+	buildVersion     = kingpin.Flag("build-version", "Version number, used if not passed explicitly.").Envar("ESTAFETTE_BUILD_VERSION").String()
+	releaseName      = kingpin.Flag("release-name", "Name of the release section, which is used by convention to resolve the credentials.").Envar("ESTAFETTE_RELEASE_NAME").String()
+	releaseAction    = kingpin.Flag("release-action", "Name of the release action, to control the type of release.").Envar("ESTAFETTE_RELEASE_ACTION").String()
+	releaseID        = kingpin.Flag("release-id", "ID of the release, to use as a label.").Envar("ESTAFETTE_RELEASE_ID").String()
+	triggeredBy      = kingpin.Flag("triggered-by", "The user id of the person triggering the release.").Envar("ESTAFETTE_TRIGGER_MANUAL_USER_ID").String()
+	builderImageSHA  = kingpin.Flag("builder-image-sha", "The SHA of the image that is running the stage").Envar("ESTAFETTE_SERVICE_IMAGE_SHA").String()
+	builderImageDate = kingpin.Flag("builder-image-date", "The creation date of the image that is running the stage").Envar("ESTAFETTE_SERVICE_IMAGE_CREATED_DATE").String()
 
 	assistTroubleshootingOnError = false
 	paramsForTroubleshooting     = api.Params{}
@@ -95,7 +97,7 @@ func main() {
 		log.Fatal().Err(err).Msg("Failed creating extension.Service")
 	}
 
-	err = extensionService.Run(ctx, credential, *releaseName, *paramsYAML, *gitSource, *gitOwner, *gitName, *appLabel, *buildVersion, *releaseAction, *releaseID, *gitBranch, *gitRevision, *triggeredBy)
+	err = extensionService.Run(ctx, credential, *releaseName, *paramsYAML, *gitSource, *gitOwner, *gitName, *appLabel, *buildVersion, *releaseAction, *releaseID, *gitBranch, *gitRevision, *builderImageSHA, *builderImageDate, *triggeredBy)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed running extension.Service")
 	}

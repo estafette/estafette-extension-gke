@@ -20,7 +20,7 @@ import (
 
 //go:generate mockgen -package=extension -destination ./mock.go -source=service.go
 type Service interface {
-	Run(ctx context.Context, credential *api.GKECredentials, releaseName, paramsYAML, gitSource, gitOwner, gitName, appLabel, buildVersion, releaseAction, releaseID, gitBranch, gitRevision, triggeredBy string) (err error)
+	Run(ctx context.Context, credential *api.GKECredentials, releaseName, paramsYAML, gitSource, gitOwner, gitName, appLabel, buildVersion, releaseAction, releaseID, gitBranch, gitRevision, builderImageSHA, builderImageDate, triggeredBy string) (err error)
 }
 
 // NewService returns a new extension.Service
@@ -45,7 +45,7 @@ type service struct {
 	paramsForTroubleshooting     api.Params
 }
 
-func (s *service) Run(ctx context.Context, credential *api.GKECredentials, releaseName, paramsYAML, gitSource, gitOwner, gitName, appLabel, buildVersion, releaseAction, releaseID, gitBranch, gitRevision, triggeredBy string) (err error) {
+func (s *service) Run(ctx context.Context, credential *api.GKECredentials, releaseName, paramsYAML, gitSource, gitOwner, gitName, appLabel, buildVersion, releaseAction, releaseID, gitBranch, gitRevision, builderImageSHA, builderImageDate, triggeredBy string) (err error) {
 
 	params, err := s.parametersClient.Init(ctx, paramsYAML, credential, gitSource, gitOwner, gitName, appLabel, buildVersion, releaseName, releaseAction, releaseID)
 	if err != nil {
@@ -86,7 +86,7 @@ func (s *service) Run(ctx context.Context, credential *api.GKECredentials, relea
 	}
 
 	// generate the data required for rendering the templates
-	templateData := s.generatorService.GenerateTemplateData(params, currentReplicas, gitSource, gitOwner, gitName, gitBranch, gitRevision, releaseID, triggeredBy)
+	templateData := s.generatorService.GenerateTemplateData(params, currentReplicas, gitSource, gitOwner, gitName, gitBranch, gitRevision, releaseID, builderImageSHA, builderImageDate, triggeredBy)
 
 	if params.Action == api.ActionDelete || params.Action == api.ActionDiffDelete {
 		log.Info().Msgf("Deleting all resources with label app=%v in namespace %v...", templateData.AppLabelSelector, templateData.Namespace)
