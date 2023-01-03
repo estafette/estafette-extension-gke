@@ -44,8 +44,8 @@ var (
 	releaseAction    = kingpin.Flag("release-action", "Name of the release action, to control the type of release.").Envar("ESTAFETTE_RELEASE_ACTION").String()
 	releaseID        = kingpin.Flag("release-id", "ID of the release, to use as a label.").Envar("ESTAFETTE_RELEASE_ID").String()
 	triggeredBy      = kingpin.Flag("triggered-by", "The user id of the person triggering the release.").Envar("ESTAFETTE_TRIGGER_MANUAL_USER_ID").String()
-	builderImageSHA  = kingpin.Flag("builder-image-sha", "The SHA of the image that is running the stage").Envar("ESTAFETTE_SERVICE_IMAGE_SHA").String()
-	builderImageDate = kingpin.Flag("builder-image-date", "The creation date of the image that is running the stage").Envar("ESTAFETTE_SERVICE_IMAGE_CREATED_DATE").String()
+	builderImageSHA  = kingpin.Flag("builder-image-sha", "The SHA of the image that is running the stage").Envar("ESTAFETTE_STAGE_IMAGE_SHA").String()
+	builderImageDate = kingpin.Flag("builder-image-date", "The creation date of the image that is running the stage").Envar("ESTAFETTE_STAGE_IMAGE_CREATED_DATE").String()
 
 	assistTroubleshootingOnError = false
 	paramsForTroubleshooting     = api.Params{}
