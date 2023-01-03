@@ -2061,6 +2061,42 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "myapp", templateData.NameWithTrack)
 	})
 
+	t.Run("AddsBuildImageShaAndBuildImageDateIfNotEmpty", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
+		params := api.Params{
+			App:    "myapp",
+			Action: api.ActionDeploySimple,
+		}
+
+		// act
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "8112fc7dbd64f8d31b604113549e1cc9d5006f25ad17818c943c02760aa9599e", "2022-12-20T15:11:52.807349696Z", "")
+
+		assert.Equal(t, "8112fc7dbd64f8d31b604113549e1cc9d5006f25ad17818c943c02760aa9599e", templateData.Labels["estafette.io/builder-image-sha"])
+		assert.Equal(t, "2022-12-20T15:11:52.807349696Z", templateData.Labels["estafette.io/builder-image-date"])
+	})
+
+	t.Run("DoesNotAddsBuildImageShaAndBuildImageDateIfEmpty", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
+		params := api.Params{
+			App:    "myapp",
+			Action: api.ActionDeploySimple,
+		}
+
+		// act
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "", "", "")
+
+		assert.Equal(t, "", templateData.Labels["estafette.io/builder-image-sha"])
+		assert.Equal(t, "", templateData.Labels["estafette.io/builder-image-date"])
+	})
+
 	t.Run("DoesNotAddReleaseIDLabelToPodLabelsIfReleaseIDIsEmpty", func(t *testing.T) {
 
 		ctx := context.Background()
