@@ -40,7 +40,7 @@ stages:
           && chmod +x /usr/bin/kubectl \
           && kubectl version --client
 
-      FROM google/cloud-sdk:410.0.0-alpine
+      FROM google/cloud-sdk:412.0.0-alpine
 
       RUN apk add --update --upgrade --no-cache \
           && rm -rf /var/cache/apk/* 
