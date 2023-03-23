@@ -95,6 +95,24 @@ type Params struct {
 	// params for image pull secret
 	ImagePullSecretUser     string `json:"imagePullSecretUser,omitempty" yaml:"imagePullSecretUser,omitempty"`
 	ImagePullSecretPassword string `json:"imagePullSecretPassword,omitempty" yaml:"imagePullSecretPassword,omitempty"`
+
+	// Alerting Rules
+	AlertingRules []AlertingRule `json:"alertingRules,omitempty" yaml:"alertingRules,omitempty"`
+	// Recording Rules
+	RecordingRules []RecordingRule `json:"recordingRules,omitempty" yaml:"recordingRules,omitempty"`
+}
+
+type AlertingRule struct {
+	Name        string            `json:"name,omitempty" yaml:"name,omitempty"`
+	Expr        string            `json:"expr,omitempty" yaml:"expr,omitempty"`
+	For         string            `json:"for,omitempty" yaml:"for,omitempty"`
+	Labels      map[string]string `json:"labels,omitempty" yaml:"labels,omitempty"`
+	Annotations map[string]string `json:"annotations,omitempty" yaml:"annotations,omitempty"`
+}
+
+type RecordingRule struct {
+	Name string `json:"name,omitempty" yaml:"name,omitempty"`
+	Expr string `json:"expr,omitempty" yaml:"expr,omitempty"`
 }
 
 // ContainerParams defines the container image to deploy

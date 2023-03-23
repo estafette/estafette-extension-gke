@@ -2,9 +2,6 @@ package main
 
 import (
 	"context"
-	"runtime"
-	"time"
-
 	"github.com/alecthomas/kingpin"
 	"github.com/estafette/estafette-extension-gke/api"
 	"github.com/estafette/estafette-extension-gke/clients/credentials"
@@ -15,6 +12,7 @@ import (
 	"github.com/estafette/estafette-extension-gke/services/generator"
 	foundation "github.com/estafette/estafette-foundation"
 	"github.com/rs/zerolog/log"
+	"runtime"
 )
 
 var (
@@ -63,7 +61,6 @@ func main() {
 	// create context to cancel commands on sigterm
 	ctx := foundation.InitCancellationContext(context.Background())
 
-	time.Sleep(10 * time.Minute)
 	credentialsClient, err := credentials.NewClient(ctx)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed creating credentials.Client")

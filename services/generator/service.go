@@ -148,6 +148,8 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		IsSimpleEnvvarValue: s.IsSimpleEnvvarValue,
 		ToYAML:              s.ToYAML,
 		RenderToYAML:        s.RenderToYAML,
+		AlertingRules:       params.AlertingRules,
+		RecordingRules:      params.RecordingRules,
 	}
 
 	if data.Secrets == nil {

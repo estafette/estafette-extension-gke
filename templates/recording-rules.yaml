@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    {{- range $key, $value := .Labels}}
+    {{ $key | quote }}: {{ $value | quote }}
+    {{- end}}
+  name: {{.Name}}-recording-rules
+spec:
+  groups:
+    - name: {{.Name}}-recording-rules
+      rules:
+        {{if gt (len .RecordingRules) 0}}
+          {{- range $key, $value := .RecordingRules }}
+          - record: {{$value.Name}}
+            expr: {{$value.Expr}}
+            {{- end }}
+            {{- else }}
+            []
+          {{- end }}

@@ -51,4 +51,4 @@ cover.out
 estafette-extension-gke
 
 local.env
-Dockerfile
+k8s.json

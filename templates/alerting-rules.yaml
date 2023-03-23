@@ -1,0 +1,35 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    {{- range $key, $value := .Labels}}
+    {{ $key | quote }}: {{ $value | quote }}
+    {{- end}}
+  name: {{.Name}}-alerting-rules
+spec:
+  groups:
+    - name: {{.Name}}-alerting-rules
+      rules:
+      {{if gt (len .AlertingRules) 0}}
+        {{- range $key, $value := .AlertingRules }}
+        - alert: {{$value.Name}}
+          expr: {{$value.Expr}}
+          {{- if $value.For }}
+          for: {{$value.For}}
+          {{- end }}
+          {{- if $value.Labels }}
+          labels:
+            {{- range $key, $value := $value.Labels }}
+            {{$key}}: {{$value}}
+            {{- end }}
+          {{- end }}
+          {{- if $value.Annotations }}
+          annotations:
+            {{- range $key, $value := $value.Annotations }}
+            {{$key}}: {{$value}}
+            {{- end }}
+          {{- end }}
+          {{- end }}
+        {{- else }}
+        []
+        {{- end }}

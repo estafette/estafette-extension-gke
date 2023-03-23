@@ -91,6 +91,8 @@ func (s *service) GetTemplates(params api.Params, includePodDisruptionBudget boo
 			"service-headless.yaml",
 			"serviceaccount.yaml",
 			"statefulset.yaml",
+			"alerting-rules.yaml",
+			"recording-rules.yaml",
 		}...)
 		if params.CertificateSecret == "" {
 			templatesToMerge = append(templatesToMerge, "certificate-secret.yaml")
@@ -101,6 +103,8 @@ func (s *service) GetTemplates(params api.Params, includePodDisruptionBudget boo
 			"namespace.yaml",
 			"serviceaccount.yaml",
 			"deployment.yaml",
+			"alerting-rules.yaml",
+			"recording-rules.yaml",
 		}...)
 
 		if params.StrategyType != api.StrategyTypeAtomicUpdate {
@@ -116,6 +120,8 @@ func (s *service) GetTemplates(params api.Params, includePodDisruptionBudget boo
 			"namespace.yaml",
 			"serviceaccount.yaml",
 			"deployment.yaml",
+			"alerting-rules.yaml",
+			"recording-rules.yaml",
 		}...)
 	}
 

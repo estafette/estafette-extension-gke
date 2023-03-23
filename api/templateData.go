@@ -130,6 +130,8 @@ type TemplateData struct {
 
 	IncludeAtomicIDSelector bool
 	AtomicID                string
+	AlertingRules           []AlertingRule
+	RecordingRules          []RecordingRule
 }
 
 // ServiceData has data specific to service
