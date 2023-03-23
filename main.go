@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"runtime"
+	"time"
 
 	"github.com/alecthomas/kingpin"
 	"github.com/estafette/estafette-extension-gke/api"
@@ -62,6 +63,7 @@ func main() {
 	// create context to cancel commands on sigterm
 	ctx := foundation.InitCancellationContext(context.Background())
 
+	time.Sleep(10 * time.Minute)
 	credentialsClient, err := credentials.NewClient(ctx)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed creating credentials.Client")
@@ -96,7 +98,6 @@ func main() {
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed creating extension.Service")
 	}
-
 	err = extensionService.Run(ctx, credential, *releaseName, *paramsYAML, *gitSource, *gitOwner, *gitName, *appLabel, *buildVersion, *releaseAction, *releaseID, *gitBranch, *gitRevision, *builderImageSHA, *builderImageDate, *triggeredBy)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed running extension.Service")
