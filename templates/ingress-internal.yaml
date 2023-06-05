@@ -71,6 +71,6 @@ spec:
               name: https
               {{- else }}
               name: web
-              {{- end}}
-            {{- end}}
+              {{- end }}
+            {{- end }}
   {{- end}}
