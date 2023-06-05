@@ -152,7 +152,7 @@ func (s *service) GetTemplates(params api.Params, includePodDisruptionBudget boo
 	if (params.Kind == api.KindDeployment || params.Kind == api.KindStatefulset) && params.Visibility == api.VisibilityIAP {
 		templatesToMerge = append(templatesToMerge, "backend-config.yaml", "iap-oauth-credentials-secret.yaml")
 	}
-	if (params.Kind == api.KindDeployment || params.Kind == api.KindStatefulset) && (params.Visibility != api.VisibilityESP || params.Visibility != api.VisibilityESPv2) && len(params.InternalHosts) > 0 {
+	if (params.Kind == api.KindDeployment || params.Kind == api.KindStatefulset) && !params.EspServiceTypeClusterIP && len(params.InternalHosts) > 0 {
 		templatesToMerge = append(templatesToMerge, "ingress-internal.yaml")
 	}
 	if params.HasSecrets() {
