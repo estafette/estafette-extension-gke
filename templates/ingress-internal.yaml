@@ -62,9 +62,10 @@ spec:
           service:
             {{- if .UseESP }}
             name: {{$.Name}}-cluster-ip
-            {{- else }}
-            name: {{$.Name}}
+            port:
+              name: https
             {{- end }}
+            name: {{$.Name}}
             port:
               {{- if $.HasOpenrestySidecar }}
               name: https
