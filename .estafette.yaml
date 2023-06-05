@@ -43,6 +43,7 @@ stages:
       FROM google/cloud-sdk:433.0.1-alpine
 
       RUN apk add --update --upgrade --no-cache \
+          && rm -rf google-cloud-sdk/bin/anthoscli \
           && rm -rf /var/cache/apk/* 
 
       RUN gcloud components install gke-gcloud-auth-plugin
