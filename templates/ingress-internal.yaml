@@ -60,17 +60,17 @@ spec:
         pathType: {{$.PathType}}
         backend:
           service:
-            {{- if .UseESP }}
-            name: {{$.Name}}-cluster-ip
-            port:
-              name: https
-            {{- else }}
+            {{- if not .UseESP }}
             name: {{$.Name}}
             port:
               {{- if $.HasOpenrestySidecar }}
               name: https
               {{- else }}
               name: web
-              {{- end }}
+              {{- end }} 
+            {{- else }}
+            name: {{$.Name}}-cluster-ip
+            port:
+              name: https
             {{- end }}
   {{- end}}
