@@ -60,7 +60,7 @@ spec:
           pathType: {{$.PathType}}
           backend:
             service:
-              name: {{$.Name}}
+              name: {{$.Name}}-cluster-ip
               port:
                 {{- if $.HasOpenrestySidecar }}
                 name: https
