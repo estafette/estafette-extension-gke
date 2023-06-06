@@ -5,8 +5,8 @@ metadata:
   namespace: {{.Namespace}}
   labels:
     {{- range $key, $value := .Labels}}
-      {{ $key | quote }}: {{ $value | quote }}
-      {{- end}}
+    {{ $key | quote }}: {{ $value | quote }}
+    {{- end}}
   annotations:
     {{- if .UseHTTPS }}
     nginx.ingress.kubernetes.io/backend-protocol: "{{.NginxIngressBackendProtocol}}"
@@ -42,29 +42,29 @@ metadata:
 spec:
   ingressClassName: nginx-internal
   tls:
-    - hosts:
-      {{- range .InternalHosts}}
-      - {{.}}
-      {{- end}}
-      {{- if .UseCertificateSecret }}
-      secretName: {{.CertificateSecretName}}
-      {{- else }}
-      secretName: {{.Name}}-letsencrypt-certificate
-      {{- end }}
+  - hosts:
+    {{- range .InternalHosts}}
+    - {{.}}
+    {{- end}}
+    {{- if .UseCertificateSecret }}
+    secretName: {{.CertificateSecretName}}
+    {{- else }}
+    secretName: {{.Name}}-letsencrypt-certificate
+    {{- end }}
   rules:
   {{- range .InternalHosts}}
   - host: {{.}}
     http:
       paths:
-        - path: {{$.InternalIngressPath}}
-          pathType: {{$.PathType}}
-          backend:
-            service:
-              name: {{$.Name}}
-              port:
-                {{- if $.HasOpenrestySidecar }}
-                name: https
-                {{- else }}
-                name: web
-                {{- end }}
+      - path: {{$.InternalIngressPath}}
+        pathType: {{$.PathType}}
+        backend:
+          service:
+            name: {{$.Name}}
+            port:
+              {{- if $.HasOpenrestySidecar }}
+              name: https
+              {{- else }}
+              name: web
+              {{- end }}
   {{- end}}
