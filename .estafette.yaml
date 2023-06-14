@@ -26,7 +26,7 @@ stages:
     image: extensions/docker:dev
     action: build
     inline: |
-      FROM alpine:3.17.0
+      FROM alpine:3.18.0
 
       ENV KUBECTL_VERSION="v1.24.3"
 
@@ -40,9 +40,10 @@ stages:
           && chmod +x /usr/bin/kubectl \
           && kubectl version --client
 
-      FROM google/cloud-sdk:412.0.0-alpine
+      FROM google/cloud-sdk:433.0.1-alpine
 
       RUN apk add --update --upgrade --no-cache \
+          && rm -rf google-cloud-sdk/bin/anthoscli \
           && rm -rf /var/cache/apk/* 
 
       RUN gcloud components install gke-gcloud-auth-plugin
