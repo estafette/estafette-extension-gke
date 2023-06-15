@@ -2343,7 +2343,7 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", "", "", "", "", map[string]string{})
 
-		assert.Equal(t, 14, len(params.TrustedIPRanges))
+		assert.Equal(t, 15, len(params.TrustedIPRanges))
 		assert.Equal(t, "103.21.244.0/22", params.TrustedIPRanges[0])
 		assert.Equal(t, "198.41.128.0/17", params.TrustedIPRanges[13])
 	})

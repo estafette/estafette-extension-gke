@@ -701,6 +701,7 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 			"190.93.240.0/20",
 			"197.234.240.0/22",
 			"198.41.128.0/17",
+			"104.24.0.0/14",
 		}
 	}
 
