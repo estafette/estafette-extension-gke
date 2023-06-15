@@ -1970,16 +1970,16 @@ func TestGenerateTemplateData(t *testing.T) {
 				"173.245.48.0/20",
 				"188.114.96.0/20",
 				"190.93.240.0/20",
-				"104.24.0.0/14",
 				"197.234.240.0/22",
 				"198.41.128.0/17",
+				"104.24.0.0/14",
 			},
 		}
 
 		// act
-		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "", "", "")
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "2ce0e94ec6cffe8bd350eded21bf6a1544adf32d", "", "", "", "")
 
-		assert.Equal(t, 14, len(templateData.TrustedIPRanges))
+		assert.Equal(t, 15, len(templateData.TrustedIPRanges))
 	})
 
 	t.Run("SetsLocalManifestDataToAllLocalManifestDataCombined", func(t *testing.T) {
