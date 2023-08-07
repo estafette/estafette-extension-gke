@@ -26,9 +26,9 @@ stages:
     image: extensions/docker:dev
     action: build
     inline: |
-      FROM alpine:3.18.0
+      FROM alpine:3.18.3
 
-      ENV KUBECTL_VERSION="v1.24.3"
+      ENV KUBECTL_VERSION="v1.25.12"
 
       RUN apk add --update --upgrade --no-cache \
             curl \
@@ -40,7 +40,7 @@ stages:
           && chmod +x /usr/bin/kubectl \
           && kubectl version --client
 
-      FROM google/cloud-sdk:433.0.1-alpine
+      FROM google/cloud-sdk:441.0.0-alpine
 
       RUN apk add --update --upgrade --no-cache \
           && rm -rf google-cloud-sdk/bin/anthoscli \
