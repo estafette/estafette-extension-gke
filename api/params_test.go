@@ -112,7 +112,7 @@ var (
 		StorageMountPath:    "/data",
 		PodManagementPolicy: "Parallel",
 		ProbeService:        &trueValue,
-		TopologyAwareHints:  &trueValue,
+		TopologyAwareHints:  &falseValue,
 	}
 	validCredential = GKECredentials{
 		Name: "gke-production",
@@ -1695,7 +1695,7 @@ func TestSetDefaults(t *testing.T) {
 		assert.Equal(t, false, *params.ProbeService)
 	})
 
-	t.Run("DefaultsTopologyAwareHintsToTrueIfEmpty", func(t *testing.T) {
+	t.Run("DefaultsTopologyAwareHintsToFalseIfEmpty", func(t *testing.T) {
 
 		params := Params{
 			TopologyAwareHints: nil,
@@ -1704,19 +1704,19 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", "", "", "", "", map[string]string{})
 
-		assert.Equal(t, true, *params.TopologyAwareHints)
+		assert.Equal(t, false, *params.TopologyAwareHints)
 	})
 
 	t.Run("KeepsTopologyAwareHintsIfNotEmpty", func(t *testing.T) {
 
 		params := Params{
-			TopologyAwareHints: &falseValue,
+			TopologyAwareHints: &trueValue,
 		}
 
 		// act
 		params.SetDefaults("", "", "", "", "", "", "", "", map[string]string{})
 
-		assert.Equal(t, false, *params.TopologyAwareHints)
+		assert.Equal(t, true, *params.TopologyAwareHints)
 	})
 
 	t.Run("DefaultsMetricsPathToMetricsIfEmpty", func(t *testing.T) {
