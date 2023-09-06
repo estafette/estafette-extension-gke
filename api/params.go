@@ -74,7 +74,7 @@ type Params struct {
 	ProbeService                           *bool                     `json:"probeService,omitempty" yaml:"probeService,omitempty"`
 	TopologyAwareHints                     *bool                     `json:"topologyAwareHints,omitempty" yaml:"topologyAwareHints,omitempty"`
 	Tolerations                            []*map[string]interface{} `json:"tolerations,omitempty" yaml:"tolerations,omitempty"`
-	Affinity                               []*map[string]interface{} `json:"affinity,omitempty" yaml:"affinity,omitempty"`
+	Affinity                               *map[string]interface{}   `json:"affinity,omitempty" yaml:"affinity,omitempty"`
 
 	// container params
 	Container              ContainerParams           `json:"container,omitempty" yaml:"container,omitempty"`
