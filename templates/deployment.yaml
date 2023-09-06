@@ -61,10 +61,10 @@ spec:
       securityContext:
 {{(call $.ToYAML .PodSecurityContext) | indent 8}}
       {{- end }}
-      {{- if .Affinity }}
-{{(call $.ToYAML .Affinity) | indent 6}}
-      {{- else }}
       affinity:
+      {{- if .Affinity }}
+{{(call $.ToYAML .Affinity) | indent 8}}
+      {{- else }}
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
           - weight: 70

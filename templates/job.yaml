@@ -38,11 +38,11 @@ spec:
       securityContext:
 {{(call $.ToYAML .PodSecurityContext) | indent 8}}
       {{- end }}
+      affinity:
       {{- if .Affinity }}
-{{(call $.ToYAML .Affinity) | indent 6}}
+{{(call $.ToYAML .Affinity) | indent 8}}
       {{- else }}
       {{- if or .PreferPreemptibles .UseWindowsNodes}}
-      affinity:
         nodeAffinity:
           {{- if .UseWindowsNodes}}
           requiredDuringSchedulingIgnoredDuringExecution:
