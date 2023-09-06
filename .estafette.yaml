@@ -336,14 +336,6 @@ stages:
                     values:
                     - test-affinity
                 topologyKey: kubernetes.io/hostname
-          nodeAffinity:
-            requiredDuringSchedulingIgnoredDuringExecution:
-              nodeSelectorTerms:
-              - matchExpressions:
-                - key: kubernetes.io/os
-                  operator: In
-                  values:
-                  - linux
         hosts:
         - gke.estafette.io
         internalhosts:
