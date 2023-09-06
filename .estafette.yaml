@@ -316,6 +316,34 @@ stages:
         - 103.31.4.0/22
         dryrun: true
 
+      test-deployment-affinity:
+        image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+        credentials: gke-dev-common
+        action: deploy-simple
+        kind: deployment
+        app: test-affinity
+        container:
+          repository: extensions
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - test-affinity
+                topologyKey: kubernetes.io/hostname
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: kubernetes.io/os
+                  operator: In
+                  values:
+                  - linux
+
       test-minimal-alpha-version:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
         credentials: gke-dev-common

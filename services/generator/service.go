@@ -79,6 +79,7 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		MountConfigmap:          len(params.Configs.Files) > 0 || len(params.Configs.InlineFiles) > 0,
 		ConfigMountPath:         params.Configs.MountPath,
 		Tolerations:             []*map[string]interface{}{},
+		Affinity:                []*map[string]interface{}{},
 		PodSecurityContext:      params.PodSecurityContext,
 
 		MountPayloadLogging:      params.EnablePayloadLogging,
