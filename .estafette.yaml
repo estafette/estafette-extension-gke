@@ -327,7 +327,8 @@ stages:
         affinity:
           podAntiAffinity:
             preferredDuringSchedulingIgnoredDuringExecution:
-            - podAffinityTerm:
+            - weight: 100
+              podAffinityTerm:
                 labelSelector:
                   matchExpressions:
                   - key: app
@@ -343,6 +344,10 @@ stages:
                   operator: In
                   values:
                   - linux
+        hosts:
+        - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
 
       test-minimal-alpha-version:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
