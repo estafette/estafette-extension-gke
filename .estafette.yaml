@@ -340,6 +340,7 @@ stages:
         - gke.estafette.io
         internalhosts:
         - gke.estafette.internal
+        dryrun: true
 
       test-minimal-alpha-version:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
