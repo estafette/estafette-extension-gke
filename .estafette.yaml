@@ -28,7 +28,7 @@ stages:
     inline: |
       FROM alpine:3.18.3
 
-      ENV KUBECTL_VERSION="v1.25.12"
+      ENV KUBECTL_VERSION="v1.25.13"
 
       RUN apk add --update --upgrade --no-cache \
             curl \
