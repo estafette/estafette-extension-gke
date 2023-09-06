@@ -38,6 +38,9 @@ spec:
       securityContext:
 {{(call $.ToYAML .PodSecurityContext) | indent 8}}
       {{- end }}
+      {{- if .Affinity }}
+{{(call $.ToYAML .Affinity) | indent 6}}
+      {{- else }}
       {{- if or .PreferPreemptibles .UseWindowsNodes}}
       affinity:
         nodeAffinity:
@@ -60,6 +63,7 @@ spec:
                 values:
                 - "true"
           {{- end}}
+      {{- end}}
       {{- end}}
       {{- if or .HasInitContainers .UseWorkloadIdentity}}
       initContainers:

@@ -61,6 +61,9 @@ spec:
       securityContext:
 {{(call $.ToYAML .PodSecurityContext) | indent 8}}
       {{- end }}
+      {{- if .Affinity }}
+{{(call $.ToYAML .Affinity) | indent 6}}
+      {{- else }}
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -104,6 +107,7 @@ spec:
                 - "true"
           {{- end}}
         {{- end}}
+      {{- end}}
       {{- if or .HasInitContainers .UseWorkloadIdentity}}
       initContainers:
       {{- if .UseWorkloadIdentity }}
