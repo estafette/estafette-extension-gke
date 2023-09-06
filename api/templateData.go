@@ -110,7 +110,7 @@ type TemplateData struct {
 	NginxAuthTLSVerifyDepth              int
 	Tolerations                          []*map[string]interface{}
 	HasTolerations                       bool
-	Affinity                             []*map[string]interface{}
+	Affinity                             *map[string]interface{}
 
 	IncludeReplicas                 bool
 	Replicas                        int
