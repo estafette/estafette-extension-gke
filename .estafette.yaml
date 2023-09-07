@@ -342,6 +342,74 @@ stages:
         - gke.estafette.internal
         dryrun: true
 
+      test-statefulset-affinity:
+        image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+        credentials: gke-dev-common
+        kind: statefulset
+        app: test-affinity
+        container:
+          repository: extensions
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 50
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - test-affinity
+                topologyKey: kubernetes.io/hostname
+        hosts:
+        - gke.estafette.io
+        internalhosts:
+        - gke.estafette.internal
+        dryrun: true
+
+      test-job-affinity:
+        image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+        credentials: gke-dev-common
+        kind: job
+        app: test-affinity
+        container:
+          repository: extensions
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 50
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - test-affinity
+                topologyKey: kubernetes.io/hostname
+        dryrun: true
+
+      test-cronjob-affinity:
+        image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+        credentials: gke-dev-common
+        kind: cronjob
+        schedule: "*/5 * * * *"
+        app: test-affinity
+        container:
+          repository: extensions
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 50
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - test-affinity
+                topologyKey: kubernetes.io/hostname
+        dryrun: true
+
       test-minimal-alpha-version:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
         credentials: gke-dev-common
