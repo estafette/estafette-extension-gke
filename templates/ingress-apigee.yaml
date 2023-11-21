@@ -1,7 +1,11 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
+  {{- if eq .TrackLabel "canary" }}
+  name: {{.NameWithTrack}}-apigee
+  {{- else }}
   name: {{.Name}}-apigee
+  {{- end }}
   namespace: {{.Namespace}}
   labels:
     {{- range $key, $value := .Labels}}
@@ -20,6 +24,12 @@ metadata:
     {{- if .SetsNginxIngressLoadBalanceAlgorithm }}
     nginx.ingress.kubernetes.io/load-balance: "{{.NginxIngressLoadBalanceAlgorithm}}"
     {{- end }}
+    {{- if eq .TrackLabel "canary" }}
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-by-header: "{{ .Canary.Header }}"
+    nginx.ingress.kubernetes.io/canary-by-header-value: "{{ .Canary.HeaderValue }}"
+    nginx.ingress.kubernetes.io/canary-weight: "{{ .Canary.Weight}}"
+    {{- end}}
     {{- if .UseTopologyAwareHints}}
     nginx.ingress.kubernetes.io/service-upstream: "true"
     {{- end}}
@@ -57,7 +67,11 @@ spec:
         pathType: {{$.PathType}}
         backend:
           service:
-            name: {{$.Name}}
+            {{- if $.TrackLabel }}
+            name: {{$.Service.Name}}-{{$.TrackLabel}}
+            {{- else }}
+            name: {{$.Service.Name}}
+            {{- end }}
             port:
               {{- if $.HasOpenrestySidecar }}
               name: https

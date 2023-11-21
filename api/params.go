@@ -23,6 +23,7 @@ type Params struct {
 	OperatingSystem         OperatingSystem `json:"os,omitempty" yaml:"os,omitempty"`
 	Manifests               ManifestsParams `json:"manifests,omitempty" yaml:"manifests,omitempty"`
 	TrustedIPRanges         []string        `json:"trustedips,omitempty" yaml:"trustedips,omitempty"`
+	Canary                  CanaryParams    `json:"canary,omitempty" yaml:"canary,omitempty"`
 
 	// app params
 	App                             string                 `json:"app,omitempty" yaml:"app,omitempty"`
@@ -220,6 +221,13 @@ type SidecarParams struct {
 	CustomProperties                  map[string]interface{} `yaml:",inline"`
 }
 
+// CanaryParams sets params for canary deployment
+type CanaryParams struct {
+	Header      string `json:"header,omitempty" yaml:"header,omitempty"`
+	HeaderValue string `json:"headervalue,omitempty" yaml:"headervalue,omitempty"`
+	Weight      string `json:"weight,omitempty" yaml:"weight,omitempty"`
+}
+
 // RollingUpdateParams sets params for controlling rolling update speed
 type RollingUpdateParams struct {
 	MaxSurge       string `json:"maxsurge,omitempty" yaml:"maxsurge,omitempty"`
@@ -309,6 +317,18 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 		p.GoogleCloudCredentialsApp = p.App
 	}
 
+	// Set defaults for canary deployments
+
+	if p.Canary.Weight == "" {
+		p.Canary.Weight = "5"
+	}
+
+	if p.Canary.Header == "" {
+		p.Canary.Header = "track"
+	}
+	if p.Canary.HeaderValue == "" {
+		p.Canary.HeaderValue = "canary"
+	}
 	// default image name to estafette app label if no override in stage params
 	if p.Container.ImageName == "" && p.App != "" {
 		p.Container.ImageName = p.App

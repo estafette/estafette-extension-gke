@@ -19,19 +19,56 @@ stages:
       GOOS: linux
       GOGC: off
     commands:
-    - go test ./...
-    - go build -a -installsuffix cgo -ldflags "-X main.appgroup=${ESTAFETTE_LABEL_APP_GROUP} -X main.app=${ESTAFETTE_GIT_NAME} -X main.version=${ESTAFETTE_BUILD_VERSION} -X main.revision=${ESTAFETTE_GIT_REVISION} -X main.branch=${ESTAFETTE_GIT_BRANCH} -X main.buildDate=${ESTAFETTE_BUILD_DATETIME}" -o ./publish/${ESTAFETTE_GIT_NAME} .
+      - go test ./...
+      - go build -a -installsuffix cgo -ldflags "-X main.appgroup=${ESTAFETTE_LABEL_APP_GROUP} -X main.app=${ESTAFETTE_GIT_NAME} -X main.version=${ESTAFETTE_BUILD_VERSION} -X main.revision=${ESTAFETTE_GIT_REVISION} -X main.branch=${ESTAFETTE_GIT_BRANCH} -X main.buildDate=${ESTAFETTE_BUILD_DATETIME}" -o ./publish/${ESTAFETTE_GIT_NAME} .
 
   bake:
     image: extensions/docker:dev
     action: build
+    inline: |
+      FROM alpine:3.18.3
+
+      ENV KUBECTL_VERSION="v1.25.13"
+
+      RUN apk add --update --upgrade --no-cache \
+            curl \
+          && rm -rf /var/cache/apk/*
+
+      RUN curl -L "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" --output /usr/bin/kubectl \
+          && curl -LO "https://dl.k8s.io/${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256" \
+          && echo "$(cat kubectl.sha256)  /usr/bin/kubectl" | sha256sum -c - \
+          && chmod +x /usr/bin/kubectl \
+          && kubectl version --client
+
+      FROM google/cloud-sdk:451.0.1-alpine
+
+      RUN apk add --update --upgrade --no-cache \
+          && rm -rf google-cloud-sdk/bin/anthoscli \
+          && rm -rf /var/cache/apk/* 
+
+      RUN gcloud components install gke-gcloud-auth-plugin
+
+      LABEL maintainer="estafette.io" \
+            description="The ${ESTAFETTE_GIT_NAME} component is an Estafette extension to deploy applications to a Kubernetes Engine cluster"
+
+      COPY --from=0 /usr/bin/kubectl /usr/bin/kubectl
+      COPY ${ESTAFETTE_GIT_NAME} /
+      COPY templates /templates
+
+      RUN mkdir -p ~/.kube
+
+      ENV ESTAFETTE_LOG_FORMAT="console" \
+          GOOGLE_APPLICATION_CREDENTIALS="/key-file.json" \
+          KUBECONFIG="/root/.kube/config"
+
+      ENTRYPOINT ["/${ESTAFETTE_GIT_NAME}"]
     container: gke
     repositories:
-    - extensions
+      - extensions
     path: ./publish
     copy:
-    - templates
-    - /etc/ssl/certs/ca-certificates.crt
+      - templates
+      - /etc/ssl/certs/ca-certificates.crt
 
   check-container:
     parallelStages:
@@ -40,7 +77,7 @@ stages:
         action: dive
         container: gke
         repositories:
-        - extensions
+          - extensions
 
       vulnerability-scan:
         image: extensions/docker:dev
@@ -48,7 +85,7 @@ stages:
         container: gke
         severity: low
         repositories:
-        - extensions
+          - extensions
 
   integration-tests:
     parallelStages:
@@ -62,23 +99,23 @@ stages:
         visibility: public-whitelist
         workloadIdentity: true
         whitelist:
-        - 10.0.0.0/8
-        - 172.16.0.0/12
-        - 192.168.0.0/16
+          - 10.0.0.0/8
+          - 172.16.0.0/12
+          - 192.168.0.0/16
         container:
           repository: extensions
           name: gke
           tag: alpha
           port: 5000
           additionalports:
-          - name: grpc
-            port: 8085
-            protocol: TCP
-            visibility: private
-          - name: snmp
-            port: 8086
-            protocol: UDP
-            visibility: public
+            - name: grpc
+              port: 8085
+              protocol: TCP
+              visibility: private
+            - name: snmp
+              port: 8086
+              protocol: UDP
+              visibility: public
           env:
             MY_CUSTOM_ENV: value1
             MY_OTHER_CUSTOM_ENV: value2
@@ -137,59 +174,59 @@ stages:
             request: 10Mi
             limit: 50Mi
         initcontainers:
-        - name: sysctl
-          image: busybox:1.31.0
-          imagePullPolicy: IfNotPresent
-          command:
-          - sh
-          - -c
-          - sysctl -w net.core.somaxconn=32768; sysctl -w net.ipv4.ip_local_port_range="1024 65535"
-          securityContext:
-            privileged: true
+          - name: sysctl
+            image: busybox:1.31.0
+            imagePullPolicy: IfNotPresent
+            command:
+              - sh
+              - -c
+              - sysctl -w net.core.somaxconn=32768; sysctl -w net.ipv4.ip_local_port_range="1024 65535"
+            securityContext:
+              privileged: true
         sidecars:
-        - type: cloudsqlproxy
-          dbinstanceconnectionname: my-gcloud-project:europe-west1:my-database
-          sqlproxyport: 5043
-          sqlproxyterminationtimeoutseconds: 30
-          env:
-            MY_BOOL_ENV: true
-            MY_INT_ENV: 123123
-            KUBERNETES_LABELS_APP:
-              valueFrom:
-                fieldRef:
-                  apiVersion: v1
-                  fieldPath: metadata.labels['app']
-            ClientCertificatePassword:
-              valueFrom:
-                secretKeyRef:
-                  key: ClientCertificatePassword
-                  name: '{{.NameWithTrack}}-secrets'
-          secretEnv:
-            MY_OTHER_SIDECAR_SECRET: myothersecretvalue
-          cpu:
-            request: 10m
-          memory:
-            request: 10Mi
-            limit: 50Mi
-        - type: custom
-          image: estafette/estafette-docker-cache-heater:dev
-          imagePullPolicy: IfNotPresent
-          env:
-            MY_BOOL_ENV: true
-            MY_INT_ENV: 123123
-            KUBERNETES_LABELS_APP:
-              valueFrom:
-                fieldRef:
-                  apiVersion: v1
-                  fieldPath: metadata.labels['app']
-          secretEnv:
-            MY_CUSTOM_SIDECAR_SECRET: 123
-          cpu:
-            request: 10m
-            limit: 50m
-          memory:
-            request: 10Mi
-            limit: 50Mi
+          - type: cloudsqlproxy
+            dbinstanceconnectionname: my-gcloud-project:europe-west1:my-database
+            sqlproxyport: 5043
+            sqlproxyterminationtimeoutseconds: 30
+            env:
+              MY_BOOL_ENV: true
+              MY_INT_ENV: 123123
+              KUBERNETES_LABELS_APP:
+                valueFrom:
+                  fieldRef:
+                    apiVersion: v1
+                    fieldPath: metadata.labels['app']
+              ClientCertificatePassword:
+                valueFrom:
+                  secretKeyRef:
+                    key: ClientCertificatePassword
+                    name: '{{.NameWithTrack}}-secrets'
+            secretEnv:
+              MY_OTHER_SIDECAR_SECRET: myothersecretvalue
+            cpu:
+              request: 10m
+            memory:
+              request: 10Mi
+              limit: 50Mi
+          - type: custom
+            image: estafette/estafette-docker-cache-heater:dev
+            imagePullPolicy: IfNotPresent
+            env:
+              MY_BOOL_ENV: true
+              MY_INT_ENV: 123123
+              KUBERNETES_LABELS_APP:
+                valueFrom:
+                  fieldRef:
+                    apiVersion: v1
+                    fieldPath: metadata.labels['app']
+            secretEnv:
+              MY_CUSTOM_SIDECAR_SECRET: 123
+            cpu:
+              request: 10m
+              limit: 50m
+            memory:
+              request: 10Mi
+              limit: 50Mi
         autoscale:
           min: 3
           max: 50
@@ -222,8 +259,8 @@ stages:
           # these are local files with golang template style placeholders, replaced with the values specified in the data section;
           # set clone: true on the release target to ensure you have access to these files stored in your repository
           files:
-          - config/config.json
-          - config/anotherconfig.yaml
+            - config/config.json
+            - config/anotherconfig.yaml
           # these are the values for the placeholders specified as {{.property1}} to be replaced in the config files
           data:
             property1: value 1
@@ -237,30 +274,30 @@ stages:
               lives=3
           mountpath: /configs
         volumemounts:
-        - name: client-certs
-          mountpath: /cockroach-certs
-          volume:
-            secret:
-              secretName: estafette.client.estafette
-              items:
-              - key: key
-                path: key
-                mode: 0600
-              - key: cert
-                path: cert
+          - name: client-certs
+            mountpath: /cockroach-certs
+            volume:
+              secret:
+                secretName: estafette.client.estafette
+                items:
+                  - key: key
+                    path: key
+                    mode: 0600
+                  - key: cert
+                    path: cert
         manifests:
           files:
-          - override/service.yaml
+            - override/service.yaml
           data:
             property3: value-3
             property6: true
             property7: 123123
         hosts:
-        - gke.estafette.io
-        - gke-deploy.estafette.io
+          - gke.estafette.io
+          - gke-deploy.estafette.io
         internalhosts:
-        - gke.estafette.internal
-        - gke-deploy.estafette.local
+          - gke.estafette.internal
+          - gke-deploy.estafette.local
         basepath: /
         enablePayloadLogging: true
         useGoogleCloudCredentials: true
@@ -274,9 +311,9 @@ stages:
           maxunavailable: 25%
           timeout: 2m
         trustedips:
-        - 103.21.244.0/22
-        - 103.22.200.0/22
-        - 103.31.4.0/22
+          - 103.21.244.0/22
+          - 103.22.200.0/22
+          - 103.31.4.0/22
         dryrun: true
 
       test-deployment-affinity:
@@ -290,19 +327,19 @@ stages:
         affinity:
           podAntiAffinity:
             preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 50
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                  - key: app
-                    operator: In
-                    values:
-                    - test-affinity
-                topologyKey: kubernetes.io/hostname
+              - weight: 50
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                      - key: app
+                        operator: In
+                        values:
+                          - test-affinity
+                  topologyKey: kubernetes.io/hostname
         hosts:
-        - gke.estafette.io
+          - gke.estafette.io
         internalhosts:
-        - gke.estafette.internal
+          - gke.estafette.internal
         dryrun: true
 
       test-statefulset-affinity:
@@ -315,19 +352,19 @@ stages:
         affinity:
           podAntiAffinity:
             preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 50
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                  - key: app
-                    operator: In
-                    values:
-                    - test-affinity
-                topologyKey: kubernetes.io/hostname
+              - weight: 50
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                      - key: app
+                        operator: In
+                        values:
+                          - test-affinity
+                  topologyKey: kubernetes.io/hostname
         hosts:
-        - gke.estafette.io
+          - gke.estafette.io
         internalhosts:
-        - gke.estafette.internal
+          - gke.estafette.internal
         dryrun: true
 
       test-job-affinity:
@@ -340,15 +377,15 @@ stages:
         affinity:
           podAntiAffinity:
             preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 50
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                  - key: app
-                    operator: In
-                    values:
-                    - test-affinity
-                topologyKey: kubernetes.io/hostname
+              - weight: 50
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                      - key: app
+                        operator: In
+                        values:
+                          - test-affinity
+                  topologyKey: kubernetes.io/hostname
         dryrun: true
 
       test-cronjob-affinity:
@@ -362,15 +399,15 @@ stages:
         affinity:
           podAntiAffinity:
             preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 50
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                  - key: app
-                    operator: In
-                    values:
-                    - test-affinity
-                topologyKey: kubernetes.io/hostname
+              - weight: 50
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                      - key: app
+                        operator: In
+                        values:
+                          - test-affinity
+                  topologyKey: kubernetes.io/hostname
         dryrun: true
 
       test-minimal-alpha-version:
@@ -379,9 +416,9 @@ stages:
         container:
           repository: extensions
         hosts:
-        - gke.estafette.io
+          - gke.estafette.io
         internalhosts:
-        - gke.estafette.internal
+          - gke.estafette.internal
         dryrun: true
 
       test-without-secret-but-with-secretenv:
@@ -392,9 +429,9 @@ stages:
           secretEnv:
             MY_SECRET: mysecretvalue
         hosts:
-        - gke.estafette.io
+          - gke.estafette.io
         internalhosts:
-        - gke.estafette.internal
+          - gke.estafette.internal
         dryrun: true
 
       test-routeonly-hosts:
@@ -403,13 +440,13 @@ stages:
         container:
           repository: extensions
         hosts:
-        - gke.estafette.io
+          - gke.estafette.io
         hostsrouteonly:
-        - gkerouteonly.estafette.io
+          - gkerouteonly.estafette.io
         internalhosts:
-        - gke.estafette.internal
+          - gke.estafette.internal
         internalhostsrouteonly:
-        - gkerouteonly.estafette.internal
+          - gkerouteonly.estafette.internal
         dryrun: true
 
       test-os-windows:
@@ -419,9 +456,9 @@ stages:
         container:
           repository: extensions
         hosts:
-        - gke.estafette.io
+          - gke.estafette.io
         internalhosts:
-        - gke.estafette.internal
+          - gke.estafette.internal
         dryrun: true
 
       test-visibility-esp:
@@ -437,9 +474,9 @@ stages:
         workloadIdentity: true
         disableServiceAccountKeyRotation: true
         hosts:
-        - gke.estafette.io
+          - gke.estafette.io
         internalhosts:
-        - gke.estafette.internal
+          - gke.estafette.internal
         dryrun: true
 
       test-visibility-espv2:
@@ -454,9 +491,9 @@ stages:
         useGoogleCloudCredentials: true
         disableServiceAccountKeyRotation: true
         hosts:
-        - gke.estafette.io
+          - gke.estafette.io
         internalhosts:
-        - gke.estafette.internal
+          - gke.estafette.internal
         dryrun: true
 
       test-kind-job:
@@ -464,11 +501,11 @@ stages:
         credentials: gke-dev-common
         kind: job
         tolerations:
-        - key: "test-key"
-          operator: "Equal"
-          value: "test-value"
-          effect: "NoExecute"
-          tolerationSeconds: 1200
+          - key: "test-key"
+            operator: "Equal"
+            value: "test-value"
+            effect: "NoExecute"
+            tolerationSeconds: 1200
         container:
           repository: extensions
           env:
@@ -482,9 +519,9 @@ stages:
                   apiVersion: v1
                   fieldPath: metadata.labels['app']
         hosts:
-        - gke.estafette.io
+          - gke.estafette.io
         internalhosts:
-        - gke.estafette.internal
+          - gke.estafette.internal
         dryrun: true
 
       test-kind-cronjob:
@@ -494,11 +531,11 @@ stages:
         schedule: "*/5 * * * *"
         concurrencypolicy: Forbid
         tolerations:
-        - key: "test-key"
-          operator: "Equal"
-          value: "test-value"
-          effect: "NoExecute"
-          tolerationSeconds: 1200
+          - key: "test-key"
+            operator: "Equal"
+            value: "test-value"
+            effect: "NoExecute"
+            tolerationSeconds: 1200
         container:
           repository: extensions
           env:
@@ -512,9 +549,9 @@ stages:
                   apiVersion: v1
                   fieldPath: metadata.labels['app']
         hosts:
-        - gke.estafette.io
+          - gke.estafette.io
         internalhosts:
-        - gke.estafette.internal
+          - gke.estafette.internal
         dryrun: true
 
       test-kind-statefulset:
@@ -537,9 +574,9 @@ stages:
                   apiVersion: v1
                   fieldPath: metadata.labels['app']
         hosts:
-        - gke.estafette.io
+          - gke.estafette.io
         internalhosts:
-        - gke.estafette.internal
+          - gke.estafette.internal
         dryrun: true
 
       test-kind-headless-deployment:
@@ -548,11 +585,11 @@ stages:
         kind: headless-deployment
         strategytype: Recreate
         tolerations:
-        - key: "test-key"
-          operator: "Equal"
-          value: "test-value"
-          effect: "NoExecute"
-          tolerationSeconds: 1200
+          - key: "test-key"
+            operator: "Equal"
+            value: "test-value"
+            effect: "NoExecute"
+            tolerationSeconds: 1200
         container:
           repository: extensions
           env:
@@ -566,9 +603,9 @@ stages:
                   apiVersion: v1
                   fieldPath: metadata.labels['app']
         hosts:
-        - gke.estafette.io
+          - gke.estafette.io
         internalhosts:
-        - gke.estafette.internal
+          - gke.estafette.internal
         dryrun: true
 
       test-strategytype-atomic-update:
@@ -589,9 +626,9 @@ stages:
                   apiVersion: v1
                   fieldPath: metadata.labels['app']
         hosts:
-        - gke.estafette.io
+          - gke.estafette.io
         internalhosts:
-        - gke.estafette.internal
+          - gke.estafette.internal
         dryrun: true
 
       test-kind-config:
@@ -604,8 +641,8 @@ stages:
           # these are local files with golang template style placeholders, replaced with the values specified in the data section;
           # set clone: true on the release target to ensure you have access to these files stored in your repository
           files:
-          - config/config.json
-          - config/anotherconfig.yaml
+            - config/config.json
+            - config/anotherconfig.yaml
           # these are the values for the placeholders specified as {{.property1}} to be replaced in the config files
           data:
             property1: value 1
@@ -619,9 +656,9 @@ stages:
               lives=3
           mountpath: /configs
         hosts:
-        - gke.estafette.io
+          - gke.estafette.io
         internalhosts:
-        - gke.estafette.internal
+          - gke.estafette.internal
         dryrun: true
 
       test-action-deploy-canary:
@@ -631,9 +668,9 @@ stages:
         container:
           repository: extensions
         hosts:
-        - gke.estafette.io
+          - gke.estafette.io
         internalhosts:
-        - gke.estafette.internal
+          - gke.estafette.internal
         dryrun: true
 
       test-action-deploy-stable:
@@ -644,9 +681,9 @@ stages:
           repository: extensions
         allowhttp: true
         hosts:
-        - gke.estafette.io
+          - gke.estafette.io
         internalhosts:
-        - gke.estafette.internal
+          - gke.estafette.internal
         dryrun: true
 
       test-action-rollback-canary:
@@ -654,9 +691,9 @@ stages:
         credentials: gke-dev-common
         action: rollback-canary
         hosts:
-        - gke.estafette.io
+          - gke.estafette.io
         internalhosts:
-        - gke.estafette.internal
+          - gke.estafette.internal
         dryrun: true
 
       test-action-diff-simple:
@@ -666,9 +703,9 @@ stages:
         container:
           repository: extensions
         hosts:
-        - gke.estafette.io
+          - gke.estafette.io
         internalhosts:
-        - gke.estafette.internal
+          - gke.estafette.internal
         dryrun: true
 
       test-action-diff-canary:
@@ -678,9 +715,9 @@ stages:
         container:
           repository: extensions
         hosts:
-        - gke.estafette.io
+          - gke.estafette.io
         internalhosts:
-        - gke.estafette.internal
+          - gke.estafette.internal
         dryrun: true
 
       test-action-diff-stable:
@@ -690,9 +727,9 @@ stages:
         container:
           repository: extensions
         hosts:
-        - gke.estafette.io
+          - gke.estafette.io
         internalhosts:
-        - gke.estafette.internal
+          - gke.estafette.internal
         dryrun: true
 
       test-action-delete:
@@ -702,9 +739,9 @@ stages:
         container:
           repository: extensions
         hosts:
-        - gke.estafette.io
+          - gke.estafette.io
         internalhosts:
-        - gke.estafette.internal
+          - gke.estafette.internal
         dryrun: true
 
       test-action-diff-delete:
@@ -714,9 +751,9 @@ stages:
         container:
           repository: extensions
         hosts:
-        - gke.estafette.io
+          - gke.estafette.io
         internalhosts:
-        - gke.estafette.internal
+          - gke.estafette.internal
 
       test-legacy-gcp-service-account:
         image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
@@ -724,9 +761,9 @@ stages:
         container:
           repository: extensions
         hosts:
-        - gke.estafette.io
+          - gke.estafette.io
         internalhosts:
-        - gke.internal.estafette.io
+          - gke.internal.estafette.io
         dryrun: true
         legacyGoogleCloudServiceAccountKeyFile: YWJjCg==
 
@@ -739,9 +776,9 @@ stages:
           enabled: true
           updateMode: "Auto"
         hosts:
-        - gke.estafette.io
+          - gke.estafette.io
         internalhosts:
-        - gke.estafette.internal
+          - gke.estafette.internal
         dryrun: true
 
       test-pod-security-context:
@@ -755,9 +792,9 @@ stages:
           fsGroup: 2000
           fsGroupChangePolicy: "OnRootMismatch"
         hosts:
-        - gke.estafette.io
+          - gke.estafette.io
         internalhosts:
-        - gke.estafette.internal
+          - gke.estafette.internal
         dryrun: true
 
       test-container-security-context:
@@ -769,9 +806,9 @@ stages:
             runAsUser: 1000
             runAsGroup: 3000
         hosts:
-        - gke.estafette.io
+          - gke.estafette.io
         internalhosts:
-        - gke.estafette.internal
+          - gke.estafette.internal
         dryrun: true
 
       test-container-lifecycle-hook:
@@ -784,9 +821,9 @@ stages:
             exec:
               command: ["/bin/sh", "-c", "echo Hello from the postStart handler > /usr/share/message"]
         hosts:
-        - gke.estafette.io
+          - gke.estafette.io
         internalhosts:
-        - gke.estafette.internal
+          - gke.estafette.internal
         dryrun: true
 
   push-to-docker-hub:
@@ -794,13 +831,13 @@ stages:
     action: push
     container: gke
     repositories:
-    - extensions
+      - extensions
 
   slack-notify:
     image: extensions/slack-build-status:dev
     workspace: estafette
     channels:
-    - '#build-status'
+      - '#build-status'
     when:
       status == 'succeeded' ||
       status == 'failed'
@@ -808,18 +845,18 @@ stages:
 releases:
   dev:
     triggers:
-    - pipeline:
-        name: self
-        branch: .+
+      - pipeline:
+          name: self
+          branch: .+
     stages:
       tag-container-image:
         image: extensions/docker:stable
         action: tag
         container: gke
         repositories:
-        - extensions
+          - extensions
         tags:
-        - dev
+          - dev
 
   beta:
     stages:
@@ -828,15 +865,15 @@ releases:
         action: tag
         container: gke
         repositories:
-        - extensions
+          - extensions
         tags:
-        - beta
+          - beta
 
       slack-notify:
         image: extensions/slack-build-status:dev
         workspace: estafette
         channels:
-        - '#release-status'
+          - '#release-status'
         when:
           status == 'succeeded' ||
           status == 'failed'
@@ -848,16 +885,16 @@ releases:
         action: tag
         container: gke
         repositories:
-        - extensions
+          - extensions
         tags:
-        - stable
-        - latest
+          - stable
+          - latest
 
       slack-notify:
         image: extensions/slack-build-status:dev
         workspace: estafette
         channels:
-        - '#release-status'
+          - '#release-status'
         when:
           status == 'succeeded' ||
           status == 'failed'

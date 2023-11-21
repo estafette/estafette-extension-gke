@@ -131,6 +131,7 @@ type TemplateData struct {
 
 	IncludeAtomicIDSelector bool
 	AtomicID                string
+	Canary                  CanaryParams
 }
 
 // ServiceData has data specific to service
