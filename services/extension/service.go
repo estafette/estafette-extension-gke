@@ -299,7 +299,11 @@ func (s *service) assistTroubleshooting(ctx context.Context, templateData api.Te
 
 func (s *service) deleteCanaryResources(ctx context.Context, name, namespace string) {
 	log.Info().Msgf("Delete canary deployment, ingress, hpa and svc...")
-	foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "deploy,svc,ingress", fmt.Sprintf("%v-canary", name), "-n", namespace, "--ignore-not-found=true"})
+	foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "deploy,svc,ingress",
+		fmt.Sprintf("%v-canary", name),
+		fmt.Sprintf("%v-canary-internal", name),
+		fmt.Sprintf("%v-canary-apigee", name),
+		"-n", namespace, "--ignore-not-found=true"})
 }
 
 func (s *service) restartDeployment(ctx context.Context, name, namespace string) {
