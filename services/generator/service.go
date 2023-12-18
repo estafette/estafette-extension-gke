@@ -81,6 +81,7 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		Tolerations:             []*map[string]interface{}{},
 		Affinity:                params.Affinity,
 		PodSecurityContext:      params.PodSecurityContext,
+		Canary:                  params.Canary,
 
 		MountPayloadLogging:      params.EnablePayloadLogging,
 		AddSafeToEvictAnnotation: params.EnablePayloadLogging,

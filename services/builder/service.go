@@ -88,6 +88,7 @@ func (s *service) GetTemplates(params api.Params, includePodDisruptionBudget boo
 		templatesToMerge = append(templatesToMerge, []string{
 			"namespace.yaml",
 			"service.yaml",
+			"service-with-track.yaml",
 			"service-headless.yaml",
 			"serviceaccount.yaml",
 			"statefulset.yaml",
@@ -104,7 +105,7 @@ func (s *service) GetTemplates(params api.Params, includePodDisruptionBudget boo
 		}...)
 
 		if params.StrategyType != api.StrategyTypeAtomicUpdate {
-			templatesToMerge = append(templatesToMerge, "service.yaml")
+			templatesToMerge = append(templatesToMerge, "service.yaml", "service-with-track.yaml")
 		}
 
 		if params.CertificateSecret == "" {
@@ -130,13 +131,14 @@ func (s *service) GetTemplates(params api.Params, includePodDisruptionBudget boo
 	if includePodDisruptionBudget && (params.Kind == api.KindDeployment || params.Kind == api.KindHeadlessDeployment || params.Kind == api.KindStatefulset) && (params.Action == api.ActionDeploySimple || params.Action == api.ActionDeployStable || params.Action == api.ActionDiffSimple || params.Action == api.ActionDiffStable) {
 		templatesToMerge = append(templatesToMerge, "poddisruptionbudget.yaml")
 	}
-	if (params.Kind == api.KindDeployment || params.Kind == api.KindHeadlessDeployment) && params.Autoscale.Enabled != nil && *params.Autoscale.Enabled && params.StrategyType != "Recreate" && (params.Action == api.ActionDeploySimple || params.Action == api.ActionDeployStable || params.Action == api.ActionDiffSimple || params.Action == api.ActionDiffStable) {
+	if (params.Kind == api.KindDeployment || params.Kind == api.KindHeadlessDeployment) && params.Autoscale.Enabled != nil && *params.Autoscale.Enabled && params.StrategyType != "Recreate" && (params.Action == api.ActionDeploySimple || params.Action == api.ActionDeployStable || params.Action == api.ActionDiffSimple || params.Action == api.ActionDiffStable || params.Action == api.ActionDeployCanary || params.Action == api.ActionDiffCanary) {
 		templatesToMerge = append(templatesToMerge, "horizontalpodautoscaler.yaml")
 	}
 	if (params.Kind == api.KindDeployment || params.Kind == api.KindHeadlessDeployment) && params.VerticalPodAutoscaler.Enabled != nil && *params.VerticalPodAutoscaler.Enabled && (params.Action == api.ActionDeploySimple || params.Action == api.ActionDeployStable || params.Action == api.ActionDiffSimple || params.Action == api.ActionDiffStable) {
 		templatesToMerge = append(templatesToMerge, "verticalpodautoscaler.yaml")
 	}
-	if (params.Kind == api.KindDeployment || params.Kind == api.KindStatefulset) && (params.Visibility == api.VisibilityPrivate || params.Visibility == api.VisibilityIAP || params.Visibility == api.VisibilityPublicWhitelist) {
+
+	if (params.Kind == api.KindDeployment || params.Kind == api.KindStatefulset) && (params.Visibility == api.VisibilityPrivate || (params.Visibility == api.VisibilityIAP && !(params.Action == api.ActionDeployCanary || params.Action == api.ActionDiffCanary) || params.Visibility == api.VisibilityPublicWhitelist)) {
 		templatesToMerge = append(templatesToMerge, "ingress.yaml")
 	}
 

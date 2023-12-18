@@ -90,7 +90,7 @@ func (s *service) Run(ctx context.Context, credential *api.GKECredentials, relea
 
 	if params.Action == api.ActionDelete || params.Action == api.ActionDiffDelete {
 		log.Info().Msgf("Deleting all resources with label app=%v in namespace %v...", templateData.AppLabelSelector, templateData.Namespace)
-		args := []string{"delete", "svc,ing,deploy,sts,cronjob,job,cm,secret,hpa,pdb,sa,backendconfig", "-l", fmt.Sprintf("app=%v", templateData.AppLabelSelector), "-n", templateData.Namespace, "--ignore-not-found=true"}
+		args := []string{"delete", "svc,ing,deploy,sts,cronjob,job,cm,secret,hpa,pdb,sa", "-l", fmt.Sprintf("app=%v", templateData.AppLabelSelector), "-n", templateData.Namespace, "--ignore-not-found=true"}
 		if params.DryRun || params.Action == api.ActionDiffDelete {
 			args = append(args, "--dry-run=client")
 		}
@@ -179,12 +179,11 @@ func (s *service) Run(ctx context.Context, credential *api.GKECredentials, relea
 		case api.KindDeployment:
 			switch params.Action {
 			case api.ActionDeployCanary:
-				s.scaleCanaryDeployment(ctx, templateData.Name, templateData.Namespace, 1)
 				s.deleteConfigsForParamsChange(ctx, params, templateData.NameWithTrack, templateData.Namespace)
 				s.deleteSecretsForParamsChange(ctx, params, templateData.NameWithTrack, templateData.Namespace)
 				break
 			case api.ActionDeployStable:
-				s.scaleCanaryDeployment(ctx, templateData.Name, templateData.Namespace, 0)
+				s.deleteCanaryResources(ctx, templateData.Name, templateData.Namespace)
 				s.deleteResourcesForTypeSwitch(ctx, templateData.Name, templateData.Namespace)
 				s.deleteConfigsForParamsChange(ctx, params, templateData.NameWithTrack, templateData.Namespace)
 				s.deleteSecretsForParamsChange(ctx, params, templateData.NameWithTrack, templateData.Namespace)
@@ -197,7 +196,7 @@ func (s *service) Run(ctx context.Context, credential *api.GKECredentials, relea
 				s.deleteHorizontalPodAutoscaler(ctx, params, templateData.NameWithTrack, templateData.Namespace)
 				break
 			case api.ActionRollbackCanary:
-				s.scaleCanaryDeployment(ctx, templateData.Name, templateData.Namespace, 0)
+				s.deleteCanaryResources(ctx, templateData.Name, templateData.Namespace)
 				break
 			case api.ActionRestartCanary:
 				s.restartDeployment(ctx, fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
@@ -227,12 +226,11 @@ func (s *service) Run(ctx context.Context, credential *api.GKECredentials, relea
 		case api.KindHeadlessDeployment:
 			switch params.Action {
 			case api.ActionDeployCanary:
-				s.scaleCanaryDeployment(ctx, templateData.Name, templateData.Namespace, 1)
 				s.deleteConfigsForParamsChange(ctx, params, templateData.NameWithTrack, templateData.Namespace)
 				s.deleteSecretsForParamsChange(ctx, params, templateData.NameWithTrack, templateData.Namespace)
 				break
 			case api.ActionDeployStable:
-				s.scaleCanaryDeployment(ctx, templateData.Name, templateData.Namespace, 0)
+				s.deleteCanaryResources(ctx, templateData.Name, templateData.Namespace)
 				s.deleteResourcesForTypeSwitch(ctx, templateData.Name, templateData.Namespace)
 				s.deleteConfigsForParamsChange(ctx, params, templateData.NameWithTrack, templateData.Namespace)
 				s.deleteSecretsForParamsChange(ctx, params, templateData.NameWithTrack, templateData.Namespace)
@@ -240,7 +238,7 @@ func (s *service) Run(ctx context.Context, credential *api.GKECredentials, relea
 				s.deleteHorizontalPodAutoscaler(ctx, params, templateData.NameWithTrack, templateData.Namespace)
 				break
 			case api.ActionRollbackCanary:
-				s.scaleCanaryDeployment(ctx, templateData.Name, templateData.Namespace, 0)
+				s.deleteCanaryResources(ctx, templateData.Name, templateData.Namespace)
 				break
 			case api.ActionRestartCanary:
 				s.restartDeployment(ctx, fmt.Sprintf("%v-canary", templateData.Name), templateData.Namespace)
@@ -299,9 +297,9 @@ func (s *service) assistTroubleshooting(ctx context.Context, templateData api.Te
 	}
 }
 
-func (s *service) scaleCanaryDeployment(ctx context.Context, name, namespace string, replicas int) {
-	log.Info().Msgf("Scaling canary deployment to %v replicas...", replicas)
-	foundation.RunCommandWithArgs(ctx, "kubectl", []string{"scale", "deploy", fmt.Sprintf("%v-canary", name), "-n", namespace, fmt.Sprintf("--replicas=%v", replicas)})
+func (s *service) deleteCanaryResources(ctx context.Context, name, namespace string) {
+	log.Info().Msgf("Delete canary deployment, ingress, hpa and svc...")
+	foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "deploy,svc,ingress", fmt.Sprintf("%v-canary", name), "-n", namespace, "--ignore-not-found=true"})
 }
 
 func (s *service) restartDeployment(ctx context.Context, name, namespace string) {

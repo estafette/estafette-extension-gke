@@ -1,0 +1,42 @@
+{{- if .TrackLabel }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Service.Name}}-{{.TrackLabel}}
+  namespace: {{.Namespace}}
+  labels:
+    {{- range $key, $value := .Labels}}
+      {{ $key | quote }}: {{ $value | quote }}
+      {{- end}}
+  annotations:
+    {{- if .UseTopologyAwareHints}}
+    service.kubernetes.io/topology-aware-hints: auto
+    {{- end}}
+spec:
+  type: ClusterIP
+  ports:
+  {{- if .HasOpenrestySidecar }}
+  - name: http
+    port: 80
+    targetPort: http
+    protocol: TCP
+  - name: https
+    port: 443
+    targetPort: https
+    protocol: TCP
+  {{- else }}
+  - name: web
+    port: {{.Container.Port}}
+    targetPort: web
+    protocol: TCP
+  {{- end}}
+  {{- range .AdditionalServicePorts}}
+  - name: {{.Name}}
+    port: {{.Port}}
+    targetPort: {{.Name}}
+    protocol: {{.Protocol}}
+  {{- end}}
+  selector:
+    "app": {{ .AppLabelSelector | quote }}
+    "track": {{ .TrackLabel | quote }}
+{{- end }}
