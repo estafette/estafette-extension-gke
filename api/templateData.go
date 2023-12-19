@@ -33,7 +33,6 @@ type TemplateData struct {
 	UseCloudflareProxy              bool
 	UseCloudflareEstafetteExtension bool
 	UseExternalDNS                  bool
-	ConfigurationSnippet            *map[string]interface{}
 
 	Service               ServiceData
 	UsePrometheusProbe    bool
@@ -104,6 +103,7 @@ type TemplateData struct {
 	NginxIngressProxyBuffersNumber       string
 	SetsNginxIngressLoadBalanceAlgorithm bool
 	NginxIngressLoadBalanceAlgorithm     string
+	NginxIngressConfigurationSnippet     string
 	UseHTTPS                             bool
 	AllowHTTP                            bool
 	BackendConfigTimeout                 int

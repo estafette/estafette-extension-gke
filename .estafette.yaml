@@ -839,8 +839,9 @@ stages:
         internalhosts:
           - gke.estafette.internal
         ingress:
-          configuration-snippet: |
+          configurationSnippet: |-
             more_set_headers "Test-Header: header-value";
+            more_set_headers "Test-Header-2: header-value-2";
         dryrun: true
 
   push-to-docker-hub:

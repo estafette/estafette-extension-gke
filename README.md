@@ -268,3 +268,5 @@ Parameters specific for Ingress configuration
 | Parameter                       | Description                                                      | Allowed values        | Default value |
 | -------------------------       | ---------------------------------------------------------------  | --------------------- | ------------- |
 | `ingress.configuration-snippet` | Yaml snippets to add configration snippet to all nginx ingresses | []yaml snippet        |               |
+
+            # more_set_headers "Test-Header: header-value";

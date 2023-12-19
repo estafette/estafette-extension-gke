@@ -58,10 +58,10 @@ metadata:
     external-dns.alpha.kubernetes.io/cloudflare-proxied: "{{.UseCloudflareProxy}}"
     {{- end }}
     {{- end}}
-    {{- if .NginxConfigurationSnippet }}
+    {{- if .NginxIngressConfigurationSnippet }}
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      {{(call $.ToYAML .NginxConfigurationSnippet) }}
-    {{- else }}
+{{ .NginxIngressConfigurationSnippet | indent 6 }}
+    {{- end }}
 spec:
   {{- if .UseNginxIngress }}
   ingressClassName: nginx-office

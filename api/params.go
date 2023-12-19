@@ -271,7 +271,7 @@ type DNSParams struct {
 }
 
 type IngressParams struct {
-	ConfigurationSnippet *map[string]interface{} `json:"configurationSnippet,omitempty" yaml:"configurationSnippet,omitempty"`
+	ConfigurationSnippet string `json:"configurationSnippet,omitempty" yaml:"configurationSnippet,omitempty"`
 }
 
 // SetDefaults fills in empty fields with convention-based defaults

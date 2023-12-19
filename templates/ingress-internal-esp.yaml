@@ -49,9 +49,9 @@ metadata:
     nginx.ingress.kubernetes.io/canary-by-header-value: "{{ .Canary.HeaderValue }}"
     nginx.ingress.kubernetes.io/canary-weight: "{{ .Canary.Weight}}"
     {{- end}}
-    {{- if .NginxConfigurationSnippet }}
+    {{- if .NginxIngressConfigurationSnippet }}
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      {{(call $.ToYAML .NginxConfigurationSnippet) }}
+{{ .NginxIngressConfigurationSnippet | indent 6 }}
     {{- else }}
 spec:
   ingressClassName: nginx-internal
