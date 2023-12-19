@@ -58,6 +58,8 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		InternalIngressPath: params.Basepath,
 		AllowHTTP:           params.AllowHTTP,
 
+		ConfigurationSnippet: params.Ingress.ConfigurationSnippet,
+
 		IncludeReplicas: currentReplicas > 0 || ((params.Autoscale.Enabled == nil || !*params.Autoscale.Enabled || params.StrategyType == "Recreate") && params.Replicas > 0),
 
 		MinReplicas:         params.Autoscale.MinReplicas,

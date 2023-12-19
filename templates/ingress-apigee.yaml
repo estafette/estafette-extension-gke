@@ -46,6 +46,10 @@ metadata:
     nginx.ingress.kubernetes.io/auth-tls-secret: "{{.NginxAuthTLSSecret}}"
     nginx.ingress.kubernetes.io/auth-tls-verify-client: "on"
     nginx.ingress.kubernetes.io/auth-tls-verify-depth: "{{.NginxAuthTLSVerifyDepth}}"
+    {{- if .NginxConfigurationSnippet }}
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      {{(call $.ToYAML .NginxConfigurationSnippet) }}
+    {{- else }}
 spec:
   ingressClassName: nginx-open
   tls:

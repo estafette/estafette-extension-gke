@@ -259,3 +259,12 @@ How the customers of an application - whether it's an actual user connecting or 
 | `apigee`           | Routes requests through the `nginx-open` ingress controller; requires parameters `request.authsecret` and `request.verifydepth` to be set                                                                                                                       |
 
 Note: all of the above set up an internal ingress if parameter `internalhosts` is set; for esp this cannot be used to connect to the application since internally since it's limited to only a single hostname
+
+# Ingress parameters
+
+Parameters specific for Ingress configuration
+
+
+| Parameter                       | Description                                                      | Allowed values        | Default value |
+| -------------------------       | ---------------------------------------------------------------  | --------------------- | ------------- |
+| `ingress.configuration-snippet` | Yaml snippets to add configration snippet to all nginx ingresses | []yaml snippet        |               |

@@ -68,6 +68,7 @@ type Params struct {
 	WorkloadIdentity                *bool                  `json:"workloadIdentity,omitempty" yaml:"workloadIdentity,omitempty"`
 	PodSecurityContext              map[string]interface{} `json:"securityContext,omitempty" yaml:"securityContext,omitempty"`
 	DNS                             DNSParams              `json:"dns,omitempty" yaml:"dns,omitempty"`
+	Ingress                         IngressParams          `json:"ingress,omitempty" yaml:"ingress,omitempty"`
 
 	DisableServiceAccountKeyRotation       *bool                     `json:"disableServiceAccountKeyRotation,omitempty" yaml:"disableServiceAccountKeyRotation,omitempty"`
 	LegacyGoogleCloudServiceAccountKeyFile string                    `json:"legacyGoogleCloudServiceAccountKeyFile,omitempty" yaml:"legacyGoogleCloudServiceAccountKeyFile,omitempty"`
@@ -267,6 +268,10 @@ type VolumeMountParams struct {
 type DNSParams struct {
 	UseCloudflareEstafetteExtension *bool `json:"useCloudflareEstafetteExtension,omitempty" yaml:"useCloudflareEstafetteExtension,omitempty"`
 	UseExternalDNS                  *bool `json:"useExternalDNS,omitempty" yaml:"useExternalDNS,omitempty"`
+}
+
+type IngressParams struct {
+	ConfigurationSnippet *map[string]interface{} `json:"configurationSnippet,omitempty" yaml:"configurationSnippet,omitempty"`
 }
 
 // SetDefaults fills in empty fields with convention-based defaults

@@ -33,6 +33,7 @@ type TemplateData struct {
 	UseCloudflareProxy              bool
 	UseCloudflareEstafetteExtension bool
 	UseExternalDNS                  bool
+	ConfigurationSnippet            *map[string]interface{}
 
 	Service               ServiceData
 	UsePrometheusProbe    bool
