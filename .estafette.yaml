@@ -826,6 +826,23 @@ stages:
           - gke.estafette.internal
         dryrun: true
 
+      test-ingress-configuration-snippet:
+        image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
+        credentials: gke-dev-common
+        action: deploy-simple
+        kind: deployment
+        app: test-ingress-configuration-snippet
+        container:
+          repository: extensions
+        hosts:
+          - gke.estafette.io
+        internalhosts:
+          - gke.estafette.internal
+        ingress:
+          configuration-snippet: |
+            more_set_headers "Test-Header: header-value";
+        dryrun: true
+
   push-to-docker-hub:
     image: extensions/docker:dev
     action: push
