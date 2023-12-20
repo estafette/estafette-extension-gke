@@ -85,6 +85,10 @@ func (s *service) Run(ctx context.Context, credential *api.GKECredentials, relea
 		currentReplicas = s.getExistingNumberOfReplicas(ctx, params)
 	}
 
+	// Temp fix as there are already canary deployments with 0 replicas
+	if currentReplicas < 1 {
+		currentReplicas = 1
+	}
 	// generate the data required for rendering the templates
 	templateData := s.generatorService.GenerateTemplateData(params, currentReplicas, gitSource, gitOwner, gitName, gitBranch, gitRevision, releaseID, builderImageSHA, builderImageDate, triggeredBy)
 
@@ -299,7 +303,7 @@ func (s *service) assistTroubleshooting(ctx context.Context, templateData api.Te
 
 func (s *service) deleteCanaryResources(ctx context.Context, name, namespace string) {
 	log.Info().Msgf("Delete canary deployment, ingress, hpa and svc...")
-	foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "deploy,svc,ingress",
+	foundation.RunCommandWithArgs(ctx, "kubectl", []string{"delete", "deploy,svc,ingress,hpa",
 		fmt.Sprintf("%v-canary", name),
 		fmt.Sprintf("%v-canary-internal", name),
 		fmt.Sprintf("%v-canary-apigee", name),
