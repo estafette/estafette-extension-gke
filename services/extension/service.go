@@ -511,7 +511,7 @@ func (s *service) getExistingNumberOfReplicas(ctx context.Context, params api.Pa
 		deploymentName := ""
 		if params.Action == api.ActionDeploySimple || params.Action == api.ActionDiffSimple {
 			deploymentName = params.App + "-stable"
-		} else if params.Action == api.ActionDeployStable || params.Action == api.ActionDiffStable {
+		} else if params.Action == api.ActionDeployStable || params.Action == api.ActionDiffStable || params.Action == api.ActionDeployCanary || params.Action == api.ActionDiffCanary {
 			deploymentName = params.App
 		}
 		if deploymentName != "" {
