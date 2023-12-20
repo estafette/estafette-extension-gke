@@ -43,6 +43,10 @@ metadata:
     nginx.ingress.kubernetes.io/load-balance: "{{.NginxIngressLoadBalanceAlgorithm}}"
     {{- end }}
     {{- end}}
+    {{- if .NginxIngressConfigurationSnippet }}
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+{{ .NginxIngressConfigurationSnippet | indent 6 }}
+    {{- end }}
     {{- if .UseGCEIngress}}
     kubernetes.io/ingress.class: "gce"
     kubernetes.io/ingress.allow-http: "false"

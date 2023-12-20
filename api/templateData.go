@@ -103,6 +103,7 @@ type TemplateData struct {
 	NginxIngressProxyBuffersNumber       string
 	SetsNginxIngressLoadBalanceAlgorithm bool
 	NginxIngressLoadBalanceAlgorithm     string
+	NginxIngressConfigurationSnippet     string
 	UseHTTPS                             bool
 	AllowHTTP                            bool
 	BackendConfigTimeout                 int

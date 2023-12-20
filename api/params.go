@@ -179,6 +179,7 @@ type RequestParams struct {
 	LoadBalanceAlgorithm   string `json:"loadbalance,omitempty" yaml:"loadbalance,omitempty"`
 	AuthSecret             string `json:"authsecret,omitempty" yaml:"authsecret,omitempty"`
 	VerifyDepth            int    `json:"verifydepth,omitempty" yaml:"verifydepth,omitempty"`
+	ConfigurationSnippet   string `json:"configurationSnippet,omitempty" yaml:"configurationSnippet,omitempty"`
 }
 
 // ProbeParams sets params for liveness or readiness probe

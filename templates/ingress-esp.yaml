@@ -36,6 +36,10 @@ metadata:
     nginx.ingress.kubernetes.io/canary-by-header-value: "{{ .Canary.HeaderValue }}"
     nginx.ingress.kubernetes.io/canary-weight: "{{ .Canary.Weight}}"
     {{- end}}
+    {{- if .NginxIngressConfigurationSnippet }}
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+{{ .NginxIngressConfigurationSnippet | indent 6 }}
+    {{- end }}
 spec:
   ingressClassName: nginx-public
   tls:

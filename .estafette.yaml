@@ -248,6 +248,9 @@ stages:
           proxybuffersnumber: 4
           clientbodybuffersize: 8k
           loadbalance: round_robin
+          configurationSnippet: |-
+            more_set_headers "Test-Header: header-value";
+            more_set_headers "Test-Header-2: header-value-2";
         secrets:
           keys:
             secret-file-1.json: c29tZSBzZWNyZXQgdmFsdWU=
