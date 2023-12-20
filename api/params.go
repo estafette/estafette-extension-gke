@@ -68,7 +68,6 @@ type Params struct {
 	WorkloadIdentity                *bool                  `json:"workloadIdentity,omitempty" yaml:"workloadIdentity,omitempty"`
 	PodSecurityContext              map[string]interface{} `json:"securityContext,omitempty" yaml:"securityContext,omitempty"`
 	DNS                             DNSParams              `json:"dns,omitempty" yaml:"dns,omitempty"`
-	Ingress                         IngressParams          `json:"ingress,omitempty" yaml:"ingress,omitempty"`
 
 	DisableServiceAccountKeyRotation       *bool                     `json:"disableServiceAccountKeyRotation,omitempty" yaml:"disableServiceAccountKeyRotation,omitempty"`
 	LegacyGoogleCloudServiceAccountKeyFile string                    `json:"legacyGoogleCloudServiceAccountKeyFile,omitempty" yaml:"legacyGoogleCloudServiceAccountKeyFile,omitempty"`
@@ -180,6 +179,7 @@ type RequestParams struct {
 	LoadBalanceAlgorithm   string `json:"loadbalance,omitempty" yaml:"loadbalance,omitempty"`
 	AuthSecret             string `json:"authsecret,omitempty" yaml:"authsecret,omitempty"`
 	VerifyDepth            int    `json:"verifydepth,omitempty" yaml:"verifydepth,omitempty"`
+	ConfigurationSnippet   string `json:"configurationSnippet,omitempty" yaml:"configurationSnippet,omitempty"`
 }
 
 // ProbeParams sets params for liveness or readiness probe
@@ -268,10 +268,6 @@ type VolumeMountParams struct {
 type DNSParams struct {
 	UseCloudflareEstafetteExtension *bool `json:"useCloudflareEstafetteExtension,omitempty" yaml:"useCloudflareEstafetteExtension,omitempty"`
 	UseExternalDNS                  *bool `json:"useExternalDNS,omitempty" yaml:"useExternalDNS,omitempty"`
-}
-
-type IngressParams struct {
-	ConfigurationSnippet string `json:"configurationSnippet,omitempty" yaml:"configurationSnippet,omitempty"`
 }
 
 // SetDefaults fills in empty fields with convention-based defaults

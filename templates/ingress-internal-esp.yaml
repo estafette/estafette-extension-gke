@@ -52,7 +52,7 @@ metadata:
     {{- if .NginxIngressConfigurationSnippet }}
     nginx.ingress.kubernetes.io/configuration-snippet: |
 {{ .NginxIngressConfigurationSnippet | indent 6 }}
-    {{- else }}
+    {{- end }}
 spec:
   ingressClassName: nginx-internal
   tls:

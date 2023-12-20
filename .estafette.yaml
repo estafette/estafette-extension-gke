@@ -248,6 +248,9 @@ stages:
           proxybuffersnumber: 4
           clientbodybuffersize: 8k
           loadbalance: round_robin
+          configurationSnippet: |-
+            more_set_headers "Test-Header: header-value";
+            more_set_headers "Test-Header-2: header-value-2";
         secrets:
           keys:
             secret-file-1.json: c29tZSBzZWNyZXQgdmFsdWU=
@@ -824,24 +827,6 @@ stages:
           - gke.estafette.io
         internalhosts:
           - gke.estafette.internal
-        dryrun: true
-
-      test-ingress-configuration-snippet:
-        image: extensions/gke:${ESTAFETTE_BUILD_VERSION}
-        credentials: gke-dev-common
-        action: deploy-simple
-        kind: deployment
-        app: test-ingress-configuration-snippet
-        container:
-          repository: extensions
-        hosts:
-          - gke.estafette.io
-        internalhosts:
-          - gke.estafette.internal
-        ingress:
-          configurationSnippet: |-
-            more_set_headers "Test-Header: header-value";
-            more_set_headers "Test-Header-2: header-value-2";
         dryrun: true
 
   push-to-docker-hub:
