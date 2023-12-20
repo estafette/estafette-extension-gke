@@ -85,6 +85,10 @@ func (s *service) Run(ctx context.Context, credential *api.GKECredentials, relea
 		currentReplicas = s.getExistingNumberOfReplicas(ctx, params)
 	}
 
+	// Temp fix as there are already canary deployments with 0 replicas
+	if currentReplicas < 1 {
+		currentReplicas = 1
+	}
 	// generate the data required for rendering the templates
 	templateData := s.generatorService.GenerateTemplateData(params, currentReplicas, gitSource, gitOwner, gitName, gitBranch, gitRevision, releaseID, builderImageSHA, builderImageDate, triggeredBy)
 
