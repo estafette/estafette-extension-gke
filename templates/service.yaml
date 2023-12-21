@@ -25,6 +25,7 @@ metadata:
     {{- if .UseExternalDNS }}
     external-dns.alpha.kubernetes.io/enabled: "true"
     external-dns.alpha.kubernetes.io/cloudflare-proxied: "{{.UseCloudflareProxy}}"
+    external-dns.alpha.kubernetes.io/hostname: "{{.HostsJoined}}"
     {{- end }}
     {{- end}}
     {{- if .Service.UseBackendConfigAnnotationOnService}}
