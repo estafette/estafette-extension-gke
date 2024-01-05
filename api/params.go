@@ -227,6 +227,8 @@ type CanaryParams struct {
 	Header      string `json:"header,omitempty" yaml:"header,omitempty"`
 	HeaderValue string `json:"headervalue,omitempty" yaml:"headervalue,omitempty"`
 	Weight      string `json:"weight,omitempty" yaml:"weight,omitempty"`
+	MinReplicas string `json:"minreplicas,omitempty" yaml:"minreplicas,omitempty"`
+	MaxReplicas string `json:"minreplicas,omitempty" yaml:"maxreplicas,omitempty"`
 }
 
 // RollingUpdateParams sets params for controlling rolling update speed
@@ -319,6 +321,13 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	}
 
 	// Set defaults for canary deployments
+	if p.Canary.MaxReplicas == "" {
+		p.Canary.MaxReplicas = "10"
+	}
+
+	if p.Canary.MinReplicas == "" {
+		p.Canary.MinReplicas = "2"
+	}
 
 	if p.Canary.Weight == "" {
 		p.Canary.Weight = "5"
