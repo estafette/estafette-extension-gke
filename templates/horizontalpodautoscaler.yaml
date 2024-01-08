@@ -20,6 +20,14 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: {{.NameWithTrack}}
+  {{- if eq .TrackLabel "canary" }}
+  minReplicas: {{.Canary.MinReplicas}}
+  {{- else }}
   minReplicas: {{.MinReplicas}}
+  {{- end }}
+  {{- if eq .TrackLabel "canary" }}
+  maxReplicas: {{.Canary.MaxReplicas}}
+  {{- else }}
   maxReplicas: {{.MaxReplicas}}
+  {{- end }}
   targetCPUUtilizationPercentage: {{.TargetCPUPercentage}}
