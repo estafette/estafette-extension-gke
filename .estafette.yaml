@@ -26,7 +26,7 @@ stages:
     image: extensions/docker:dev
     action: build
     inline: |
-      FROM alpine:3.18.3
+      FROM alpine:3.18.6
 
       ENV KUBECTL_VERSION="v1.25.13"
 

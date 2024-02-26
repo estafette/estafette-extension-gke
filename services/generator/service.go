@@ -58,7 +58,7 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		InternalIngressPath: params.Basepath,
 		AllowHTTP:           params.AllowHTTP,
 
-		NginxIngressConfigurationSnippet: params.Request.ConfigurationSnippet,
+		NginxIngressConfigurationSnippet: normalizeNginxConfigurationSnippet(params.Request.ConfigurationSnippet),
 
 		IncludeReplicas: currentReplicas > 0 || ((params.Autoscale.Enabled == nil || !*params.Autoscale.Enabled || params.StrategyType == "Recreate") && params.Replicas > 0),
 
@@ -681,4 +681,9 @@ func (s *service) RenderToYAML(v interface{}, data interface{}) string {
 	}
 
 	return renderedTemplate.String()
+}
+
+// Adding this function to normalize the nginx configuration snippet as .estafette.yaml does not support $
+func normalizeNginxConfigurationSnippet(in string) string {
+	return strings.ReplaceAll(in, "{DOLLAR}", "$")
 }
