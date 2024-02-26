@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 	"text/template"
@@ -683,7 +684,19 @@ func (s *service) RenderToYAML(v interface{}, data interface{}) string {
 	return renderedTemplate.String()
 }
 
-// Adding this function to normalize the nginx configuration snippet as .estafette.yaml does not support $
-func normalizeNginxConfigurationSnippet(in string) string {
-	return strings.ReplaceAll(in, "{DOLLAR}", "$")
+// This is as estafette replaces $var to #{var} in the nginx configuration snippet
+func normalizeNginxConfigurationSnippet(input string) string {
+	// Define a regular expression pattern to match "${string}"
+	pattern := `\${(.*?)}`
+
+	// Compile the regular expression pattern
+	regex := regexp.MustCompile(pattern)
+
+	// Replace all occurrences of the pattern with "$" followed by the captured group
+	return regex.ReplaceAllStringFunc(input, func(match string) string {
+		// Extract the captured group (string inside {})
+		variable := match[2 : len(match)-1]
+		// Return "$" followed by the captured group
+		return "$" + variable
+	})
 }

@@ -1,6 +1,8 @@
 module github.com/estafette/estafette-extension-gke
 
-go 1.19
+go 1.21
+
+replace github.com/imdario/mergo => github.com/imdario/mergo v0.3.16
 
 require (
 	github.com/Masterminds/sprig/v3 v3.2.3
@@ -40,7 +42,7 @@ require (
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.1 // indirect
 	github.com/huandu/xstrings v1.4.0 // indirect
-	github.com/imdario/mergo v0.3.16 // indirect
+	github.com/imdario/mergo v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/logrusorgru/aurora v2.0.3+incompatible // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
