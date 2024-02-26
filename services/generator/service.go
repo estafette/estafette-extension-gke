@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 	"text/template"
@@ -58,7 +59,7 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		InternalIngressPath: params.Basepath,
 		AllowHTTP:           params.AllowHTTP,
 
-		NginxIngressConfigurationSnippet: params.Request.ConfigurationSnippet,
+		NginxIngressConfigurationSnippet: normalizeNginxConfigurationSnippet(params.Request.ConfigurationSnippet),
 
 		IncludeReplicas: currentReplicas > 0 || ((params.Autoscale.Enabled == nil || !*params.Autoscale.Enabled || params.StrategyType == "Recreate") && params.Replicas > 0),
 
@@ -681,4 +682,21 @@ func (s *service) RenderToYAML(v interface{}, data interface{}) string {
 	}
 
 	return renderedTemplate.String()
+}
+
+// This is as estafette replaces $var to #{var} in the nginx configuration snippet
+func normalizeNginxConfigurationSnippet(input string) string {
+	// Define a regular expression pattern to match "${string}"
+	pattern := `\${(.*?)}`
+
+	// Compile the regular expression pattern
+	regex := regexp.MustCompile(pattern)
+
+	// Replace all occurrences of the pattern with "$" followed by the captured group
+	return regex.ReplaceAllStringFunc(input, func(match string) string {
+		// Extract the captured group (string inside {})
+		variable := match[2 : len(match)-1]
+		// Return "$" followed by the captured group
+		return "$" + variable
+	})
 }

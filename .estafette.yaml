@@ -13,7 +13,7 @@ version:
 
 stages:
   build:
-    image: golang:1.19-alpine
+    image: golang:1.21-alpine
     env:
       CGO_ENABLED: 0
       GOOS: linux
@@ -26,9 +26,9 @@ stages:
     image: extensions/docker:dev
     action: build
     inline: |
-      FROM alpine:3.18.3
+      FROM alpine:3.18
 
-      ENV KUBECTL_VERSION="v1.25.13"
+      ENV KUBECTL_VERSION="v1.26.14"
 
       RUN apk add --update --upgrade --no-cache \
             curl \
@@ -40,7 +40,7 @@ stages:
           && chmod +x /usr/bin/kubectl \
           && kubectl version --client
 
-      FROM google/cloud-sdk:451.0.1-alpine
+      FROM google/cloud-sdk:465.0.0-alpine
 
       RUN apk add --update --upgrade --no-cache \
           && rm -rf google-cloud-sdk/bin/anthoscli \
