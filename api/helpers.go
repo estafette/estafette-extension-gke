@@ -1,7 +1,9 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/rs/zerolog/log"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -123,4 +125,29 @@ func GetTrimmedDate(date string) (string, error) {
 		return "", err
 	}
 	return fmt.Sprint(t.Format("2006-01-02 15:04:05")), nil
+}
+
+func getCloudFlareIps(url string) ([]string, error) {
+	body := httpRequestBody("GET", url, nil)
+
+	// Define an inline struct to represent the JSON response
+	var response struct {
+		Result struct {
+			IPv4CIDRs []string `json:"ipv4_cidrs"`
+		} `json:"result"`
+		Success  bool     `json:"success"`
+		Errors   []string `json:"errors"`
+		Messages []string `json:"messages"`
+	}
+
+	// Unmarshal JSON into the inline struct
+	err := json.Unmarshal([]byte(body), &response)
+	if err != nil {
+		log.Err(err).Msg("Failed to unmarshal JSON response")
+		return nil, fmt.Errorf("failed to unmarshal JSON response")
+	}
+
+	// Extract IPv4 CIDRs
+	ipv4CIDRs := response.Result.IPv4CIDRs
+	return ipv4CIDRs, nil
 }

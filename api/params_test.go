@@ -2343,9 +2343,7 @@ func TestSetDefaults(t *testing.T) {
 		// act
 		params.SetDefaults("", "", "", "", "", "", "", "", map[string]string{})
 
-		assert.Equal(t, 15, len(params.TrustedIPRanges))
-		assert.Equal(t, "103.21.244.0/22", params.TrustedIPRanges[0])
-		assert.Equal(t, "198.41.128.0/17", params.TrustedIPRanges[13])
+		assert.True(t, len(params.TrustedIPRanges) > 0)
 	})
 
 	t.Run("KeepsTrustedIPRangesIfNotEmpty", func(t *testing.T) {
@@ -4106,5 +4104,14 @@ func TestReplaceSidecarTagsWithDigest(t *testing.T) {
 
 		assert.Equal(t, false, *params.DNS.UseCloudflareEstafetteExtension)
 		assert.Equal(t, true, *params.DNS.UseExternalDNS)
+	})
+
+	t.Run("GetCloudflareIpRanges", func(t *testing.T) {
+		// act
+		ipRanges, err := getCloudFlareIps("https://api.cloudflare.com/client/v4/ips")
+
+		// assert
+		assert.Nil(t, err)
+		assert.True(t, len(ipRanges) > 0)
 	})
 }
