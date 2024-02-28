@@ -716,23 +716,33 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	}
 
 	// default trusted ip ranges to cloudflare's ips from https://www.cloudflare.com/ips-v4
+
 	if len(p.TrustedIPRanges) == 0 {
+		// Fallback to the previous behavior of utilizing the Cloudflare IPs if the GetIPList function encounters an error.
 		p.TrustedIPRanges = []string{
+			"173.245.48.0/20",
 			"103.21.244.0/22",
 			"103.22.200.0/22",
 			"103.31.4.0/22",
-			"104.16.0.0/12",
-			"108.162.192.0/18",
-			"131.0.72.0/22",
 			"141.101.64.0/18",
-			"162.158.0.0/15",
-			"172.64.0.0/13",
-			"173.245.48.0/20",
-			"188.114.96.0/20",
+			"108.162.192.0/18",
 			"190.93.240.0/20",
+			"188.114.96.0/20",
 			"197.234.240.0/22",
 			"198.41.128.0/17",
+			"162.158.0.0/15",
+			"104.16.0.0/13",
 			"104.24.0.0/14",
+			"172.64.0.0/13",
+			"131.0.72.0/22",
+		}
+
+		ipList, err := getCloudFlareIps("https://api.cloudflare.com/client/v4/ips")
+		if err != nil {
+			log.Error().Err(err).Msg("Failed getting cloudflare ips")
+			// if we can't get the ips from cloudflare, we'll just use the defaults
+		} else {
+			p.TrustedIPRanges = ipList
 		}
 	}
 
