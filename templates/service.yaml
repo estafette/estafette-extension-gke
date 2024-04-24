@@ -13,7 +13,7 @@ metadata:
     prometheus.io/probe-path: "{{.Container.Readiness.Path}}"
     {{- end}}
     {{- if .UseTopologyAwareHints}}
-    service.kubernetes.io/topology-aware-hints: auto
+    service.kubernetes.io/topology-mode: auto
     {{- end}}
     service.alpha.kubernetes.io/app-protocols: '{"https":"HTTPS"}'
     {{- if .Service.UseDNSAnnotationsOnService}}
