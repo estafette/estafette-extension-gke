@@ -10,7 +10,7 @@ metadata:
       {{- end}}
   annotations:
     {{- if .UseTopologyAwareHints}}
-    service.kubernetes.io/topology-aware-hints: auto
+    service.kubernetes.io/topology-mode: auto
     {{- end}}
 spec:
   type: ClusterIP
