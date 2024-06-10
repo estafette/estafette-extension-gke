@@ -670,7 +670,7 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 		p.DefaultESPv2SidecarImage = "gcr.io/endpoints-release/endpoints-runtime:2.29.1"
 	}
 	if p.DefaultCloudSQLProxySidecarImage == "" {
-		p.DefaultCloudSQLProxySidecarImage = "eu.gcr.io/cloudsql-docker/gce-proxy:1.24.0"
+		p.DefaultCloudSQLProxySidecarImage = "eu.gcr.io/cloudsql-docker/gce-proxy:1.35.0"
 	}
 
 	for i := range p.Sidecars {
