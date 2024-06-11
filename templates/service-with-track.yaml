@@ -13,7 +13,7 @@ metadata:
     service.kubernetes.io/topology-mode: auto
     {{- end}}
 spec:
-  type: {{.Service.ServiceType}}
+  type: ClusterIP
   ports:
   {{- if .HasOpenrestySidecar }}
   - name: http
