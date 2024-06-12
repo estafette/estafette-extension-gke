@@ -12,6 +12,11 @@ metadata:
     {{- if .UseTopologyAwareHints}}
     service.kubernetes.io/topology-mode: auto
     {{- end}}
+    {{- if .Service.UseBackendConfigAnnotationOnService}}
+    beta.cloud.google.com/backend-config: '{"default": "{{.Name}}"}'
+    service.alpha.kubernetes.io/app-protocols: '{"https":"HTTPS"}'
+    {{- end}}
+
 spec:
   type: {{.Service.ServiceType}}
   ports:
