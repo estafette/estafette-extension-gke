@@ -108,6 +108,13 @@ spec:
           {{- end}}
         {{- end}}
       {{- end}}
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: {{.Name}}
       {{- if or .HasInitContainers .UseWorkloadIdentity}}
       initContainers:
       {{- if .UseWorkloadIdentity }}
