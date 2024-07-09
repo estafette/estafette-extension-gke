@@ -112,6 +112,7 @@ type TemplateData struct {
 	Tolerations                          []*map[string]interface{}
 	HasTolerations                       bool
 	Affinity                             *map[string]interface{}
+	EnableTopologySpreadConstraints      bool
 
 	IncludeReplicas                 bool
 	Replicas                        int

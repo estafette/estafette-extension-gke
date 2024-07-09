@@ -108,6 +108,7 @@ spec:
           {{- end}}
         {{- end}}
       {{- end}}
+      {{- if .EnableTopologySpreadConstraints}}
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname
@@ -115,6 +116,7 @@ spec:
           labelSelector:
             matchLabels:
               app: {{.Name}}
+      {{- end}}
       {{- if or .HasInitContainers .UseWorkloadIdentity}}
       initContainers:
       {{- if .UseWorkloadIdentity }}

@@ -76,6 +76,7 @@ type Params struct {
 	TopologyAwareHints                     *bool                     `json:"topologyAwareHints,omitempty" yaml:"topologyAwareHints,omitempty"`
 	Tolerations                            []*map[string]interface{} `json:"tolerations,omitempty" yaml:"tolerations,omitempty"`
 	Affinity                               *map[string]interface{}   `json:"affinity,omitempty" yaml:"affinity,omitempty"`
+	EnableTopologySpreadConstraints        bool                      `json:"enableTopologySpreadConstraints,omitempty" yaml:"enableTopologySpreadConstraints,omitempty"`
 
 	// container params
 	Container              ContainerParams           `json:"container,omitempty" yaml:"container,omitempty"`
