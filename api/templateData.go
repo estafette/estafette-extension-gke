@@ -42,6 +42,7 @@ type TemplateData struct {
 	MaxReplicas                          int
 	TargetCPUPercentage                  int
 	UseHpaScaler                         bool
+	HpaBehavior                          map[string]interface{}
 	HpaScalerPromQuery                   string
 	HpaScalerRequestsPerReplica          string
 	HpaScalerDelta                       string

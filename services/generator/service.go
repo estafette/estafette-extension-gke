@@ -66,6 +66,7 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		MinReplicas:         params.Autoscale.MinReplicas,
 		MaxReplicas:         params.Autoscale.MaxReplicas,
 		TargetCPUPercentage: params.Autoscale.CPUPercentage,
+		HpaBehavior:         params.Autoscale.Behavior,
 
 		UseHpaScaler:                params.Autoscale.Safety.Enabled,
 		HpaScalerPromQuery:          params.Autoscale.Safety.PromQuery,

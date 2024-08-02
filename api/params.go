@@ -146,11 +146,13 @@ type MemoryParams struct {
 
 // AutoscaleParams controls autoscaling
 type AutoscaleParams struct {
-	Enabled       *bool                 `json:"enabled,omitempty" yaml:"enabled,omitempty"`
-	MinReplicas   int                   `json:"min,omitempty" yaml:"min,omitempty"`
-	MaxReplicas   int                   `json:"max,omitempty" yaml:"max,omitempty"`
-	CPUPercentage int                   `json:"cpu,omitempty" yaml:"cpu,omitempty"`
-	Safety        AutoscaleSafetyParams `json:"safety,omitempty" yaml:"safety,omitempty"`
+	Enabled       *bool                  `json:"enabled,omitempty" yaml:"enabled,omitempty"`
+	MinReplicas   int                    `json:"min,omitempty" yaml:"min,omitempty"`
+	MaxReplicas   int                    `json:"max,omitempty" yaml:"max,omitempty"`
+	CPUPercentage int                    `json:"cpu,omitempty" yaml:"cpu,omitempty"`
+	Behavior      map[string]interface{} `json:"behavior,omitempty" yaml:"behavior,omitempty"`
+
+	Safety AutoscaleSafetyParams `json:"safety,omitempty" yaml:"safety,omitempty"`
 }
 
 type VPAParams struct {
@@ -455,6 +457,10 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 	}
 	if p.Autoscale.CPUPercentage <= 0 {
 		p.Autoscale.CPUPercentage = 80
+	}
+
+	if p.Autoscale.Behavior == nil {
+		p.Autoscale.Behavior = make(map[string]interface{}, 0)
 	}
 
 	if p.Autoscale.Safety.PromQuery == "" {
@@ -1056,6 +1062,10 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 	}
 	if p.Autoscale.CPUPercentage <= 0 {
 		errors = append(errors, fmt.Errorf("Autoscaling cpu percentage must be larger than zero; set it via autoscale.cpu property on this stage"))
+	}
+
+	if p.Autoscale.Safety.Enabled && len(p.Autoscale.Behavior) > 0 {
+		errors = append(errors, fmt.Errorf("Autoscale.Safety and Autoscale.Behavior can not be configured at the same time"))
 	}
 
 	// validate liveness params
