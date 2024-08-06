@@ -3159,6 +3159,80 @@ func TestValidateRequiredProperties(t *testing.T) {
 		assert.True(t, len(errors) == 0)
 	})
 
+	t.Run("ReturnsTrueIfAutoscaleNotUsingBehaviorAndUsingSafety", func(t *testing.T) {
+
+		params := validParams
+		params.Autoscale.Safety.Enabled = true
+		params.Autoscale.Behavior = make(map[string]interface{}, 0)
+
+		// act
+		valid, errors, _ := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsTrueIfAutoscaleUsingBehaviorAndNotUsingSafety", func(t *testing.T) {
+
+		params := validParams
+		params.Autoscale.Safety.Enabled = false
+		params.Autoscale.Behavior = map[string]interface{}{
+			"scaleDown": map[string]interface{}{
+				"stabilizationWindowSeconds": 300,
+				"policies": []map[string]interface{}{
+					{
+						"type":          "Percent",
+						"value":         100,
+						"periodSeconds": 15,
+					},
+				},
+			},
+		}
+
+		// act
+		valid, errors, _ := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsFalseIfAutoscaleUsingBehaviorAndSafetyAtTheSameTime", func(t *testing.T) {
+
+		params := validParams
+		params.Autoscale.Safety.Enabled = true
+		params.Autoscale.Behavior = map[string]interface{}{
+			"scaleDown": map[string]interface{}{
+				"stabilizationWindowSeconds": 300,
+				"policies": []map[string]interface{}{
+					{
+						"type":          "Percent",
+						"value":         100,
+						"periodSeconds": 15,
+					},
+				},
+			},
+		}
+
+		// act
+		valid, errors, _ := params.ValidateRequiredProperties()
+
+		assert.False(t, valid)
+		assert.False(t, len(errors) == 0)
+	})
+
+	t.Run("ReturnsTrueIfAutoscaleNotUsingBehaviorAndNotUsingSafetyAtTheSameTime", func(t *testing.T) {
+
+		params := validParams
+		params.Autoscale.Safety.Enabled = false
+		params.Autoscale.Behavior = make(map[string]interface{}, 0)
+
+		// act
+		valid, errors, _ := params.ValidateRequiredProperties()
+
+		assert.True(t, valid)
+		assert.True(t, len(errors) == 0)
+	})
+
 	t.Run("ReturnsFalseIfLivenessPathIsEmpty", func(t *testing.T) {
 
 		params := validParams
