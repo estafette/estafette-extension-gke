@@ -2691,6 +2691,36 @@ func TestGenerateTemplateData(t *testing.T) {
 		assert.Equal(t, "0.2", templateData.HpaScalerScaleDownMaxRatio)
 	})
 
+	t.Run("SetsHpaScalerWithBehavior", func(t *testing.T) {
+
+		ctx := context.Background()
+		service, err := NewService(ctx)
+		assert.Nil(t, err)
+
+		params := api.Params{
+			Autoscale: api.AutoscaleParams{
+				Behavior: map[string]interface{}{
+					"scaleDown": map[string]interface{}{
+						"stabilizationWindowSeconds": 300,
+						"policies": []map[string]interface{}{
+							{
+								"type":          "Percent",
+								"value":         100,
+								"periodSeconds": 15,
+							},
+						},
+					},
+				},
+			},
+		}
+
+		// act
+		templateData := service.GenerateTemplateData(params, -1, "github.com", "estafette", "estafette-extension-gke", "master", "02770946ad015b34da9e9980007bf81308c41aec", "", "", "", "")
+
+		assert.NotNil(t, templateData.HpaBehavior)
+		assert.Contains(t, templateData.HpaBehavior, "scaleDown")
+	})
+
 	t.Run("SetsAllHostsToHostsAndInternalHostsAppended", func(t *testing.T) {
 
 		ctx := context.Background()
