@@ -19,6 +19,12 @@ metadata:
 
 spec:
   type: {{.Service.ServiceType}}
+  {{- if .LimitTrustedIPRanges}}
+  loadBalancerSourceRanges:
+  {{- range .TrustedIPRanges}}
+  - {{.}}
+  {{- end}}
+  {{- end}}
   ports:
   {{- if .HasOpenrestySidecar }}
   - name: http
