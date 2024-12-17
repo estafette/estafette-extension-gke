@@ -26,9 +26,9 @@ stages:
     image: extensions/docker:dev
     action: build
     inline: |
-      FROM alpine:3.18
+      FROM alpine:3.21
 
-      ENV KUBECTL_VERSION="v1.26.14"
+      ENV KUBECTL_VERSION="v1.30.8"
 
       RUN apk add --update --upgrade --no-cache \
             curl \
@@ -40,7 +40,7 @@ stages:
           && chmod +x /usr/bin/kubectl \
           && kubectl version --client
 
-      FROM google/cloud-sdk:476.0.0-alpine
+      FROM google/cloud-sdk:503.0.0-alpine
 
       RUN apk add --update --upgrade --no-cache \
           && rm -rf google-cloud-sdk/bin/anthoscli \
@@ -200,7 +200,7 @@ stages:
                 valueFrom:
                   secretKeyRef:
                     key: ClientCertificatePassword
-                    name: '{{.NameWithTrack}}-secrets'
+                    name: "{{.NameWithTrack}}-secrets"
             secretEnv:
               MY_OTHER_SIDECAR_SECRET: myothersecretvalue
             cpu:
@@ -822,7 +822,12 @@ stages:
         containerLifecycle:
           preStop:
             exec:
-              command: ["/bin/sh", "-c", "echo Hello from the postStart handler > /usr/share/message"]
+              command:
+                [
+                  "/bin/sh",
+                  "-c",
+                  "echo Hello from the postStart handler > /usr/share/message",
+                ]
         hosts:
           - gke.estafette.io
         internalhosts:
@@ -840,9 +845,8 @@ stages:
     image: extensions/slack-build-status:dev
     workspace: estafette
     channels:
-      - '#build-status'
-    when:
-      status == 'succeeded' ||
+      - "#build-status"
+    when: status == 'succeeded' ||
       status == 'failed'
 
 releases:
@@ -876,9 +880,8 @@ releases:
         image: extensions/slack-build-status:dev
         workspace: estafette
         channels:
-          - '#release-status'
-        when:
-          status == 'succeeded' ||
+          - "#release-status"
+        when: status == 'succeeded' ||
           status == 'failed'
 
   stable:
@@ -897,7 +900,6 @@ releases:
         image: extensions/slack-build-status:dev
         workspace: estafette
         channels:
-          - '#release-status'
-        when:
-          status == 'succeeded' ||
+          - "#release-status"
+        when: status == 'succeeded' ||
           status == 'failed'
