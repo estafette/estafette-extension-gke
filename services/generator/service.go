@@ -10,8 +10,9 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/estafette/estafette-extension-gke/api"
 	yaml "gopkg.in/yaml.v2"
+
+	"github.com/estafette/estafette-extension-gke/api"
 )
 
 //go:generate mockgen -package=generator -destination ./mock.go -source=service.go
@@ -58,6 +59,7 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		PathType:            "Prefix",
 		InternalIngressPath: params.Basepath,
 		AllowHTTP:           params.AllowHTTP,
+		HTTPToHTTPS:         params.HTTPToHTTPS,
 
 		NginxIngressConfigurationSnippet: normalizeNginxConfigurationSnippet(params.Request.ConfigurationSnippet),
 
