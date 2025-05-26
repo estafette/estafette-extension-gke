@@ -107,7 +107,7 @@ type TemplateData struct {
 	NginxIngressConfigurationSnippet     string
 	UseHTTPS                             bool
 	AllowHTTP                            bool
-	HTTPToHTTPS                          bool
+	DisableHTTPPort                      bool
 	BackendConfigTimeout                 int
 	NginxAuthTLSSecret                   string
 	NginxAuthTLSVerifyDepth              int

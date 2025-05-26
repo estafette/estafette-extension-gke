@@ -59,7 +59,7 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		PathType:            "Prefix",
 		InternalIngressPath: params.Basepath,
 		AllowHTTP:           params.AllowHTTP,
-		HTTPToHTTPS:         params.HTTPToHTTPS,
+		DisableHTTPPort:     params.DisableHTTPPort,
 
 		NginxIngressConfigurationSnippet: normalizeNginxConfigurationSnippet(params.Request.ConfigurationSnippet),
 
