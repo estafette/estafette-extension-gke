@@ -44,10 +44,12 @@ spec:
   {{- end}}
   ports:
   {{- if .HasOpenrestySidecar }}
+  {{- if not .DisableHTTPPort }}
   - name: http
     port: 80
     targetPort: http
     protocol: TCP
+  {{- end }}
   - name: https
     port: 443
     targetPort: https
