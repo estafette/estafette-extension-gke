@@ -86,6 +86,7 @@ func (s *service) GenerateTemplateData(params api.Params, currentReplicas int, g
 		ConfigMountPath:         params.Configs.MountPath,
 		Tolerations:             []*map[string]interface{}{},
 		Affinity:                params.Affinity,
+		PodAntiAffinityStrategy: params.PodAntiAffinityStrategy,
 		PodSecurityContext:      params.PodSecurityContext,
 		Canary:                  params.Canary,
 

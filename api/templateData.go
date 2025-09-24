@@ -114,6 +114,7 @@ type TemplateData struct {
 	Tolerations                          []*map[string]interface{}
 	HasTolerations                       bool
 	Affinity                             *map[string]interface{}
+	PodAntiAffinityStrategy              PodAntiAffinityStrategy
 
 	IncludeReplicas                 bool
 	Replicas                        int

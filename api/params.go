@@ -77,6 +77,7 @@ type Params struct {
 	TopologyAwareHints                     *bool                     `json:"topologyAwareHints,omitempty" yaml:"topologyAwareHints,omitempty"`
 	Tolerations                            []*map[string]interface{} `json:"tolerations,omitempty" yaml:"tolerations,omitempty"`
 	Affinity                               *map[string]interface{}   `json:"affinity,omitempty" yaml:"affinity,omitempty"`
+	PodAntiAffinityStrategy                PodAntiAffinityStrategy   `json:"podAntiAffinityStrategy,omitempty" yaml:"podAntiAffinityStrategy,omitempty"`
 
 	// container params
 	Container              ContainerParams           `json:"container,omitempty" yaml:"container,omitempty"`
@@ -273,6 +274,15 @@ type VolumeMountParams struct {
 type DNSParams struct {
 	UseCloudflareEstafetteExtension *bool `json:"useCloudflareEstafetteExtension,omitempty" yaml:"useCloudflareEstafetteExtension,omitempty"`
 	UseExternalDNS                  *bool `json:"useExternalDNS,omitempty" yaml:"useExternalDNS,omitempty"`
+}
+
+// PodAntiAffinityStrategy defines the strategy for pod anti-affinity
+type PodAntiAffinityStrategy struct {
+	Mode                     string `json:"mode,omitempty" yaml:"mode,omitempty"` // "default", "strong", "strict"
+	RequiredDuringScheduling bool   `json:"requiredDuringScheduling,omitempty" yaml:"requiredDuringScheduling,omitempty"`
+	IncludeZoneAffinity      bool   `json:"includeZoneAffinity,omitempty" yaml:"includeZoneAffinity,omitempty"`
+	IncludeRegionAffinity    bool   `json:"includeRegionAffinity,omitempty" yaml:"includeRegionAffinity,omitempty"`
+	IncludeNodeAffinity      bool   `json:"includeNodeAffinity,omitempty" yaml:"includeNodeAffinity,omitempty"`
 }
 
 // SetDefaults fills in empty fields with convention-based defaults
@@ -798,6 +808,21 @@ func (p *Params) SetDefaults(gitSource, gitOwner, gitName, appLabel, buildVersio
 		p.DNS.UseExternalDNS = &falseValue
 	}
 
+	// set pod anti-affinity strategy defaults
+	if p.PodAntiAffinityStrategy.Mode == "" {
+		p.PodAntiAffinityStrategy.Mode = "default"
+	}
+	if p.PodAntiAffinityStrategy.Mode == "strong" {
+		p.PodAntiAffinityStrategy.IncludeZoneAffinity = true
+		p.PodAntiAffinityStrategy.IncludeNodeAffinity = true
+	}
+	if p.PodAntiAffinityStrategy.Mode == "strict" {
+		p.PodAntiAffinityStrategy.RequiredDuringScheduling = true
+		p.PodAntiAffinityStrategy.IncludeZoneAffinity = true
+		p.PodAntiAffinityStrategy.IncludeRegionAffinity = true
+		p.PodAntiAffinityStrategy.IncludeNodeAffinity = true
+	}
+
 }
 
 func (p *Params) HasSecrets() bool {
@@ -1138,6 +1163,11 @@ func (p *Params) ValidateRequiredProperties() (bool, []error, []string) {
 	// validate load balance algorithm
 	if p.Request.LoadBalanceAlgorithm != "" && p.Request.LoadBalanceAlgorithm != "ewma" && p.Request.LoadBalanceAlgorithm != "round_robin" {
 		errors = append(errors, fmt.Errorf("Load balance algorithm is invalid; leave it empty or set request.loadbalance property on this stage to 'ewma' or 'round_robin'"))
+	}
+
+	// validate pod anti-affinity strategy
+	if p.PodAntiAffinityStrategy.Mode != "" && p.PodAntiAffinityStrategy.Mode != "default" && p.PodAntiAffinityStrategy.Mode != "strong" && p.PodAntiAffinityStrategy.Mode != "strict" {
+		errors = append(errors, fmt.Errorf("Pod anti-affinity strategy mode is invalid; set podAntiAffinityStrategy.mode to 'default', 'strong', or 'strict'"))
 	}
 
 	// check for visibility esp if openapi.yaml exists
