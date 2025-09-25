@@ -103,6 +103,13 @@ spec:
                 values:
                 - {{.Name}}
             topologyKey: kubernetes.io/hostname
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - {{.Name}}
+            topologyKey: topology.kubernetes.io/zone
           {{- end }}
           {{- else }}
           preferredDuringSchedulingIgnoredDuringExecution:
