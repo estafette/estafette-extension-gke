@@ -5,6 +5,7 @@ This extension makes it easy to deploy an application to GKE, and automatically 
 - [Usage](#usage)
 - [Parameters](#parameters)
 - [Visibility](#visibility)
+- [Pod Anti-Affinity Strategy](#pod-anti-affinity-strategy)
 
 # Usage
 
@@ -265,3 +266,177 @@ How the customers of an application - whether it's an actual user connecting or 
 | `apigee`           | Routes requests through the `nginx-open` ingress controller; requires parameters `request.authsecret` and `request.verifydepth` to be set                                                                                                                       |
 
 Note: all of the above set up an internal ingress if parameter `internalhosts` is set; for esp this cannot be used to connect to the application since internally since it's limited to only a single hostname
+
+# Pod Anti-Affinity Strategy Guide
+
+## Overview
+
+This guide explains how to use the new pod anti-affinity strategy options to better distribute pods across different nodes in your Kubernetes cluster.
+
+## Configuration Options
+
+### Basic Configuration
+
+You can configure pod anti-affinity using the `podAntiAffinityStrategy` field in your deployment parameters:
+
+```yaml
+podAntiAffinityStrategy:
+  mode: "strong" # Options: "default", "strong", "strict"
+  requiredDuringScheduling: false
+  includeZoneAffinity: true
+  includeRegionAffinity: false
+  includeNodeAffinity: true
+```
+
+### Strategy Modes
+
+#### 1. Default Mode
+
+```yaml
+podAntiAffinityStrategy:
+  mode: "default"
+```
+
+- Uses the original behavior
+- Pods are distributed across nodes (hostname) and zones
+- Weights: 70% for hostname, 30% for zone
+
+#### 2. Strong Mode
+
+```yaml
+podAntiAffinityStrategy:
+  mode: "strong"
+```
+
+- Automatically enables zone and node affinity
+- Better distribution across nodes and zones
+- Weights: 100% for hostname, 80% for zone
+
+#### 3. Strict Mode
+
+```yaml
+podAntiAffinityStrategy:
+  mode: "strict"
+```
+
+- Uses `requiredDuringSchedulingIgnoredDuringExecution` instead of `preferredDuringSchedulingIgnoredDuringExecution`
+- Enables all affinity types: node, zone, and region
+- Weights: 100% for hostname, 80% for zone, 60% for region
+- **Warning**: This mode may prevent pod scheduling if not enough nodes are available
+
+### Manual Configuration
+
+You can also manually configure specific affinity options:
+
+```yaml
+podAntiAffinityStrategy:
+  mode: "custom"
+  requiredDuringScheduling: true
+  includeZoneAffinity: true
+  includeRegionAffinity: true
+  includeNodeAffinity: true
+```
+
+## Topology Keys
+
+The system uses the following Kubernetes topology keys:
+
+- `kubernetes.io/hostname` - Distributes pods across different nodes
+- `topology.kubernetes.io/zone` - Distributes pods across different availability zones
+- `topology.kubernetes.io/region` - Distributes pods across different regions
+
+## Weight Distribution
+
+The weights are assigned as follows:
+
+- **Node Affinity (hostname)**: Weight 100
+- **Zone Affinity**: Weight 80
+- **Region Affinity**: Weight 60
+
+Higher weights mean stronger preference for that distribution strategy.
+
+## Examples
+
+### Example 1: High Availability Deployment
+
+```yaml
+kind: deployment
+replicas: 6
+podAntiAffinityStrategy:
+  mode: "strict"
+```
+
+This ensures pods are distributed across different nodes, zones, and regions for maximum availability.
+
+### Example 2: Zone-Aware Deployment
+
+```yaml
+kind: deployment
+replicas: 4
+podAntiAffinityStrategy:
+  mode: "strong"
+  includeRegionAffinity: false
+```
+
+This distributes pods across different nodes and zones, but not regions.
+
+### Example 3: Node-Only Distribution
+
+```yaml
+kind: deployment
+replicas: 3
+podAntiAffinityStrategy:
+  mode: "custom"
+  includeNodeAffinity: true
+  includeZoneAffinity: false
+  includeRegionAffinity: false
+```
+
+This only distributes pods across different nodes.
+
+## Best Practices
+
+1. **For Production Workloads**: Use "strong" or "strict" mode for better fault tolerance
+2. **For Development**: Use "default" mode for simpler configuration
+3. **For Multi-Region Deployments**: Use "strict" mode with region affinity
+4. **For Single-Region Deployments**: Use "strong" mode with zone affinity
+
+## Compatibility
+
+- This feature is backward compatible
+- If no `podAntiAffinityStrategy` is specified, the system uses the default behavior
+- Existing `affinity` configurations will override the new strategy options
+
+## Troubleshooting
+
+### Pods Not Scheduling
+
+If using "strict" mode and pods are not scheduling:
+
+1. Check if you have enough nodes in different zones/regions
+2. Consider using "strong" mode instead
+3. Verify your cluster has the required topology labels
+
+### Performance Impact
+
+- Higher weights may impact scheduling performance
+- "strict" mode may take longer to schedule pods
+- Monitor cluster scheduling metrics when using these features
+
+## Migration Guide
+
+To migrate from the old system to the new strategy:
+
+1. **No Changes Required**: Existing deployments continue to work
+2. **Gradual Migration**: Add `podAntiAffinityStrategy` to new deployments
+3. **Testing**: Test the new strategy in non-production environments first
+
+## Code Locations
+
+The implementation is spread across several files:
+
+- **Parameter Definition**: `api/params.go` - `PodAntiAffinityStrategy` struct
+- **Template Data**: `api/templateData.go` - Template data structure
+- **Generator Service**: `services/generator/service.go` - Configuration processing
+- **Deployment Template**: `templates/deployment.yaml` - Deployment template
+- **StatefulSet Template**: `templates/statefulset.yaml` - StatefulSet template

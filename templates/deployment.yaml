@@ -66,7 +66,87 @@ spec:
 {{(call $.ToYAML .Affinity) | indent 8}}
       {{- else }}
         podAntiAffinity:
+          {{- if .PodAntiAffinityStrategy.RequiredDuringScheduling }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+          {{- if .PodAntiAffinityStrategy.IncludeNodeAffinity }}
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - {{.Name}}
+            topologyKey: kubernetes.io/hostname
+          {{- end }}
+          {{- if .PodAntiAffinityStrategy.IncludeZoneAffinity }}
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - {{.Name}}
+            topologyKey: topology.kubernetes.io/zone
+          {{- end }}
+          {{- if .PodAntiAffinityStrategy.IncludeRegionAffinity }}
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - {{.Name}}
+            topologyKey: topology.kubernetes.io/region
+          {{- end }}
+          {{- if and (not .PodAntiAffinityStrategy.IncludeNodeAffinity) (not .PodAntiAffinityStrategy.IncludeZoneAffinity) (not .PodAntiAffinityStrategy.IncludeRegionAffinity) }}
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - {{.Name}}
+            topologyKey: kubernetes.io/hostname
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - {{.Name}}
+            topologyKey: topology.kubernetes.io/zone
+          {{- end }}
+          {{- else }}
           preferredDuringSchedulingIgnoredDuringExecution:
+          {{- if .PodAntiAffinityStrategy.IncludeNodeAffinity }}
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - {{.Name}}
+              topologyKey: kubernetes.io/hostname
+          {{- end }}
+          {{- if .PodAntiAffinityStrategy.IncludeZoneAffinity }}
+          - weight: 80
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - {{.Name}}
+              topologyKey: topology.kubernetes.io/zone
+          {{- end }}
+          {{- if .PodAntiAffinityStrategy.IncludeRegionAffinity }}
+          - weight: 60
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - {{.Name}}
+              topologyKey: topology.kubernetes.io/region
+          {{- end }}
+          {{- if and (not .PodAntiAffinityStrategy.IncludeNodeAffinity) (not .PodAntiAffinityStrategy.IncludeZoneAffinity) (not .PodAntiAffinityStrategy.IncludeRegionAffinity) }}
           - weight: 70
             podAffinityTerm:
               labelSelector:
@@ -84,7 +164,9 @@ spec:
                   operator: In
                   values:
                   - {{.Name}}
-              topologyKey: topology.kubernetes.io/zone    
+              topologyKey: topology.kubernetes.io/zone
+          {{- end }}
+          {{- end }}
         {{- if or .PreferPreemptibles .UseWindowsNodes}}
         nodeAffinity:
           {{- if .UseWindowsNodes}}
